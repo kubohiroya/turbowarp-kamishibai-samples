@@ -3,11 +3,12 @@ import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
 /**
- * Run the packaged-web browser checks at the same time.
+ * Run the browser checks at the same time.
  *
- * The three are independent: each builds its own fixture server on an ephemeral port, drives its
- * own browser, and reads artifacts nobody writes during the run. Chained with `&&` they cost the
- * sum of their runtimes -- the slowest two are 51s and 34s on an M1 Max -- while the machine sits
+ * The checks are independent: each drives its own browser and reads artifacts nobody writes
+ * during the run. The editor check opens TurboWarp; the player checks serve local fixtures.
+ * Chained with `&&` they cost the sum of their runtimes -- the slowest two player checks are
+ * 51s and 34s on an M1 Max -- while the machine sits
  * mostly idle waiting for a browser. Run together they cost the longest one.
  *
  * Output is buffered per check and printed when that check finishes, so two browsers logging at
@@ -19,6 +20,7 @@ const checks = [
   {script: 'scripts/verify-packaged-web-browser.ts', line: 'dsl32'},
   {script: 'scripts/verify-packaged-web-webkit-audio.ts', line: 'dsl32'},
   {script: 'scripts/verify-dsl4-packaged-web-browser.ts', line: 'dsl4'},
+  {script: 'scripts/verify-dsl4-block-editor-browser.ts', line: 'dsl4'},
 ] as const;
 
 /**
@@ -79,7 +81,7 @@ for (const result of results) {
 
 const failed = results.filter((result) => result.code !== 0);
 if (failed.length > 0) {
-  process.stdout.write(`\n${failed.length} of ${selected.length} packaged-web checks failed:\n`);
+  process.stdout.write(`\n${failed.length} of ${selected.length} browser checks failed:\n`);
   for (const result of failed) process.stdout.write(`  ${result.script}\n`);
   process.exitCode = 1;
 }

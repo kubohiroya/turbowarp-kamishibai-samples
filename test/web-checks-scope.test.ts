@@ -34,6 +34,7 @@ test('narrows to the DSL 4.0 check when nothing in the change can reach the 3.2 
       'stories/urashima/dsl4-build.config.json',
       'stories/urashima/urashima-4.0.sb3',
       'stories/my-urashima/my-urashima-4.0.sb3',
+      'scripts/verify-dsl4-block-editor-browser.ts',
       'docs/index.html',
       'README.md',
     ]),
