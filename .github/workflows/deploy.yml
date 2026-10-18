@@ -36,3 +36,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: Verify published block script in TurboWarp
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node scripts/verify-published-block-editor.ts --base-url "$PAGES_URL"
+      - name: Upload published block editor regression evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: published-block-editor-regression
+          path: .tmp/published-block-editor/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+          compression-level: 0

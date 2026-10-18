@@ -80,6 +80,10 @@ CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定�
 
 Pull Requestでは `.github/workflows/ci.yml` が生成と検証だけを行います。`main` へのマージ後は `.github/workflows/deploy.yml` が同じ検証を再実行し、成功した `dist/` だけをGitHub Pagesへ公開します。
 
+Pagesデプロイ成功後は、deploymentの出力URLから浦島太郎のブロック台本SB3を新規取得し、今回公開した`dist/`のSB3とサイズ・SHA-256が一致することを確認してから、同じ実画面回帰テストを実行します。配信の反映遅延や一時的な取得失敗は15秒の取得タイムアウト・10秒間隔・最大12回で待ちます。ハッシュ不一致が続く場合や画面操作・台本照合が失敗した場合はworkflowを失敗させます。画面テスト自体の再試行は行いません。
+
+受け入れ基準は、公開URLから取得した一致済みSB3で10場面・174命令の表示、命令ブロックの編集・保存、保存後の台本照合が成功することです。取得URL・日時・ハッシュ・再試行履歴は`.tmp/published-block-editor/run-*/download.json`、画面テストの証跡はその配下へ保存し、失敗時も`published-block-editor-regression` artifactとして7日間保持します。手動では`node scripts/verify-published-block-editor.ts --base-url https://kubohiroya.github.io/turbowarp-kamishibai-samples/`で実行できます。固定ビルダーと今回公開したSB3を含む`dist/`が必要です。ロールバックはdeploy workflow末尾の公開版検証・artifact保存の2ステップを戻します。検証失敗後もデプロイ済みのサイトは残るため、作品の切り戻しが必要な場合は別途元の成果物を再デプロイします。
+
 ## 2026年8月1日ワークショップ配布物
 
 ワークショップ用の元素材は`resources/20260801/`で管理します。次のコマンドは公開サイトを再生成した後、教材PDF、浦島太郎とmy-urashimaの台本・SB3、ライセンス表示を集め、ディレクトリとZIPを作成します。
