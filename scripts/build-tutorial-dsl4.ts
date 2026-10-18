@@ -13,6 +13,7 @@ import {parse} from 'yaml';
 import type {PackagedWebResult} from './build-packaged-web.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
+import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import type {DependencyRecord, Dsl4BuildConfig, Dsl4Limits} from './story-config.ts';
 
 interface SourceStructure {
@@ -231,15 +232,7 @@ function inspectProject(sb3Bytes: Uint8Array): ProjectInspection {
   };
 }
 
-/**
- * ブロック台本SB3の検査。台本がブロックにあり、payloadには無いことを確かめる。
- *
- * `author-block-dsl` が書くのは宣言ハットと `dsl4SourceFromYamlJson` の2ブロックで、runtime側の
- * handlerは不活性。つまりこれは作者がTurboWarpで読み・直すためのauthoring表現で、再生できる形に
- * するのは `build-dsl4` 側である。したがって埋め込みpayloadはベースのstubのままで良く、むしろ
- * tutorialの台本がpayloadへ混入していないことを確認する必要がある。
- * @see https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/132
- */
+/** Inspect an editable scene/action graph and keep the runtime payload as the base stub. */
 function inspectBlockProject(sb3Bytes: Uint8Array, sourceText: string): ProjectInspection {
   const archive = unzipSync(new Uint8Array(sb3Bytes));
   const project = JSON.parse(strFromU8(archive['project.json'] as Uint8Array)) as ScratchProject;
@@ -251,21 +244,7 @@ function inspectBlockProject(sb3Bytes: Uint8Array, sourceText: string): ProjectI
     'The block source project must keep the tutorial targets.',
   );
   assert(project.extensions?.includes('kubohiroyakamishibai4'));
-  const blocks = stage.blocks as Record<string, {opcode: string; topLevel?: boolean; next?: string | null; inputs?: Record<string, unknown>}>;
-  const bundled = (member: string) =>
-    `kubohiroyakamishibai4_kubohiroyakamishibairuntime4__${member}`;
-  const hatId = Object.keys(blocks).find(
-    (id) => blocks[id]?.opcode === bundled('whenDsl4Source') && blocks[id]?.topLevel === true,
-  );
-  assert(hatId, 'The block source project must declare one top-level DSL source hat.');
-  const fragmentId = blocks[hatId]?.next;
-  assert(fragmentId, 'The DSL source hat must carry a source fragment.');
-  assert.equal(blocks[fragmentId]?.opcode, bundled('dsl4SourceFromYamlJson'));
-  assert.deepEqual(
-    blocks[fragmentId]?.inputs?.FRAGMENT,
-    [1, [10, sourceText]],
-    'The source fragment must hold the story source verbatim.',
-  );
+  verifyStructuredBlockSource(project, sourceText);
   const component =
     project.extensionStorage?.kubohiroyakamishibai4?.components?.kubohiroyakamishibairuntime4;
   assert.equal(

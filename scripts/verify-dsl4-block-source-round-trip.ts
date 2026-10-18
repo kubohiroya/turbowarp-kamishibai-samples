@@ -17,7 +17,11 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
+import {strFromU8, unzipSync} from 'fflate';
+
+import type {ScratchProject} from './scratch.ts';
 import type {Dsl4BuildConfig} from './story-config.ts';
+import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import {readWorksCatalog, type WorkEntry} from './works-catalog.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -88,6 +92,11 @@ export async function verifyDsl4BlockSourceRoundTrip({
   const temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'dsl4-block-round-trip-'));
   try {
     for (const {work, sourceHref, blocksHref} of candidates) {
+      const archive = unzipSync(new Uint8Array(await readFile(path.join(projectRoot, blocksHref))));
+      verifyStructuredBlockSource(
+        JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject,
+        await readFile(path.join(projectRoot, sourceHref), 'utf8'),
+      );
       const exportDirectory = path.join(temporaryDirectory, work.id);
       commandOutput(
         process.execPath,

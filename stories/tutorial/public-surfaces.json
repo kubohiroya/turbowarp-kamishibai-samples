@@ -4,11 +4,11 @@
   "version": "4.0.0-rc.22",
   "published": true,
   "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.22",
-  "sourceIdentity": "f8378d4bbf503cc29e321c9237753ba89db27f0840aea10e09ff157e174f1718",
+  "sourceIdentity": "ef00ceb6b2f225e561179c7478d2b4cfebb3533875fab0fe1faa2836352316f1",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
     "version": "4.0.0-rc.22",
-    "commit": "f8048b8c4ebd0ecd6213bb87582862034b2b88ce",
+    "commit": "1a4bb356cc9eb75667414df28dea054193f83a8b",
     "basePath": "base/kamishibai-4.0.sb3",
     "baseSourceIdentity": "sha256:44e85ea98dd7d4aef7bbd08c21610675bef8cd9a6244196a9fac54caa712ee6f",
     "baseSize": 6911464,
@@ -36,8 +36,8 @@
     },
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 12806855,
-      "sha256": "05c257b496cf687b7b34cc3447445f6f1b614c18ac67e44d3ae814eab274b230",
+      "size": 12806317,
+      "sha256": "c7ee8cd8b53396ac5318857a34ea8c3da0dffaa46b119de1904b0296a557d6d0",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -46,8 +46,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 6920913,
-      "sha256": "8e5bae030ec0b0b9802428c8ac29cfa046e695b8aceb81c504590fb5de5e427a",
+      "size": 6921897,
+      "sha256": "6017828b4f2c1fb7774be084567df842b000fb254eaf0d6fa8d1532268dc165e",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -57,8 +57,8 @@
     "web": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 22985731,
-      "sha256": "00f7c43098c1cf98ba419b66b4f742d12397035350ae40400447ef1aab832073"
+      "size": 22984238,
+      "sha256": "d17469f5affdf1d2b3ef9ccba59ea92523f6cf21ab52517319c4cebbd4adbc92"
     },
     "starter": {
       "path": "tutorial-story-starter-4.0.zip",

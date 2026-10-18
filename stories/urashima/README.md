@@ -31,10 +31,10 @@
 - `project.source.json`: `urashima.k4.yml`を選ぶ固定cache identity付きDSL 4.0 source manifest
 - `dsl4-build.config.json`: 4.0 runtime base、TurboWarp-Kamishibai commit、入力上限を固定する生成設定
 - `dsl4-artifacts.lock.json`: `urashima-4.0.sb3`と`urashima-blocks-4.0.sb3`の入力・出力ハッシュとtarget構成
-- `urashima-blocks-4.0.sb3`: 台本をTurboWarpの宣言ブロックとして持つ編集用SB3。runtime側のhandlerは
+- `urashima-blocks-4.0.sb3`: 10場面・174命令を個別のTurboWarpブロックとして持つ編集用SB3。各場面の中で背景・表示・待機・台詞・移動・ポーズを編集できます。宣言ハットは
   不活性なので、これ自体は再生しません。再生できる形にするには公式CLIの`build-dsl4`へ`--base`として
   渡します。`pnpm verify`は、ここから書き戻したYAMLが`urashima.k4.yml`と同じ意味であることを
-  canonical形で確認します
+  canonical形で確認します。場面順・命令順・ブロックの接続も検査し、YAML全文を1個の文字列ブロックへ入れる旧形式は拒否します
 - `dsl4-web-artifacts.lock.json`: `web-4.0/index.html`の入力・出力ハッシュとPackager設定
 - `sample.config.json`: ベース、ビルダー、プロファイル、出力名、既定OFFのWeb生成機能を浦島太郎で有効にする設定
 - `artifacts.lock.json`: `_urashima` / `urashima` / `web/index.html` の再現可能な出力ハッシュ
@@ -92,6 +92,8 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 
 アセットは、本体PR #44で浦島太郎固有コンテンツを分離する直前の `app/assets/` から同一バイト列で移設しています。ファイル名はScratchの `md5ext` 名を維持しています。
 
+ブロック台本修正（Issue #149）の受け入れ基準は、10場面・174命令が接続されたブロックとして存在すること、YAMLへの書き戻しが正本と意味的に一致すること、固定コミットで再生成したSB3がロックと一致することです。ロールバックは、ビルダーの固定コミット、生成・検査処理、SB3とartifact lockをこの修正前へまとめて戻します。
+
 ## ライセンスと来歴
 
 台本、画像、音声、生成設定はMozilla Public License 2.0（SPDX: `MPL-2.0`）で提供します。本体ランタイムを含む生成物の適用範囲は [`LICENSES.md`](LICENSES.md) を参照してください。
@@ -101,6 +103,6 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 - ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `3.2.3` / `28015ac9ff5221f371e8bd0357a7750ce40bbf7c`
 - 汎用ベース: TurboWarp-Kamishibai / `2b5005d293a9b63c8ba5da396fd86815d093f975`
 - DSL 4.0汎用ベースのソース: TurboWarp-Kamishibai / `4.0.0-rc.22`（公開版） / `sha256:44e85ea98dd7d4aef7bbd08c21610675bef8cd9a6244196a9fac54caa712ee6f`
-- DSL 4.0ビルダー: TurboWarp-Kamishibai / `4.0.0-rc.22`（公開版） / `f8048b8c4ebd0ecd6213bb87582862034b2b88ce`（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）。rc.22はgit worktreeから公開されたためnpmのpackumentに`gitHead`がなく、公開コミットはGitHub prereleaseのタグ`v4.0.0-rc.22`が指すこのコミットで確認しています
+- DSL 4.0ビルダー: TurboWarp-Kamishibai / `1a4bb356cc9eb75667414df28dea054193f83a8b`。rc.22公開後の命令ブロック生成・ラベル付き台本ハット・YAML往復修正（本体PR #882／#884）を含むコミットに固定しています。汎用ベースは公開済みrc.22を維持し、ビルダーの固定先はreleaseタグと区別します
 
 生成・検証・公開の実装は [Issue #2](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)、Packager Web版は [Issue #7](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)、DSL 4.0の自動生成は [Issue #90](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90) で管理します。
