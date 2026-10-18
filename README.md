@@ -64,6 +64,12 @@ pnpm run release:check
 
 `pnpm build` は空の `dist/` からDSL 3.2／4.0のSB3、Packager Web版、公開サイトを生成し、台本・SB3・HTML・全アセット・ライセンス・リンク・SHA-256を検証します。同じ入力から各Web版を2回生成してハッシュが一致することも確認します。`pnpm test:web` はPages相当のHTTPサーバで各Web版を開きます。DSL 4.0浦島太郎では外部ネットワークを遮断した状態でタイトル画面から組み込み台本が開始すること、my-urashimaではタイトルからメニューへ進み、`.k4.yml`をファイル選択して物語が開始すること、tutorial公開版では偽カメラを使って4場面を最後まで進められることをheadless Chromiumで検証します。
 
+`pnpm test:web`には、ブロック台本を実際のTurboWarpエディターで開く回帰テストも含まれます。CIで生成した`dist/stories/urashima/urashima-blocks-4.0.sb3`をファイルメニューから読み込み、埋め込み拡張を「サンドボックスなしで実行する」で許可します。10場面・174命令と未定義ブロックの不在を確認し、各場面の見出しを画面内へ移して撮影します。冒頭の待機時間を数値入力から`2`→`2.75`へ編集し、ファイルメニューから保存したSB3を公式CLIでYAMLへ戻し、変更した待機時間以外の意味が維持されることまで検証します。ファイル操作は、OS固有のピッカーを使わない標準のファイル入力・ダウンロード経路を使います。
+
+このエディター回帰テストは`https://turbowarp.org/editor`へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせずチェックイン済みSB3を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
+
+受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
+
 CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
 
 浦島太郎とmy-urashimaのDSL 4.0 Web版は、各`dsl4-build.config.json`の`web.enabled`を起動時固定のfeature flagとして使います。未指定または`false`ではPackager生成とWeb lock更新をスキップし、チェックイン済みの有効版lockを保持したまま公開導線をdisabledの「準備中」へ戻します。再公開時は`true`へ戻すだけで、保持したlockとの一致を再検証します。

@@ -88,3 +88,13 @@ runs:
       env:
         KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks || 'all' }}
       run: pnpm run check
+    - name: Upload block editor regression evidence
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: block-editor-regression
+        path: .tmp/block-editor-browser/
+        include-hidden-files: true
+        if-no-files-found: ignore
+        retention-days: 7
+        compression-level: 0
