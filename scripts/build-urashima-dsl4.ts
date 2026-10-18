@@ -13,6 +13,7 @@ import {
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -267,7 +268,10 @@ export async function buildUrashimaDsl4({
       ],
       {cwd: kamishibaiRoot},
     );
-    const blocksBytes = await readFile(blocksPath);
+    const blocksBytes = await buildEditableBlockSource(
+      blocksPath,
+      path.join(temporaryDirectory, 'editable-block-source'),
+    );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);
     const toolchainPackage = JSON.parse(

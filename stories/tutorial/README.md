@@ -47,3 +47,5 @@ docs側はその公開surfaceを使ってcaptureとチュートリアルpublicat
 出します。描くのはapp shellの固定rendererで、作品側はアイコンと位置を指定するだけです。アイコンは`kind: image`の
 素材として台本に宣言します（スプライトのコスチュームではないので`project-assets-dsl4.yml`には置きません）。
 カメラが動いている間だけ表示され、カメラを止めると消えます。
+
+ブロック台本SB3は浦島太郎と同じラッパー互換補正を適用し、`extensions`属性を`configurable: true`として公式ツールチェーンで再構築します。初期化修正を戻す場合は、補正処理・生成SB3・artifact lock・公開surfaceをまとめてrevertします。

@@ -10,6 +10,7 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import type {PackagedWebResult} from './build-packaged-web.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
@@ -488,7 +489,10 @@ export async function buildTutorialDsl4({
       ],
       {cwd: kamishibaiRoot},
     );
-    const blocksBytes = await readFile(blocksPath);
+    const blocksBytes = await buildEditableBlockSource(
+      blocksPath,
+      path.join(temporaryDirectory, 'editable-block-source'),
+    );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const archives = await buildArchives(config);
     const inputPaths = [

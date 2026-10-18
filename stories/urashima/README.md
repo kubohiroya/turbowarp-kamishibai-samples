@@ -72,6 +72,8 @@ pnpm update:dsl4-artifacts
 4. 生成途中のSB3をもう一度`sb3-toolchain`へimportし、最終`urashima-4.0.sb3`を決定的再構築する。
 5. 完成したSB3をTurboWarp Packager 3.13.0へ渡し、二度の生成結果が一致することを確認してWeb版ロックを更新する。
 
+ブロック台本SB3は、公式CLIの生成結果を`sb3-toolchain`へimportし、編集用ラッパーの`extensions`属性を`configurable: true`として再構築します。固定ビルダーが属性を変更不可として生成するため、バンドル内のProxyがコンポーネントごとの`extensions`を返すと初期化時にTypeErrorになります。補正はラッパーの属性定義1箇所に限定し、想定する定義が1件でなければ生成を停止します。元のランタイム本体・台本・アセットは保持します。
+
 SB3のZIPや`project.json`を直接編集する別経路はありません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
 
 DSL 4.0 Web版だけを一時停止するときは、`dsl4-build.config.json`の`web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
@@ -106,3 +108,5 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 - DSL 4.0ビルダー: TurboWarp-Kamishibai / `1a4bb356cc9eb75667414df28dea054193f83a8b`。rc.22公開後の命令ブロック生成・ラベル付き台本ハット・YAML往復修正（本体PR #882／#884）を含むコミットに固定しています。汎用ベースは公開済みrc.22を維持し、ビルダーの固定先はreleaseタグと区別します
 
 生成・検証・公開の実装は [Issue #2](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)、Packager Web版は [Issue #7](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)、DSL 4.0の自動生成は [Issue #90](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90) で管理します。
+
+ブロック台本の初期化修正の受け入れ基準は、TurboWarpの実エディターで10場面と174命令が表示され、数値入力を編集して保存したSB3にも反映されることです。ラッパーのProxy互換性を回帰テストで検査します。ロールバックは、生成時のラッパー補正・再生成したブロック台本SB3・関連lockをまとめてrevertします。
