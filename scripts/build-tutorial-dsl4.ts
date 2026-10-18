@@ -11,6 +11,7 @@ import {strFromU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
+import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {PackagedWebResult} from './build-packaged-web.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
@@ -48,6 +49,7 @@ export interface TutorialArtifactLock {
   releaseDependency: string;
   sourceIdentity: string;
   runtime: Record<string, unknown>;
+  blockAuthoring: {repository: string; commit: string};
   sb3Toolchain: {package: string; version: string};
   sources: {
     complete: DependencyRecord;
@@ -377,6 +379,7 @@ export async function buildTutorialDsl4({
   writeLock = false,
 }: BuildTutorialDsl4Options = {}): Promise<BuildTutorialDsl4Result> {
   const config = await readJson<Dsl4BuildConfig>(configPath);
+  const blockAuthoring = await resolveBlockAuthoringBuilder();
   assert.equal(config.formatVersion, 1);
   assert.equal(config.status, config.publication?.enabled ? 'published' : 'candidate');
   const limits = config.limits as Dsl4Limits;
@@ -476,7 +479,7 @@ export async function buildTutorialDsl4({
     commandResult(
       process.execPath,
       [
-        builderCli,
+        blockAuthoring.cli,
         'author-block-dsl',
         '--input',
         path.join(storyDirectory, sourceName),
@@ -487,7 +490,7 @@ export async function buildTutorialDsl4({
         '--max-source-bytes',
         String(limits.maxSourceBytes),
       ],
-      {cwd: kamishibaiRoot},
+      {cwd: blockAuthoring.root},
     );
     const blocksBytes = await buildEditableBlockSource(
       blocksPath,
@@ -526,6 +529,7 @@ export async function buildTutorialDsl4({
       releaseDependency: config.releaseDependency as string,
       sourceIdentity,
       runtime: runtimeConfig.runtime,
+      blockAuthoring: blockAuthoring.identity,
       sb3Toolchain: {
         package: '@kubohiroya/sb3-toolchain',
         version: toolchainPackage.version,

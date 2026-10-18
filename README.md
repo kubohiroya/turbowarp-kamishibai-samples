@@ -70,7 +70,11 @@ pnpm run release:check
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
-CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
+CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用ランタイムの固定とは独立して、浦島太郎とtutorialのブロック台本を生成・YAMLへ書き戻します。このCLIにはNode 24以上が必要です。
+
+ブロック台本SB3は[Extension Data Editor](https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、専用定義ブロックの書類アイコンからJSONをフォーム編集できます。8種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
+
+DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
 
 浦島太郎とmy-urashimaのDSL 4.0 Web版は、各`dsl4-build.config.json`の`web.enabled`を起動時固定のfeature flagとして使います。未指定または`false`ではPackager生成とWeb lock更新をスキップし、チェックイン済みの有効版lockを保持したまま公開導線をdisabledの「準備中」へ戻します。再公開時は`true`へ戻すだけで、保持したlockとの一致を再検証します。
 

@@ -24,6 +24,23 @@ test('Urashima exposes all scenes and commands as connected editable blocks', ()
   verifyStructuredBlockSource(project, sourceText);
 });
 
+test('tutorial also embeds the eight definition forms', async () => {
+  const bytes = unzipSync(new Uint8Array(await readFile(
+    path.join(projectRoot, 'stories/tutorial/tutorial-blocks-4.0.sb3'),
+  )));
+  verifyStructuredBlockSource(
+    JSON.parse(strFromU8(bytes['project.json']!)) as ScratchProject,
+    await readFile(path.join(projectRoot, 'stories/tutorial/story.kamishibai.yaml'), 'utf8'),
+  );
+});
+
+test('rejects an embedded authoring extension without definition forms', () => {
+  const old = structuredClone(project);
+  old.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' + Buffer.from('Scratch.extensions.register({});').toString('base64');
+  assert.throws(() => verifyStructuredBlockSource(old, sourceText), /all eight definition forms/);
+});
+
 test('rejects the old two-block YAML declaration even when its source is correct', () => {
   const old = structuredClone(project);
   old.targets[0]!.blocks = {
@@ -72,7 +89,8 @@ test('an edited wait block exports its new value without changing the remaining 
     const editedPath = path.join(directory, 'edited.sb3');
     await writeFile(editedPath, rebuilt.archive);
     const builderRoot = path.resolve(
-      process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
+      process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
+        process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
         path.join(projectRoot, '../turbowarp-kamishibai-app'),
     );
     const result = spawnSync(

@@ -56,5 +56,9 @@
         "purpose": "組み込み済み音声の再生"
       }
     ]
+  },
+  "blockAuthoring": {
+    "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+    "commit": "d10c3f1be27044220f32a3654c42cfd04fb44034"
   }
 }

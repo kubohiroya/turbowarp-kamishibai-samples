@@ -26,11 +26,19 @@ runs:
         commit=$(node -e "process.stdout.write(require('./stories/urashima/dsl4-build.config.json').runtime.commit)")
         printf 'commit=%s\n' "$commit" >> "$GITHUB_OUTPUT"
         printf 'Pinned builder commit: %s\n' "$commit"
+        authoring_commit=$(node -e "process.stdout.write(require('./stories/urashima/dsl4-build.config.json').blockAuthoring.commit)")
+        printf 'authoring-commit=%s\n' "$authoring_commit" >> "$GITHUB_OUTPUT"
+        printf 'TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT=%s/.tmp/kamishibai-block-authoring\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
     - uses: actions/checkout@v7
       with:
         repository: kubohiroya/turbowarp-kamishibai-app
         ref: ${{ steps.pin.outputs.commit }}
         path: .tmp/turbowarp-kamishibai-app
+    - uses: actions/checkout@v7
+      with:
+        repository: kubohiroya/turbowarp-kamishibai-app
+        ref: ${{ steps.pin.outputs.authoring-commit }}
+        path: .tmp/kamishibai-block-authoring
     - shell: bash
       run: corepack enable
     - uses: actions/setup-node@v7
@@ -40,6 +48,7 @@ runs:
         cache-dependency-path: |
           pnpm-lock.yaml
           .tmp/turbowarp-kamishibai-app/pnpm-lock.yaml
+          .tmp/kamishibai-block-authoring/pnpm-lock.yaml
     - shell: bash
       run: pnpm install --frozen-lockfile
     - shell: bash
@@ -50,6 +59,9 @@ runs:
     - shell: bash
       working-directory: .tmp/turbowarp-kamishibai-app
       run: pnpm run build:lib
+    - shell: bash
+      working-directory: .tmp/kamishibai-block-authoring
+      run: pnpm install --frozen-lockfile && pnpm run build:lib
     # Downloading Chromium and WebKit costs about a minute of every run, and the browsers
     # only change when Playwright does.
     - id: playwright-version
