@@ -6,6 +6,7 @@ import path from 'node:path';
 export interface BlockAuthoringIdentity {
   repository: string;
   commit: string;
+  sourceSections?: boolean;
 }
 
 /** Keep editable-source generation independent of the published playback runtime pin. */
@@ -16,6 +17,8 @@ export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
   ) as {blockAuthoring: BlockAuthoringIdentity};
   const identity = config.blockAuthoring;
   assert.match(identity.commit, /^[0-9a-f]{40}$/u);
+  const sourceSections = identity.sourceSections ?? false;
+  assert.equal(typeof sourceSections, 'boolean', 'sourceSections must be boolean.');
   const root = path.resolve(
     rootOverride ??
       process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
@@ -38,5 +41,6 @@ export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
     root,
     cli: path.join(root, 'bin/turbowarp-kamishibai.mjs'),
     identity,
+    authorOptions: ['--block-sections', String(sourceSections)],
   };
 }

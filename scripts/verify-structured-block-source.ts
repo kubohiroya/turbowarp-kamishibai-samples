@@ -3,6 +3,8 @@ import {runInNewContext} from 'node:vm';
 
 import {parse} from 'yaml';
 
+import buildConfig from '../stories/urashima/dsl4-build.config.json' with {type: 'json'};
+
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
 
@@ -27,12 +29,20 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   assert(project.extensionURLs?.kubohiroyakamishibaiauthoring4?.startsWith('data:'));
   const url = project.extensionURLs!.kubohiroyakamishibaiauthoring4!;
   assert(url.startsWith('data:text/javascript;base64,'));
+  const extensionInfo: {
+    blocks?: {opcode: string; blockType?: string; branchCount?: number; hideFromPalette?: boolean}[];
+    menus?: Record<string, {acceptReporters?: boolean; items: {text: string; value: string}[]}>;
+  }[] = [];
   const editors: {opcodes: string[]; argument: string; schema: object}[] = [];
   runInNewContext(
     Buffer.from(url.split(',')[1]!, 'base64').toString('utf8'),
     {
       Scratch: {
-        extensions: {register() {}},
+        extensions: {
+          register(extension: {getInfo?: () => (typeof extensionInfo)[number]}) {
+            if (extension.getInfo) extensionInfo.push(extension.getInfo());
+          },
+        },
         gui: {
           blockEditors: {
             apiVersion: 1,
@@ -57,6 +67,22 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
       typeof editor.schema === 'object',
     ),
     'Definition forms must edit VALUE, and the pose form must edit STEPS',
+  );
+
+  const info = extensionInfo.find((entry) =>
+    entry.blocks?.some((block) => block.opcode === 'useSection'),
+  );
+  const section = info?.blocks?.find((block) => block.opcode === 'useSection');
+  assert(
+    section && section.hideFromPalette === !(buildConfig.blockAuthoring.sourceSections ?? false),
+    'Source section palette visibility must match the build configuration.',
+  );
+  assert.equal(section.blockType, 'command');
+  assert.equal(section.branchCount, 1);
+  assert.equal(info?.menus?.sectionEnabled?.acceptReporters, false);
+  assert.deepEqual(
+    Array.from(info!.menus!.sectionEnabled!.items, (item) => String(item.value)),
+    ['on', 'off'],
   );
 
   const blocks = stage.blocks;

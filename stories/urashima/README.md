@@ -114,3 +114,13 @@ rc.25再pinとSB3・Web作品の更新は[Issue #175](https://github.com/kubohir
 ブロック台本の初期化修正の受け入れ基準は、TurboWarpの実エディターで10場面と174命令が表示され、数値入力を編集して保存したSB3にも反映されることです。ラッパーのProxy互換性を回帰テストで検査します。ロールバックは、生成処理・再生成したブロック台本SB3・関連lockをまとめてrevertします。
 
 ブロック台本の埋め込み拡張は、定義用の8フォーム（`VALUE`）とポーズ認識ステップ用フォーム（`STEPS`）の計9件を登録します。生成時に登録数と編集対象の引数を検証します。
+
+## 台本の一部をオン／オフにする
+
+公開ブロック台本SB3は、紫色の「Kamishibai Block Script」から「この部分を使う［オン／オフ］」を追加できます。
+定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
+[図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
+
+本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
+生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
+切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
