@@ -132,3 +132,11 @@ pnpm deploy
 本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
+
+YAML→ブロック変換では、control・asset・cover・textStyle・variable・loading・recognitionの定義を
+`kamishibaiConfig [名前]`へ分離します。空名の設定を最初に、その後は名前順に、Stageの空名`kamishibai`から
+暗黙に読み込みます。同名の設定ハットは空名同士も含め起動時エラーです。
+対応は[app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916)、
+配布更新は[samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184)で追跡します。
+配布する6種類のブロック台本SB3は、設定ハットを読める組み込みランタイムも同じauthoring pinから生成します。
+再生用のrc.25 runtime pinは維持します。切り戻しはauthoring pin・6SB3・lockを一組で戻します。

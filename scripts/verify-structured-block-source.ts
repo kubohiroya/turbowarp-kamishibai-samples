@@ -19,6 +19,16 @@ const definitionOpcodes = [
   'loading',
   'recognition',
 ];
+const configDefinitionOpcodes = definitionOpcodes.filter((opcode) => opcode !== 'actor');
+const configSourceKeys = [
+  'controls',
+  'assets',
+  'cover',
+  'textStyles',
+  'variables',
+  'loading',
+  'recognition',
+];
 const runtimePrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const actionArguments = new Map([
   [`${runtimePrefix}pose`, 'STEPS'],
@@ -35,7 +45,12 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   const url = project.extensionURLs!.kubohiroyakamishibaiauthoring4!;
   assert(url.startsWith('data:text/javascript;base64,'));
   const extensionInfo: {
-    blocks?: {opcode: string; blockType?: string; branchCount?: number; hideFromPalette?: boolean}[];
+    blocks?: {
+      opcode: string;
+      blockType?: string;
+      branchCount?: number;
+      hideFromPalette?: boolean;
+    }[];
     menus?: Record<string, {acceptReporters?: boolean; items: {text: string; value: string}[]}>;
   }[] = [];
   const editors: {opcodes: string[]; argument: string; schema: object}[] = [];
@@ -110,6 +125,27 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   assert.deepEqual(hat.inputs?.VERSION, [1, [10, '4.0']]);
   assert.deepEqual(hat.inputs?.LABEL, [1, [10, '']], 'The Stage root script name must be empty.');
   const story = parse(sourceText, {uniqueKeys: true}) as Dsl4Story;
+  const configHats = Object.entries(blocks).filter(
+    ([, block]) => block.opcode === `${authoringPrefix}kamishibaiConfig`,
+  );
+  const usesConfigHat = info?.blocks?.some((block) => block.opcode === 'kamishibaiConfig') ?? false;
+  if (usesConfigHat) {
+    assert.equal(
+      configHats.length,
+      configSourceKeys.some((key) => Object.hasOwn(story, key)) ? 1 : 0,
+      'The generated story must connect its configuration to one config hat.',
+    );
+  }
+  for (const [, config] of configHats) {
+    assert(usesConfigHat, 'The embedded extension must declare kamishibaiConfig.');
+    assert.equal(config.topLevel, true);
+    assert.equal(config.parent, null);
+    assert.deepEqual(
+      config.inputs?.LABEL,
+      [1, [10, '']],
+      'The generated root config name must be empty.',
+    );
+  }
   const sceneIds: string[] = [];
   const visited = new Set([hatId]);
 
@@ -122,55 +158,83 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
     return block;
   }
 
-  let parent = hatId;
-  let id = hat.next;
-  while (id) {
-    const block = connected(id, parent);
-    if (block.opcode === `${authoringPrefix}scene`) {
-      const sceneId = block.inputs?.SCENE?.[1]?.[1] as string;
-      sceneIds.push(sceneId);
-      const sourceScene = story.scenes?.[sceneId];
-      assert(sourceScene, `Unexpected scene ${sceneId}.`);
-      const actions = (
-        Array.isArray(sourceScene)
-          ? sourceScene
-          : (sourceScene as {actions: Record<string, unknown>[]}).actions
-      ) as Record<string, unknown>[];
-      const commands: string[] = [];
-      let actionParent = id;
-      let actionId = block.inputs?.SUBSTACK?.[1] as string | undefined;
-      while (actionId) {
-        const action = connected(actionId, actionParent);
-        let commandBlock = action;
-        if (action.opcode === `${authoringPrefix}actionOptions`) {
-          const childId = action.inputs?.SUBSTACK?.[1] as string;
-          commandBlock = connected(childId, actionId);
-          assert.equal(commandBlock.next, null, 'Action options must wrap one command.');
+  function declarations(parent: string, id: string | null | undefined, config = false) {
+    while (id) {
+      const block = connected(id, parent);
+      if (block.opcode === `${authoringPrefix}scene`) {
+        assert(!config, 'Scenes must stay under the root script hat.');
+        const sceneId = block.inputs?.SCENE?.[1]?.[1] as string;
+        sceneIds.push(sceneId);
+        const sourceScene = story.scenes?.[sceneId];
+        assert(sourceScene, `Unexpected scene ${sceneId}.`);
+        const actions = (
+          Array.isArray(sourceScene)
+            ? sourceScene
+            : (sourceScene as {actions: Record<string, unknown>[]}).actions
+        ) as Record<string, unknown>[];
+        const commands: string[] = [];
+        let actionParent = id;
+        let actionId = block.inputs?.SUBSTACK?.[1] as string | undefined;
+        while (actionId) {
+          const action = connected(actionId, actionParent);
+          let commandBlock = action;
+          if (action.opcode === `${authoringPrefix}actionOptions`) {
+            const childId = action.inputs?.SUBSTACK?.[1] as string;
+            commandBlock = connected(childId, actionId);
+            assert.equal(commandBlock.next, null, 'Action options must wrap one command.');
+          }
+          assert(
+            commandBlock.opcode.startsWith(runtimePrefix),
+            `Scene ${sceneId} must use editable runtime command blocks.`,
+          );
+          commands.push(commandBlock.opcode.slice(runtimePrefix.length));
+          actionParent = actionId;
+          actionId = action.next ?? undefined;
         }
-        assert(
-          commandBlock.opcode.startsWith(runtimePrefix),
-          `Scene ${sceneId} must use editable runtime command blocks.`,
+        assert.deepEqual(
+          commands,
+          actions.map((action) => Object.keys(action)[0]!.split('.').at(-1)),
+          `Scene ${sceneId} must contain every command in script order.`,
         );
-        commands.push(commandBlock.opcode.slice(runtimePrefix.length));
-        actionParent = actionId;
-        actionId = action.next ?? undefined;
+      } else {
+        assert(
+          [
+            `${authoringPrefix}property`,
+            ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
+          ].includes(block.opcode),
+          `Unexpected top-level declaration: ${block.opcode}`,
+        );
+        const dedicatedConfig = configDefinitionOpcodes.some(
+          (opcode) => block.opcode === authoringPrefix + opcode,
+        );
+        const propertyConfig =
+          block.opcode === `${authoringPrefix}property` &&
+          configSourceKeys.includes(JSON.parse(block.inputs?.PATH?.[1]?.[1] ?? 'null')?.[0]);
+        if (config) {
+          assert(
+            dedicatedConfig || propertyConfig,
+            'Config hats must contain configuration definitions.',
+          );
+        } else if (usesConfigHat) {
+          assert(
+            !dedicatedConfig && !propertyConfig,
+            'Configuration definitions must stay under kamishibaiConfig.',
+          );
+        }
       }
-      assert.deepEqual(
-        commands,
-        actions.map((action) => Object.keys(action)[0]!.split('.').at(-1)),
-        `Scene ${sceneId} must contain every command in script order.`,
-      );
-    } else {
-      assert(
-        [
-          `${authoringPrefix}property`,
-          ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
-        ].includes(block.opcode),
-        `Unexpected top-level declaration: ${block.opcode}`,
-      );
+      parent = id;
+      id = block.next;
     }
-    parent = id;
-    id = block.next;
+  }
+  for (const [id, config] of configHats) {
+    visited.add(id);
+    declarations(id, config.next, true);
+  }
+  declarations(hatId, hat.next);
+  for (const [id, block] of Object.entries(blocks)) {
+    if (configDefinitionOpcodes.some((opcode) => block.opcode === authoringPrefix + opcode)) {
+      assert(visited.has(id), `Configuration definition ${id} must stay connected.`);
+    }
   }
   assert.deepEqual(
     sceneIds,

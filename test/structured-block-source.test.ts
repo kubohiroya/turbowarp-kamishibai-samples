@@ -40,13 +40,17 @@ test('rejects a named Stage script that cannot act as the playback root', () => 
     (block) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai',
   )!;
   hat.inputs!.LABEL = [1, [10, 'chapter']];
-  assert.throws(() => verifyStructuredBlockSource(named, sourceText), /root script name must be empty/);
+  assert.throws(
+    () => verifyStructuredBlockSource(named, sourceText),
+    /root script name must be empty/,
+  );
 });
 
 test('rejects an embedded authoring extension without definition forms', () => {
   const old = structuredClone(project);
   old.extensionURLs!.kubohiroyakamishibaiauthoring4 =
-    'data:text/javascript;base64,' + Buffer.from('Scratch.extensions.register({});').toString('base64');
+    'data:text/javascript;base64,' +
+    Buffer.from('Scratch.extensions.register({});').toString('base64');
   assert.throws(() => verifyStructuredBlockSource(old, sourceText), /all eight definition forms/);
 });
 
@@ -77,12 +81,16 @@ test('rejects a published project with its source section block hidden', () => {
   const hidden = structuredClone(project);
   const url = hidden.extensionURLs!.kubohiroyakamishibaiauthoring4!;
   const source = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
-  const visible = '"opcode":"useSection","blockType":"command","branchCount":1,"hideFromPalette":false';
+  const visible =
+    '"opcode":"useSection","blockType":"command","branchCount":1,"hideFromPalette":false';
   assert(source.includes(visible));
   hidden.extensionURLs!.kubohiroyakamishibaiauthoring4 =
     'data:text/javascript;base64,' +
     Buffer.from(source.replace(visible, visible.replace(':false', ':true'))).toString('base64');
-  assert.throws(() => verifyStructuredBlockSource(hidden, sourceText), /Source section palette visibility/);
+  assert.throws(
+    () => verifyStructuredBlockSource(hidden, sourceText),
+    /Source section palette visibility/,
+  );
 });
 
 test('rejects the old two-block YAML declaration even when its source is correct', () => {
@@ -180,4 +188,93 @@ test('an edited wait block exports its new value without changing the remaining 
   } finally {
     await rm(directory, {recursive: true, force: true});
   }
+});
+
+function withConfigHat(): ScratchProject {
+  const candidate = structuredClone(project);
+  const blocks = candidate.targets.find((target) => target.isStage)!.blocks;
+  if (
+    Object.values(blocks).some(
+      (block) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibaiConfig',
+    )
+  )
+    return candidate;
+  const prefix = 'kubohiroyakamishibaiauthoring4_';
+  const names = new Set([
+    'control',
+    'asset',
+    'cover',
+    'textStyle',
+    'variable',
+    'loading',
+    'recognition',
+  ]);
+  const [rootId, root] = Object.entries(blocks).find(
+    ([, block]) => block.opcode === prefix + 'kamishibai',
+  )!;
+  blocks.configHat = {
+    opcode: prefix + 'kamishibaiConfig',
+    next: null,
+    parent: null,
+    topLevel: true,
+    shadow: false,
+    inputs: {LABEL: [1, [10, '']]},
+    fields: {},
+  };
+  let rootTail = rootId;
+  let configTail = 'configHat';
+  let id = root.next;
+  root.next = null;
+  while (id) {
+    const block = blocks[id]!;
+    const next = block.next;
+    const config = names.has(block.opcode.slice(prefix.length));
+    const tail = config ? configTail : rootTail;
+    blocks[tail]!.next = id;
+    block.parent = tail;
+    block.next = null;
+    if (config) configTail = id;
+    else rootTail = id;
+    id = next;
+  }
+  const url = candidate.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+  const runtime = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
+  const updated = runtime.replace(
+    '"blocks":[',
+    '"blocks":[{"opcode":"kamishibaiConfig","blockType":"hat"},',
+  );
+  assert.notEqual(updated, runtime);
+  candidate.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' + Buffer.from(updated).toString('base64');
+  return candidate;
+}
+
+test('verifies configuration declarations connected to the new config hat', () => {
+  verifyStructuredBlockSource(withConfigHat(), sourceText);
+});
+
+test('rejects missing or duplicate config hats in newly generated stories', () => {
+  const missing = withConfigHat();
+  const blocks = missing.targets.find((target) => target.isStage)!.blocks;
+  const [id] = Object.entries(blocks).find(([, block]) =>
+    block.opcode.endsWith('_kamishibaiConfig'),
+  )!;
+  delete blocks[id];
+  assert.throws(() => verifyStructuredBlockSource(missing, sourceText), /one config hat/);
+  const duplicate = withConfigHat();
+  const duplicateBlocks = duplicate.targets.find((target) => target.isStage)!.blocks;
+  const config = Object.values(duplicateBlocks).find((block) =>
+    block.opcode.endsWith('_kamishibaiConfig'),
+  )!;
+  duplicateBlocks.extraConfig = {...structuredClone(config), next: null};
+  assert.throws(() => verifyStructuredBlockSource(duplicate, sourceText), /one config hat/);
+});
+
+test('rejects a detached definition in a config hat', () => {
+  const broken = withConfigHat();
+  const config = Object.values(broken.targets.find((target) => target.isStage)!.blocks).find(
+    (block) => block.opcode.endsWith('_kamishibaiConfig'),
+  )!;
+  config.next = null;
+  assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /must stay connected/);
 });
