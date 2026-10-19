@@ -17,11 +17,11 @@
 - `sample.config.json`: `generic` / `editor` / `player` とWeb版の生成設定
 - `artifacts.lock.json`: 再現可能な生成物のサイズとSHA-256
 - `base/kamishibai.sb3`: ポーズ認識成立音対応済み本体コミットから生成したDSL 3.2 `generic` ベース
-- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.23（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactを、サイズとSHA-256を固定して取り込んだ`generic`ベース
+- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.25（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactを、サイズとSHA-256を固定して取り込んだ`generic`ベース
 
 `stories/my-urashima/`はワークショップ用の依存ストーリーです。DSL 3.2版に加え、Princess PNGを唯一のコスチュームとして持つ`Princess`スプライトと浦島太郎のプロジェクトアセットを組み込んだ、台本非埋め込みの`my-urashima-4.0.sb3`およびWeb版も生成します。生成規約と更新方法は[`stories/my-urashima/README.md`](stories/my-urashima/README.md)に記載しています。
 
-`stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。公開済みTurboWarp-Kamishibai `4.0.0-rc.23`を入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
+`stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。公開済みTurboWarp-Kamishibai `4.0.0-rc.25`を入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
 
 正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL 4.0 YAML、オフラインSB3、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
 
@@ -33,7 +33,7 @@
 - `web/index.html`: `player`だけを入力とする、画像・音声・台本組み込み済みの単一HTML
 - `urashima-4.0.sb3` / `web-4.0/index.html`: DSL 4.0台本・全アセット・ポーズモデル組み込み済みのオフライン版
 - `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: DSL 4.0外部台本をファイル選択またはドラッグ＆ドロップで開くワークショップ版
-- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 4.0.0-rc.23で再現・検証して公開するDSL 4.0チュートリアル成果物
+- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 4.0.0-rc.25で再現・検証して公開するDSL 4.0チュートリアル成果物
 
 先頭の `_` は物語作成者による内部的使用を示します。`player` は編集禁止を意味する「再生専用」ではなく「再生用」です。GitHub Pagesのビルド時には空の`dist/`へすべての成果物をロック済み入力から生成します。DSL 4.0のチェックイン済みSB3は配布元かつ再現性検証対象であり、Web版HTMLはリポジトリへコミットせず自動生成します。
 
@@ -70,7 +70,7 @@ pnpm run release:check
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
-CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用とブロック台本用の両CLIをrc.23の公開タグのcommitへ固定し、浦島太郎とtutorialのブロック台本を生成・YAMLへ書き戻します。このCLIにはNode 24以上が必要です。
+CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用とブロック台本用の両CLIをrc.25の公開タグのcommitへ固定し、浦島太郎とtutorialのブロック台本を生成・YAMLへ書き戻します。このCLIにはNode 24以上が必要です。
 
 ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
 

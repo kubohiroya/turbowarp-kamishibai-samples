@@ -48,11 +48,15 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   );
   assert.deepEqual(
     editors.flatMap((editor) => Array.from(editor.opcodes)).sort(),
-    definitionOpcodes.map((opcode) => authoringPrefix + opcode).sort(),
-    'The embedded authoring extension must register all eight definition forms.',
+    [...definitionOpcodes.map((opcode) => authoringPrefix + opcode), `${runtimePrefix}pose`].sort(),
+    'The embedded authoring extension must register all eight definition forms and the pose steps form.',
   );
   assert(
-    editors.every((editor) => editor.argument === 'VALUE' && typeof editor.schema === 'object'),
+    editors.every((editor) =>
+      editor.argument === (editor.opcodes.includes(`${runtimePrefix}pose`) ? 'STEPS' : 'VALUE') &&
+      typeof editor.schema === 'object',
+    ),
+    'Definition forms must edit VALUE, and the pose form must edit STEPS',
   );
 
   const blocks = stage.blocks;

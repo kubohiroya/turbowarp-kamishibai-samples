@@ -2,12 +2,12 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.23",
-    "commit": "2f2889fe9df88548a92b0925ca3008c5c62682e5",
+    "version": "4.0.0-rc.25",
+    "commit": "a68f8dc4d38b4609c8387192d3be0376963735e3",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:1600bea27fccd29a22212fa12cf8f9ff30e947a8164f552429f8930b1720d93f",
-    "baseSize": 6922003,
-    "baseSha256": "ecbb74f950f74236a0bbe38c6b821745d8d100fc02075c634881ab1d837c7998"
+    "baseSourceIdentity": "sha256:0e0ed3c9a8b99e2fd6aee84818a3400e619a1adfd844dc0d0b3b0b00d84158ca",
+    "baseSize": 6923215,
+    "baseSha256": "d6b8d73e27685ac8359a17ade7c5c9cb4596ab22413eae9bf33d060351d0ab29"
   },
   "sourceManifest": "project.source.json",
   "projectAssets": "project-assets-dsl4.yml",
@@ -59,6 +59,6 @@
   },
   "blockAuthoring": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "commit": "2f2889fe9df88548a92b0925ca3008c5c62682e5"
+    "commit": "a68f8dc4d38b4609c8387192d3be0376963735e3"
   }
 }
