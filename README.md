@@ -70,7 +70,7 @@ pnpm run release:check
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
-CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用とブロック台本用の両CLIをrc.25の公開タグのcommitへ固定し、浦島太郎とtutorialのブロック台本を生成・YAMLへ書き戻します。このCLIにはNode 24以上が必要です。
+CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用CLIはrc.25の公開タグのcommitを維持し、ブロック台本用CLIと埋め込みauthoringランタイムは設定ハット対応のapp mainコミットへ固定します。このCLIにはNode 24以上が必要です。
 
 編集用SB3では`blockAuthoring.refreshRuntime: true`を明示し、同じ固定authoring commitから生成した再生コードも組み込みます。タイトルボタンのダイアログ下への配置など、Editor向けの修正を適用するためです。未指定時はfalseで、baseの再生コードを継承します。置換時はbaseのサイズ・SHA-256とwrapper内のbundle一意性を検査し、生成lockに設定を記録します。
 
@@ -132,3 +132,11 @@ pnpm deploy
 本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
+
+YAML→ブロック変換では、control・asset・cover・textStyle・variable・loading・recognitionの定義を
+`kamishibaiConfig [名前]`へ分離します。空名の設定を最初に、その後は名前順に、Stageの空名`kamishibai`から
+暗黙に読み込みます。同名の設定ハットは空名同士も含め起動時エラーです。
+対応は[app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916)、
+配布更新は[samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184)で追跡します。
+配布する6種類のブロック台本SB3は、設定ハットを読める組み込みランタイムも同じauthoring pinから生成します。
+再生用のrc.25 runtime pinは維持します。切り戻しはauthoring pin・6SB3・lockを一組で戻します。

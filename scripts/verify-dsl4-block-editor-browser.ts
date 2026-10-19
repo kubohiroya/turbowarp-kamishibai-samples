@@ -367,6 +367,42 @@ try {
   await page.screenshot({
     path: path.join(outputDirectory, 'block-story-opening.png'),
   });
+  phase = 'reject-duplicate-config-names';
+  const configurationErrors: {label: string; code: string}[] = [];
+  for (const label of ['', 'shared']) {
+    const duplicateId = await page.evaluate((label) => {
+      const workspace = window.ScratchBlocks.getMainWorkspace();
+      const config = workspace.getAllBlocks(false).find(
+        (block: any) => block.type === 'kubohiroyakamishibaiauthoring4_kamishibaiConfig',
+      );
+      if (!config) throw new Error('The published block project must contain a config hat.');
+      config.getInputTargetBlock('LABEL').setFieldValue(label, 'TEXT');
+      const duplicate = workspace.newBlock(config.type);
+      const name = workspace.newBlock('text');
+      name.setShadow(true);
+      name.setFieldValue(label, 'TEXT');
+      duplicate.getInput('LABEL').connection.connect(name.outputConnection);
+      name.initSvg();
+      duplicate.initSvg();
+      duplicate.render();
+      return duplicate.id;
+    }, label);
+    await page.waitForFunction(() => {
+      const blocks = window.vm.runtime.getTargetForStage().blocks._blocks;
+      return Object.values(blocks).filter(
+        (block: any) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibaiConfig',
+      ).length === 2;
+    });
+    await page.locator('[class*="green-flag_green-flag"]').first().click();
+    const indicator = page.locator('[data-dsl4-runtime-error=true]');
+    await indicator.waitFor({state: 'visible', timeout: 30_000});
+    const text = await indicator.textContent();
+    assert(text?.includes('K4-BLOCK-SOURCE-DUPLICATE-001'), text ?? 'Missing duplicate diagnostic.');
+    configurationErrors.push({label, code: 'K4-BLOCK-SOURCE-DUPLICATE-001'});
+    await page.screenshot({path: path.join(outputDirectory, label ? 'duplicate-named-config.png' : 'duplicate-empty-config.png')});
+    await page.evaluate((id) => window.ScratchBlocks.getMainWorkspace().getBlockById(id).dispose(false), duplicateId);
+  }
+  report.configurationErrors = configurationErrors;
   assert.deepEqual(
     fatalErrors,
     [],
@@ -413,5 +449,5 @@ if (failure) {
   );
 }
 process.stdout.write(
-  `Block editor regression passed: 10 scenes, 174 commands, UI edit 2 -> ${editedSeconds}, saved YAML verified, block story started directly.\nEvidence: ${outputDirectory}\n`,
+  `Block editor regression passed: 10 scenes, 174 commands, UI edit 2 -> ${editedSeconds}, saved YAML verified, block story started directly, duplicate config names rejected.\nEvidence: ${outputDirectory}\n`,
 );
