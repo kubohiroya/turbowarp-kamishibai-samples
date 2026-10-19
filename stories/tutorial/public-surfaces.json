@@ -1,18 +1,18 @@
 {
   "formatVersion": 1,
   "status": "published",
-  "version": "4.0.0-rc.22",
+  "version": "4.0.0-rc.23",
   "published": true,
-  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.22",
-  "sourceIdentity": "792949395e7826bbfbe9a93a047b4df94370b7dc5e9db67ade88030b8867288d",
+  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.23",
+  "sourceIdentity": "c6c8ffd1f7fc855668af0b65c011aeb1b4af12afbddebbc1c49f354ecd63e3e7",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.22",
-    "commit": "1a4bb356cc9eb75667414df28dea054193f83a8b",
+    "version": "4.0.0-rc.23",
+    "commit": "2f2889fe9df88548a92b0925ca3008c5c62682e5",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:44e85ea98dd7d4aef7bbd08c21610675bef8cd9a6244196a9fac54caa712ee6f",
-    "baseSize": 6911464,
-    "baseSha256": "3731ed3a58c000d40f65057fbe5e27b340bae915df11e863fd55c98ba061b5c9"
+    "baseSourceIdentity": "sha256:1600bea27fccd29a22212fa12cf8f9ff30e947a8164f552429f8930b1720d93f",
+    "baseSize": 6922003,
+    "baseSha256": "ecbb74f950f74236a0bbe38c6b821745d8d100fc02075c634881ab1d837c7998"
   },
   "license": {
     "spdx": "MPL-2.0",
@@ -36,8 +36,8 @@
     },
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 12806317,
-      "sha256": "c7ee8cd8b53396ac5318857a34ea8c3da0dffaa46b119de1904b0296a557d6d0",
+      "size": 12824358,
+      "sha256": "3237dc50e50d3310e481ceaa516525424a3ec014ac805b52a8fa28dc7c176cb6",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -46,8 +46,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 6929208,
-      "sha256": "74d401752c13adc94d0f0d586c3b005e1c4443aab0fbf7161d7dbe31e87318b3",
+      "size": 12936889,
+      "sha256": "1d387005ba4469aad78704fa7c710b1e84c53990ce9b9e88d4acbe88deedb93b",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -57,8 +57,8 @@
     "web": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 22984238,
-      "sha256": "d17469f5affdf1d2b3ef9ccba59ea92523f6cf21ab52517319c4cebbd4adbc92"
+      "size": 23055582,
+      "sha256": "bd23ac18f6ac643b3940397a8d7bd6de8573538404a01662fdfba1552595f3b1"
     },
     "starter": {
       "path": "tutorial-story-starter-4.0.zip",

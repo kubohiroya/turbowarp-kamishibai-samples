@@ -80,7 +80,7 @@
         },
         "sb3-blocks": {
           "href": "stories/urashima/urashima-blocks-4.0.sb3",
-          "note": "台本をTurboWarpのブロックとして持つ編集用です。再生するには公式CLIの build-dsl4 にベースとして渡します。"
+          "note": "台本をTurboWarpのブロックとして編集・再生できます。Stage上の名前が空の台本をルートとして読み込み、タイトルを閉じると物語を開始します。編集後に開始し直すと変更が反映されます。"
         },
         "html": {
           "href": "stories/urashima/web-4.0/",

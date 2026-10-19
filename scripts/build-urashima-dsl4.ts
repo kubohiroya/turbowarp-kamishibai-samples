@@ -273,6 +273,7 @@ export async function buildUrashimaDsl4({
     const blocksBytes = await buildEditableBlockSource(
       blocksPath,
       path.join(temporaryDirectory, 'editable-block-source'),
+      canonicalBytes,
     );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);

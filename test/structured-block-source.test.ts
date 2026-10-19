@@ -34,6 +34,15 @@ test('tutorial also embeds the eight definition forms', async () => {
   );
 });
 
+test('rejects a named Stage script that cannot act as the playback root', () => {
+  const named = structuredClone(project);
+  const hat = Object.values(named.targets.find((target) => target.isStage)!.blocks).find(
+    (block) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai',
+  )!;
+  hat.inputs!.LABEL = [1, [10, 'chapter']];
+  assert.throws(() => verifyStructuredBlockSource(named, sourceText), /root script name must be empty/);
+});
+
 test('rejects an embedded authoring extension without definition forms', () => {
   const old = structuredClone(project);
   old.extensionURLs!.kubohiroyakamishibaiauthoring4 =
