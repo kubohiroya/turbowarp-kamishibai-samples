@@ -110,5 +110,13 @@ test('runs the published GUI check after deployment and preserves its evidence o
   );
   assert(artifact > verification);
   assert.equal(steps[artifact].if, 'always()');
-  assert.equal(steps[artifact].with.path, '.tmp/published-block-editor/');
+  const diagnostics = steps.findIndex((step: any) =>
+    step.run?.includes('verify-published-block-diagnostics.ts'),
+  );
+  assert(diagnostics > deployment && diagnostics < artifact);
+  assert.equal(steps[diagnostics].env.PAGES_URL, '${{ steps.deployment.outputs.page_url }}');
+  assert.equal(steps[diagnostics].if, undefined);
+  const paths = steps[artifact].with.path.trim().split('\n');
+  assert(paths.includes('.tmp/published-block-editor/'));
+  assert(paths.includes('.tmp/published-block-diagnostics/'));
 });

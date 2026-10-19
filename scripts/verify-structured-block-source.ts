@@ -34,6 +34,7 @@ const actionArguments = new Map([
   [`${runtimePrefix}pose`, 'STEPS'],
   [`${runtimePrefix}say`, 'SPEC'],
   [`${runtimePrefix}think`, 'SPEC'],
+  [`${authoringPrefix}scene`, 'PROPERTIES'],
 ]);
 
 /** Reject a YAML string masquerading as a block script, including disconnected actions. */
@@ -82,14 +83,14 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
       ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
       ...actionArguments.keys(),
     ].sort(),
-    'The embedded authoring extension must register all eight definition forms and the pose/say/think forms.',
+    'The embedded authoring extension must register all eight definition forms and the scene/pose/say/think forms.',
   );
   assert(
     editors.every((editor) =>
       editor.opcodes.every((opcode) => editor.argument === (actionArguments.get(opcode) ?? 'VALUE')) &&
       typeof editor.schema === 'object',
     ),
-    'Definition forms must edit VALUE, pose must edit STEPS, and say/think must edit SPEC',
+    'Definition forms must edit VALUE, scene must edit PROPERTIES, pose must edit STEPS, and say/think must edit SPEC',
   );
 
   const info = extensionInfo.find((entry) =>

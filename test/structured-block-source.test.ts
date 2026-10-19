@@ -24,7 +24,7 @@ test('Urashima exposes all scenes and commands as connected editable blocks', ()
   verifyStructuredBlockSource(project, sourceText);
 });
 
-test('tutorial embeds the eight definition forms and pose/say/think forms', async () => {
+test('tutorial embeds the eight definition forms and scene/pose/say/think forms', async () => {
   const bytes = unzipSync(new Uint8Array(await readFile(
     path.join(projectRoot, 'stories/tutorial/tutorial-blocks-4.0.sb3'),
   )));
@@ -62,6 +62,17 @@ test('rejects a pose form registered against the wrong argument', () => {
   broken.extensionURLs!.kubohiroyakamishibaiauthoring4 =
     'data:text/javascript;base64,' + Buffer.from(source.replaceAll('STEPS', 'VALUE')).toString('base64');
   assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /pose must edit STEPS/);
+});
+
+test('rejects a scene form registered against the wrong argument', () => {
+  const broken = structuredClone(project);
+  const url = broken.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+  const source = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
+  const declaration = /("editorId":"scene-properties"[^}]*"argument":)"PROPERTIES"/u;
+  assert(declaration.test(source), 'The authoring extension must contain the scene PROPERTIES form.');
+  broken.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' + Buffer.from(source.replace(declaration, '$1"VALUE"')).toString('base64');
+  assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /scene must edit PROPERTIES/);
 });
 
 for (const command of ['say', 'think']) {

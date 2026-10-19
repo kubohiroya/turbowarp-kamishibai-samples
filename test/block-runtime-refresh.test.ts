@@ -41,6 +41,40 @@ test('every published block project includes title controls below editor modal b
   }
 });
 
+test('refreshes relocated metadata and an exact body while preserving the wrapper', () => {
+  const header = '// Name: Story\n// Version: old\n';
+  const nextHeader = '// Name: Story\n// Version: new\n';
+  const body = 'Scratch.extensions.register(oldRuntime);';
+  const nextBody = 'Scratch.extensions.register(newRuntime);';
+  const source = header + wrapper(body);
+  assert.equal(
+    replaceBlockSourceRuntime(source, header + body, nextHeader + nextBody),
+    nextHeader + wrapper(nextBody),
+  );
+  assert.throws(
+    () =>
+      replaceBlockSourceRuntime(
+        source.replace('Version: old', 'Version: unknown'),
+        header + body,
+        nextHeader + nextBody,
+      ),
+    /RUNTIME_DRIFT/,
+  );
+  assert.throws(
+    () =>
+      replaceBlockSourceRuntime(
+        header + wrapper(body + body),
+        header + body,
+        nextHeader + nextBody,
+      ),
+    /RUNTIME_DRIFT/,
+  );
+  assert.throws(
+    () => replaceBlockSourceRuntime(source, header, nextHeader + nextBody),
+    /RUNTIME_DRIFT/,
+  );
+});
+
 test('every published block project separates config and embeds its runtime reader', async () => {
   const paths = [
     'urashima/urashima-blocks-4.0.sb3',

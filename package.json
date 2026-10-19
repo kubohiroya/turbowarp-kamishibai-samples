@@ -37,7 +37,8 @@
     "repo:check": "node scripts/check-repo.ts",
     "release:check": "pnpm run check && pnpm run pack:dry-run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:block-diagnostics": "node scripts/verify-published-block-diagnostics.ts"
   },
   "engines": {
     "node": ">=22.18.0"

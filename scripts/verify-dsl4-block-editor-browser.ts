@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 import {chromium, type Browser, type BrowserContext, type Page} from 'playwright';
 import {parse, stringify} from 'yaml';
+import {strFromU8, unzipSync} from 'fflate';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = 'https://turbowarp.org/editor';
@@ -85,6 +86,16 @@ let failure: unknown;
 
 try {
   const inputBytes = await readFile(options.input);
+  const inputProject = JSON.parse(strFromU8(unzipSync(inputBytes)['project.json']!));
+  const allowedSources = new Set(
+    Object.values(inputProject.extensionURLs as Record<string, string>)
+      .filter((url) => url.startsWith('data:text/javascript;base64,'))
+      .map((url) =>
+        createHash('sha256')
+          .update(Buffer.from(url.split(',')[1]!, 'base64'))
+          .digest('hex'),
+      ),
+  );
   report.inputSha256 = createHash('sha256').update(inputBytes).digest('hex');
   const story = parse(
     await readFile(path.join(projectRoot, 'stories/urashima/urashima.k4.yml'), 'utf8'),
@@ -165,13 +176,10 @@ try {
     ]);
     const dialog = page.getByRole('dialog');
     if (!(await dialog.count())) break;
-    const prefix = await dialog
-      .locator('textarea')
-      .evaluate((element) => (element as HTMLTextAreaElement).value.slice(0, 130));
+    const source = await dialog.locator('textarea').inputValue();
     assert(
-      prefix.startsWith('(function(Scratch)') ||
-        prefix.startsWith('// SPDX-License-Identifier: MPL-2.0\n// Kamishibai block script'),
-      'Unexpected extension permission request.',
+      allowedSources.has(createHash('sha256').update(source).digest('hex')),
+      'Unexpected extension permission request; source must match the verified SB3.',
     );
     assert(permissions++ < 2, 'Unexpected additional extension permission request.');
     await dialog.getByLabel('Run without sandbox', {exact: true}).check();

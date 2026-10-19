@@ -23,14 +23,38 @@ export function replaceBlockSourceRuntime(
   replacement: string,
 ): string {
   assertBlockSourceRuntimeWrapper(source);
-  const index = source.indexOf(base);
-  assert(base.length > 0 && index >= 0, 'BLOCK_SOURCE_RUNTIME_DRIFT: base bundle is missing.');
+  const baseHeader = base.match(/^(?:\s*\/\/[^\r\n]*\r?\n)*/u)?.[0] ?? '';
+  assert(
+    base.slice(baseHeader.length).trim().length > 0,
+    'BLOCK_SOURCE_RUNTIME_DRIFT: base bundle body is empty.',
+  );
+  let matched = base;
+  let updated = replacement;
+  let prefixLength = 0;
+  let prefix = '';
+  // The upstream wrapper moves only leading metadata comments outside the IIFE.
+  if (source.indexOf(base) < 0) {
+    const header = baseHeader;
+    assert(
+      header.length > 0 && source.startsWith(header),
+      'BLOCK_SOURCE_RUNTIME_DRIFT: relocated base header differs.',
+    );
+    const nextHeader = replacement.match(/^(?:\s*\/\/[^\r\n]*\r?\n)*/u)?.[0] ?? '';
+    matched = base.slice(header.length);
+    updated = replacement.slice(nextHeader.length);
+    prefixLength = header.length;
+    prefix = nextHeader || header;
+  }
+  const index = source.indexOf(matched, prefixLength);
+  assert(matched.length > 0 && index >= 0, 'BLOCK_SOURCE_RUNTIME_DRIFT: base bundle is missing.');
   assert.equal(
-    source.indexOf(base, index + base.length),
+    source.indexOf(matched, index + matched.length),
     -1,
     'BLOCK_SOURCE_RUNTIME_DRIFT: base bundle occurs more than once.',
   );
-  return source.slice(0, index) + replacement + source.slice(index + base.length);
+  return (
+    prefix + source.slice(prefixLength, index) + updated + source.slice(index + matched.length)
+  );
 }
 
 /** Keep editable-source generation independent of the published playback runtime pin. */

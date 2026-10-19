@@ -40,12 +40,18 @@ jobs:
         env:
           PAGES_URL: ${{ steps.deployment.outputs.page_url }}
         run: node scripts/verify-published-block-editor.ts --base-url "$PAGES_URL"
+      - name: Verify published unsupported-block diagnostics
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node scripts/verify-published-block-diagnostics.ts --base-url "$PAGES_URL"
       - name: Upload published block editor regression evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: published-block-editor-regression
-          path: .tmp/published-block-editor/
+          path: |
+            .tmp/published-block-editor/
+            .tmp/published-block-diagnostics/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

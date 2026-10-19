@@ -140,3 +140,9 @@ YAML→ブロック変換では、control・asset・cover・textStyle・variable
 配布更新は[samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184)で追跡します。
 配布する6種類のブロック台本SB3は、設定ハットを読める組み込みランタイムも同じauthoring pinから生成します。
 再生用のrc.25 runtime pinは維持します。切り戻しはauthoring pin・6SB3・lockを一組で戻します。
+
+### 公開配布物の非対応ブロック診断
+
+`pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合して公開エディターへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
+
+PRのCIでは同じ確認にローカル生成済みSB3を渡し、Pages公開後は実配信SB3を使います。ブラウザ検証で追加する非対応ブロックは確認用ブラウザ内だけに置き、配布SB3や元の台本へ保存しません。
