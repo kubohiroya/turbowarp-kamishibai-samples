@@ -152,8 +152,13 @@ function inspectProject(
   };
 }
 
-async function canonicalizeSb3(inputPath: string, sourceDirectory: string): Promise<Buffer> {
+async function canonicalizeSb3(
+  inputPath: string,
+  sourceDirectory: string,
+  refreshRuntime?: (sourceDirectory: string) => Promise<void>,
+): Promise<Buffer> {
   await importSb3({inputPath, outputDirectory: sourceDirectory});
+  await refreshRuntime?.(sourceDirectory);
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
   assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
@@ -243,6 +248,7 @@ export async function buildMyUrashimaDsl4({
     const blocksBytes = await canonicalizeSb3(
       blockInputPath,
       path.join(temporaryDirectory, 'block-source-canonical'),
+      blockAuthoring.refreshRuntime,
     );
     const blocksArchive = unzipSync(new Uint8Array(blocksBytes));
     const blocksProject = JSON.parse(strFromU8(blocksArchive['project.json']!)) as ScratchProject;

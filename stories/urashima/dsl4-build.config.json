@@ -60,6 +60,7 @@
   "blockAuthoring": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
     "commit": "d0a052c030a2c05b3effadfcb21c188191efbd8c",
-    "sourceSections": true
+    "sourceSections": true,
+    "refreshRuntime": true
   }
 }

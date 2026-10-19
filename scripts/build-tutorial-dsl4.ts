@@ -497,6 +497,7 @@ export async function buildTutorialDsl4({
       blocksPath,
       path.join(temporaryDirectory, 'editable-block-source'),
       canonicalBytes,
+      blockAuthoring.refreshRuntime,
     );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const archives = await buildArchives(config);
