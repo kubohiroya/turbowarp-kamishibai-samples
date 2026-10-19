@@ -947,6 +947,7 @@ ${renderSiteFooter('../../')}
 }
 
 function renderMyUrashimaWorkshop(manifest: MyUrashimaDsl4Manifest): string {
+  if (!manifest.workshopBlocks?.length) return '';
   const links = manifest.workshopBlocks.map(({poseCount, path: file}) => {
     const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
     editor.searchParams.set('blockEditorDialogs', '1');
