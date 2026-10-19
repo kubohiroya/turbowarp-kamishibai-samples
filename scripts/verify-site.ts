@@ -633,6 +633,24 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       `${label} must link its block source SB3.`,
     );
   }
+  // Direct editor links must enable forms and load the absolute published SB3 URL.
+  const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
+  for (const [page, expectedProjects] of [
+    [rootIndex, ['urashima/urashima', 'tutorial/tutorial']],
+    [sampleIndex, ['urashima/urashima']],
+    [tutorialIndex, ['tutorial/tutorial']],
+    [myUrashimaIndex, []],
+  ] as const) {
+    const links = [...page.matchAll(/href="([^"]*turbowarp-extension-data-editor[^"]*)"/gu)]
+      .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
+    assert.deepEqual(links.map((url) => url.searchParams.get('project_url')).sort(),
+      expectedProjects.map((project) => `${editorSb3Base}${project}-blocks-4.0.sb3`).sort());
+    for (const url of links) {
+      assert.equal(url.pathname, '/turbowarp-extension-data-editor/editor.html');
+      assert.equal(url.searchParams.get('blockEditorDialogs'), '1');
+      assert.equal(url.searchParams.get('lang'), 'ja');
+    }
+  }
   // my-urashimaは作業用SB3とほぼ同一の複製になるため提供しない。理由は表示したままにする。
   assert(
     myUrashimaIndex.includes('ブロック台本SB3：未提供'),

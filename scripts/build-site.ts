@@ -342,7 +342,15 @@ function renderArtifactFormats(
       return `${indent}  <li><span class="work-formats__unavailable">${label}：準備中</span></li>`;
     }
     if (entry.href) {
-      return `${indent}  <li><a href="${escapeHtml(resolveHref(entry.href))}">${label}</a>${note}</li>`;
+      let editorLink = '';
+      if (format === 'sb3-blocks') {
+        const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
+        editor.searchParams.set('blockEditorDialogs', '1');
+        editor.searchParams.set('lang', 'ja');
+        editor.searchParams.set('project_url', new URL(entry.href, publicUrl).href);
+        editorLink = `<br><a href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">Extension Data Editorでフォーム編集（別タブ）</a>`;
+      }
+      return `${indent}  <li><a href="${escapeHtml(resolveHref(entry.href))}">${label}</a>${note}${editorLink}</li>`;
     }
     return `${indent}  <li><span class="work-formats__unavailable">${label}：未提供</span><span class="work-formats__note">${escapeHtml(entry.unavailableReason ?? '')}</span></li>`;
   });
