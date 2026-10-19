@@ -304,6 +304,17 @@ try {
     .locator('[data-dsl4-title-action=close]')
     .waitFor({state: 'visible', timeout: 120_000});
   assert.equal(await page.locator('[data-dsl4-runtime-error=true]').isVisible(), false);
+  const appRelease = JSON.parse(await readFile(path.join(root, 'app-release.json'), 'utf8'));
+  const renderedTitle = await page.evaluate(() => {
+    const stage = window.vm.runtime.getTargetForStage();
+    const costume = stage.sprite.costumes[stage.currentCostume];
+    return {costume: costume.name, text: costume.asset.decodeText()};
+  });
+  assert.match(renderedTitle.costume, /^Title(?:Runtime)?$/u);
+  assert.match(renderedTitle.text, /TurboWarp Kamishibai|TurboWarp紙芝居/u);
+  assert(!renderedTitle.text.includes('Participatory AI Kamishibai'));
+  assert(renderedTitle.text.includes(appRelease.version));
+  report.title = {costume: renderedTitle.costume, version: appRelease.version, currentName: true};
   await page.screenshot({
     path: path.join(output, 'valid-story-recovered.png'),
   });

@@ -5,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+  repository_dispatch:
+    types: [app-release-published]
+  schedule:
+    - cron: '27 * * * *'
 
 permissions:
   contents: read
@@ -16,7 +20,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.release.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Compare published app dependency
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPARE_PUBLISHED_APP_RELEASE: 'true'
+        run: node scripts/app-release.ts
   build-and-deploy:
+    needs: resolve
+    if: github.event_name != 'schedule' || needs.resolve.outputs.changed == 'true'
     env:
       TZ: Asia/Tokyo
       TURBOWARP_KAMISHIBAI_APP_ROOT: ${{ github.workspace }}/.tmp/turbowarp-kamishibai-app

@@ -39,7 +39,7 @@
 - `sample.config.json`: ベース、ビルダー、プロファイル、出力名、既定OFFのWeb生成機能を浦島太郎で有効にする設定
 - `artifacts.lock.json`: `_urashima` / `urashima` / `web/index.html` の再現可能な出力ハッシュ
 - `base/kamishibai.sb3`: TurboWarp-Kamishibai のclone-only UI `generic` 成果物
-- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.25（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactそのもの
+- `base/kamishibai-4.0.sb3`: `app-release.json`で照合した公開済みappのrelease artifactそのもの
 
 `source.txt`の`# date:`はビルドが自動管理します。日付行を除いた内容fingerprintが`artifacts.lock.json`の記録から変わった場合だけ、ビルド環境のローカル今日へ更新し、`urashima.txt`、両プロファイル、Web版、my-urashimaを再生成します。内容が同じ再ビルドでは日付も成果物も更新しません。
 
@@ -104,10 +104,9 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 - 移設元コミット: `9526c9d6391622ee261b8d7c0778b1fbbd2e6745`
 - ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `3.2.3` / `28015ac9ff5221f371e8bd0357a7750ce40bbf7c`
 - 汎用ベース: TurboWarp-Kamishibai / `2b5005d293a9b63c8ba5da396fd86815d093f975`
-- DSL 4.0汎用ベースのソース: TurboWarp-Kamishibai / `4.0.0-rc.25`（公開版） / `sha256:0e0ed3c9a8b99e2fd6aee84818a3400e619a1adfd844dc0d0b3b0b00d84158ca`
-- DSL 4.0ビルダー・ブロック台本用CLI: TurboWarp-Kamishibai / `a68f8dc4d38b4609c8387192d3be0376963735e3`（`v4.0.0-rc.25`）。再生後の再起動でカメラ開始待機が残らない修正（本体PR #899）と、組み込み台本の直接再生・専用定義フォーム・YAML往復に対応した公開版へ固定しています
+- DSL 4.0汎用ベース・再生用・編集用ビルダー: ルートの`app-release.json`に記録した同じ公開Release。サイズ・SHA-256・commitをCIで自動更新・照合します。
 
-rc.25再pinとSB3・Web作品の更新は[Issue #175](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/175)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体rc.23／rc.25のrelease artifactは差し替えません。
+依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体rc.23／rc.25のrelease artifactは差し替えません。
 
 生成・検証・公開の実装は [Issue #2](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)、Packager Web版は [Issue #7](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)、DSL 4.0の自動生成は [Issue #90](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90) で管理します。
 

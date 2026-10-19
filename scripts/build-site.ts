@@ -1350,6 +1350,7 @@ export async function buildSite() {
   await mkdir(path.dirname(outputSampleDirectory), {recursive: true});
   await mkdir(tutorialCandidateOutputDirectory, {recursive: true});
   await mkdir(path.join(outputDirectory, 'licenses'), {recursive: true});
+  await copyFile(path.join(projectRoot, 'app-release.json'), path.join(outputDirectory, 'app-release.json'));
   await Promise.all([
     copyFile(path.join(siteDirectory, 'favicon.png'), path.join(outputDirectory, 'favicon.png')),
     copyFile(

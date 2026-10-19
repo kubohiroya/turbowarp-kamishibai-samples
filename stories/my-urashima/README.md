@@ -90,7 +90,7 @@ YAMLのコメントと書式はブロックへ引き継ぎません。行頭の`
 各版のポーズ数・入力YAMLのSHA-256・出力サイズ・SHA-256は`workshopBlocks`としてロックします。
 切り戻しは、この3版と生成・表示・検証の追加をまとめてrevertしてPagesを再公開します。
 
-ブロック版は公開`4.0.0-rc.25`のCLIへ固定し、定義8フォーム（`VALUE`）とポーズステップ1フォーム（`STEPS`）の登録を検証します。再pin・成果物の更新は[Issue #175](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/175)で管理します。
+ブロック版は`app-release.json`のベース・ビルダーと同じ公開Releaseから生成します。専用定義フォーム・ポーズ・場面設定フォームの登録を検証します。依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。
 
 ## 台本の一部をオン／オフにする
 
