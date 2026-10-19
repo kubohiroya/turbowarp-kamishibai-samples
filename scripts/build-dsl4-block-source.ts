@@ -29,11 +29,13 @@ export async function buildEditableBlockSource(
   inputPath: string,
   sourceDirectory: string,
   storyArchive: Uint8Array,
+  refreshRuntime?: (sourceDirectory: string) => Promise<void>,
 ): Promise<Buffer> {
   await importSb3({inputPath, outputDirectory: sourceDirectory});
   const runtimePath = path.join(sourceDirectory, 'extensions/kubohiroyakamishibai4.js');
   const runtime = await readFile(runtimePath, 'utf8');
   assertBlockSourceRuntimeWrapper(runtime);
+  await refreshRuntime?.(sourceDirectory);
   const projectPath = path.join(sourceDirectory, 'project.source.json');
   const project = JSON.parse(await readFile(projectPath, 'utf8')) as ScratchProject;
   const story = JSON.parse(

@@ -72,6 +72,8 @@ pnpm run release:check
 
 CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用とブロック台本用の両CLIをrc.25の公開タグのcommitへ固定し、浦島太郎とtutorialのブロック台本を生成・YAMLへ書き戻します。このCLIにはNode 24以上が必要です。
 
+編集用SB3では`blockAuthoring.refreshRuntime: true`を明示し、同じ固定authoring commitから生成した再生コードも組み込みます。タイトルボタンのダイアログ下への配置など、Editor向けの修正を適用するためです。未指定時はfalseで、baseの再生コードを継承します。置換時はbaseのサイズ・SHA-256とwrapper内のbundle一意性を検査し、生成lockに設定を記録します。
+
 ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
 
 ブロック台本SB3は[Extension Data Editor](https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。

@@ -27,7 +27,10 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
   storyDirectory: string;
   temporaryDirectory: string;
   princess: ProjectAssetSpecification;
-  authoring: {cli: string; root: string; authorOptions: readonly string[]};
+  authoring: {
+    cli: string; root: string; authorOptions: readonly string[];
+    refreshRuntime?: (sourceDirectory: string) => Promise<void>;
+  };
 }): Promise<{record: WorkshopBlockRecord; bytes: Buffer}[]> {
   const outputs: {record: WorkshopBlockRecord; bytes: Buffer}[] = [];
   for (const poseCount of workshopPoseCounts) {
@@ -62,6 +65,7 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     assert.equal(authored.status, 0, authored.stdout + authored.stderr);
     const imported = prefix + '-source';
     await importSb3({inputPath: authoredPath, outputDirectory: imported});
+    await options.authoring.refreshRuntime?.(imported);
     const first = await createDeterministicSb3(imported);
     const second = await createDeterministicSb3(imported);
     assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
