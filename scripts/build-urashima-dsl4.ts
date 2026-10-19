@@ -14,6 +14,7 @@ import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
+import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -179,6 +180,7 @@ export async function buildUrashimaDsl4({
   writeLock = false,
 }: BuildUrashimaDsl4Options = {}): Promise<BuildUrashimaDsl4Result> {
   const config = JSON.parse(await readFile(configPath, 'utf8')) as Dsl4BuildConfig;
+  const blockAuthoring = await resolveBlockAuthoringBuilder();
   assert.equal(config.formatVersion, 1);
   await ensureUrashimaDsl4Inputs();
 
@@ -255,7 +257,7 @@ export async function buildUrashimaDsl4({
     commandResult(
       process.execPath,
       [
-        builderCli,
+        blockAuthoring.cli,
         'author-block-dsl',
         '--input',
         sourcePath,
@@ -266,7 +268,7 @@ export async function buildUrashimaDsl4({
         '--max-source-bytes',
         String(limits.maxSourceBytes),
       ],
-      {cwd: kamishibaiRoot},
+      {cwd: blockAuthoring.root},
     );
     const blocksBytes = await buildEditableBlockSource(
       blocksPath,
@@ -283,6 +285,7 @@ export async function buildUrashimaDsl4({
     const artifactLock: Dsl4ArtifactLock = {
       formatVersion: 1,
       runtime: config.runtime,
+      blockAuthoring: blockAuthoring.identity,
       sb3Toolchain: {
         package: '@kubohiroya/sb3-toolchain',
         version: toolchainPackage.version,

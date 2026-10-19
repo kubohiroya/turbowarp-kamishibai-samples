@@ -22,11 +22,10 @@ import {strFromU8, unzipSync} from 'fflate';
 import type {ScratchProject} from './scratch.ts';
 import type {Dsl4BuildConfig} from './story-config.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
+import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {readWorksCatalog, type WorkEntry} from './works-catalog.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const defaultKamishibaiRoot = path.resolve(projectRoot, '../turbowarp-kamishibai-app');
-const kamishibaiRootEnvironmentName = 'TURBOWARP_KAMISHIBAI_APP_ROOT';
 /** 台本1本あたりの上限。stories/tutorial/dsl4-build.config.json の limits と同じ値。 */
 const maxSourceBytes = 262_144;
 
@@ -58,8 +57,9 @@ function roundTrippableWorks(works: readonly WorkEntry[]) {
 }
 
 export async function verifyDsl4BlockSourceRoundTrip({
-  kamishibaiRoot = path.resolve(process.env[kamishibaiRootEnvironmentName] ?? defaultKamishibaiRoot),
-} = {}): Promise<BlockSourceRoundTrip[]> {
+  kamishibaiRoot: rootOverride,
+}: {kamishibaiRoot?: string} = {}): Promise<BlockSourceRoundTrip[]> {
+  const {root: kamishibaiRoot} = await resolveBlockAuthoringBuilder(rootOverride);
   const builderCli = path.join(kamishibaiRoot, 'bin/turbowarp-kamishibai.mjs');
   const catalog = await readWorksCatalog(path.join(projectRoot, 'site/works.json'));
   const tutorialConfig = JSON.parse(

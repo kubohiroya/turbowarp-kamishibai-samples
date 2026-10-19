@@ -38,7 +38,8 @@ function conciseFailure(value: unknown): string {
 
 function builderOutput(arguments_: string[]): string {
   const builderRoot = path.resolve(
-    process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
+    process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
+      process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
       path.join(projectRoot, '../turbowarp-kamishibai-app'),
   );
   const result = spawnSync(

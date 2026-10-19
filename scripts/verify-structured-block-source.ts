@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {runInNewContext} from 'node:vm';
 
 import {parse} from 'yaml';
 
@@ -6,6 +7,16 @@ import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
 
 const authoringPrefix = 'kubohiroyakamishibaiauthoring4_';
+const definitionOpcodes = [
+  'asset',
+  'control',
+  'actor',
+  'textStyle',
+  'variable',
+  'cover',
+  'loading',
+  'recognition',
+];
 const runtimePrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 
 /** Reject a YAML string masquerading as a block script, including disconnected actions. */
@@ -14,6 +25,36 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   assert(stage, 'The block source project must keep its Stage.');
   assert(project.extensions?.includes('kubohiroyakamishibaiauthoring4'));
   assert(project.extensionURLs?.kubohiroyakamishibaiauthoring4?.startsWith('data:'));
+  const url = project.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+  assert(url.startsWith('data:text/javascript;base64,'));
+  const editors: {opcodes: string[]; argument: string; schema: object}[] = [];
+  runInNewContext(
+    Buffer.from(url.split(',')[1]!, 'base64').toString('utf8'),
+    {
+      Scratch: {
+        extensions: {register() {}},
+        gui: {
+          blockEditors: {
+            apiVersion: 1,
+            registerSchema(editor: (typeof editors)[number]) {
+              editors.push(editor);
+              return () => {};
+            },
+          },
+        },
+      },
+    },
+    {timeout: 2000},
+  );
+  assert.deepEqual(
+    editors.flatMap((editor) => Array.from(editor.opcodes)).sort(),
+    definitionOpcodes.map((opcode) => authoringPrefix + opcode).sort(),
+    'The embedded authoring extension must register all eight definition forms.',
+  );
+  assert(
+    editors.every((editor) => editor.argument === 'VALUE' && typeof editor.schema === 'object'),
+  );
+
   const blocks = stage.blocks;
   for (const target of project.targets) {
     for (const block of Object.values(target.blocks)) {
@@ -81,7 +122,13 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
         `Scene ${sceneId} must contain every command in script order.`,
       );
     } else {
-      assert.equal(block.opcode, `${authoringPrefix}property`);
+      assert(
+        [
+          `${authoringPrefix}property`,
+          ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
+        ].includes(block.opcode),
+        `Unexpected top-level declaration: ${block.opcode}`,
+      );
     }
     parent = id;
     id = block.next;
