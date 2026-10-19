@@ -7,37 +7,13 @@ import {fileURLToPath} from 'node:url';
 
 import {parse} from 'yaml';
 
+import {createMyUrashimaPoseVariant} from './my-urashima-workshop.ts';
+
 import {verifyEndCreditCheerDelay} from './verify-end-credit.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourcePath = path.join(projectRoot, 'stories/my-urashima/my-urashima.k4.yml');
 const validatorPath = path.resolve(projectRoot, '../turbowarp-kamishibai-app/bin/turbowarp-kamishibai.mjs');
-
-function uncommentExactlyOnce(source: string, line: string): string {
-  const replacement = line.slice(1);
-  const parts = source.split(line);
-  assert.equal(parts.length, 2, `Workshop candidate must occur exactly once: ${line}`);
-  return `${parts[0]}${replacement}${parts[1]}`;
-}
-
-function createVariant(source: string, poseCount: number, poseCandidate: string): string {
-  let variant = source;
-  for (let pose = 1; pose <= poseCount; pose += 1) {
-    variant = uncommentExactlyOnce(variant, `#  p${pose}: costume:Princess`);
-  }
-  variant = uncommentExactlyOnce(variant, poseCandidate);
-  assert.equal(
-    (variant.match(/^  p[1-4]: costume:Princess$/gmu) ?? []).length,
-    poseCount,
-    `The ${poseCount}-pose variant must enable exactly ${poseCount} costume assets.`,
-  );
-  assert.equal(
-    (variant.match(/^      - Princess\.pose:/gmu) ?? []).length,
-    1,
-    `The ${poseCount}-pose variant must enable exactly one pose action.`,
-  );
-  return variant;
-}
 
 export async function validateMyUrashimaDsl4Workshop() {
   const source = await readFile(sourcePath, 'utf8');
@@ -51,9 +27,9 @@ export async function validateMyUrashimaDsl4Workshop() {
   );
   const variants: [name: string, contents: string][] = [
     ['initial', source],
-    ['two-poses', createVariant(source, 2, poseCandidates[0] as string)],
-    ['three-poses', createVariant(source, 3, poseCandidates[1] as string)],
-    ['four-poses', createVariant(source, 4, poseCandidates[2] as string)],
+    ['two-poses', createMyUrashimaPoseVariant(source, 2)],
+    ['three-poses', createMyUrashimaPoseVariant(source, 3)],
+    ['four-poses', createMyUrashimaPoseVariant(source, 4)],
   ];
   const temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'my-urashima-dsl4-'));
   try {

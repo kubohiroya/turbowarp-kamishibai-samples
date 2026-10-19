@@ -59,6 +59,7 @@ export interface SiteManifest {
 /** dist/stories/my-urashima/dsl4-manifest.json */
 export interface MyUrashimaDsl4Manifest {
   blocksOutput: FileRecord;
+  workshopBlocks: (FileRecord & {poseCount: 2 | 3 | 4; sourceSha256: string})[];
   sample: string;
   publicUrl: string;
   web: PackagedWeb;

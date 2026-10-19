@@ -1,4 +1,27 @@
 {
+  "workshopBlocks": [
+    {
+      "poseCount": 2,
+      "path": "my-urashima-2-poses-blocks-4.0.sb3",
+      "size": 16281137,
+      "sha256": "c8a5a076e19f78093c0ccdc5545117c84b6aa8a224f709557dd6aaf65c0bbec0",
+      "sourceSha256": "7f401510c387824910878c9c6e7034bad5f688b1600812f127647bd10386edb4"
+    },
+    {
+      "poseCount": 3,
+      "path": "my-urashima-3-poses-blocks-4.0.sb3",
+      "size": 16281182,
+      "sha256": "e17cc97d9abfd4de21dc9584e3649291cf0ba3ca834e4f7ce81040a608603b6c",
+      "sourceSha256": "ddee53302f02023538a99ecf06cbc1eb0206318522d73e9a80449eb04d3314eb"
+    },
+    {
+      "poseCount": 4,
+      "path": "my-urashima-4-poses-blocks-4.0.sb3",
+      "size": 16281199,
+      "sha256": "0e012ac54017f76becbbffd45886882907319e3e589cedfb31848176fa9b0b34",
+      "sourceSha256": "77a0efd26bbb47da7f45c3dbfe293bd2c4091108d13decb29576c61abc7fafb1"
+    }
+  ],
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
