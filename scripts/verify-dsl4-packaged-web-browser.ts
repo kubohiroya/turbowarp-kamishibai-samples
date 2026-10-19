@@ -460,10 +460,13 @@ try {
         };
       }),
     );
+    // The current release groups mirroring inside the initially closed camera menu.
     assert.deepEqual(previewControls, [
-      {control: 'mirroring', anchor: 'top-right', display: 'flex', labelled: true, icon: true},
       {control: 'cameraMenu', anchor: 'top-left', display: 'flex', labelled: true, icon: true},
+      {control: 'mirroring', anchor: '', display: 'none', labelled: true, icon: true},
     ]);
+    assert.equal(await tutorial.page.locator('[data-dsl4-preview-control=cameraMenu]').getAttribute('aria-expanded'), 'false');
+    assert.equal(await tutorial.page.locator('[data-dsl4-preview-camera-panel=true]').evaluate((panel: HTMLElement) => panel.hidden), true);
     try {
       await tutorial.page.waitForFunction(
         () => {
