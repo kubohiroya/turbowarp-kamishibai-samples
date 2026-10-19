@@ -59,7 +59,7 @@ DSL 3.2にだけ存在する引数やアクションは、現行DSL 4.0のcore a
 
 ## ブロック台本のフォーム編集
 
-`my-urashima-blocks-4.0.sb3`は、`my-urashima.k4.yml`を固定した公開rc.23の
+`my-urashima-blocks-4.0.sb3`は、`my-urashima.k4.yml`を固定した公開rc.25の
 `author-block-dsl`で変換した編集用SB3です。既存の作業用SB3・Web版と別に配布します。
 作品の詳細ページの「Extension Data Editorでフォーム編集」から、公開SB3を直接開けます。
 拡張の読み込み確認ではそれぞれ「サンドボックスなしで実行する」を有効にして許可し、
@@ -89,3 +89,5 @@ YAMLのコメントと書式はブロックへ引き継ぎません。行頭の`
 `pnpm update:my-urashima-dsl4`と`pnpm build`で同じ3版を再生成します。
 各版のポーズ数・入力YAMLのSHA-256・出力サイズ・SHA-256は`workshopBlocks`としてロックします。
 切り戻しは、この3版と生成・表示・検証の追加をまとめてrevertしてPagesを再公開します。
+
+ブロック版は公開`4.0.0-rc.25`のCLIへ固定し、定義8フォーム（`VALUE`）とポーズステップ1フォーム（`STEPS`）の登録を検証します。再pin・成果物の更新は[Issue #175](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/175)で管理します。

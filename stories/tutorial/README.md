@@ -4,7 +4,7 @@ DSL 4.0チュートリアルの「紙芝居を遊ぶ」「紙芝居を作る」�
 最小作品です。教室で地震の揺れを感じた参加者が、自分の身を守るために丈夫な机の下へ入り、
 両手で頭を守る流れを練習します。
 
-汎用ベースはTurboWarp-Kamishibai `4.0.0-rc.23`の公開releaseに固定し、再生用とブロック台本用のビルダーは
+汎用ベースはTurboWarp-Kamishibai `4.0.0-rc.25`の公開releaseに固定し、再生用とブロック台本用のビルダーは
 `../urashima/dsl4-build.config.json`で同じreleaseタグのcommitへ固定します。samplesを先に公開し、
 docs側はその公開surfaceを使ってcaptureとチュートリアルpublicationを行います。
 
@@ -37,7 +37,7 @@ docs側はその公開surfaceを使ってcaptureとチュートリアルpublicat
 
 ## 公開フラグ
 
-`dsl4-build.config.json`の`publication.enabled`は起動時固定でONです。`4.0.0-rc.23`の固定releaseベースと固定ビルダーコミット
+`dsl4-build.config.json`の`publication.enabled`は起動時固定でONです。`4.0.0-rc.25`の固定releaseベースと固定ビルダーコミット
 から成果物を再現してブラウザー検証し、`dist/`と作品一覧へ公開します。docs側のcapture完了は
 公開条件にしません。問題時はフラグをOFFへ戻して4.0チュートリアルの公開導線だけを停止し、既存3.2成果物を維持します。
 
@@ -48,6 +48,8 @@ docs側はその公開surfaceを使ってcaptureとチュートリアルpublicat
 素材として台本に宣言します（スプライトのコスチュームではないので`project-assets-dsl4.yml`には置きません）。
 カメラが動いている間だけ表示され、カメラを止めると消えます。
 
-rc.23への再pinは[Issue #172](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/172)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体release artifactは差し替えません。
+rc.25への再pinと再起動待機の修正反映は[Issue #175](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/175)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体release artifactは差し替えません。
 
-ブロック台本SB3は浦島太郎と同じく、rc.23のラッパーの`extensions`属性が`configurable: true`であることを検証し、完成作品のfile素材bundleを引き継いで公式ツールチェーンで再構築します。切り戻す場合は、生成処理・生成SB3・artifact lock・公開surfaceをまとめてrevertします。
+ブロック台本SB3は浦島太郎と同じく、rc.25のラッパーの`extensions`属性が`configurable: true`であることを検証し、完成作品のfile素材bundleを引き継いで公式ツールチェーンで再構築します。切り戻す場合は、生成処理・生成SB3・artifact lock・公開surfaceをまとめてrevertします。
+
+ブロック台本の埋め込み拡張は、定義用の8フォーム（`VALUE`）とポーズ認識ステップ用フォーム（`STEPS`）の計9件を登録します。生成時に登録数と編集対象の引数を検証します。

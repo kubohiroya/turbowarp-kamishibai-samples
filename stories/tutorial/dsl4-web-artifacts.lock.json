@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-offline",
     "path": "tutorial-4.0.sb3",
-    "size": 12824358,
-    "sha256": "3237dc50e50d3310e481ceaa516525424a3ec014ac805b52a8fa28dc7c176cb6"
+    "size": 12829385,
+    "sha256": "ba1fea7cb46564a86e4c1fd1e29c0c6b391c12cc694b9c8cd6c7d93760bd7a27"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 23055582,
-    "sha256": "bd23ac18f6ac643b3940397a8d7bd6de8573538404a01662fdfba1552595f3b1"
+    "size": 23071068,
+    "sha256": "5a74724f355552cc26ef23758ddd6a32c49df92141e4210690bec3ebac0fec12"
   },
   "packager": {
     "package": "@turbowarp/packager",
@@ -31,7 +31,7 @@
       {
         "id": "kubohiroyakamishibai4",
         "source": "input-sb3-data-url",
-        "sha256": "4fb2257acd99e150d5509e676602811e4250e6638a179272ab49dd6de4f89a5a"
+        "sha256": "28c257bb24b44043d95878f03fbe849e4ea546bfce79476d1c7f2ffcc9c23ffe"
       }
     ],
     "scratchRender": {

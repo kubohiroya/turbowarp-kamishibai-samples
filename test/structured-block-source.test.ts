@@ -24,7 +24,7 @@ test('Urashima exposes all scenes and commands as connected editable blocks', ()
   verifyStructuredBlockSource(project, sourceText);
 });
 
-test('tutorial also embeds the eight definition forms', async () => {
+test('tutorial embeds the eight definition forms and pose steps form', async () => {
   const bytes = unzipSync(new Uint8Array(await readFile(
     path.join(projectRoot, 'stories/tutorial/tutorial-blocks-4.0.sb3'),
   )));
@@ -48,6 +48,16 @@ test('rejects an embedded authoring extension without definition forms', () => {
   old.extensionURLs!.kubohiroyakamishibaiauthoring4 =
     'data:text/javascript;base64,' + Buffer.from('Scratch.extensions.register({});').toString('base64');
   assert.throws(() => verifyStructuredBlockSource(old, sourceText), /all eight definition forms/);
+});
+
+test('rejects a pose form registered against the wrong argument', () => {
+  const broken = structuredClone(project);
+  const url = broken.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+  const source = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
+  assert(source.includes('STEPS'), 'The authoring extension must contain the pose steps form.');
+  broken.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' + Buffer.from(source.replaceAll('STEPS', 'VALUE')).toString('base64');
+  assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /pose form must edit STEPS/);
 });
 
 test('rejects the old two-block YAML declaration even when its source is correct', () => {
