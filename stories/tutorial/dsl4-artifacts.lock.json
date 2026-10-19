@@ -15,7 +15,7 @@
   },
   "blockAuthoring": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "commit": "a68f8dc4d38b4609c8387192d3be0376963735e3",
+    "commit": "d0a052c030a2c05b3effadfcb21c188191efbd8c",
     "sourceSections": true
   },
   "sb3Toolchain": {
@@ -187,8 +187,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 12938689,
-      "sha256": "e442826d7ac234f48fb9f99b36523a2306a6d67c96b0d7590bc20b6ca9cfd524",
+      "size": 12942612,
+      "sha256": "e73343fbedf0463345335cfbb4432569963710e9e9ed9635eeb0751c6eb83aff",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",

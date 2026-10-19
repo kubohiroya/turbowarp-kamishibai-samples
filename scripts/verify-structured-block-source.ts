@@ -20,6 +20,11 @@ const definitionOpcodes = [
   'recognition',
 ];
 const runtimePrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
+const actionArguments = new Map([
+  [`${runtimePrefix}pose`, 'STEPS'],
+  [`${runtimePrefix}say`, 'SPEC'],
+  [`${runtimePrefix}think`, 'SPEC'],
+]);
 
 /** Reject a YAML string masquerading as a block script, including disconnected actions. */
 export function verifyStructuredBlockSource(project: ScratchProject, sourceText: string): void {
@@ -58,15 +63,18 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   );
   assert.deepEqual(
     editors.flatMap((editor) => Array.from(editor.opcodes)).sort(),
-    [...definitionOpcodes.map((opcode) => authoringPrefix + opcode), `${runtimePrefix}pose`].sort(),
-    'The embedded authoring extension must register all eight definition forms and the pose steps form.',
+    [
+      ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
+      ...actionArguments.keys(),
+    ].sort(),
+    'The embedded authoring extension must register all eight definition forms and the pose/say/think forms.',
   );
   assert(
     editors.every((editor) =>
-      editor.argument === (editor.opcodes.includes(`${runtimePrefix}pose`) ? 'STEPS' : 'VALUE') &&
+      editor.opcodes.every((opcode) => editor.argument === (actionArguments.get(opcode) ?? 'VALUE')) &&
       typeof editor.schema === 'object',
     ),
-    'Definition forms must edit VALUE, and the pose form must edit STEPS',
+    'Definition forms must edit VALUE, pose must edit STEPS, and say/think must edit SPEC',
   );
 
   const info = extensionInfo.find((entry) =>

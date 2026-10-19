@@ -24,7 +24,7 @@ test('Urashima exposes all scenes and commands as connected editable blocks', ()
   verifyStructuredBlockSource(project, sourceText);
 });
 
-test('tutorial embeds the eight definition forms and pose steps form', async () => {
+test('tutorial embeds the eight definition forms and pose/say/think forms', async () => {
   const bytes = unzipSync(new Uint8Array(await readFile(
     path.join(projectRoot, 'stories/tutorial/tutorial-blocks-4.0.sb3'),
   )));
@@ -57,8 +57,21 @@ test('rejects a pose form registered against the wrong argument', () => {
   assert(source.includes('STEPS'), 'The authoring extension must contain the pose steps form.');
   broken.extensionURLs!.kubohiroyakamishibaiauthoring4 =
     'data:text/javascript;base64,' + Buffer.from(source.replaceAll('STEPS', 'VALUE')).toString('base64');
-  assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /pose form must edit STEPS/);
+  assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /pose must edit STEPS/);
 });
+
+for (const command of ['say', 'think']) {
+  test(`rejects a ${command} form registered against the wrong argument`, () => {
+    const broken = structuredClone(project);
+    const url = broken.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+    const source = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
+    const declaration = new RegExp(`("editorId":"action-${command}-spec"[^}]*"argument":)"SPEC"`);
+    assert(declaration.test(source), `The authoring extension must contain the ${command} SPEC form.`);
+    broken.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+      'data:text/javascript;base64,' + Buffer.from(source.replace(declaration, '$1"VALUE"')).toString('base64');
+    assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /say\/think must edit SPEC/);
+  });
+}
 
 test('rejects a published project with its source section block hidden', () => {
   const hidden = structuredClone(project);
