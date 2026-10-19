@@ -1,6 +1,6 @@
 name: Verify the samples site
 description: >-
-  Checks out the pinned TurboWarp-Kamishibai builder, installs both workspaces and runs
+  Resolves the published TurboWarp-Kamishibai release, installs both workspaces and runs
   pnpm run check. Shared by the pull-request workflow and the Pages deployment so the two
   cannot drift; a composite action keeps dist/ in the caller's workspace for upload.
 
@@ -12,33 +12,32 @@ inputs:
       makes that judgement. Left empty, as on the Pages deployment and the scheduled run,
       everything runs.
     required: false
-    default: ""
+    default: ''
 
 runs:
   using: composite
   steps:
-    # stories/urashima/dsl4-build.config.json is the single place the pinned builder commit
-    # is written. The build asserts the checkout's HEAD against it, so reading the ref from
-    # here means a repin is one edit instead of one per workflow.
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+    - name: Resolve and verify the published app dependency
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: node scripts/app-release.ts
+    # Playback, authoring and the downloaded base share this release commit.
     - id: pin
       shell: bash
       run: |
         commit=$(node -e "process.stdout.write(require('./stories/urashima/dsl4-build.config.json').runtime.commit)")
         printf 'commit=%s\n' "$commit" >> "$GITHUB_OUTPUT"
         printf 'Pinned builder commit: %s\n' "$commit"
-        authoring_commit=$(node -e "process.stdout.write(require('./stories/urashima/dsl4-build.config.json').blockAuthoring.commit)")
-        printf 'authoring-commit=%s\n' "$authoring_commit" >> "$GITHUB_OUTPUT"
-        printf 'TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT=%s/.tmp/kamishibai-block-authoring\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+        printf 'TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT=%s/.tmp/turbowarp-kamishibai-app\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
     - uses: actions/checkout@v7
       with:
         repository: kubohiroya/turbowarp-kamishibai-app
         ref: ${{ steps.pin.outputs.commit }}
         path: .tmp/turbowarp-kamishibai-app
-    - uses: actions/checkout@v7
-      with:
-        repository: kubohiroya/turbowarp-kamishibai-app
-        ref: ${{ steps.pin.outputs.authoring-commit }}
-        path: .tmp/kamishibai-block-authoring
     - shell: bash
       run: corepack enable
     - uses: actions/setup-node@v7
@@ -48,7 +47,6 @@ runs:
         cache-dependency-path: |
           pnpm-lock.yaml
           .tmp/turbowarp-kamishibai-app/pnpm-lock.yaml
-          .tmp/kamishibai-block-authoring/pnpm-lock.yaml
     - shell: bash
       run: pnpm install --frozen-lockfile
     - shell: bash
@@ -59,9 +57,9 @@ runs:
     - shell: bash
       working-directory: .tmp/turbowarp-kamishibai-app
       run: pnpm run build:lib
-    - shell: bash
-      working-directory: .tmp/kamishibai-block-authoring
-      run: pnpm install --frozen-lockfile && pnpm run build:lib
+    - name: Regenerate all DSL 4.0 distribution artifacts
+      shell: bash
+      run: pnpm update:dsl4-artifacts
     # Downloading Chromium and WebKit costs about a minute of every run, and the browsers
     # only change when Playwright does.
     - id: playwright-version

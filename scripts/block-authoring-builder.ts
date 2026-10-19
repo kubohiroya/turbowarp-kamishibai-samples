@@ -57,16 +57,18 @@ export function replaceBlockSourceRuntime(
   );
 }
 
-/** Keep editable-source generation independent of the published playback runtime pin. */
+/** Use the same published release for the base, playback CLI and authoring CLI. */
 export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
   const projectRoot = path.resolve(import.meta.dirname, '..');
   const config = JSON.parse(
     await readFile(path.join(projectRoot, 'stories/urashima/dsl4-build.config.json'), 'utf8'),
   ) as {
     blockAuthoring: BlockAuthoringIdentity;
-    runtime: {basePath: string; baseSize: number; baseSha256: string};
+    runtime: {repository: string; commit: string; basePath: string; baseSize: number; baseSha256: string};
   };
-  const identity = config.blockAuthoring;
+  const identity = {...config.blockAuthoring, repository: config.runtime.repository, commit: config.runtime.commit};
+  assert(!config.blockAuthoring.commit || config.blockAuthoring.commit === identity.commit,
+    'The authoring CLI must use the same app release as the base.');
   assert.match(identity.commit, /^[0-9a-f]{40}$/u);
   const sourceSections = identity.sourceSections ?? false;
   assert.equal(typeof sourceSections, 'boolean', 'sourceSections must be boolean.');

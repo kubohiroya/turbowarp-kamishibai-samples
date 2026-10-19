@@ -4,7 +4,7 @@ DSL 4.0チュートリアルの「紙芝居を遊ぶ」「紙芝居を作る」�
 最小作品です。教室で地震の揺れを感じた参加者が、自分の身を守るために丈夫な机の下へ入り、
 両手で頭を守る流れを練習します。
 
-汎用ベースはTurboWarp-Kamishibai `4.0.0-rc.25`の公開releaseに固定し、再生用とブロック台本用のビルダーは
+汎用ベースは`app-release.json`に記録したTurboWarp-Kamishibaiの公開releaseから取得し、再生用とブロック台本用のビルダーは
 `../urashima/dsl4-build.config.json`で同じreleaseタグのcommitへ固定します。samplesを先に公開し、
 docs側はその公開surfaceを使ってcaptureとチュートリアルpublicationを行います。
 
@@ -37,7 +37,7 @@ docs側はその公開surfaceを使ってcaptureとチュートリアルpublicat
 
 ## 公開フラグ
 
-`dsl4-build.config.json`の`publication.enabled`は起動時固定でONです。`4.0.0-rc.25`の固定releaseベースと固定ビルダーコミット
+`dsl4-build.config.json`の`publication.enabled`は起動時固定でONです。同じ公開releaseのベースとビルダーコミット
 から成果物を再現してブラウザー検証し、`dist/`と作品一覧へ公開します。docs側のcapture完了は
 公開条件にしません。問題時はフラグをOFFへ戻して4.0チュートリアルの公開導線だけを停止し、既存3.2成果物を維持します。
 

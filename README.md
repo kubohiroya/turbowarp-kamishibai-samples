@@ -17,11 +17,11 @@
 - `sample.config.json`: `generic` / `editor` / `player` とWeb版の生成設定
 - `artifacts.lock.json`: 再現可能な生成物のサイズとSHA-256
 - `base/kamishibai.sb3`: ポーズ認識成立音対応済み本体コミットから生成したDSL 3.2 `generic` ベース
-- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.25（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactを、サイズとSHA-256を固定して取り込んだ`generic`ベース
+- `base/kamishibai-4.0.sb3`: appの公開済み最新DSL 4.0 Releaseから取得・照合した`generic`ベース。出典は`app-release.json`
 
 `stories/my-urashima/`はワークショップ用の依存ストーリーです。DSL 3.2版に加え、Princess PNGを唯一のコスチュームとして持つ`Princess`スプライトと浦島太郎のプロジェクトアセットを組み込んだ、台本非埋め込みの`my-urashima-4.0.sb3`およびWeb版も生成します。生成規約と更新方法は[`stories/my-urashima/README.md`](stories/my-urashima/README.md)に記載しています。
 
-`stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。公開済みTurboWarp-Kamishibai `4.0.0-rc.25`を入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
+`stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。`app-release.json`で確認した公開済みTurboWarp-Kamishibaiを入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
 
 正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL 4.0 YAML、オフラインSB3、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
 
@@ -33,7 +33,7 @@
 - `web/index.html`: `player`だけを入力とする、画像・音声・台本組み込み済みの単一HTML
 - `urashima-4.0.sb3` / `web-4.0/index.html`: DSL 4.0台本・全アセット・ポーズモデル組み込み済みのオフライン版
 - `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: DSL 4.0外部台本をファイル選択またはドラッグ＆ドロップで開くワークショップ版
-- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 4.0.0-rc.25で再現・検証して公開するDSL 4.0チュートリアル成果物
+- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 同じappリリースで再現・検証して公開するDSL 4.0チュートリアル成果物
 
 先頭の `_` は物語作成者による内部的使用を示します。`player` は編集禁止を意味する「再生専用」ではなく「再生用」です。GitHub Pagesのビルド時には空の`dist/`へすべての成果物をロック済み入力から生成します。DSL 4.0のチェックイン済みSB3は配布元かつ再現性検証対象であり、Web版HTMLはリポジトリへコミットせず自動生成します。
 
@@ -70,9 +70,23 @@ pnpm run release:check
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
-CIとPages workflowはTurboWarp-Kamishibaiを`dsl4-build.config.json`に固定したcommitへcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でビルダー位置を指定します。ローカルでは隣接する`../turbowarp-kamishibai-app`を既定値として使います。ブロック台本用CLIは同じ設定の`blockAuthoring.commit`へ別途固定し、`TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT`で指定します。再生用CLIはrc.25の公開タグのcommitを維持し、ブロック台本用CLIと埋め込みauthoringランタイムは設定ハット対応のapp mainコミットへ固定します。このCLIにはNode 24以上が必要です。
+CIとPagesは、RCを含むappの公開済み最新DSL 4.0 Releaseを自動取得します。
+同じtagのcommit・release metadata・SB3のサイズ・SHA-256を照合し、ベースSB3本体と
+再生用・編集用ビルダーを同じリリースへ揃えてから、全DSL4配布物を再生成・検証します。
+タイトル・メニュー画像も含めてベース全体を更新し、拡張機能だけを差し替える運用は行いません。
+出典を`app-release.json`と各artifact lockへ記録し、公開サイトにも`app-release.json`を配置します。
 
-編集用SB3では`blockAuthoring.refreshRuntime: true`を明示し、同じ固定authoring commitから生成した再生コードも組み込みます。タイトルボタンのダイアログ下への配置など、Editor向けの修正を適用するためです。未指定時はfalseで、baseの再生コードを継承します。置換時はbaseのサイズ・SHA-256とwrapper内のbundle一意性を検査し、生成lockに設定を記録します。
+ローカルで上流へ更新する場合は`pnpm update:app-release`を実行し、記録されたcommitの
+app checkoutを`TURBOWARP_KAMISHIBAI_APP_ROOT`へ指定して`pnpm update:dsl4-artifacts`を実行します。
+ブロック編集用CLIも同じcommitを使います。Node.js 24以上が必要です。
+通常のローカルビルドは記録済みの依存を使い、毎回最新版を解決する必要はありません。
+
+Pagesはmain更新・手動実行・`app-release-published`のrepository dispatchと、毎時27分の定期確認から実行します。
+上流に変更がなければ定期実行の再生成・公開を省略します。比較先は公開済みmanifestなので、
+リポジトリのsnapshotが古いままでも同じ版を繰り返し公開しません。
+取得・照合・再生成・検証に失敗した場合は公開を止めます。Actionsの遅延を含むため即時更新は保証しません。
+ロールバックは依存情報・配布物・生成処理を直前の組へrevertし、Pagesを再公開します。
+依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。
 
 ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
 
