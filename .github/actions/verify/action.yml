@@ -100,12 +100,17 @@ runs:
       env:
         KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks || 'all' }}
       run: pnpm run check
+    - name: Verify unsupported-block diagnostics in the public editor
+      shell: bash
+      run: node scripts/verify-published-block-diagnostics.ts --input dist/stories/urashima/urashima-blocks-4.0.sb3
     - name: Upload block editor regression evidence
       if: always()
       uses: actions/upload-artifact@v7
       with:
         name: block-editor-regression
-        path: .tmp/block-editor-browser/
+        path: |
+          .tmp/block-editor-browser/
+          .tmp/published-block-diagnostics/
         include-hidden-files: true
         if-no-files-found: ignore
         retention-days: 7
