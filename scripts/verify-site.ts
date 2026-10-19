@@ -640,7 +640,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima']],
     [sampleIndex, ['urashima/urashima']],
     [tutorialIndex, ['tutorial/tutorial']],
-    [myUrashimaIndex, ['my-urashima/my-urashima']],
+    [myUrashimaIndex, ['my-urashima/my-urashima', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses`)]],
   ] as const) {
     const links = [...page.matchAll(/href="([^"]*turbowarp-extension-data-editor[^"]*)"/gu)]
       .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
@@ -653,6 +653,12 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     }
   }
   assert(!myUrashimaIndex.includes('ブロック台本SB3：未提供'));
+  assert(myUrashimaIndex.includes('台本ブロックでワークショップを行う場合'));
+  assert(myUrashimaIndex.includes('行頭の#を外す'));
+  assert.deepEqual(myDsl4Manifest.workshopBlocks.map(({poseCount}) => poseCount), [2, 3, 4]);
+  for (const record of myDsl4Manifest.workshopBlocks) {
+    await verifyFile(myUrashimaOutputDirectory, record, `${record.poseCount}-pose workshop SB3`);
+  }
   await verifyFile(
     myUrashimaOutputDirectory,
     myDsl4Manifest.blocksOutput,

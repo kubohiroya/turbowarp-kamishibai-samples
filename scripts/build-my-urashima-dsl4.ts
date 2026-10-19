@@ -15,6 +15,7 @@ import {
   type BlockAuthoringIdentity,
 } from './block-authoring-builder.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
+import {buildMyUrashimaWorkshopBlocks, type WorkshopBlockRecord} from './build-my-urashima-workshop-blocks.ts';
 import type {ScratchProject, ScratchTarget} from './scratch.ts';
 import type {
   DependencyRecord,
@@ -41,6 +42,7 @@ interface InputFileRecord {
 export interface MyUrashimaDsl4ArtifactLock {
   formatVersion: number;
   runtime: Record<string, unknown>;
+  workshopBlocks: WorkshopBlockRecord[];
   blockAuthoring: BlockAuthoringIdentity;
   blocksOutput: DependencyRecord & {archiveEntryCount: number; targetNames: string[]};
   sb3Toolchain: {package: string; version: string};
@@ -249,7 +251,18 @@ export async function buildMyUrashimaDsl4({
     const toolchainPackage = await readJson<{version: string}>(
       path.join(projectRoot, 'node_modules/@kubohiroya/sb3-toolchain/package.json'),
     );
+    const princess = projectAssets.assets.Princess;
+    assert(princess, 'The workshop Princess costume must exist.');
+    const workshopBlocks = await buildMyUrashimaWorkshopBlocks({
+      source: await readFile(sourcePath, 'utf8'),
+      basePath: intermediatePath,
+      storyDirectory,
+      temporaryDirectory,
+      princess,
+      authoring: blockAuthoring,
+    });
     const artifactLock: MyUrashimaDsl4ArtifactLock = {
+      workshopBlocks: workshopBlocks.map(({record}) => record),
       formatVersion: 1,
       runtime: runtimeConfig.runtime,
       blockAuthoring: blockAuthoring.identity,
@@ -276,6 +289,14 @@ export async function buildMyUrashimaDsl4({
         ...project,
       },
     };
+    for (const {record, bytes} of workshopBlocks) {
+      const outputPath = path.join(storyDirectory, record.path);
+      if (writeLock) await writeAtomically(outputPath, bytes);
+      else if (verifyCommittedOutput) assert.deepEqual(await readFile(outputPath), bytes);
+      if (publishedOutputPath) {
+        await writeAtomically(path.join(path.dirname(publishedOutputPath), record.path), bytes);
+      }
+    }
     if (writeLock) {
       await writeAtomically(committedOutputPath, canonicalBytes);
       await writeAtomically(blocksOutputPath, blocksBytes);

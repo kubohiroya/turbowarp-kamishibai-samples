@@ -946,6 +946,40 @@ ${renderSiteFooter('../../')}
 `;
 }
 
+function renderMyUrashimaWorkshop(manifest: MyUrashimaDsl4Manifest): string {
+  if (!manifest.workshopBlocks?.length) return '';
+  const links = manifest.workshopBlocks.map(({poseCount, path: file}) => {
+    const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
+    editor.searchParams.set('blockEditorDialogs', '1');
+    editor.searchParams.set('lang', 'ja');
+    editor.searchParams.set('project_url', new URL(`stories/my-urashima/${file}`, publicUrl).href);
+    return `        <li><a class="button" href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">${poseCount}ポーズでフォーム編集（別タブ）</a> <a href="${escapeHtml(file)}" download>SB3をダウンロード</a></li>`;
+  }).join('\n');
+  return `    <section class="artifact-group" id="block-workshop" aria-labelledby="block-workshop-heading">
+      <h2 id="block-workshop-heading">台本ブロックでワークショップを行う場合</h2>
+      <p>使用するポーズ数を選ぶと、設定済みのブロック台本SB3を日本語のExtension Data Editorで開けます。
+      衣装の参照と乙姫のポーズ列は、選んだ数に合わせて設定済みです。</p>
+      <ul class="workshop-pose-choices">
+${links}
+      </ul>
+      <p>拡張の読み込み確認でそれぞれ「サンドボックスなしで実行する」を有効にし、許可してください。
+      専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
+      <h3>ワークショップ資料の読み替え</h3>
+      <ul>
+        <li>「p1〜p4の行頭の#を外す」操作は不要です。選択数までのasset定義が入っています。</li>
+        <li>「Princess.poseの2・3・4ポーズ用候補から1行の#を外す」操作も不要です。
+        竜宮城へ到着する場面に、選んだポーズ列を2回繰り返し、各ステップでDrum Funkyを鳴らす命令が入っています。</li>
+        <li>Princessスプライトの仮衣装p1〜p4のうち、選んだ数までを自分のポーズ画像に置き換えます。
+        衣装名はp1、p2…のままにしてください。仮衣装は元のPrincess画像です。</li>
+        <li>Teachable Machineで学習したモデルのラベルをp1、p2…にそろえ、
+        asset定義PoseModel2のフォームでsourceのurlを自分のモデルURLへ変更します。</li>
+      </ul>
+      <p>ポーズ数ごとに別のSB3です。数を変える場合は、編集済みSB3を保存してから別のリンクを開いてください。
+      行頭#の操作を体験する実習には、従来のYAML台本と作業用SB3を使用します。</p>
+    </section>
+`;
+}
+
 export function renderMyUrashimaIndex(
   work: WorkEntry,
   dsl4Manifest: MyUrashimaDsl4Manifest,
@@ -1031,7 +1065,7 @@ ${workMedia}${workFormats}
   拡張の読み込み確認では、それぞれ「サンドボックスなしで実行する」を有効にして許可してください。
   ステージの専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
   <div class="artifact-groups">
-    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
+${renderMyUrashimaWorkshop(dsl4Manifest)}    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
       <h2 id="my-dsl-32-heading">DSL 3.2 作業版</h2>
       <p>ワークショップでポーズと物語を編集するための外部台本と作業用SB3です。</p>
 ${dsl32Sizes}
