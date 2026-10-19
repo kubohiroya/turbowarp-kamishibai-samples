@@ -622,9 +622,10 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       assert(formatsPage.includes(formatLabel), `${label} is missing ${formatLabel}.`);
     }
   }
-  // ブロック台本SB3はtutorialと浦島太郎が提供する（issue #132 段階2、issue #149）。
+  // Every published block source must be linked from its detail page.
   for (const [formatsPage, href, label] of [
     [tutorialIndex, 'tutorial-blocks-4.0.sb3', 'tutorial detail'],
+    [myUrashimaIndex, 'my-urashima-blocks-4.0.sb3', 'my-urashima detail'],
     [urashimaCard, 'stories/urashima/urashima-blocks-4.0.sb3', 'urashima card'],
     [sampleIndex, 'urashima-blocks-4.0.sb3', 'urashima detail'],
   ] as const) {
@@ -636,10 +637,10 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   // Direct editor links must enable forms and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
-    [rootIndex, ['urashima/urashima', 'tutorial/tutorial']],
+    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima']],
     [sampleIndex, ['urashima/urashima']],
     [tutorialIndex, ['tutorial/tutorial']],
-    [myUrashimaIndex, []],
+    [myUrashimaIndex, ['my-urashima/my-urashima']],
   ] as const) {
     const links = [...page.matchAll(/href="([^"]*turbowarp-extension-data-editor[^"]*)"/gu)]
       .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
@@ -651,10 +652,11 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       assert.equal(url.searchParams.get('lang'), 'ja');
     }
   }
-  // my-urashimaは作業用SB3とほぼ同一の複製になるため提供しない。理由は表示したままにする。
-  assert(
-    myUrashimaIndex.includes('ブロック台本SB3：未提供'),
-    'the workshop work must state why it provides no block source SB3.',
+  assert(!myUrashimaIndex.includes('ブロック台本SB3：未提供'));
+  await verifyFile(
+    myUrashimaOutputDirectory,
+    myDsl4Manifest.blocksOutput,
+    'my-urashima block source SB3',
   );
   assert(
     myUrashimaIndex.includes('台本埋め込みSB3：未提供'),
@@ -808,6 +810,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(publishedFiles.includes('stories/my-urashima/my-urashima.txt'));
   assert(publishedFiles.includes('stories/my-urashima/my-urashima.k4.yml'));
   assert(publishedFiles.includes('stories/my-urashima/my-urashima-4.0.sb3'));
+  assert(publishedFiles.includes('stories/my-urashima/my-urashima-blocks-4.0.sb3'));
   assert(publishedFiles.includes('stories/my-urashima/card-scenes.gif'));
   assert(publishedFiles.includes('stories/my-urashima/card-scenes/04.webp'));
   assert(!publishedFiles.includes('stories/my-urashima/card-scenes/05.webp'));

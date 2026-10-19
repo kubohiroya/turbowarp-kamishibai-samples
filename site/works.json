@@ -199,7 +199,8 @@
           "unavailableReason": "ワークショップ版は台本を埋め込まず、受講者が編集したYAMLを開いて実行する構成のため提供しません。"
         },
         "sb3-blocks": {
-          "unavailableReason": "ブロック台本SB3は未提供です。この作品の作業用SB3は台本を埋め込まない構成のため、ブロック台本版は作業用SB3とほぼ同一の16MBの複製になり、増える内容は宣言ブロック2件分だけです。容量に見合わないため提供しません（issue #149）。"
+          "href": "stories/my-urashima/my-urashima-blocks-4.0.sb3",
+          "note": "ワークショップのYAML台本をブロックとして編集する版です。YAMLのコメントは含みません。"
         },
         "html": {
           "href": "stories/my-urashima/web-4.0/",
