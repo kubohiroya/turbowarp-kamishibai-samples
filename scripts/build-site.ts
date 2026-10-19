@@ -969,6 +969,7 @@ export function renderMyUrashimaIndex(
     },
     {name: '台本ファイル（YAML）', record: dsl4Manifest.source as {size: number}},
     {name: '作業用SB3ファイル', record: dsl4Manifest.output},
+    {name: 'ブロック台本SB3ファイル', record: dsl4Manifest.blocksOutput},
   ]);
   const workMedia = renderDetailMediaGallery(work);
   const workFormats = renderArtifactFormats(
@@ -993,6 +994,7 @@ export function renderMyUrashimaIndex(
     main { max-width: 920px; margin: auto; padding: 40px 24px 72px; }
     .local-nav { margin-bottom: 32px; }
     a { color: var(--accent); }
+    code { overflow-wrap: anywhere; }
     .work-meta { display: grid; gap: .65rem; margin: 1.25rem 0; }
     .work-meta div { display: grid; grid-template-columns: minmax(7.5rem, auto) 1fr; gap: .75rem; }
     .work-meta dt { color: var(--muted); font-weight: 700; }
@@ -1025,6 +1027,9 @@ ${renderSiteHeader('../../')}
     <div><dt>ライセンス・利用条件</dt><dd><a href="../urashima/LICENSES.md">${escapeHtml(work.license.label)}</a></dd></div>
   </dl>
 ${workMedia}${workFormats}
+  <p>フォーム編集用リンクでは、公開済みのmy-urashimaのブロック台本SB3を日本語で開きます。
+  拡張の読み込み確認では、それぞれ「サンドボックスなしで実行する」を有効にして許可してください。
+  ステージの専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
   <div class="artifact-groups">
     <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
       <h2 id="my-dsl-32-heading">DSL 3.2 作業版</h2>

@@ -6,6 +6,7 @@
   "source": "my-urashima.k4.yml",
   "projectAssets": "project-assets-dsl4.yml",
   "output": "my-urashima-4.0.sb3",
+  "blocksOutput": "my-urashima-blocks-4.0.sb3",
   "artifactsLock": "dsl4-artifacts.lock.json",
   "webArtifactsLock": "dsl4-web-artifacts.lock.json",
   "web": {

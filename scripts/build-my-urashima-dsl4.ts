@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {mkdir, mkdtemp, readFile, rename, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -9,6 +10,11 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {
+  resolveBlockAuthoringBuilder,
+  type BlockAuthoringIdentity,
+} from './block-authoring-builder.ts';
+import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import type {ScratchProject, ScratchTarget} from './scratch.ts';
 import type {
   DependencyRecord,
@@ -35,6 +41,8 @@ interface InputFileRecord {
 export interface MyUrashimaDsl4ArtifactLock {
   formatVersion: number;
   runtime: Record<string, unknown>;
+  blockAuthoring: BlockAuthoringIdentity;
+  blocksOutput: DependencyRecord & {archiveEntryCount: number; targetNames: string[]};
   sb3Toolchain: {package: string; version: string};
   source: DependencyRecord;
   projectAssets: {manifest: DependencyRecord; files: InputFileRecord[]};
@@ -212,12 +220,46 @@ export async function buildMyUrashimaDsl4({
       canonicalBytes,
       assetEntries.map(([id]) => id),
     );
+    const blockAuthoring = await resolveBlockAuthoringBuilder();
+    assert(config.blocksOutput, 'The workshop block source output must be configured.');
+    const blockInputPath = path.join(temporaryDirectory, 'block-source.sb3');
+    const authored = spawnSync(
+      process.execPath,
+      [
+        blockAuthoring.cli,
+        'author-block-dsl',
+        '--input', sourcePath,
+        '--base', intermediatePath,
+        '--output', blockInputPath,
+        '--max-source-bytes', '262144',
+      ],
+      {cwd: blockAuthoring.root, encoding: 'utf8'},
+    );
+    if (authored.error) throw authored.error;
+    assert.equal(authored.status, 0, authored.stdout + authored.stderr);
+    const blocksBytes = await canonicalizeSb3(
+      blockInputPath,
+      path.join(temporaryDirectory, 'block-source-canonical'),
+    );
+    const blocksArchive = unzipSync(new Uint8Array(blocksBytes));
+    const blocksProject = JSON.parse(strFromU8(blocksArchive['project.json']!)) as ScratchProject;
+    verifyStructuredBlockSource(blocksProject, await readFile(sourcePath, 'utf8'));
+    assert.deepEqual(blocksProject.targets.map(({name}) => name), project.targetNames);
+    const blocksOutputPath = path.join(storyDirectory, config.blocksOutput);
     const toolchainPackage = await readJson<{version: string}>(
       path.join(projectRoot, 'node_modules/@kubohiroya/sb3-toolchain/package.json'),
     );
     const artifactLock: MyUrashimaDsl4ArtifactLock = {
       formatVersion: 1,
       runtime: runtimeConfig.runtime,
+      blockAuthoring: blockAuthoring.identity,
+      blocksOutput: {
+        path: config.blocksOutput,
+        size: blocksBytes.length,
+        sha256: sha256(blocksBytes),
+        archiveEntryCount: Object.keys(blocksArchive).length,
+        targetNames: blocksProject.targets.map(({name}) => name),
+      },
       sb3Toolchain: {
         package: '@kubohiroya/sb3-toolchain',
         version: toolchainPackage.version,
@@ -236,6 +278,7 @@ export async function buildMyUrashimaDsl4({
     };
     if (writeLock) {
       await writeAtomically(committedOutputPath, canonicalBytes);
+      await writeAtomically(blocksOutputPath, blocksBytes);
       await writeAtomically(
         artifactLockPath,
         Buffer.from(`${JSON.stringify(artifactLock, null, 2)}\n`),
@@ -252,9 +295,20 @@ export async function buildMyUrashimaDsl4({
           canonicalBytes,
           'my-urashima-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
         );
+        assert.deepEqual(
+          await readFile(blocksOutputPath),
+          blocksBytes,
+          'my-urashima-blocks-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
+        );
       }
     }
-    if (publishedOutputPath) await writeAtomically(publishedOutputPath, canonicalBytes);
+    if (publishedOutputPath) {
+      await writeAtomically(publishedOutputPath, canonicalBytes);
+      await writeAtomically(
+        path.join(path.dirname(publishedOutputPath), config.blocksOutput),
+        blocksBytes,
+      );
+    }
     return {
       archive: canonicalBytes,
       artifactLock,

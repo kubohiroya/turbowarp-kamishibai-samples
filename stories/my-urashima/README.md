@@ -56,3 +56,21 @@ pnpm validate:my-urashima-dsl4
 DSL 3.2にだけ存在する引数やアクションは、現行DSL 4.0のcore actionで表現できる形へ置き換えています。検証結果は`my-urashima.k4.yml: valid`です。
 
 ライセンスと素材の来歴は、親作品の[`LICENSES.md`](../urashima/LICENSES.md)およびワークショップ素材の[`LICENSES.md`](../../resources/20260801/LICENSES.md)を参照してください。
+
+## ブロック台本のフォーム編集
+
+`my-urashima-blocks-4.0.sb3`は、`my-urashima.k4.yml`を固定した公開rc.23の
+`author-block-dsl`で変換した編集用SB3です。既存の作業用SB3・Web版と別に配布します。
+作品の詳細ページの「Extension Data Editorでフォーム編集」から、公開SB3を直接開けます。
+拡張の読み込み確認ではそれぞれ「サンドボックスなしで実行する」を有効にして許可し、
+ステージの専用定義ブロックの白い書類アイコンからフォームを開きます。
+編集後はファイルメニューからSB3をコンピューターへ保存してください。
+
+生成は`pnpm update:my-urashima-dsl4`、通常の検証・配布は`pnpm build`で行います。
+CLIの固定commitと出力ハッシュを`dsl4-artifacts.lock.json`へ記録し、`pnpm verify`では
+ブロックから書き戻したYAMLと正本の意味が一致することを確認します。
+YAMLのコメントと書式はブロックへ引き継ぎません。行頭の`#`を削除するワークショップ操作には、
+従来のYAML台本と作業用SB3を使用してください。ポーズモデルは正本と同じリモート参照です。
+
+フォームUIはリンクの既存フラグ`blockEditorDialogs=1`で有効になります。切り戻しは、
+ブロック台本の生成設定・生成物・ロック・提供形式の変更をまとめてrevertしてPagesを再公開します。
