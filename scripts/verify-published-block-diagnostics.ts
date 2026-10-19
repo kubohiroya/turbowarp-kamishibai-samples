@@ -254,6 +254,8 @@ try {
       const area = workspace.getInjectionDiv().getBoundingClientRect();
       return {
         selected: block.getSvgRoot().classList.contains('blocklySelected'),
+        highlightFilter: getComputedStyle(block.getSvgRoot()).filter,
+        highlighted: getComputedStyle(block.getSvgRoot()).filter.includes('drop-shadow'),
         expanded: !workspace.getBlockById(sceneId).isCollapsed(),
         visible:
           rect.width > 0 &&
@@ -264,7 +266,7 @@ try {
           rect.bottom > area.top,
       };
     }, created);
-    assert(selected.selected && selected.expanded && selected.visible, JSON.stringify(selected));
+    assert(selected.selected && selected.highlighted && selected.expanded && selected.visible, JSON.stringify(selected));
     assert.equal(await indicator.isVisible(), false);
     await page.screenshot({
       path: path.join(output, `${scenario.opcode}-selected.png`),

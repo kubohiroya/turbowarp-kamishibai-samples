@@ -46,8 +46,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 12947875,
-      "sha256": "0daf7c77d27e2e81f954731527bdf3f990504d9c3e308dae7b25bcbf8e13e278",
+      "size": 12948203,
+      "sha256": "2627be11b0bf0abf281043c75a9cc221195956adfe6bb640ea1512faf4f36b05",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
