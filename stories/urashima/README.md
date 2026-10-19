@@ -31,15 +31,15 @@
 - `project.source.json`: `urashima.k4.yml`を選ぶ固定cache identity付きDSL 4.0 source manifest
 - `dsl4-build.config.json`: 4.0 runtime base、TurboWarp-Kamishibai commit、入力上限を固定する生成設定
 - `dsl4-artifacts.lock.json`: `urashima-4.0.sb3`と`urashima-blocks-4.0.sb3`の入力・出力ハッシュとtarget構成
-- `urashima-blocks-4.0.sb3`: 10場面・174命令を個別のTurboWarpブロックとして持つ編集用SB3。各場面の中で背景・表示・待機・台詞・移動・ポーズを編集できます。宣言ハットは
-  不活性なので、これ自体は再生しません。再生できる形にするには公式CLIの`build-dsl4`へ`--base`として
-  渡します。`pnpm verify`は、ここから書き戻したYAMLが`urashima.k4.yml`と同じ意味であることを
+- `urashima-blocks-4.0.sb3`: 10場面・174命令を個別のTurboWarpブロックとして持ち、編集・再生できるSB3。各場面の中で背景・表示・待機・台詞・移動・ポーズを編集できます。
+  Stage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。
+  編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。`pnpm verify`は、ここから書き戻したYAMLが`urashima.k4.yml`と同じ意味であることを
   canonical形で確認します。場面順・命令順・ブロックの接続も検査し、YAML全文を1個の文字列ブロックへ入れる旧形式は拒否します
 - `dsl4-web-artifacts.lock.json`: `web-4.0/index.html`の入力・出力ハッシュとPackager設定
 - `sample.config.json`: ベース、ビルダー、プロファイル、出力名、既定OFFのWeb生成機能を浦島太郎で有効にする設定
 - `artifacts.lock.json`: `_urashima` / `urashima` / `web/index.html` の再現可能な出力ハッシュ
 - `base/kamishibai.sb3`: TurboWarp-Kamishibai のclone-only UI `generic` 成果物
-- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.22（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactそのもの
+- `base/kamishibai-4.0.sb3`: 公開済みDSL 4.0.0-rc.23（埋め込みTeachable Machine拡張 3.5.1とCamera Source 0.15.0）のrelease artifactそのもの
 
 `source.txt`の`# date:`はビルドが自動管理します。日付行を除いた内容fingerprintが`artifacts.lock.json`の記録から変わった場合だけ、ビルド環境のローカル今日へ更新し、`urashima.txt`、両プロファイル、Web版、my-urashimaを再生成します。内容が同じ再ビルドでは日付も成果物も更新しません。
 
@@ -58,13 +58,13 @@ pnpm verify:urashima-dsl4
 
 ## DSL 4.0オフラインSB3の生成
 
-`dsl4-build.config.json`に固定したTurboWarp-Kamishibai commitを、既定では隣接する`../turbowarp-kamishibai-app`にcheckoutして依存関係をインストールします。CIでは同じcommitを`.tmp/turbowarp-kamishibai-app`へcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でその場所を指定します。入力となる`base/kamishibai-4.0.sb3`も、DSL 4.0.0-rc.22のrelease source identity、サイズ、SHA-256を設定に固定しています。
+`dsl4-build.config.json`に固定したTurboWarp-Kamishibai commitを、既定では隣接する`../turbowarp-kamishibai-app`にcheckoutして依存関係をインストールします。CIでは同じcommitを`.tmp/turbowarp-kamishibai-app`へcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でその場所を指定します。入力となる`base/kamishibai-4.0.sb3`も、DSL 4.0.0-rc.23のrelease source identity、サイズ、SHA-256を設定に固定しています。
 
 ```bash
 pnpm update:dsl4-artifacts
 ```
 
-このコマンドが、浦島太郎とmy-urashimaのDSL 4.0 SB3、各artifact lock、両Web版のartifact lockを一括更新する正規経路です。浦島太郎だけを更新するときは`pnpm update:urashima-dsl4`を使用します。処理は次の順で行います。
+このコマンドが、浦島太郎・my-urashima・tutorialのDSL 4.0 SB3、各artifact lock、Web版のartifact lock、tutorialの公開surfaceを一括更新する正規経路です。浦島太郎だけを更新するときは`pnpm update:urashima-dsl4`を使用します。処理は次の順で行います。
 
 1. `dsl4-inputs.lock.json`に固定したポーズモデルを必要時だけ取得し、Stars／TextPlaceholderを3.2 generic baseから検証付きで抽出する。
 2. 4.0 generic baseを`sb3-toolchain`へimportし、`project-assets-dsl4.yml`でUrashima／Turtle／Princess／Fish／Narration targetを追加して決定的再構築する。
@@ -72,7 +72,7 @@ pnpm update:dsl4-artifacts
 4. 生成途中のSB3をもう一度`sb3-toolchain`へimportし、最終`urashima-4.0.sb3`を決定的再構築する。
 5. 完成したSB3をTurboWarp Packager 3.13.0へ渡し、二度の生成結果が一致することを確認してWeb版ロックを更新する。
 
-ブロック台本SB3は、公式CLIの生成結果を`sb3-toolchain`へimportし、編集用ラッパーの`extensions`属性を`configurable: true`として再構築します。固定ビルダーが属性を変更不可として生成するため、バンドル内のProxyがコンポーネントごとの`extensions`を返すと初期化時にTypeErrorになります。補正はラッパーの属性定義1箇所に限定し、想定する定義が1件でなければ生成を停止します。元のランタイム本体・台本・アセットは保持します。
+ブロック台本SB3は、公式CLIの生成結果を`sb3-toolchain`へimportし、rc.23の編集用ラッパーが`extensions`属性を`configurable: true`として定義することを検証します。完成作品のfile素材bundleを引き継いで再構築し、編集用の台本ブロックとメニュー設定は保持します。想定する属性定義が1件でない場合や変更不可の場合は生成を停止します。
 
 SB3のZIPや`project.json`を直接編集する別経路はありません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
 
@@ -104,9 +104,11 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 - 移設元コミット: `9526c9d6391622ee261b8d7c0778b1fbbd2e6745`
 - ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `3.2.3` / `28015ac9ff5221f371e8bd0357a7750ce40bbf7c`
 - 汎用ベース: TurboWarp-Kamishibai / `2b5005d293a9b63c8ba5da396fd86815d093f975`
-- DSL 4.0汎用ベースのソース: TurboWarp-Kamishibai / `4.0.0-rc.22`（公開版） / `sha256:44e85ea98dd7d4aef7bbd08c21610675bef8cd9a6244196a9fac54caa712ee6f`
-- DSL 4.0ビルダー: TurboWarp-Kamishibai / `1a4bb356cc9eb75667414df28dea054193f83a8b`。rc.22公開後の命令ブロック生成・ラベル付き台本ハット・YAML往復修正（本体PR #882／#884）を含むコミットに固定しています。汎用ベースは公開済みrc.22を維持し、ビルダーの固定先はreleaseタグと区別します
+- DSL 4.0汎用ベースのソース: TurboWarp-Kamishibai / `4.0.0-rc.23`（公開版） / `sha256:1600bea27fccd29a22212fa12cf8f9ff30e947a8164f552429f8930b1720d93f`
+- DSL 4.0ビルダー・ブロック台本用CLI: TurboWarp-Kamishibai / `2f2889fe9df88548a92b0925ca3008c5c62682e5`（`v4.0.0-rc.23`）。組み込み台本からの物語開始（本体PR #894）と、命令ブロック生成・専用定義フォーム・YAML往復に対応した公開版へ固定しています
+
+rc.23再pinと組み込み台本の直接再生対応は[Issue #172](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/172)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体rc.22／rc.23のrelease artifactは差し替えません。
 
 生成・検証・公開の実装は [Issue #2](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)、Packager Web版は [Issue #7](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)、DSL 4.0の自動生成は [Issue #90](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90) で管理します。
 
-ブロック台本の初期化修正の受け入れ基準は、TurboWarpの実エディターで10場面と174命令が表示され、数値入力を編集して保存したSB3にも反映されることです。ラッパーのProxy互換性を回帰テストで検査します。ロールバックは、生成時のラッパー補正・再生成したブロック台本SB3・関連lockをまとめてrevertします。
+ブロック台本の初期化修正の受け入れ基準は、TurboWarpの実エディターで10場面と174命令が表示され、数値入力を編集して保存したSB3にも反映されることです。ラッパーのProxy互換性を回帰テストで検査します。ロールバックは、生成処理・再生成したブロック台本SB3・関連lockをまとめてrevertします。

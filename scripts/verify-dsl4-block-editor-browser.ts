@@ -304,17 +304,97 @@ try {
     canonical(expectedPath),
     'The saved SB3 must preserve the edit and all remaining story semantics.',
   );
+  report.savedStoryMatches = true;
+
+  phase = 'start-edited-block-story';
+  const openingBackdrop = opening.find(
+    (action: Record<string, unknown>) => 'stage' in action,
+  )?.stage;
+  assert.equal(typeof openingBackdrop, 'string', 'The opening scene must declare its backdrop.');
+  // Use the editor's visible controls so this covers the same startup path as a reader's click.
+  await page.locator('[class*="green-flag_green-flag"]').first().click();
+  await Promise.race([
+    page.locator('[data-dsl4-title-action=close]').waitFor({state: 'visible', timeout: 120_000}),
+    fatal,
+  ]);
+  await page.locator('[data-dsl4-title-action=close]').click();
+
+  phase = 'render-opening-block-story';
+  await Promise.race([
+    page.waitForFunction(
+      () => {
+        const visible = (selector: string) => {
+          const element = document.querySelector<HTMLElement>(selector);
+          return Boolean(
+            element &&
+            getComputedStyle(element).display !== 'none' &&
+            element.getBoundingClientRect().width > 0,
+          );
+        };
+        const error = document.querySelector<HTMLElement>('[data-dsl4-runtime-error=true]');
+        if (visible('[data-dsl4-runtime-error=true]')) {
+          throw new Error(`Block story startup failed: ${error?.textContent}`);
+        }
+        const stage = window.vm.runtime.getTargetForStage();
+        const drawableSkinId =
+          window.vm.runtime.renderer._allDrawables[stage?.drawableID]?._skin?._id;
+        const shellSkinIds = stage
+          ?.getCostumes()
+          .filter(({name}: any) => /^(?:Title|Menu)/u.test(name))
+          .map(({skinId}: any) => skinId);
+        // File-backed story images update the drawable without changing the VM costume index.
+        return (
+          !visible('[data-dsl4-title-controls=true]') &&
+          !visible('[data-dsl4-application-menu=true]') &&
+          !visible('[data-dsl4-source-chooser=true]') &&
+          Number.isInteger(drawableSkinId) &&
+          !shellSkinIds?.includes(drawableSkinId)
+        );
+      },
+      undefined,
+      {timeout: 120_000},
+    ),
+    fatal,
+  ]);
+  report.blockStoryPlayback = {
+    startedVia: 'visible green flag and title close',
+    expectedOpeningBackdrop: openingBackdrop,
+    drawableUsesStorySkin: true,
+    menuVisible: await page.locator('[data-dsl4-application-menu=true]').isVisible(),
+    sourceChooserVisible: await page.locator('[data-dsl4-source-chooser=true]').isVisible(),
+    errorVisible: await page.locator('[data-dsl4-runtime-error=true]').isVisible(),
+  };
+  await page.screenshot({
+    path: path.join(outputDirectory, 'block-story-opening.png'),
+  });
   assert.deepEqual(
     fatalErrors,
     [],
     'The editor must not report a fatal initialization or page error.',
   );
-  report.savedStoryMatches = true;
   report.status = 'passed';
 } catch (error) {
   failure = error;
   report.status = 'failed';
   report.error = conciseFailure(error instanceof Error ? error.message : error);
+  report.playbackState = await page
+    ?.evaluate(() => {
+      const stage = window.vm?.runtime?.getTargetForStage();
+      return {
+        titleDisplay: document.querySelector<HTMLElement>('[data-dsl4-title-controls=true]')?.style
+          .display,
+        menuDisplay: document.querySelector<HTMLElement>('[data-dsl4-application-menu=true]')?.style
+          .display,
+        sourceChooserDisplay: document.querySelector<HTMLElement>('[data-dsl4-source-chooser=true]')
+          ?.style.display,
+        errorText: document.querySelector<HTMLElement>('[data-dsl4-runtime-error=true]')
+          ?.textContent,
+        stageCostume: stage?.getCostumes()[stage.currentCostume]?.name,
+        drawableSkinId:
+          window.vm?.runtime?.renderer?._allDrawables?.[stage?.drawableID]?._skin?._id,
+      };
+    })
+    .catch(() => null);
   await page?.screenshot({path: path.join(outputDirectory, 'failure.png')}).catch(() => {});
 } finally {
   report.phase = phase;
@@ -333,5 +413,5 @@ if (failure) {
   );
 }
 process.stdout.write(
-  `Block editor regression passed: 10 scenes, 174 commands, UI edit 2 -> ${editedSeconds}, saved YAML verified.\nEvidence: ${outputDirectory}\n`,
+  `Block editor regression passed: 10 scenes, 174 commands, UI edit 2 -> ${editedSeconds}, saved YAML verified, block story started directly.\nEvidence: ${outputDirectory}\n`,
 );

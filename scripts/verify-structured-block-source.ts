@@ -67,9 +67,10 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   const hats = Object.entries(blocks).filter(
     ([, block]) => block.opcode === `${authoringPrefix}kamishibai` && block.topLevel === true,
   );
-  assert.equal(hats.length, 1, 'The story must have one labeled script hat.');
+  assert.equal(hats.length, 1, 'The story must have one root script hat.');
   const [hatId, hat] = hats[0]!;
   assert.deepEqual(hat.inputs?.VERSION, [1, [10, '4.0']]);
+  assert.deepEqual(hat.inputs?.LABEL, [1, [10, '']], 'The Stage root script name must be empty.');
   const story = parse(sourceText, {uniqueKeys: true}) as Dsl4Story;
   const sceneIds: string[] = [];
   const visited = new Set([hatId]);
