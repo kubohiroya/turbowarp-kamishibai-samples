@@ -481,6 +481,7 @@ export async function buildTutorialDsl4({
       [
         blockAuthoring.cli,
         'author-block-dsl',
+        ...blockAuthoring.authorOptions,
         '--input',
         path.join(storyDirectory, sourceName),
         '--base',

@@ -60,6 +60,18 @@ test('rejects a pose form registered against the wrong argument', () => {
   assert.throws(() => verifyStructuredBlockSource(broken, sourceText), /pose form must edit STEPS/);
 });
 
+test('rejects a published project with its source section block hidden', () => {
+  const hidden = structuredClone(project);
+  const url = hidden.extensionURLs!.kubohiroyakamishibaiauthoring4!;
+  const source = Buffer.from(url.split(',')[1]!, 'base64').toString('utf8');
+  const visible = '"opcode":"useSection","blockType":"command","branchCount":1,"hideFromPalette":false';
+  assert(source.includes(visible));
+  hidden.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' +
+    Buffer.from(source.replace(visible, visible.replace(':false', ':true'))).toString('base64');
+  assert.throws(() => verifyStructuredBlockSource(hidden, sourceText), /Source section palette visibility/);
+});
+
 test('rejects the old two-block YAML declaration even when its source is correct', () => {
   const old = structuredClone(project);
   old.targets[0]!.blocks = {

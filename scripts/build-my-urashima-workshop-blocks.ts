@@ -27,7 +27,7 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
   storyDirectory: string;
   temporaryDirectory: string;
   princess: ProjectAssetSpecification;
-  authoring: {cli: string; root: string};
+  authoring: {cli: string; root: string; authorOptions: readonly string[]};
 }): Promise<{record: WorkshopBlockRecord; bytes: Buffer}[]> {
   const outputs: {record: WorkshopBlockRecord; bytes: Buffer}[] = [];
   for (const poseCount of workshopPoseCounts) {
@@ -55,7 +55,7 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     await writeFile(basePath, base.archive);
     const authoredPath = prefix + '-authored.sb3';
     const authored = spawnSync(process.execPath, [
-      options.authoring.cli, 'author-block-dsl', '--input', sourcePath,
+      options.authoring.cli, 'author-block-dsl', ...options.authoring.authorOptions, '--input', sourcePath,
       '--base', basePath, '--output', authoredPath, '--max-source-bytes', '262144',
     ], {cwd: options.authoring.root, encoding: 'utf8'});
     if (authored.error) throw authored.error;

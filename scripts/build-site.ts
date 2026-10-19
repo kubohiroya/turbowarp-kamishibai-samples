@@ -348,7 +348,7 @@ function renderArtifactFormats(
         editor.searchParams.set('blockEditorDialogs', '1');
         editor.searchParams.set('lang', 'ja');
         editor.searchParams.set('project_url', new URL(entry.href, publicUrl).href);
-        editorLink = `<br><a href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">Extension Data Editorでフォーム編集（別タブ）</a>`;
+        editorLink = `<br><a href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">Extension Data Editorでフォーム編集（別タブ）</a><span class="work-formats__note">「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a></span>`;
       }
       return `${indent}  <li><a href="${escapeHtml(resolveHref(entry.href))}">${label}</a>${note}${editorLink}</li>`;
     }
@@ -964,6 +964,7 @@ ${links}
       </ul>
       <p>拡張の読み込み確認でそれぞれ「サンドボックスなしで実行する」を有効にし、許可してください。
       専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
+      <p>各版は「この部分を使う［オン／オフ］」にも対応しています。今回の実習はポーズ数を選んだ設定のまま進められます。</p>
       <h3>ワークショップ資料の読み替え</h3>
       <ul>
         <li>「p1〜p4の行頭の#を外す」操作は不要です。選択数までのasset定義が入っています。</li>

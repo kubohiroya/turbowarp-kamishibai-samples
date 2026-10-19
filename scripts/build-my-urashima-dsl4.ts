@@ -230,6 +230,7 @@ export async function buildMyUrashimaDsl4({
       [
         blockAuthoring.cli,
         'author-block-dsl',
+        ...blockAuthoring.authorOptions,
         '--input', sourcePath,
         '--base', intermediatePath,
         '--output', blockInputPath,

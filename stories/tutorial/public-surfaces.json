@@ -4,7 +4,7 @@
   "version": "4.0.0-rc.25",
   "published": true,
   "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.25",
-  "sourceIdentity": "52ca59b0f92a9c2079fa41a5ec0a7872ef53fe9d73ca58c0c6a093aa78a47b21",
+  "sourceIdentity": "23b16abfd02ebf8f4abf56dfb65ad9045cb4a17b44517a08da7a9553aeb05920",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
     "version": "4.0.0-rc.25",
@@ -46,8 +46,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 12938658,
-      "sha256": "1f8714c753257d7a464bbe9f37948a63feaaccd95a18c03a00c0ce9a85cb735c",
+      "size": 12938689,
+      "sha256": "e442826d7ac234f48fb9f99b36523a2306a6d67c96b0d7590bc20b6ca9cfd524",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",

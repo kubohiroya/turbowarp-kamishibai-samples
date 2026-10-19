@@ -120,3 +120,13 @@ pnpm deploy
 - [Packager Web版の生成・公開](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)
 - [DSL 4.0 SB3・Web版の自動生成](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90)
 - [DSL 4.0チュートリアル作品・starter・addition kit](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/94)
+
+## 台本の一部をオン／オフにする
+
+公開ブロック台本SB3は、紫色の「Kamishibai Block Script」から「この部分を使う［オン／オフ］」を追加できます。
+定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
+[図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
+
+本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
+生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
+切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
