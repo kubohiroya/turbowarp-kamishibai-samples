@@ -4,6 +4,7 @@ import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {test} from 'vitest';
+import {appBasePath, readAppRelease} from '../scripts/app-dependency.ts';
 import {
   publishedAppReleaseDiffers,
   resolveAppRelease,
@@ -127,51 +128,23 @@ test('rejects builder/version mismatch and transport failures', async () => {
   );
 });
 
-test('updates the whole base and derives authoring from the same release, deterministically', async () => {
+test('updates only the shared manifest and base, preserving story settings deterministically', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'samples-app-release-test-'));
   try {
+    const settings = JSON.stringify({dsl4: {blockAuthoring: {sourceSections: true}}});
     await mkdir(path.join(root, 'stories/urashima'), {recursive: true});
-    await mkdir(path.join(root, 'stories/tutorial'), {recursive: true});
-    await writeFile(
-      path.join(root, 'stories/urashima/dsl4-build.config.json'),
-      JSON.stringify({
-        runtime: {version: '4.0.0-rc.25', basePath: 'base/kamishibai-4.0.sb3'},
-        blockAuthoring: {
-          commit: 'old-independent-commit',
-          refreshRuntime: true,
-          sourceSections: true,
-        },
-      }),
-    );
-    await writeFile(
-      path.join(root, 'stories/tutorial/dsl4-build.config.json'),
-      JSON.stringify({publication: {enabled: true}}),
-    );
+    const configPath = path.join(root, 'stories/urashima/sample.config.json');
+    await writeFile(configPath, settings);
     const fixture = upstream();
     const first = await syncAppRelease({root, ...fixture});
     assert.equal(first.changed, true);
-    const config = JSON.parse(
-      await readFile(
-        path.join(root, 'stories/urashima/dsl4-build.config.json'),
-        'utf8',
-      ),
-    );
-    assert.equal(config.runtime.commit, fixture.commit);
-    assert.deepEqual(config.blockAuthoring, {sourceSections: true});
-    assert.deepEqual(
-      await readFile(
-        path.join(root, 'stories/urashima/base/kamishibai-4.0.sb3'),
-      ),
-      fixture.bytes,
-    );
+    assert.equal((await readAppRelease(root)).commit, fixture.commit);
+    assert.equal(await readFile(configPath, 'utf8'), settings);
+    assert.deepEqual(await readFile(appBasePath(root)), fixture.bytes);
     assert.equal((await syncAppRelease({root, ...fixture})).changed, false);
     await assert.rejects(syncAppRelease({root, ...upstream(true)}));
-    assert.deepEqual(
-      await readFile(
-        path.join(root, 'stories/urashima/base/kamishibai-4.0.sb3'),
-      ),
-      fixture.bytes,
-    );
+    assert.deepEqual(await readFile(appBasePath(root)), fixture.bytes);
+    assert.equal(await readFile(configPath, 'utf8'), settings);
   } finally {
     await rm(root, {recursive: true, force: true});
   }

@@ -10,6 +10,8 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {appBasePath} from './app-dependency.ts';
+import {readDsl4StoryConfig} from './story-config.ts';
 import {
   resolveBlockAuthoringBuilder,
   type BlockAuthoringIdentity,
@@ -19,7 +21,7 @@ import {buildMyUrashimaWorkshopBlocks, type WorkshopBlockRecord} from './build-m
 import type {ScratchProject, ScratchTarget} from './scratch.ts';
 import type {
   DependencyRecord,
-  Dsl4BuildConfig,
+  Dsl4StoryConfig,
   ProjectAssetsManifest,
 } from './story-config.ts';
 
@@ -60,13 +62,12 @@ export interface BuildMyUrashimaDsl4Options {
 export interface BuildMyUrashimaDsl4Result {
   archive: Buffer;
   artifactLock: MyUrashimaDsl4ArtifactLock;
-  config: Dsl4BuildConfig;
+  config: Dsl4StoryConfig;
   outputPath: string;
 }
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/my-urashima');
-const configPath = path.join(storyDirectory, 'dsl4-build.config.json');
 
 function sha256(contents: Uint8Array | string): string {
   return createHash('sha256').update(contents).digest('hex');
@@ -170,17 +171,12 @@ export async function buildMyUrashimaDsl4({
   verifyCommittedOutput = true,
   writeLock = false,
 }: BuildMyUrashimaDsl4Options = {}): Promise<BuildMyUrashimaDsl4Result> {
-  const config = await readJson<Dsl4BuildConfig>(configPath);
+  const config = await readDsl4StoryConfig(storyDirectory);
   assert.equal(config.formatVersion, 1);
-  const runtimeConfigPath = path.resolve(storyDirectory, config.runtime.config as string);
-  const runtimeConfig = await readJson<Dsl4BuildConfig>(runtimeConfigPath);
-  const basePath = path.resolve(
-    path.dirname(runtimeConfigPath),
-    runtimeConfig.runtime.basePath as string,
-  );
+  const basePath = appBasePath(projectRoot);
   const baseBytes = await readFile(basePath);
-  assert.equal(baseBytes.length, runtimeConfig.runtime.baseSize);
-  assert.equal(sha256(baseBytes), runtimeConfig.runtime.baseSha256);
+  assert.equal(baseBytes.length, config.runtime.baseSize);
+  assert.equal(sha256(baseBytes), config.runtime.baseSha256);
 
   const sourcePath = path.join(storyDirectory, config.source as string);
   const projectAssetsPath = path.join(storyDirectory, config.projectAssets);
@@ -271,7 +267,7 @@ export async function buildMyUrashimaDsl4({
     const artifactLock: MyUrashimaDsl4ArtifactLock = {
       workshopBlocks: workshopBlocks.map(({record}) => record),
       formatVersion: 1,
-      runtime: runtimeConfig.runtime,
+      runtime: config.runtime,
       blockAuthoring: blockAuthoring.identity,
       blocksOutput: {
         path: config.blocksOutput,

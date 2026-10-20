@@ -9,6 +9,7 @@ test('keeps the DSL 3.2 packaged-web checks for anything that can reach their ar
     ['stories/urashima/base/kamishibai.sb3'],
     ['stories/urashima/assets/images/04b206e9ecf2c990d9f440612578406c.png'],
     ['stories/my-urashima/sample.config.json'],
+    ['stories/urashima/sample.config.json'],
     ['scripts/build-packaged-web.ts'],
     ['scripts/build-site.ts'],
     ['scripts/verify-packaged-web-webkit-audio.ts'],
@@ -31,7 +32,7 @@ test('narrows to the DSL 4.0 check when nothing in the change can reach the 3.2 
     webCheckScope([
       'stories/tutorial/story.kamishibai.yaml',
       'stories/tutorial/tutorial-4.0.sb3',
-      'stories/urashima/dsl4-build.config.json',
+      'app-release.json',
       'stories/urashima/urashima-4.0.sb3',
       'stories/my-urashima/my-urashima-4.0.sb3',
       'scripts/verify-dsl4-block-editor-browser.ts',

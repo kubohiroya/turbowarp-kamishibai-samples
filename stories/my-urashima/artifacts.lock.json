@@ -19,8 +19,8 @@
     "name": "urashima",
     "config": {
       "path": "../urashima/sample.config.json",
-      "size": 2319,
-      "sha256": "f5ab8cacf404d42845d4499f5ebc202cb66d08a6161b89ffb4d52b6c2bfdd7c0"
+      "size": 3788,
+      "sha256": "66cbea6f06b96f5663797c2bc9ef26d53797967d32eefef22a19bccb41c90cf3"
     },
     "sourceScript": {
       "path": "../urashima/source.txt",
@@ -40,8 +40,8 @@
   },
   "configuration": {
     "path": "sample.config.json",
-    "size": 1765,
-    "sha256": "0b3249bc06f666f51b9ad77dd110584585feb982843704885b7f303cd5071816"
+    "size": 3387,
+    "sha256": "9348f5fbe2f87b4c646673c63b604a85323c48b088838e0812afb728bcae099a"
   },
   "projectAssets": {
     "manifest": {

@@ -6,15 +6,13 @@ import {fileURLToPath} from 'node:url';
 
 import {chromium, type Browser, type ConsoleMessage} from 'playwright';
 
-import type {Dsl4BuildConfig} from './story-config.ts';
+import {readDsl4StoryConfig} from './story-config.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const readDsl4Config = (configPath: string): Promise<Dsl4BuildConfig> =>
-  readFile(configPath, 'utf8').then((contents) => JSON.parse(contents) as Dsl4BuildConfig);
 const [urashimaConfig, myUrashimaConfig, tutorialConfig] = await Promise.all([
-  readDsl4Config(path.join(projectRoot, 'stories/urashima/dsl4-build.config.json')),
-  readDsl4Config(path.join(projectRoot, 'stories/my-urashima/dsl4-build.config.json')),
-  readDsl4Config(path.join(projectRoot, 'stories/tutorial/dsl4-build.config.json')),
+  readDsl4StoryConfig(path.join(projectRoot, 'stories/urashima')),
+  readDsl4StoryConfig(path.join(projectRoot, 'stories/my-urashima')),
+  readDsl4StoryConfig(path.join(projectRoot, 'stories/tutorial')),
 ]);
 const urashimaEnabled = urashimaConfig.web?.enabled === true;
 const myUrashimaEnabled = myUrashimaConfig.web?.enabled === true;

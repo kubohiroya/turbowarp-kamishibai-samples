@@ -6,6 +6,13 @@
  * 将来フィールドが増えても壊れないよう、各インターフェースは索引シグネチャを持つ。
  */
 
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import path from 'node:path';
+
+import {appRuntimeIdentity, readAppRelease} from './app-dependency.ts';
+import type {WorkEntry} from './works-catalog.ts';
+
 export interface JsonRecord {
   [key: string]: unknown;
 }
@@ -38,7 +45,7 @@ export interface RuntimeCapability {
   purpose: string;
 }
 
-/** sample.config.json / dsl4-build.config.json の `web` セクション。 */
+/** Web packaging settings in sample.config.json. */
 export interface WebConfig {
   enabled: boolean;
   inputProfile: string;
@@ -118,26 +125,20 @@ export interface Dsl4Limits {
   maxTotalAssetBytes: number;
 }
 
-export interface Dsl4RuntimeConfig {
-  /** 派生ストーリーは親の設定ファイルを参照するだけで、実体は持たない。 */
-  config?: string;
-  repository?: string;
-  version?: string;
-  commit?: string;
-  basePath?: string;
-  baseSourceIdentity?: string;
-  baseSize?: number;
-  baseSha256?: string;
-  [key: string]: unknown;
+export interface Dsl4RuntimeConfig extends JsonRecord {
+  repository: string;
+  version: string;
+  commit: string;
+  basePath: string;
+  baseSourceIdentity: string;
+  baseSize: number;
+  baseSha256: string;
 }
 
-/** stories/*\/dsl4-build.config.json */
-export interface Dsl4BuildConfig {
+/** Story-specific DSL settings in sample.config.json; app pins are forbidden. */
+export interface Dsl4StorySettings {
   formatVersion: number;
   status?: string;
-  version?: string;
-  releaseDependency?: string;
-  runtime: Dsl4RuntimeConfig;
   source?: string;
   starterSource?: string;
   sourceManifest?: string;
@@ -151,10 +152,106 @@ export interface Dsl4BuildConfig {
   webArtifactsLock: string;
   archives?: Record<string, string>;
   limits?: Dsl4Limits;
-  publication?: {enabled: boolean; reason: string; issue: string};
+  publication?: {enabled: boolean; reason?: string; issue: string};
+  blockAuthoring?: {sourceSections?: boolean};
   web: WebConfig;
-  work?: JsonRecord;
+  work?: WorkEntry;
   [key: string]: unknown;
+}
+
+export interface Dsl4StoryConfig extends Dsl4StorySettings {
+  runtime: Dsl4RuntimeConfig;
+  version: string;
+  releaseDependency: string;
+}
+
+export interface TutorialStoryConfig extends Dsl4StoryConfig {
+  source: string;
+  starterSource: string;
+  blocksOutput: string;
+  artifactsLock: string;
+  publicSurfaces: string;
+  archives: {starter: string; additionKit: string};
+  publication: {enabled: boolean; reason: string; issue: string};
+  work: WorkEntry & {thumbnail: NonNullable<WorkEntry['thumbnail']>};
+}
+
+export async function readTutorialStoryConfig(
+  storyDirectory: string,
+  root?: string,
+): Promise<TutorialStoryConfig> {
+  const config = await readDsl4StoryConfig(storyDirectory, root);
+  for (const key of [
+    'source',
+    'starterSource',
+    'blocksOutput',
+    'artifactsLock',
+    'publicSurfaces',
+  ]) {
+    assert(
+      typeof config[key] === 'string',
+      `Tutorial ${key} must be configured.`,
+    );
+  }
+  assert(
+    config.archives &&
+      typeof config.archives.starter === 'string' &&
+      typeof config.archives.additionKit === 'string',
+  );
+  assert(config.publication && typeof config.publication.enabled === 'boolean');
+  assert(
+    config.work && typeof config.work.id === 'string' && config.work.thumbnail,
+    'Tutorial work must be configured.',
+  );
+  return config as TutorialStoryConfig;
+}
+
+/** Resolve app facts in memory, keeping checked-in story settings independent of releases. */
+export async function readDsl4StoryConfig(
+  storyDirectory: string,
+  root = path.resolve(storyDirectory, '../..'),
+): Promise<Dsl4StoryConfig> {
+  const sample = JSON.parse(
+    await readFile(path.join(storyDirectory, 'sample.config.json'), 'utf8'),
+  );
+  const settings = sample.dsl4 as Dsl4StorySettings;
+  assert(
+    settings && settings.formatVersion === 1,
+    'sample.config.json must contain DSL 4.0 settings.',
+  );
+  for (const key of ['runtime', 'version', 'releaseDependency']) {
+    assert(
+      !Object.hasOwn(settings, key),
+      `App dependency ${key} belongs only in app-release.json.`,
+    );
+  }
+  if (settings.blockAuthoring) {
+    assert(
+      Object.keys(settings.blockAuthoring).every(
+        (key) => key === 'sourceSections',
+      ),
+      'Independent authoring pins are forbidden; use app-release.json.',
+    );
+    assert(
+      typeof (settings.blockAuthoring.sourceSections ?? false) === 'boolean',
+    );
+  }
+  const release = await readAppRelease(root);
+  return {
+    ...settings,
+    runtime: appRuntimeIdentity(release),
+    version: release.version,
+    releaseDependency: `https://github.com/${release.repository}/releases/tag/${release.tag}`,
+    ...(settings.publication
+      ? {
+          publication: {
+            enabled: settings.publication.enabled,
+            reason: `TurboWarp-Kamishibai ${release.version} release artifacts are published and integrity-verified`,
+            issue: settings.publication.issue,
+          },
+        }
+      : {}),
+  };
 }
 
 export interface ProjectAssetSpecification {

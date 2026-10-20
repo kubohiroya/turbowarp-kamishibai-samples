@@ -4,6 +4,7 @@ import {copyFile, cp, mkdir, readFile, readdir, rm, writeFile} from 'node:fs/pro
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {buildMyUrashima} from './build-my-urashima.ts';
 import {buildMyUrashimaDsl4} from './build-my-urashima-dsl4.ts';
 import {buildUrashima} from './build-urashima.ts';
@@ -1308,21 +1309,19 @@ export async function buildSite() {
     assetRecords(path.join(sourceDirectory, 'assets/images'), 'images'),
     assetRecords(path.join(sourceDirectory, 'assets/sounds'), 'sounds'),
     readFile(path.join(sourceDirectory, 'dsl4-artifacts.lock.json'), 'utf8').then(JSON.parse),
-    readFile(path.join(sourceDirectory, 'dsl4-build.config.json'), 'utf8').then(JSON.parse),
+    readDsl4StoryConfig(sourceDirectory),
     readFile(path.join(sourceDirectory, 'dsl4-web-artifacts.lock.json'), 'utf8').then(
       JSON.parse,
     ),
     readFile(path.join(mySourceDirectory, 'dsl4-artifacts.lock.json'), 'utf8').then(JSON.parse),
-    readFile(path.join(mySourceDirectory, 'dsl4-build.config.json'), 'utf8').then(JSON.parse),
+    readDsl4StoryConfig(mySourceDirectory),
     readFile(path.join(mySourceDirectory, 'dsl4-web-artifacts.lock.json'), 'utf8').then(
       JSON.parse,
     ),
     readFile(path.join(tutorialSourceDirectory, 'dsl4-artifacts.lock.json'), 'utf8').then(
       JSON.parse,
     ),
-    readFile(path.join(tutorialSourceDirectory, 'dsl4-build.config.json'), 'utf8').then(
-      JSON.parse,
-    ),
+    readTutorialStoryConfig(tutorialSourceDirectory),
     readFile(path.join(tutorialSourceDirectory, 'dsl4-web-artifacts.lock.json'), 'utf8').then(
       JSON.parse,
     ),

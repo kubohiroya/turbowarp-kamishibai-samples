@@ -19,14 +19,14 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {strFromU8, unzipSync} from 'fflate';
 
+import {readDsl4StoryConfig} from './story-config.ts';
 import type {ScratchProject} from './scratch.ts';
-import type {Dsl4BuildConfig} from './story-config.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {readWorksCatalog, type WorkEntry} from './works-catalog.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-/** 台本1本あたりの上限。stories/tutorial/dsl4-build.config.json の limits と同じ値。 */
+/** 台本1本あたりの上限。stories/tutorial/sample.config.json dsl4 の limits と同じ値。 */
 const maxSourceBytes = 262_144;
 
 export interface BlockSourceRoundTrip {
@@ -62,9 +62,7 @@ export async function verifyDsl4BlockSourceRoundTrip({
   const {root: kamishibaiRoot} = await resolveBlockAuthoringBuilder(rootOverride);
   const builderCli = path.join(kamishibaiRoot, 'bin/turbowarp-kamishibai.mjs');
   const catalog = await readWorksCatalog(path.join(projectRoot, 'site/works.json'));
-  const tutorialConfig = JSON.parse(
-    await readFile(path.join(projectRoot, 'stories/tutorial/dsl4-build.config.json'), 'utf8'),
-  ) as Dsl4BuildConfig;
+  const tutorialConfig = await readDsl4StoryConfig(path.join(projectRoot, 'stories/tutorial'));
   const works = [...catalog.works, tutorialConfig.work as unknown as WorkEntry];
   const candidates = roundTrippableWorks(works);
   assert(

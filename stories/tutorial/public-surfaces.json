@@ -4,7 +4,7 @@
   "version": "4.0.0-rc.30",
   "published": true,
   "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.30",
-  "sourceIdentity": "a84cac18c93d00e0bbc055acec72e0f3138ffbb3a98581169c2c5e72733c0d98",
+  "sourceIdentity": "8b25dd5f211015ca8b1177896126a4f135c4cd5d3c9fa2c9e09556c116963440",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
     "version": "4.0.0-rc.30",
