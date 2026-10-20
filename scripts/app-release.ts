@@ -4,6 +4,8 @@ import {appendFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
+import {appBasePath} from './app-dependency.ts';
+
 const repository = 'kubohiroya/turbowarp-kamishibai-app';
 const repositoryUrl = `https://github.com/${repository}`;
 const api = `https://api.github.com/repos/${repository}`;
@@ -185,34 +187,9 @@ export async function syncAppRelease({
   token?: string;
 } = {}) {
   const {lock, bytes} = await resolveAppRelease(options);
-  const configPath = path.join(root, 'stories/urashima/dsl4-build.config.json');
-  const config = JSON.parse(await readFile(configPath, 'utf8'));
-  config.runtime = {
-    repository: repositoryUrl,
-    version: lock.version,
-    commit: lock.commit,
-    basePath: config.runtime.basePath,
-    baseSourceIdentity: lock.sourceIdentity,
-    baseSize: lock.artifact.size,
-    baseSha256: lock.artifact.sha256,
-  };
-  // The authoring CLI and the base always come from the same release.
-  delete config.blockAuthoring.commit;
-  delete config.blockAuthoring.repository;
-  delete config.blockAuthoring.refreshRuntime;
-  const tutorialPath = path.join(
-    root,
-    'stories/tutorial/dsl4-build.config.json',
-  );
-  const tutorial = JSON.parse(await readFile(tutorialPath, 'utf8'));
-  tutorial.version = lock.version;
-  tutorial.releaseDependency = `${repositoryUrl}/releases/tag/${lock.tag}`;
-  tutorial.publication.reason = `TurboWarp-Kamishibai ${lock.version} release artifacts are published and integrity-verified`;
   const files = new Map<string, string | Buffer>([
     [path.join(root, 'app-release.json'), `${JSON.stringify(lock, null, 2)}\n`],
-    [configPath, `${JSON.stringify(config, null, 2)}\n`],
-    [tutorialPath, `${JSON.stringify(tutorial, null, 2)}\n`],
-    [path.join(root, 'stories/urashima', config.runtime.basePath), bytes],
+    [appBasePath(root), bytes],
   ]);
   let changed = false;
   for (const [filename, contents] of files) {

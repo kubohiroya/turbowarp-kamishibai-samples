@@ -10,13 +10,15 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {appBasePath} from './app-dependency.ts';
+import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {PackagedWebResult} from './build-packaged-web.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
-import type {DependencyRecord, Dsl4BuildConfig, Dsl4Limits} from './story-config.ts';
+import type {DependencyRecord, Dsl4StoryConfig, Dsl4Limits} from './story-config.ts';
 
 interface SourceStructure {
   assetIds: string[];
@@ -109,7 +111,7 @@ export interface BuildTutorialDsl4Result {
   archive: Buffer;
   archives: TutorialArchives;
   artifactLock: TutorialArtifactLock;
-  config: Dsl4BuildConfig;
+  config: Dsl4StoryConfig;
   outputPath: string;
 }
 
@@ -118,7 +120,6 @@ type ZipEntrySpecification = [archivePath: string, sourcePath: string];
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/tutorial');
-const configPath = path.join(storyDirectory, 'dsl4-build.config.json');
 const defaultKamishibaiRoot = path.resolve(projectRoot, '../turbowarp-kamishibai-app');
 const kamishibaiRootEnvironmentName = 'TURBOWARP_KAMISHIBAI_APP_ROOT';
 const zipTimestamp = new Date('2026-08-12T00:00:00.000Z');
@@ -290,7 +291,7 @@ function archiveRecord(filename: string, contents: Buffer): ArchiveRecord {
   return {path: filename, size: contents.length, sha256: sha256(contents), entries};
 }
 
-async function buildArchives(config: Dsl4BuildConfig): Promise<TutorialArchives> {
+async function buildArchives(config: Dsl4StoryConfig): Promise<TutorialArchives> {
   const starterRoot = 'tutorial-story';
   const additionRoot = 'tutorial-story-addition-kit';
   const archives = config.archives as Record<string, string>;
@@ -332,7 +333,7 @@ async function buildArchives(config: Dsl4BuildConfig): Promise<TutorialArchives>
 }
 
 export function createTutorialPublicSurfaces(
-  config: Dsl4BuildConfig,
+  config: Dsl4StoryConfig,
   artifactLock: TutorialArtifactLock,
   webLock: PackagedWebResult,
 ): TutorialPublicSurfaces {
@@ -378,18 +379,16 @@ export async function buildTutorialDsl4({
   verifyCommittedOutput = true,
   writeLock = false,
 }: BuildTutorialDsl4Options = {}): Promise<BuildTutorialDsl4Result> {
-  const config = await readJson<Dsl4BuildConfig>(configPath);
+  const config = await readDsl4StoryConfig(storyDirectory);
   const blockAuthoring = await resolveBlockAuthoringBuilder();
   assert.equal(config.formatVersion, 1);
   assert.equal(config.status, config.publication?.enabled ? 'published' : 'candidate');
   const limits = config.limits as Dsl4Limits;
   const archiveNames = config.archives as Record<string, string>;
-  const runtimeConfigPath = path.resolve(storyDirectory, config.runtime.config as string);
-  const runtimeConfig = await readJson<Dsl4BuildConfig>(runtimeConfigPath);
   const runtimeCommit = commandResult('git', ['rev-parse', 'HEAD'], {cwd: kamishibaiRoot});
   assert.equal(
     runtimeCommit,
-    runtimeConfig.runtime.commit,
+    config.runtime.commit,
     'TurboWarp-Kamishibai checkout differs from the tutorial runtime configuration.',
   );
   assert.equal(
@@ -398,13 +397,10 @@ export async function buildTutorialDsl4({
     'TurboWarp-Kamishibai checkout must be clean.',
   );
 
-  const basePath = path.resolve(
-    path.dirname(runtimeConfigPath),
-    runtimeConfig.runtime.basePath as string,
-  );
+  const basePath = appBasePath(projectRoot);
   const baseBytes = await readFile(basePath);
-  assert.equal(baseBytes.length, runtimeConfig.runtime.baseSize);
-  assert.equal(sha256(baseBytes), runtimeConfig.runtime.baseSha256);
+  assert.equal(baseBytes.length, config.runtime.baseSize);
+  assert.equal(sha256(baseBytes), config.runtime.baseSha256);
 
   const sourceName = config.source as string;
   const starterSourceName = config.starterSource as string;
@@ -531,7 +527,7 @@ export async function buildTutorialDsl4({
       version: config.version as string,
       releaseDependency: config.releaseDependency as string,
       sourceIdentity,
-      runtime: runtimeConfig.runtime,
+      runtime: config.runtime,
       blockAuthoring: blockAuthoring.identity,
       sb3Toolchain: {
         package: '@kubohiroya/sb3-toolchain',

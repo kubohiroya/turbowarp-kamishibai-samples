@@ -3,16 +3,16 @@
 浦島太郎サンプルとして本リポジトリで配布する次のファイルは、Mozilla Public License 2.0（SPDX: `MPL-2.0`）で提供します。
 
 - `source.txt`、`urashima.txt`、`urashima.k4.yml`
-- `../my-urashima/my-urashima.txt`、`../my-urashima/my-urashima.k4.yml`、`../my-urashima/project-assets.yml`、`../my-urashima/project-assets-dsl4.yml`、`../my-urashima/sample.config.json`、`../my-urashima/dsl4-build.config.json`、各artifact lock
+- `../my-urashima/my-urashima.txt`、`../my-urashima/my-urashima.k4.yml`、`../my-urashima/project-assets.yml`、`../my-urashima/project-assets-dsl4.yml`、`../my-urashima/sample.config.json`、各artifact lock
 - `assets/images/` 配下の画像26ファイル（3.2用24ファイルとDSL 4.0用Stars／TextPlaceholder）
 - `assets/sounds/` 配下の音声のうち、`cfc75b8ec10d522a49e754cee372fcb9.mp3`を除く21ファイル
 - `pose-models/` 配下の浦島太郎用Teachable Machine Poseモデル3組
-- `assets.lock.json`、`artifacts.lock.json`、`dsl4-inputs.lock.json`、`dsl4-build.config.json`、`dsl4-artifacts.lock.json`、`dsl4-web-artifacts.lock.json`、`project.source.json`、`project-assets-dsl4.yml`、`sample.config.json`
+- `assets.lock.json`、`artifacts.lock.json`、`dsl4-inputs.lock.json`、`sample.config.json`、`dsl4-artifacts.lock.json`、`dsl4-web-artifacts.lock.json`、`project.source.json`、`project-assets-dsl4.yml`
 - 本ディレクトリの説明と生成・公開用コード
 
 生成される `_urashima.sb3`、`urashima.sb3`、`../my-urashima/my-urashima.sb3` は、上記のMPL-2.0対象コンテンツに加えて、TurboWarp-Kamishibai `3.2.3`／`28015ac9ff5221f371e8bd0357a7750ce40bbf7c` のMPL-2.0対象ランタイムと、次節のCC BY-SA 2.0対象音声を含む結合物です。`../my-urashima/my-urashima.sb3`のPrincessコスチュームは、リポジトリでは`resources/20260801/master/Princess.png`、ワークショップ配布物では`master/Princess.png`として収録する画像を入力としており、各配布場所の`LICENSES.md`に記載されたCC BY-SA 4.0が適用されます。汎用ベース `base/kamishibai.sb3` と本体由来部分にも、[`licenses/tm-kamishibai-MPL-2.0.txt`](licenses/tm-kamishibai-MPL-2.0.txt) のMozilla Public License 2.0が適用されます。
 
-`base/kamishibai-4.0.sb3`は、TurboWarp-Kamishibai `4.0.0-rc.25`の公開release source identity `sha256:0e0ed3c9a8b99e2fd6aee84818a3400e619a1adfd844dc0d0b3b0b00d84158ca`から生成したruntime baseです。`urashima-4.0.sb3`、`urashima-blocks-4.0.sb3`、`../my-urashima/my-urashima-4.0.sb3`は、このbaseへcommit `a68f8dc4d38b4609c8387192d3be0376963735e3`のビルダーと`@kubohiroya/sb3-toolchain@0.9.0`を適用して生成します。統合されたJavaScriptの冒頭には、各機能拡張ソースの名称、著作権表示、ライセンス表示を保持しています。浦島太郎のポーズモデルの取得元と各ファイルの固定SHA-256は`dsl4-inputs.lock.json`に記録しています。my-urashima 4.0版のPrincessコスチュームには、前述のCC BY-SA 4.0が適用されます。
+`base/kamishibai-4.0.sb3`は、rootの`app-release.json`に記録したTurboWarp-Kamishibaiの公開Releaseから取得するruntime baseです。`urashima-4.0.sb3`、`urashima-blocks-4.0.sb3`、`../my-urashima/my-urashima-4.0.sb3`は、同manifestのcommitのビルダーと`@kubohiroya/sb3-toolchain@0.9.0`を適用して生成します。使用した依存版・commit・source identity・サイズ・SHA-256は同manifestと生成済みartifact lockに記録しています。統合されたJavaScriptの冒頭には、各機能拡張ソースの名称、著作権表示、ライセンス表示を保持しています。浦島太郎のポーズモデルの取得元と各ファイルの固定SHA-256は`dsl4-inputs.lock.json`に記録しています。my-urashima 4.0版のPrincessコスチュームには、前述のCC BY-SA 4.0が適用されます。
 
 ## Scratch Sewing Machine {#scratch-sewing-machine}
 

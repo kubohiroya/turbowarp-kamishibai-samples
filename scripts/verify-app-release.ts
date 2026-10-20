@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strFromU8, unzipSync} from 'fflate';
+import {readDsl4StoryConfig} from './story-config.ts';
 import type {AppRelease} from './app-release.ts';
 import type {ScratchProject} from './scratch.ts';
 
@@ -11,13 +12,9 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const readJson = async (name: string) =>
   JSON.parse(await readFile(path.join(root, name), 'utf8'));
 const release = (await readJson('app-release.json')) as AppRelease;
-const config = await readJson('stories/urashima/dsl4-build.config.json');
+const config = await readDsl4StoryConfig(path.join(root, 'stories/urashima'));
 assert.equal(config.runtime.commit, release.commit);
 assert.equal(config.runtime.version, release.version);
-assert(
-  !config.blockAuthoring.commit ||
-    config.blockAuthoring.commit === release.commit,
-);
 const base = await readFile(
   path.join(root, 'stories/urashima', config.runtime.basePath),
 );
@@ -28,7 +25,7 @@ assert.equal(
 );
 const filenames: string[] = [];
 for (const name of ['urashima', 'my-urashima', 'tutorial']) {
-  const story = await readJson(`stories/${name}/dsl4-build.config.json`);
+  const story = await readDsl4StoryConfig(path.join(root, `stories/${name}`));
   filenames.push(
     `stories/${name}/${story.output}`,
     `stories/${name}/${story.blocksOutput}`,

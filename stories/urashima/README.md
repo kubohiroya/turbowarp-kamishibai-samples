@@ -29,7 +29,7 @@
 - `dsl4-inputs.lock.json`: DSL 4.0で追加するStars／TextPlaceholderと3ポーズモデルの取得元、サイズ、SHA-256
 - `project-assets-dsl4.yml`: DSL 4.0 actor IDと同名の物理Scratch target 5件を作る`sb3-toolchain --project-assets`入力
 - `project.source.json`: `urashima.k4.yml`を選ぶ固定cache identity付きDSL 4.0 source manifest
-- `dsl4-build.config.json`: 4.0 runtime base、TurboWarp-Kamishibai commit、入力上限を固定する生成設定
+- `sample.config.json`の`dsl4`: 作品固有の出力名・入力上限・Web公開設定。app依存はrootの`app-release.json`から取得
 - `dsl4-artifacts.lock.json`: `urashima-4.0.sb3`と`urashima-blocks-4.0.sb3`の入力・出力ハッシュとtarget構成
 - `urashima-blocks-4.0.sb3`: 10場面・174命令を個別のTurboWarpブロックとして持ち、編集・再生できるSB3。各場面の中で背景・表示・待機・台詞・移動・ポーズを編集できます。
   Stage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。
@@ -58,7 +58,7 @@ pnpm verify:urashima-dsl4
 
 ## DSL 4.0オフラインSB3の生成
 
-`dsl4-build.config.json`に固定したTurboWarp-Kamishibai commitを、既定では隣接する`../turbowarp-kamishibai-app`にcheckoutして依存関係をインストールします。CIでは同じcommitを`.tmp/turbowarp-kamishibai-app`へcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でその場所を指定します。入力となる`base/kamishibai-4.0.sb3`も、DSL 4.0.0-rc.25のrelease source identity、サイズ、SHA-256を設定に固定しています。
+rootの`app-release.json`に記録したTurboWarp-Kamishibai commitを、既定では隣接する`../turbowarp-kamishibai-app`にcheckoutして依存関係をインストールします。CIでは同じcommitを`.tmp/turbowarp-kamishibai-app`へcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でその場所を指定します。入力となる`base/kamishibai-4.0.sb3`も、同manifestのsource identity、サイズ、SHA-256で照合します。作品設定には依存版を保持しません。
 
 ```bash
 pnpm update:dsl4-artifacts
@@ -76,7 +76,7 @@ pnpm update:dsl4-artifacts
 
 SB3のZIPや`project.json`を直接編集する別経路はありません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
 
-DSL 4.0 Web版だけを一時停止するときは、`dsl4-build.config.json`の`web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
+DSL 4.0 Web版だけを一時停止するときは、`sample.config.json`の`dsl4.web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
 
 アセットや生成設定など、台本以外の入力を意図的に変更したときは、リポジトリルートで`pnpm update:artifacts-lock`を実行すると、両プロファイルとWeb版を実際に生成して`artifacts.lock.json`を再作成できます。その後の`pnpm build`では、再生成したロックとの一致を通常どおり検証します。
 
@@ -120,6 +120,6 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
 [図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
 
-本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
+本体の既定値はOFFのまま、samplesの`stories/urashima/sample.config.json`の`dsl4.blockAuthoring.sourceSections: true`で
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。

@@ -29,7 +29,7 @@ runs:
     - id: pin
       shell: bash
       run: |
-        commit=$(node -e "process.stdout.write(require('./stories/urashima/dsl4-build.config.json').runtime.commit)")
+        commit=$(node -e "process.stdout.write(require('./app-release.json').commit)")
         printf 'commit=%s\n' "$commit" >> "$GITHUB_OUTPUT"
         printf 'Pinned builder commit: %s\n' "$commit"
         printf 'TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT=%s/.tmp/turbowarp-kamishibai-app\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"

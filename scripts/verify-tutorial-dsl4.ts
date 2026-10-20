@@ -7,13 +7,14 @@ import {pathToFileURL, fileURLToPath} from 'node:url';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {readDsl4StoryConfig} from './story-config.ts';
 import type {PackagedWebResult} from './build-packaged-web.ts';
 import {
   createTutorialPublicSurfaces,
   type TutorialArtifactLock,
 } from './build-tutorial-dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
-import type {DependencyRecord, Dsl4BuildConfig} from './story-config.ts';
+import type {DependencyRecord} from './story-config.ts';
 
 const defaultProjectRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -75,7 +76,7 @@ export async function verifyTutorialCandidate(
   const outputDirectory = options.outputDirectory ?? path.join(projectRoot, 'dist');
   const [config, artifactLock, webLock, publicSurfaces, finalSource, starterSource, addition] =
     await Promise.all([
-      readJson<Dsl4BuildConfig>(path.join(storyDirectory, 'dsl4-build.config.json')),
+      readDsl4StoryConfig(storyDirectory),
       readJson<TutorialArtifactLock>(path.join(storyDirectory, 'dsl4-artifacts.lock.json')),
       readJson<PackagedWebResult>(path.join(storyDirectory, 'dsl4-web-artifacts.lock.json')),
       readJson<PublicSurfaces>(path.join(storyDirectory, 'public-surfaces.json')),
@@ -101,10 +102,7 @@ export async function verifyTutorialCandidate(
   assert.equal(publicSurfaces.releaseDependency, config.releaseDependency);
   // 公開の根拠は、実際にビルドへ使った runtime ピンの release そのもの。
   // 固定値で書くと repin ごとに書き換えが必要になるので、ピンから組み立てて突き合わせる。
-  const runtimeConfig = await readJson<Dsl4BuildConfig>(
-    path.resolve(storyDirectory, config.runtime.config as string),
-  );
-  const runtimePin = runtimeConfig.runtime;
+  const runtimePin = config.runtime;
   assert.deepEqual(
     artifactLock.runtime,
     runtimePin,

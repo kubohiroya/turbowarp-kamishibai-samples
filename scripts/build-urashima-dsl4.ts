@@ -13,17 +13,17 @@ import {
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
-import type {Dsl4BuildConfig, Dsl4Limits} from './story-config.ts';
+import type {Dsl4Limits} from './story-config.ts';
 import {ensureUrashimaDsl4Inputs} from './update-urashima-dsl4-inputs.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/urashima');
-const configPath = path.join(storyDirectory, 'dsl4-build.config.json');
 const artifactLockPath = path.join(storyDirectory, 'dsl4-artifacts.lock.json');
 const defaultKamishibaiRoot = path.resolve(projectRoot, '../turbowarp-kamishibai-app');
 const kamishibaiRootEnvironmentName = 'TURBOWARP_KAMISHIBAI_APP_ROOT';
@@ -179,7 +179,7 @@ export async function buildUrashimaDsl4({
   verifyCommittedOutput = true,
   writeLock = false,
 }: BuildUrashimaDsl4Options = {}): Promise<BuildUrashimaDsl4Result> {
-  const config = JSON.parse(await readFile(configPath, 'utf8')) as Dsl4BuildConfig;
+  const config = await readDsl4StoryConfig(storyDirectory);
   const blockAuthoring = await resolveBlockAuthoringBuilder();
   assert.equal(config.formatVersion, 1);
   await ensureUrashimaDsl4Inputs();
@@ -188,7 +188,7 @@ export async function buildUrashimaDsl4({
   assert.equal(
     runtimeCommit,
     config.runtime.commit,
-    'TurboWarp-Kamishibai checkout differs from dsl4-build.config.json.',
+    'TurboWarp-Kamishibai checkout differs from app-release.json.',
   );
   assert.equal(
     commandResult('git', ['status', '--porcelain'], {cwd: kamishibaiRoot}),

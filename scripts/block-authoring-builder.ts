@@ -7,6 +7,9 @@ import {pathToFileURL} from 'node:url';
 
 import {strFromU8, unzipSync} from 'fflate';
 
+import {appBasePath} from './app-dependency.ts';
+import {readDsl4StoryConfig} from './story-config.ts';
+
 import {assertBlockSourceRuntimeWrapper} from './build-dsl4-block-source.ts';
 
 export interface BlockAuthoringIdentity {
@@ -60,15 +63,12 @@ export function replaceBlockSourceRuntime(
 /** Use the same published release for the base, playback CLI and authoring CLI. */
 export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
   const projectRoot = path.resolve(import.meta.dirname, '..');
-  const config = JSON.parse(
-    await readFile(path.join(projectRoot, 'stories/urashima/dsl4-build.config.json'), 'utf8'),
-  ) as {
-    blockAuthoring: BlockAuthoringIdentity;
-    runtime: {repository: string; commit: string; basePath: string; baseSize: number; baseSha256: string};
+  const config = await readDsl4StoryConfig(path.join(projectRoot, 'stories/urashima'));
+  const identity: BlockAuthoringIdentity = {
+    ...config.blockAuthoring,
+    repository: config.runtime.repository,
+    commit: config.runtime.commit,
   };
-  const identity = {...config.blockAuthoring, repository: config.runtime.repository, commit: config.runtime.commit};
-  assert(!config.blockAuthoring.commit || config.blockAuthoring.commit === identity.commit,
-    'The authoring CLI must use the same app release as the base.');
   assert.match(identity.commit, /^[0-9a-f]{40}$/u);
   const sourceSections = identity.sourceSections ?? false;
   assert.equal(typeof sourceSections, 'boolean', 'sourceSections must be boolean.');
@@ -95,7 +95,7 @@ export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
   let pendingSources: Promise<{base: string; replacement: string}> | undefined;
   async function runtimeSources() {
     const bytes = await readFile(
-      path.join(projectRoot, 'stories/urashima', config.runtime.basePath),
+      appBasePath(projectRoot),
     );
     assert.equal(bytes.length, config.runtime.baseSize);
     assert.equal(createHash('sha256').update(bytes).digest('hex'), config.runtime.baseSha256);

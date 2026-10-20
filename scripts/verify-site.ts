@@ -6,6 +6,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {validateBundle} from '@kubohiroya/tmpose-kamishibai/builder';
 
+import {readDsl4StoryConfig} from './story-config.ts';
 import {verifyMyUrashimaOutput} from './build-my-urashima.ts';
 import {NAVIGATION_CONTRACT, renderSiteNavigation} from './site-navigation.ts';
 import type {
@@ -14,7 +15,6 @@ import type {
   ProfileRecord,
   SiteManifest,
 } from './site-manifest.ts';
-import type {Dsl4BuildConfig} from './story-config.ts';
 import {validateWorksCatalog, type WorksCatalog} from './works-catalog.ts';
 
 export interface VerifyPublishedSiteOptions {
@@ -225,12 +225,8 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       readFile(path.join(myUrashimaOutputDirectory, 'dsl4-manifest.json'), 'utf8').then(
         (contents) => JSON.parse(contents) as MyUrashimaDsl4Manifest,
       ),
-      readFile(path.join(sourceDirectory, 'dsl4-build.config.json'), 'utf8').then(
-        (contents) => JSON.parse(contents) as Dsl4BuildConfig,
-      ),
-      readFile(path.join(myUrashimaSourceDirectory, 'dsl4-build.config.json'), 'utf8').then(
-        (contents) => JSON.parse(contents) as Dsl4BuildConfig,
-      ),
+      readDsl4StoryConfig(sourceDirectory),
+      readDsl4StoryConfig(myUrashimaSourceDirectory),
       readFile(path.join(projectRoot, 'package.json'), 'utf8').then(
         (contents) => JSON.parse(contents) as {devDependencies: Record<string, string>},
       ),

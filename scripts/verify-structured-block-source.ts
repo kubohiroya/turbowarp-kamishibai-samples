@@ -3,11 +3,12 @@ import {runInNewContext} from 'node:vm';
 
 import {parse} from 'yaml';
 
-import buildConfig from '../stories/urashima/dsl4-build.config.json' with {type: 'json'};
+import sampleConfig from '../stories/urashima/sample.config.json' with {type: 'json'};
 
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
 
+const buildConfig = sampleConfig.dsl4;
 const authoringPrefix = 'kubohiroyakamishibaiauthoring4_';
 const definitionOpcodes = [
   'asset',

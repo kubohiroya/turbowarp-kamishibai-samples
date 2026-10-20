@@ -94,7 +94,7 @@ Pagesはmain更新・手動実行・`app-release-published`のrepository dispatc
 
 DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
 
-浦島太郎とmy-urashimaのDSL 4.0 Web版は、各`dsl4-build.config.json`の`web.enabled`を起動時固定のfeature flagとして使います。未指定または`false`ではPackager生成とWeb lock更新をスキップし、チェックイン済みの有効版lockを保持したまま公開導線をdisabledの「準備中」へ戻します。再公開時は`true`へ戻すだけで、保持したlockとの一致を再検証します。
+浦島太郎とmy-urashimaのDSL 4.0 Web版は、各`sample.config.json`の`dsl4.web.enabled`を起動時固定のfeature flagとして使います。未指定または`false`ではPackager生成とWeb lock更新をスキップし、チェックイン済みの有効版lockを保持したまま公開導線をdisabledの「準備中」へ戻します。再公開時は`true`へ戻すだけで、保持したlockとの一致を再検証します。
 
 台本の`# date:`は手動更新しません。`pnpm build`は日付行を除いた台本内容のSHA-256をartifact lockと比較し、実質内容が変わった台本だけ、ビルド実行環境のローカル年月日へ更新します。内容が同じなら翌日の再ビルドでも既存日付と成果物ハッシュを維持します。台本変更に伴う公開台本、SB3、artifact lockは同じビルドで更新されます。ローカル実行ではOSのタイムゾーンを使い、GitHub ActionsのCI／Pagesリリースでは`Asia/Tokyo`を明示します。
 
@@ -143,7 +143,7 @@ pnpm deploy
 定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
 [図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
 
-本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
+本体の既定値はOFFのまま、samplesの`stories/urashima/sample.config.json`の`dsl4.blockAuthoring.sourceSections: true`で
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
 
@@ -160,3 +160,11 @@ YAML→ブロック変換では、control・asset・cover・textStyle・variable
 `pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合して公開エディターへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
 
 PRのCIでは同じ確認にローカル生成済みSB3を渡し、Pages公開後は実配信SB3を使います。ブラウザ検証で追加する非対応ブロックは確認用ブラウザ内だけに置き、配布SB3や元の台本へ保存しません。
+
+### app依存情報と作品設定
+
+DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-256の正本は、rootの`app-release.json`だけです。再生CLI、ブロック編集CLI、CIのcheckout、成果物検証が同じmanifestを参照します。公開Release同期はmanifestとベースSB3だけを更新し、作品設定は書き換えません。生成済みartifact lockの依存情報は検証証跡であり、ビルドの入力pinとしては使いません。
+
+作品固有の出力名、容量上限、Web公開・教材公開のフラグは各`sample.config.json`の`dsl4`へ統合しています。作品設定への`runtime`・`version`・`releaseDependency`、authoring用の独立commit指定はエラーです。ローカルではチェックイン済みmanifestを使い、ネット接続なしでも同じ公開版でビルドできます。依存版を更新するときは`pnpm update:app-release`を実行し、manifestとベースを一組で確認してください。
+
+この移行のロールバックは、設定・共有reader・CI変更を含むPRを一体でrevertします。公開済みappの同版成果物は変更しません。

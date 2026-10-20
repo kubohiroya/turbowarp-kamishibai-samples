@@ -33,7 +33,7 @@ pnpm update:dsl4-web-artifacts
 
 浦島太郎を含むDSL 4.0成果物を一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。通常の`pnpm build`では`my-urashima-4.0.sb3`と`web-4.0/index.html`を空の`dist/`へ自動生成し、`dsl4-artifacts.lock.json`と`dsl4-web-artifacts.lock.json`のサイズ・SHA-256に一致することを確認します。実ブラウザ検証では、タイトルからメニューへの遷移、未読込時の「もう一度」無効化、YAMLファイル選択、選択後の物語開始まで確認します。
 
-DSL 4.0 Web版だけを一時停止するときは、`dsl4-build.config.json`の`web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
+DSL 4.0 Web版だけを一時停止するときは、`sample.config.json`の`dsl4.web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
 
 ## DSL 4.0ワークショップ台本
 
@@ -98,6 +98,6 @@ YAMLのコメントと書式はブロックへ引き継ぎません。行頭の`
 定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
 [図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
 
-本体の既定値はOFFのまま、samplesの`stories/urashima/dsl4-build.config.json`の`blockAuthoring.sourceSections: true`で
+本体の既定値はOFFのまま、samplesの`stories/urashima/sample.config.json`の`dsl4.blockAuthoring.sourceSections: true`で
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。

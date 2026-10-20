@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {readTutorialStoryConfig} from '../scripts/story-config.ts';
 import {
   buildTutorialDsl4,
   createTutorialPublicSurfaces,
@@ -20,7 +21,7 @@ const storyDirectory = path.join(projectRoot, 'stories/tutorial');
 test('builds a deterministic published SB3 and tutorial distribution archives', async () => {
   const build = await buildTutorialDsl4();
   const [config, webLock, publicSurfaces] = await Promise.all([
-    readFile(path.join(storyDirectory, 'dsl4-build.config.json'), 'utf8').then(JSON.parse),
+    readTutorialStoryConfig(storyDirectory),
     readFile(path.join(storyDirectory, 'dsl4-web-artifacts.lock.json'), 'utf8').then(JSON.parse),
     readFile(path.join(storyDirectory, 'public-surfaces.json'), 'utf8').then(JSON.parse),
   ]);
@@ -163,7 +164,7 @@ test('provides one intentional CLI diagnostic with an exact starter fix', async 
 
 test('renders every fixed tutorial download on the published detail page', async () => {
   const [config, manifest] = await Promise.all([
-    readFile(path.join(storyDirectory, 'dsl4-build.config.json'), 'utf8').then(JSON.parse),
+    readTutorialStoryConfig(storyDirectory),
     readFile(path.join(storyDirectory, 'public-surfaces.json'), 'utf8').then(JSON.parse),
   ]);
   const html = renderTutorialIndex(config.work, manifest);
