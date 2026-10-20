@@ -90,16 +90,25 @@ try {
           ),
         ),
     );
-    const dialog = page.getByRole('dialog');
-    if (!(await dialog.count())) break;
-    const source = await dialog.locator('textarea').inputValue();
-    assert(
-      allowedSources.has(createHash('sha256').update(source).digest('hex')),
-      'Unexpected extension permission request; source must match the verified SB3.',
-    );
-    await dialog.locator('input[type=checkbox]').check();
-    await dialog.locator('button[class*="allow-button"], button[class*="allowButton"]').click();
-    await page.waitForTimeout(250);
+    const dialog = page.locator('.twextsec-modal');
+    if (!(await page.getByRole('dialog').count())) break;
+    await dialog.waitFor({state: 'visible'});
+    const rows = dialog.locator('.twextsec-row');
+    await rows.first().waitFor({state: 'visible'});
+    const count = await rows.count();
+    assert(count > 0 && count <= allowedSources.size, 'Unexpected extension permission rows.');
+    for (let index = 0; index < count; index += 1) {
+      const row = rows.nth(index);
+      await row.getByRole('button', {name: /^(詳細|Details)$/u}).click();
+      const source = await row.locator('textarea[readonly]').inputValue();
+      assert(
+        allowedSources.has(createHash('sha256').update(source).digest('hex')),
+        'Unexpected extension permission request; source must match the verified SB3.',
+      );
+      await row.locator('input[type=radio][value=unsandboxed]').check();
+    }
+    await dialog.getByRole('button', {name: 'OK', exact: true}).click();
+    await dialog.waitFor({state: 'hidden'});
   }
   await page.waitForFunction(() =>
     window.vm.runtime.targets.some((target: any) =>
