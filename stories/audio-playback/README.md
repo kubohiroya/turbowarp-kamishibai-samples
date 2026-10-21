@@ -1,6 +1,6 @@
 # DSL 4.0 音声再生サンプル
 
-4.0.0-rc.39のStandard SB3/npmに対応します。rc.38以前は未対応です。配布SB3・ブロック版・Web版は同じ公開commitを使用し、dsl4-artifacts.lock.jsonにhashを記録します。
+配布物は4.0.0-rc.41のStandard SB3/npmで生成しています。音声制御はrc.39から対応しており、rc.38以前は未対応です。配布SB3・ブロック版・Web版は同じ公開commitを使用し、dsl4-artifacts.lock.jsonにhashを記録します。
 
 `main.k4.yml`・`tone.wav`・`instructions.svg`を同じフォルダーで使います。対応版のStandard SB3でこのフォルダーを開き、タイトルを閉じると、終了待ち→バックグラウンド→一時停止/再開→ループ→フェード停止を順に実行します。
 
@@ -11,7 +11,7 @@
 - ブロック版でも同じ入力を使います。setVolume操作ではVALUE欄へ音量を指定し、再生用VOLUME欄を空にします。
 - 旧BGM/SEは引き続き使用できます。sceneを跨ぐBGMを新しいscene単位IDへ一律に置換しません。
 
-rc.39のCLIを固定して検証・生成する例（BASE.sb3は同じ版のStandard SB3。ブロック版は、直前に素材を同梱したaudio.sb3をベースにします）:
+rc.41のCLIを固定して検証・生成する例（BASE.sb3は同じ版のStandard SB3。ブロック版は、直前に素材を同梱したaudio.sb3をベースにします）:
 
 ```sh
 turbowarp-kamishibai validate-dsl4 --input main.k4.yml
@@ -19,7 +19,7 @@ turbowarp-kamishibai build-dsl4 --base BASE.sb3 --project-root . --output audio.
 turbowarp-kamishibai author-block-dsl --base audio.sb3 --input main.k4.yml --output audio-blocks.sb3
 ```
 
-公開npm・Standard SB3・サンプルのSchema/ベース版は同じrc.39を使用します。[公開サンプル](https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/audio-playback/)から各形式を利用できます。
+公開npm・Standard SB3・サンプルのSchema/ベース版は同じrc.41を使用します。[公開サンプル](https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/audio-playback/)から各形式を利用できます。
 
 ## ライセンス
 

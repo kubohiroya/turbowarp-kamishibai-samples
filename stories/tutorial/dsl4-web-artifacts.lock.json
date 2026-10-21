@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-offline",
     "path": "tutorial-4.0.sb3",
-    "size": 12913618,
-    "sha256": "6850dd037568249fe7344fc8270f50e2ea6dc4365127e3bf2625d677b76edda9"
+    "size": 12913637,
+    "sha256": "b67dfcceab9c27d4bd64f1829f3ee79f9974acde0fff1e20151b5a6a66310736"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 23468893,
-    "sha256": "2f9c67e75c9807edd198183a3a03dbaf1879337d5ffacdb297b986ef4ca6603a"
+    "size": 23469497,
+    "sha256": "26decc28959ed2f53e5d18f704dac58eb2af7f9dad57b77daa50848f3a0bff8c"
   },
   "packager": {
     "package": "@turbowarp/packager",
@@ -31,7 +31,7 @@
       {
         "id": "kubohiroyakamishibai4",
         "source": "input-sb3-data-url",
-        "sha256": "ff2df24152a00330bbbb31ea049b800cd8bdf44e16d8c254e535995300ac3a11"
+        "sha256": "a9b545000a325b4ac9775c567501dbc0fb179e29ee22bc067fb50cfe3b966a92"
       }
     ],
     "scratchRender": {
@@ -45,18 +45,8 @@
   "assets": "embedded",
   "audioUnlock": {
     "enabled": true,
-    "events": [
-      "pointerdown",
-      "pointerup",
-      "touchend",
-      "mousedown",
-      "click",
-      "keydown"
-    ],
-    "lifecycleEvents": [
-      "visibilitychange",
-      "pageshow"
-    ],
+    "events": ["pointerdown", "pointerup", "touchend", "mousedown", "click", "keydown"],
+    "lifecycleEvents": ["visibilitychange", "pageshow"],
     "verification": {
       "strategy": "state-and-clock",
       "clockCheckDelayMs": 250,
