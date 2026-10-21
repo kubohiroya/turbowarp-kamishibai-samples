@@ -26,7 +26,7 @@
     "update:my-urashima-dsl4": "node scripts/build-my-urashima-dsl4.ts --write-lock",
     "update:tutorial-dsl4": "node scripts/update-tutorial-dsl4.ts",
     "update:dsl4-web-artifacts": "node scripts/update-dsl4-web-artifacts.ts",
-    "update:dsl4-artifacts": "pnpm update:urashima-dsl4 && pnpm update:my-urashima-dsl4 && pnpm update:dsl4-web-artifacts && pnpm update:tutorial-dsl4",
+    "update:dsl4-artifacts": "pnpm update:urashima-dsl4 && pnpm update:my-urashima-dsl4 && pnpm update:dsl4-web-artifacts && pnpm update:tutorial-dsl4 && pnpm update:audio-playback",
     "validate:my-urashima-dsl4": "node scripts/validate-my-urashima-dsl4.ts",
     "validate:urashima-dsl4": "node ${TURBOWARP_KAMISHIBAI_APP_ROOT:-../turbowarp-kamishibai-app}/bin/turbowarp-kamishibai.mjs validate-dsl4 --input stories/urashima/urashima.k4.yml --max-source-bytes 262144 --format pretty",
     "verify:urashima-dsl4": "node scripts/verify-urashima-dsl4.ts",
@@ -39,7 +39,8 @@
     "release:check": "pnpm run check && pnpm run pack:dry-run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "test:block-diagnostics": "node scripts/verify-published-block-diagnostics.ts"
+    "test:block-diagnostics": "node scripts/verify-published-block-diagnostics.ts",
+    "update:audio-playback": "node scripts/build-audio-playback.ts --write-lock"
   },
   "engines": {
     "node": ">=22.18.0"

@@ -35,6 +35,12 @@ const fixtures = new Map<string, Buffer>(
             path.join(projectRoot, 'tmp/tutorial-candidate/web-4.0/index.html'),
           ).then((contents): [string, Buffer] => ['/tutorial', contents])
         : null,
+      readFile(path.join(projectRoot, 'dist/stories/audio-playback/web-4.0/index.html')).then(
+        (contents): [string, Buffer] => ['/audio', contents],
+      ),
+      readFile(
+        path.join(projectRoot, 'dist/stories/audio-playback/web-blocks-4.0/index.html'),
+      ).then((contents): [string, Buffer] => ['/audio-blocks', contents]),
     ].filter((entry) => entry !== null) as Promise<[string, Buffer]>[]),
   ),
 );
@@ -136,6 +142,15 @@ async function openDsl4Page(
     }
     externalRequests.push(url);
     await route.abort('blockedbyclient');
+  });
+  await page.addInitScript(() => {
+    const voices: HTMLMediaElement[] = [];
+    Object.defineProperty(globalThis, '__audioSampleVoices', {value: voices});
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      if (this.tagName === 'AUDIO' && !voices.includes(this)) voices.push(this);
+      return play.call(this);
+    };
   });
   await page.goto(`${origin}${pathname}`, {waitUntil: 'domcontentloaded', timeout: 120_000});
   await page.waitForFunction(
@@ -564,7 +579,36 @@ try {
     await tutorial.page.close();
   }
 
-  const verified = [
+  for (const pathname of ['/audio', '/audio-blocks']) {
+    const audio = await openDsl4Page(browser, origin, pathname);
+    await audio.page.locator('[data-dsl4-title-action=close]').click();
+    await audio.page.waitForFunction(
+      () => {
+        const voices = Reflect.get(globalThis, '__audioSampleVoices') as HTMLMediaElement[];
+        const vm = globalThis.Scratch?.vm ?? globalThis.scaffolding?.vm;
+        const status = Object.entries(vm.runtime._primitives).find(([name]) =>
+          name.endsWith('kamishibairuntime4__statusReporter'),
+        )?.[1] as ((args: object) => string) | undefined;
+        return voices.length > 0 && status?.({}) === 'menu';
+      },
+      undefined,
+      {timeout: 30_000},
+    );
+    const result = await audio.page.evaluate(() => {
+      const voices = Reflect.get(globalThis, '__audioSampleVoices') as HTMLMediaElement[];
+      return {
+        voices: voices.length,
+        released: voices.every((voice) => voice.paused && voice.getAttribute('src') === null),
+      };
+    });
+    assert.ok(result.voices > 0, pathname);
+    assert.equal(result.released, true, pathname);
+    assert.deepEqual(audio.failures, [], pathname);
+    assert.deepEqual(audio.externalRequests, [], pathname);
+    await audio.page.close();
+  }
+
+  const verified = ['audio YAML/block playback and cleanup',
     ...(urashimaEnabled ? ['Urashima'] : []),
     ...(myUrashimaEnabled ? ['workshop'] : []),
     ...(tutorialEnabled ? ['tutorial release'] : []),

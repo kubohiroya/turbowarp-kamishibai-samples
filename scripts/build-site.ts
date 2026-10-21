@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
+import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildMyUrashima} from './build-my-urashima.ts';
 import {buildMyUrashimaDsl4} from './build-my-urashima-dsl4.ts';
 import {buildUrashima} from './build-urashima.ts';
@@ -1613,6 +1614,28 @@ export async function buildSite() {
       'utf8',
     );
   }
+
+  const audioWork = worksCatalog.works.find(({id}) => id === 'audio-playback');
+  assert(audioWork, 'audio-playback is missing from the works catalog.');
+  const audioDirectory = path.join(outputDirectory, 'stories/audio-playback');
+  const audio = await buildAudioPlayback({outputDirectory: audioDirectory});
+  await writeFile(
+    path.join(audioDirectory, 'index.html'),
+    `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>音声再生サンプル | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fff8ee;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/audio-playback/')}
+<main><h1>音声再生サンプル</h1><p>DSL 4.0 / ${audio.builder.version}。タイトルを閉じると合成音の再生を開始し、全10操作と音量・フェードを順に実行します。</p>
+${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stories/audio-playback/', ''))}
+<ul><li><a href="web-4.0/">YAML版をブラウザーで開く</a></li><li><a href="web-blocks-4.0/">ブロック版をブラウザーで開く</a></li>
+<li><a href="audio-4.0.sb3" download>YAML版SB3</a> / <a href="audio-blocks-4.0.sb3" download>ブロック版SB3</a></li>
+<li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
+<p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
+<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`,
+    'utf8',
+  );
 
   await verifyTutorialCandidate({
     candidateOutputDirectory: tutorialCandidateOutputDirectory,

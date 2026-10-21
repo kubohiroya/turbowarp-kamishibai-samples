@@ -55,3 +55,10 @@
 - [DSL 4.0チュートリアルのライセンス](stories/tutorial/LICENSES.md)
 
 スクリーンショットとしての場面選択、切り出し、キャプションおよびWebP変換物の権利者はHiroya Kuboです。この部分は[Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)（CC BY-SA 4.0）で提供します。この表示は、画面内のMPL-2.0対象要素や第三者素材をCC BY-SA 4.0として再許諾するものではありません。
+
+
+## 音声再生サンプル（rc.39）
+
+`stories/audio-playback/instructions.svg`を基に、終了待ち・バックグラウンド・ミュート/再開・ループの4場面を説明するカードを書き出しました。写真・第三者素材は含みません。元のSVG・台本・合成音はMPL-2.0、場面選択・キャプションと変換物は下記と同じCC BY-SA 4.0です。
+
+このサンプルのカードは元のステージに合わせ480×360です。`stories/audio-playback/card-scenes.gif`は4フレーム・64色・ディザリングなし、23,462 bytesです。WebPは同フォルダーの`card-scenes/01.webp`〜`04.webp`に収録しています。

@@ -633,7 +633,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   // Direct editor links must enable forms and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
-    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima']],
+    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima', 'audio-playback/audio']],
     [sampleIndex, ['urashima/urashima']],
     [tutorialIndex, ['tutorial/tutorial']],
     [myUrashimaIndex, ['my-urashima/my-urashima', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses`)]],
@@ -720,7 +720,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(myUrashimaCard.includes('data-scene-gallery="my-urashima"'));
   assert(rootIndex.includes('src="stories/tutorial/card-scenes.gif"'));
   assert(rootIndex.includes('data-scene-gallery="tutorial-earthquake-safety"'));
-  assert.equal((rootIndex.match(/loading="lazy" decoding="async"/gu) ?? []).length, 3);
+  assert.equal((rootIndex.match(/loading="lazy" decoding="async"/gu) ?? []).length, worksCatalog.works.length);
   assert(rootIndex.includes('id="scene-gallery-dialog"'));
   assert(rootIndex.includes('data-scene-gallery-previous'));
   assert(rootIndex.includes('data-scene-gallery-next'));
@@ -728,7 +728,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(rootIndex.includes("event.key === 'ArrowRight'"));
   assert(rootIndex.includes("event.key === 'Escape'"));
   assert(rootIndex.includes('dialog.showModal()'));
-  assert.equal((rootIndex.match(/class="work-card__scene-button"/gu) ?? []).length, 3);
+  assert.equal((rootIndex.match(/class="work-card__scene-button"/gu) ?? []).length, worksCatalog.works.length);
   const myUrashimaDsl32Actions = myUrashimaCard.slice(
     myUrashimaCard.indexOf('data-action-group="DSL 3.2 作業版"'),
     myUrashimaCard.indexOf('data-action-group="DSL 4.0 作業版"'),
