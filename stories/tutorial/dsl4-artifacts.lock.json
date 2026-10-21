@@ -1,22 +1,22 @@
 {
   "formatVersion": 1,
   "status": "published",
-  "version": "4.0.0-rc.39",
-  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.39",
-  "sourceIdentity": "8b25dd5f211015ca8b1177896126a4f135c4cd5d3c9fa2c9e09556c116963440",
+  "version": "4.0.0-rc.41",
+  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.41",
+  "sourceIdentity": "07d90109499a0a6b3695b60619468d437b0dfb6baf389d3fc3d056f08e728e0c",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.39",
-    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d",
+    "version": "4.0.0-rc.41",
+    "commit": "7bd9a2b34bf7b0cf2f8992cdfe27d0ae55f9224b",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:d68131e90340e9a6833ec7738cf3f6b2e1444eefb37afb4311cd12a8abcab072",
-    "baseSize": 7016479,
-    "baseSha256": "e5ab8e6376d9eef1ab8131b9a0a5254ee90408a3bc7c2a4ed1b2c05af4b46378"
+    "baseSourceIdentity": "sha256:b5b3a92a7bc5f4770282d40720bf6c81f3a1337f9f852b331c32d35f24f193aa",
+    "baseSize": 7016827,
+    "baseSha256": "7333d53c79deeb61254bbb660b3c9c1c1acf4ff21107f60553bf3bf681b4d867"
   },
   "blockAuthoring": {
     "sourceSections": true,
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d"
+    "commit": "7bd9a2b34bf7b0cf2f8992cdfe27d0ae55f9224b"
   },
   "sb3Toolchain": {
     "package": "@kubohiroya/sb3-toolchain",
@@ -45,21 +45,11 @@
         "SafetyPose",
         "SuccessSound"
       ],
-      "sceneIds": [
-        "earthquake",
-        "instruction",
-        "protect",
-        "success"
-      ]
+      "sceneIds": ["earthquake", "instruction", "protect", "success"]
     },
     "starterStructure": {
-      "assetIds": [
-        "Classroom",
-        "StudentReady"
-      ],
-      "sceneIds": [
-        "earthquake"
-      ]
+      "assetIds": ["Classroom", "StudentReady"],
+      "sceneIds": ["earthquake"]
     },
     "inputs": [
       {
@@ -69,8 +59,8 @@
       },
       {
         "path": "README.md",
-        "size": 5847,
-        "sha256": "dc65d15daa5209b5804386154ec955329613bd2bf2aafdb5308c9d76b38ac08e"
+        "size": 6287,
+        "sha256": "a3dc79442eadd19aec32fabd9db683d2a5694600f830b5172500f75c77db9c67"
       },
       {
         "path": "addition-kit/README.md",
@@ -177,23 +167,17 @@
   "outputs": {
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 12913618,
-      "sha256": "6850dd037568249fe7344fc8270f50e2ea6dc4365127e3bf2625d677b76edda9",
+      "size": 12913637,
+      "sha256": "b67dfcceab9c27d4bd64f1829f3ee79f9974acde0fff1e20151b5a6a66310736",
       "archiveEntryCount": 10,
-      "targetNames": [
-        "Stage",
-        "Student"
-      ]
+      "targetNames": ["Stage", "Student"]
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 13037596,
-      "sha256": "8488a1e163b637559e4965dce3c3cb5f7a7279b562acbf29addacf122484f53d",
+      "size": 13037949,
+      "sha256": "f3bbbd0a5b9cc94352e7d6f87f520fcde33423d8ad32511d5046704c9b2e42a9",
       "archiveEntryCount": 10,
-      "targetNames": [
-        "Stage",
-        "Student"
-      ]
+      "targetNames": ["Stage", "Student"]
     },
     "starter": {
       "path": "tutorial-story-starter-4.0.zip",
@@ -240,7 +224,7 @@
   },
   "publication": {
     "enabled": true,
-    "reason": "TurboWarp-Kamishibai 4.0.0-rc.39 release artifacts are published and integrity-verified",
+    "reason": "TurboWarp-Kamishibai 4.0.0-rc.41 release artifacts are published and integrity-verified",
     "issue": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/125"
   }
 }

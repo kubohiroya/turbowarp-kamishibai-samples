@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.39",
-    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d",
+    "version": "4.0.0-rc.41",
+    "commit": "7bd9a2b34bf7b0cf2f8992cdfe27d0ae55f9224b",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:d68131e90340e9a6833ec7738cf3f6b2e1444eefb37afb4311cd12a8abcab072",
-    "baseSize": 7016479,
-    "baseSha256": "e5ab8e6376d9eef1ab8131b9a0a5254ee90408a3bc7c2a4ed1b2c05af4b46378"
+    "baseSourceIdentity": "sha256:b5b3a92a7bc5f4770282d40720bf6c81f3a1337f9f852b331c32d35f24f193aa",
+    "baseSize": 7016827,
+    "baseSha256": "7333d53c79deeb61254bbb660b3c9c1c1acf4ff21107f60553bf3bf681b4d867"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.39",
-    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d"
+    "version": "4.0.0-rc.41",
+    "commit": "7bd9a2b34bf7b0cf2f8992cdfe27d0ae55f9224b"
   },
   "sources": [
     {
@@ -34,13 +34,13 @@
   "outputs": {
     "yaml": {
       "path": "audio-4.0.sb3",
-      "size": 6912694,
-      "sha256": "664cd7bcf220d03a5c504bcdc66383e0b8dd252ae5c0db9d2d61ec5ee859ffdf"
+      "size": 6912726,
+      "sha256": "5f4745506aacfaa0d107a25877105fc139087e65936c94ff93f07b6850f0d910"
     },
     "blocks": {
       "path": "audio-blocks-4.0.sb3",
-      "size": 6926857,
-      "sha256": "38e9023025ec4ee0b6dfb80805ac8bc7659a016b6e7b317477844b28158c96e6"
+      "size": 6927011,
+      "sha256": "26ad21a89194c7ab41ebaa38d5a789b375daba3058a4ecb35a4f37b11acdea80"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-4.0.sb3",
-      "size": 6912694,
-      "sha256": "664cd7bcf220d03a5c504bcdc66383e0b8dd252ae5c0db9d2d61ec5ee859ffdf"
+      "size": 6912726,
+      "sha256": "5f4745506aacfaa0d107a25877105fc139087e65936c94ff93f07b6850f0d910"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 16088928,
-      "sha256": "daeafe8bd0819af206a2c107503f1b387f5c6e651917ec485983fd7b5b99ad37"
+      "size": 16089547,
+      "sha256": "a1dba476d465b5c04e078d2ee2391463b86af45b3e3179d02ae0c3b78644a6f7"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -76,7 +76,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "ff2df24152a00330bbbb31ea049b800cd8bdf44e16d8c254e535995300ac3a11"
+          "sha256": "a9b545000a325b4ac9775c567501dbc0fb179e29ee22bc067fb50cfe3b966a92"
         }
       ],
       "scratchRender": {
@@ -90,18 +90,8 @@
     "assets": "embedded-project",
     "audioUnlock": {
       "enabled": true,
-      "events": [
-        "pointerdown",
-        "pointerup",
-        "touchend",
-        "mousedown",
-        "click",
-        "keydown"
-      ],
-      "lifecycleEvents": [
-        "visibilitychange",
-        "pageshow"
-      ],
+      "events": ["pointerdown", "pointerup", "touchend", "mousedown", "click", "keydown"],
+      "lifecycleEvents": ["visibilitychange", "pageshow"],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,
@@ -126,14 +116,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-blocks-4.0.sb3",
-      "size": 6926857,
-      "sha256": "38e9023025ec4ee0b6dfb80805ac8bc7659a016b6e7b317477844b28158c96e6"
+      "size": 6927011,
+      "sha256": "26ad21a89194c7ab41ebaa38d5a789b375daba3058a4ecb35a4f37b11acdea80"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
-      "size": 16165169,
-      "sha256": "45d6f171a08a1b2ffb2de094fd996f6f38305b325edfe4edbfcb31f04ae694ff"
+      "size": 16165692,
+      "sha256": "818fdd3aec67e412c15aec7fbc964e23a0630360a6f9ff461898aa52dd23952a"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -153,7 +143,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "6b4a0d5af37426a1bcc0da6205b973cbcdb05eb4ae7d5b2ce00fbb66fc761edf"
+          "sha256": "fee51daab6ca48f62e42689a7e10e6a1e2e4a5061e3fc910c4c4daa0a3e4d684"
         },
         {
           "id": "kubohiroyakamishibaiauthoring4",
@@ -172,18 +162,8 @@
     "assets": "embedded-project",
     "audioUnlock": {
       "enabled": true,
-      "events": [
-        "pointerdown",
-        "pointerup",
-        "touchend",
-        "mousedown",
-        "click",
-        "keydown"
-      ],
-      "lifecycleEvents": [
-        "visibilitychange",
-        "pageshow"
-      ],
+      "events": ["pointerdown", "pointerup", "touchend", "mousedown", "click", "keydown"],
+      "lifecycleEvents": ["visibilitychange", "pageshow"],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,

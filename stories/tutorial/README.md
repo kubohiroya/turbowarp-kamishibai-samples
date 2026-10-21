@@ -43,10 +43,11 @@ docs側はその公開surfaceを使ってcaptureとチュートリアルpublicat
 
 完成版とaddition kitは`poseRecognition.preview.overlay`を使い、手首ジョイントとボーンをカメラ映像へ重ねて表示します。これはTeachable Machine拡張のoverlay APIを利用する例です。
 
-あわせて`poseRecognition.preview.controls`も宣言し、カメラ映像の左右反転ボタン（右上）とカメラ選択メニュー（左上）を
-出します。描くのはapp shellの固定rendererで、作品側はアイコンと位置を指定するだけです。アイコンは`kind: image`の
-素材として台本に宣言します（スプライトのコスチュームではないので`project-assets-dsl4.yml`には置きません）。
-カメラが動いている間だけ表示され、カメラを止めると消えます。
+rc.41のStandard SB3は、カメラ操作を共通の「カメラ」ボタンへまとめています。Editorでは停止ボタンの後ろ、HTMLでは共通Dockに表示します。カメラ未起動時は許可・開始、起動中はカメラ選択とミラーリングの設定を開きます。
+
+HTMLのDockは「ツール」から表示し、「設定」で上下左右の配置と自動非表示を選べます。YAML台本を外部ファイルから開いて制作中は「更新検知」が表示され、台本ファイルや関連素材の保存を検知してプレビューへ反映します。自己完結の完成作品を再生するだけなら更新検知の操作は不要です。
+
+台本の`recognition.preview.mirroring`は表示上の左右反転を指定します。既存の`recognition.preview.controls`にあるアイコンや位置の指定は互換入力として残しますが、Standard SB3の共通入口の配置はEditorまたはDockが管理します。
 
 rc.25への再pinと再起動待機の修正反映は[Issue #175](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/175)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体release artifactは差し替えません。
 
