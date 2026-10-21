@@ -444,27 +444,52 @@ try {
     }));
     assert.deepEqual(cameraPermissionStep, {supported: false, drawn: false});
 
-    const previewControls = await tutorial.page.evaluate(() =>
-      [...document.querySelectorAll('[data-dsl4-preview-control]')].map((node) => {
-        const element = node as HTMLElement;
-        const group = element.parentElement as HTMLElement | null;
-        return {
-          control: element.dataset.dsl4PreviewControl ?? '',
-          anchor: group?.dataset.dsl4PreviewControlAnchor ?? '',
-          display: group?.style.display ?? '',
-          labelled: (element.getAttribute('aria-label') ?? '').length > 0,
-          // アイコンはObject URLとして実体化される。残っていればassetの受け渡しが成立している。
-          icon: (element.querySelector('img')?.getAttribute('src') ?? '').startsWith('blob:'),
-        };
-      }),
+    // Packaged HTML uses the shared Dock; camera settings have one entry point.
+    const dock = tutorial.page.locator('[data-runtime-controls-dock=true]');
+    const cameraButton = dock.locator('[data-runtime-dock-control=camera]');
+    const cameraPanel = tutorial.page.locator('[data-camera-source-panel=standalone]');
+    await cameraButton.waitFor({state: 'attached'});
+    assert.equal(await dock.count(), 1);
+    assert.equal(await dock.getAttribute('data-edge'), 'bottom');
+    assert.equal(await dock.getAttribute('data-auto-hide'), 'true');
+    assert.equal(await cameraButton.count(), 1);
+    assert.ok((await cameraButton.getAttribute('aria-label'))?.trim());
+    assert.ok((await cameraButton.locator('[data-runtime-dock-icon]').textContent())?.trim());
+    assert.equal(await cameraButton.getAttribute('aria-expanded'), 'false');
+    assert.equal(await cameraPanel.isVisible(), false);
+    if (!(await cameraButton.isVisible())) {
+      await dock.locator('[data-runtime-dock-handle]').click();
+    }
+    await cameraButton.click();
+    await cameraPanel.waitFor({state: 'visible'});
+    assert.equal(await cameraButton.getAttribute('aria-expanded'), 'true');
+    assert.equal(await cameraPanel.getAttribute('data-camera-mode'), 'settings');
+
+    const cameraSettings = cameraPanel.locator('[data-camera-source-settings=true]');
+    const cameraSelect = cameraSettings.getByRole('combobox');
+    await tutorial.page.waitForFunction(() => {
+      const select = document.querySelector<HTMLSelectElement>(
+        '[data-camera-source-settings=true] select',
+      );
+      return select !== null && !select.disabled && select.options.length >= 3;
+    });
+    assert.equal(await cameraSelect.isVisible(), true);
+    assert.deepEqual(
+      await cameraSelect.locator('option').evaluateAll((options) =>
+        options.slice(0, 3).map((option) => (option as HTMLOptionElement).value),
+      ),
+      ['default', 'front', 'back'],
     );
-    // The current release groups mirroring inside the initially closed camera menu.
-    assert.deepEqual(previewControls, [
-      {control: 'cameraMenu', anchor: 'top-left', display: 'flex', labelled: true, icon: true},
-      {control: 'mirroring', anchor: '', display: 'none', labelled: true, icon: true},
-    ]);
-    assert.equal(await tutorial.page.locator('[data-dsl4-preview-control=cameraMenu]').getAttribute('aria-expanded'), 'false');
-    assert.equal(await tutorial.page.locator('[data-dsl4-preview-camera-panel=true]').evaluate((panel: HTMLElement) => panel.hidden), true);
+    const mirrorButton = cameraSettings.getByRole('button');
+    const mirrored = await mirrorButton.getAttribute('aria-pressed');
+    assert.ok(mirrored === 'true' || mirrored === 'false');
+    await mirrorButton.click();
+    assert.equal(await mirrorButton.getAttribute('aria-pressed'), String(mirrored !== 'true'));
+    await mirrorButton.click();
+    assert.equal(await mirrorButton.getAttribute('aria-pressed'), mirrored);
+    await cameraPanel.getByRole('button', {name: /^(閉じる|Close)$/u}).click();
+    assert.equal(await cameraPanel.isVisible(), false);
+    assert.equal(await cameraButton.getAttribute('aria-expanded'), 'false');
     try {
       await tutorial.page.waitForFunction(
         () => {
