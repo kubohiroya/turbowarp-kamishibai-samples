@@ -168,3 +168,8 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 作品固有の出力名、容量上限、Web公開・教材公開のフラグは各`sample.config.json`の`dsl4`へ統合しています。作品設定への`runtime`・`version`・`releaseDependency`、authoring用の独立commit指定はエラーです。ローカルではチェックイン済みmanifestを使い、ネット接続なしでも同じ公開版でビルドできます。依存版を更新するときは`pnpm update:app-release`を実行し、manifestとベースを一組で確認してください。
 
 この移行のロールバックは、設定・共有reader・CI変更を含むPRを一体でrevertします。公開済みappの同版成果物は変更しません。
+
+
+## 次回4.0プレリリースの音声例
+
+[音声再生サンプル](stories/audio-playback/README.md)は、rc.38の次の4.0プレリリースに向けた台本です。再生時のfadeIn・volume・fadeOut、停止時のfadeOut、IDごとの制御を確認できます。既存の公開版と配布物lockは維持し、対応版の公開後に生成物を揃えます。
