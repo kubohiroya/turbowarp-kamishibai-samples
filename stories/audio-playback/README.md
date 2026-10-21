@@ -11,12 +11,12 @@
 - ブロック版でも同じ入力を使います。setVolume操作ではVALUE欄へ音量を指定し、再生用VOLUME欄を空にします。
 - 旧BGM/SEは引き続き使用できます。sceneを跨ぐBGMを新しいscene単位IDへ一律に置換しません。
 
-rc.39のCLIを固定して検証・生成する例（BASE.sb3は同じ版のStandard SB3）:
+rc.39のCLIを固定して検証・生成する例（BASE.sb3は同じ版のStandard SB3。ブロック版は、直前に素材を同梱したaudio.sb3をベースにします）:
 
 ```sh
 turbowarp-kamishibai validate-dsl4 --input main.k4.yml
 turbowarp-kamishibai build-dsl4 --base BASE.sb3 --project-root . --output audio.sb3 --control-profile production --channel bundled --replace-existing
-turbowarp-kamishibai author-block-dsl --base BASE.sb3 --input main.k4.yml --output audio-blocks.sb3
+turbowarp-kamishibai author-block-dsl --base audio.sb3 --input main.k4.yml --output audio-blocks.sb3
 ```
 
 公開npm・Standard SB3・サンプルのSchema/ベース版は同じrc.39を使用します。[公開サンプル](https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/audio-playback/)から各形式を利用できます。
