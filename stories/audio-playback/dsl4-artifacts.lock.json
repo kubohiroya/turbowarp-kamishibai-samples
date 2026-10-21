@@ -1,0 +1,205 @@
+{
+  "formatVersion": 1,
+  "runtime": {
+    "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.0-rc.39",
+    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d",
+    "basePath": "base/kamishibai-4.0.sb3",
+    "baseSourceIdentity": "sha256:d68131e90340e9a6833ec7738cf3f6b2e1444eefb37afb4311cd12a8abcab072",
+    "baseSize": 7016479,
+    "baseSha256": "e5ab8e6376d9eef1ab8131b9a0a5254ee90408a3bc7c2a4ed1b2c05af4b46378"
+  },
+  "builder": {
+    "package": "@kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.0-rc.39",
+    "commit": "367a94986b4f7232d7b996eb6c21c86ee90d7c4d"
+  },
+  "sources": [
+    {
+      "path": "main.k4.yml",
+      "size": 1205,
+      "sha256": "4a2bbc63befbe184b30afd57f903a9a7631edf3cf44152d962be89f0c8ac3003"
+    },
+    {
+      "path": "tone.wav",
+      "size": 192044,
+      "sha256": "a54b1684ddac5c35e398212a074d5389ba893d5e53edb7257d0fd95ef01412e1"
+    },
+    {
+      "path": "instructions.svg",
+      "size": 533,
+      "sha256": "ef7c98570784449af16711599c9db788170b8b56f2fe4a4e20f083eb483ec297"
+    }
+  ],
+  "outputs": {
+    "yaml": {
+      "path": "audio-4.0.sb3",
+      "size": 6912694,
+      "sha256": "664cd7bcf220d03a5c504bcdc66383e0b8dd252ae5c0db9d2d61ec5ee859ffdf"
+    },
+    "blocks": {
+      "path": "audio-blocks-4.0.sb3",
+      "size": 6926857,
+      "sha256": "38e9023025ec4ee0b6dfb80805ac8bc7659a016b6e7b317477844b28158c96e6"
+    }
+  },
+  "web": {
+    "enabled": true,
+    "publicPath": "web-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "audio-4.0.sb3",
+      "size": 6912694,
+      "sha256": "664cd7bcf220d03a5c504bcdc66383e0b8dd252ae5c0db9d2d61ec5ee859ffdf"
+    },
+    "output": {
+      "path": "web-4.0/index.html",
+      "contentType": "text/html",
+      "size": 16088928,
+      "sha256": "daeafe8bd0819af206a2c107503f1b387f5c6e651917ec485983fd7b5b99ad37"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "音声再生サンプル | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "ff2df24152a00330bbbb31ea049b800cd8bdf44e16d8c254e535995300ac3a11"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded-project",
+    "audioUnlock": {
+      "enabled": true,
+      "events": [
+        "pointerdown",
+        "pointerup",
+        "touchend",
+        "mousedown",
+        "click",
+        "keydown"
+      ],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
+      "verification": {
+        "strategy": "state-and-clock",
+        "clockCheckDelayMs": 250,
+        "primesOutput": true
+      }
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [
+      {
+        "capability": "audio",
+        "purpose": "合成音の再生"
+      }
+    ],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
+    }
+  },
+  "blocksWeb": {
+    "enabled": true,
+    "publicPath": "web-blocks-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "audio-blocks-4.0.sb3",
+      "size": 6926857,
+      "sha256": "38e9023025ec4ee0b6dfb80805ac8bc7659a016b6e7b317477844b28158c96e6"
+    },
+    "output": {
+      "path": "web-blocks-4.0/index.html",
+      "contentType": "text/html",
+      "size": 16165169,
+      "sha256": "45d6f171a08a1b2ffb2de094fd996f6f38305b325edfe4edbfcb31f04ae694ff"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "音声再生サンプル | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "6b4a0d5af37426a1bcc0da6205b973cbcdb05eb4ae7d5b2ce00fbb66fc761edf"
+        },
+        {
+          "id": "kubohiroyakamishibaiauthoring4",
+          "source": "input-sb3-data-url",
+          "sha256": "5fd6ea8eaba9fd8ee3b33f5748c56adaefda768197a4eab39b10a1d8c3789717"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded-project",
+    "audioUnlock": {
+      "enabled": true,
+      "events": [
+        "pointerdown",
+        "pointerup",
+        "touchend",
+        "mousedown",
+        "click",
+        "keydown"
+      ],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
+      "verification": {
+        "strategy": "state-and-clock",
+        "clockCheckDelayMs": 250,
+        "primesOutput": true
+      }
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [
+      {
+        "capability": "audio",
+        "purpose": "合成音の再生"
+      }
+    ],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
+    }
+  }
+}

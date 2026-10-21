@@ -247,6 +247,80 @@
           "group": "DSL 4.0 作業版"
         }
       ]
+    },
+    {
+      "id": "audio-playback",
+      "category": "official",
+      "title": "音声再生サンプル",
+      "updatedAt": "2026-10-21",
+      "detailHref": "stories/audio-playback/",
+      "summary": "DSL 4.0の音声10操作、音量とフェードを合成音で確認できます。YAML・ブロック・Web版は同じrc.39を使用します。",
+      "creator": "Hiroya Kubo",
+      "rightsHolder": "Hiroya Kubo",
+      "dslSeries": [
+        "4.0"
+      ],
+      "distribution": "hosted",
+      "license": {
+        "label": "MPL-2.0",
+        "href": "stories/audio-playback/LICENSES.md"
+      },
+      "thumbnail": {
+        "src": "stories/audio-playback/card-scenes.gif",
+        "alt": "音声再生サンプルの操作案内",
+        "rightsHolder": "Hiroya Kubo",
+        "licenseHref": "CARD_SCENES.md",
+        "slides": [
+          {
+            "src": "stories/audio-playback/card-scenes/01.webp",
+            "alt": "終わるまで再生",
+            "caption": "終わるまで再生"
+          },
+          {
+            "src": "stories/audio-playback/card-scenes/02.webp",
+            "alt": "バックグラウンドと再生設定",
+            "caption": "バックグラウンドと再生設定"
+          },
+          {
+            "src": "stories/audio-playback/card-scenes/03.webp",
+            "alt": "ミュート・再開・停止",
+            "caption": "ミュート・再開・停止"
+          },
+          {
+            "src": "stories/audio-playback/card-scenes/04.webp",
+            "alt": "ループとフェード停止",
+            "caption": "ループとフェード停止"
+          }
+        ]
+      },
+      "artifacts": {
+        "source-yaml": {
+          "href": "stories/audio-playback/main.k4.yml"
+        },
+        "sb3-yaml": {
+          "href": "stories/audio-playback/audio-4.0.sb3"
+        },
+        "sb3-blocks": {
+          "href": "stories/audio-playback/audio-blocks-4.0.sb3"
+        },
+        "html": {
+          "href": "stories/audio-playback/web-4.0/"
+        }
+      },
+      "actions": [
+        {
+          "label": "音声サンプルを開く",
+          "style": "primary",
+          "href": "stories/audio-playback/web-4.0/",
+          "launch": "web"
+        },
+        {
+          "label": "ブロック版を開く",
+          "style": "secondary",
+          "href": "stories/audio-playback/web-blocks-4.0/",
+          "launch": "web"
+        }
+      ]
     }
   ]
 }
