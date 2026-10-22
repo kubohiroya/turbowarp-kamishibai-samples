@@ -347,7 +347,6 @@ function renderArtifactFormats(
       let editorLink = '';
       if (format === 'sb3-blocks') {
         const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
-        editor.searchParams.set('blockEditorDialogs', '1');
         editor.searchParams.set('lang', 'ja');
         editor.searchParams.set('project_url', new URL(entry.href, publicUrl).href);
         editorLink = `<br><a href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">Extension Data Editorでフォーム編集（別タブ）</a><span class="work-formats__note">「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a></span>`;
@@ -952,7 +951,6 @@ function renderMyUrashimaWorkshop(manifest: MyUrashimaDsl4Manifest): string {
   if (!manifest.workshopBlocks?.length) return '';
   const links = manifest.workshopBlocks.map(({poseCount, path: file}) => {
     const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
-    editor.searchParams.set('blockEditorDialogs', '1');
     editor.searchParams.set('lang', 'ja');
     editor.searchParams.set('project_url', new URL(`stories/my-urashima/${file}`, publicUrl).href);
     return `        <li><a class="button" href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">${poseCount}ポーズでフォーム編集（別タブ）</a> <a href="${escapeHtml(file)}" download>SB3をダウンロード</a></li>`;

@@ -9,7 +9,7 @@ import {downloadPublishedBlockProject} from './verify-published-block-editor.ts'
 
 const root = path.resolve(import.meta.dirname, '..');
 const editorUrl =
-  'https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja';
+  'https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?lang=ja';
 const options = {
   baseUrl: 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/',
   input: '',
