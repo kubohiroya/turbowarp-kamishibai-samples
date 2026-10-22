@@ -630,7 +630,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       `${label} must link its block source SB3.`,
     );
   }
-  // Direct editor links must enable forms and load the absolute published SB3 URL.
+  // Direct editor links use the standard host and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
     [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima', 'audio-playback/audio']],
@@ -644,7 +644,8 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       expectedProjects.map((project) => `${editorSb3Base}${project}-blocks-4.0.sb3`).sort());
     for (const url of links) {
       assert.equal(url.pathname, '/turbowarp-extension-data-editor/editor.html');
-      assert.equal(url.searchParams.get('blockEditorDialogs'), '1');
+      assert.equal(url.origin, 'https://kubohiroya.github.io');
+      assert.equal(url.searchParams.has('blockEditorDialogs'), false);
       assert.equal(url.searchParams.get('lang'), 'ja');
     }
   }
