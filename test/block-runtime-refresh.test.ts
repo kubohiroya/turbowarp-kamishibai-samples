@@ -23,7 +23,7 @@ test('refreshes only the embedded bundle and refuses unknown or duplicate base c
   assert.throws(() => replaceBlockSourceRuntime(base, base, replacement), /WRAPPER_DRIFT/);
 });
 
-test('every published block project includes title controls below editor modal backdrops', async () => {
+test('every published block project keeps title controls below Player startup and editor overlays', async () => {
   const paths = [
     'urashima/urashima-blocks-4.0.sb3',
     'tutorial/tutorial-blocks-4.0.sb3',
@@ -37,7 +37,7 @@ test('every published block project includes title controls below editor modal b
       project.extensionURLs.kubohiroyakamishibai4.split(',')[1],
       'base64',
     ).toString();
-    assert.match(source, /\.element\.style\.zIndex="50"/u, path);
+    assert.match(source, /\.element\.style\.zIndex="0"/u, path);
   }
 });
 
