@@ -175,5 +175,5 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 
 ## 物語の反復と条件分岐（開発中・未配布）
 
-[三人の訪問](examples/narrative-control/README.md)はDSL 4.1の開発例です。
+[三人の訪問](examples/narrative-control/README.md)はDSL 4.0 RC改訂の開発例です。
 対応Appと明示的なflagが必要で、公開4.0作品とは分けて管理します。
