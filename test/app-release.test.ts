@@ -201,45 +201,22 @@ test('dependency check summary distinguishes no change, update and checkout comp
   );
 });
 
-test('release polling retains manual recovery and skips deployment when a scheduled check has no change', () => {
+test('release publication uses explicit events without a polling gate', () => {
   const workflow = parse(
     readFileSync(
       new URL('../.github/workflows/deploy.yml', import.meta.url),
       'utf8',
     ),
   );
+  assert.equal(workflow.on.schedule, undefined);
+  assert.deepEqual(workflow.on.push.branches, ['main']);
   assert.ok('workflow_dispatch' in workflow.on);
   assert.ok('repository_dispatch' in workflow.on);
-  const [minute, ...rest] = (workflow.on.schedule[0].cron as string).split(' ');
-  assert.deepEqual(rest, ['*', '*', '*', '*']);
-  const minutes = minute
-    .split(',')
-    .map(Number)
-    .sort((a, b) => a - b);
+  assert.equal(workflow.jobs.resolve, undefined);
+  assert.equal(workflow.jobs['build-and-deploy'].if, undefined);
   assert.ok(
-    minutes.every(
-      (value) => Number.isInteger(value) && value > 0 && value < 60,
+    workflow.jobs['build-and-deploy'].steps.some(
+      (step: {uses?: string}) => step.uses === './.github/actions/verify',
     ),
-  );
-  const gaps = minutes.map(
-    (value, index) => (minutes[index + 1] ?? minutes[0] + 60) - value,
-  );
-  assert.ok(
-    Math.max(...gaps) <= 30,
-    'A skipped poll needs another opportunity within the hour.',
-  );
-  assert.equal(
-    workflow.jobs.resolve.steps.find(
-      (step: {id?: string}) => step.id === 'release',
-    ).env.COMPARE_PUBLISHED_APP_RELEASE,
-    'true',
-  );
-  assert.match(
-    workflow.jobs['build-and-deploy'].if,
-    /github.event_name != 'schedule'/u,
-  );
-  assert.match(
-    workflow.jobs['build-and-deploy'].if,
-    /needs.resolve.outputs.changed == 'true'/u,
   );
 });

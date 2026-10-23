@@ -81,27 +81,24 @@ app checkoutを`TURBOWARP_KAMISHIBAI_APP_ROOT`へ指定して`pnpm update:dsl4-a
 ブロック編集用CLIも同じcommitを使います。Node.js 24以上が必要です。
 通常のローカルビルドは記録済みの依存を使い、毎回最新版を解決する必要はありません。
 
-Pagesはmain更新・手動実行・`app-release-published`のrepository dispatchと、毎時27分・57分の定期確認から実行します。
-上流に変更がなければ定期実行の再生成・公開を省略します。比較先は公開済みmanifestなので、
-リポジトリのsnapshotが古いままでも同じ版を繰り返し公開しません。
-取得・照合・再生成・検証に失敗した場合は公開を止めます。Actionsの定期実行は遅延・欠落する場合があり、反映時刻は保証しません。
-ロールバックは依存情報・配布物・生成処理を直前の組へrevertし、Pagesを再公開します。
-依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。
+Pagesはmain更新・手動実行・`app-release-published`のrepository dispatchから実行します。
+App公開版の定期pollは行いません。各起動で公開Appの取得・照合・検証を行い、成功した成果物を公開します。
+取得・照合・再生成・検証に失敗した場合は公開を停止し、直前の検証済み公開物を保持します。
 
-`app-release-published`は受信口です。他repoのReleaseは自動伝播せず、調査時点のAppにはこの通知の送信処理がないため、通常は定期確認に依存します。
-確認が実行されるとActionsのjob summaryに時刻・検証済みRelease・source commit・SB3 hash・比較先・差分判定を記録します。
-「差分なし」と「実行が作成されていない」を区別し、summaryの成功を公開完了と扱わないでください。
+`app-release-published`は受信口です。他repoのReleaseは自動伝播せず、調査時点のAppにはこの通知の送信処理がありません。
+Appの新版公開後は、承認された手動起動またはmain更新によってDocs・Samplesを更新し、実際の公開反映まで確認します。
+各実行のjob summaryに確認時刻・検証済みRelease・source commit・SB3 hash・比較先・差分判定を記録します。
+summaryは依存の照合結果であり、公開完了はdeploy jobと公開URLで確認します。
 
-公開が古い場合は、[Actionsの実行履歴](https://github.com/kubohiroya/turbowarp-kamishibai-samples/actions)と
+[Actionsの実行履歴](https://github.com/kubohiroya/turbowarp-kamishibai-samples/actions)と
 [公開app-release.json](https://kubohiroya.github.io/turbowarp-kamishibai-samples/app-release.json)を照合します。
-定期実行がない場合は、write権限のある担当者が次の既存workflowを手動起動します。起動後はdeploy成功と公開URLの版・commit・hashを再確認します。
+write権限のある担当者が手動で更新する場合は次を実行し、deploy成功と公開URLの版・commit・hashを確認します。
 
 ```bash
 gh workflow run deploy.yml --repo kubohiroya/turbowarp-kamishibai-samples --ref main
 ```
 
-workflowがactiveでも起動しない場合の確認事項は[GitHub公式の説明](https://docs.github.com/en/actions/how-tos/troubleshoot-workflows)を参照してください。
-cronの編集はscheduleの再登録にもなりますが、GitHub内部での実行を保証する修正ではありません。定期実行の欠落理由は、記録がないだけでは断定できません。
+依存情報・配布物・生成処理の切戻しは直前の検証済みの組へ揃えます。定期pollを自動復活させません。
 
 ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
 
