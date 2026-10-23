@@ -1,0 +1,25 @@
+kamishibai: "4.1"
+controls:
+  keymaps:
+    production:
+      Space: navigation.nextAction
+assets:
+  NarratorIdle: costume:Narrator
+actors:
+  Narrator: NarratorIdle
+scenes:
+  visits:
+    - forEach:
+        as: visit
+        items:
+          - { name: 長兄, kind: false }
+          - { name: 次兄, kind: false }
+          - { name: 末弟, kind: true }
+        do:
+          - Narrator.say: { text: { ref: visit.name }, seconds: 0 }
+          - if:
+              condition: { ref: visit.kind }
+              then:
+                - Narrator.say: { text: 贈り物, seconds: 0 }
+              else:
+                - Narrator.say: { text: 何もなし, seconds: 0 }
