@@ -1654,7 +1654,7 @@ ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('s
 <ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
 <li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
 <p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
-<p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。npm版rc.44は未公開です。CLIは対応Release tagからbuildしてください。</p>
+<p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${narrative.builder.version}">${narrative.builder.version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
 ${renderSiteFooter('../../')}</body></html>`,
     'utf8',
