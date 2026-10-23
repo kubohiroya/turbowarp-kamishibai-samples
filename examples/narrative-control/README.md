@@ -1,4 +1,4 @@
-# 三人の訪問：各回の違いを比べる説話（開発DSL 4.1）
+# 三人の訪問：各回の違いを比べる説話（DSL 4.0 RC改訂）
 
 この例は**開発中・未配布**です。公開版4.0.0-rc.43では利用できません。
 App [#980](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/980)の開発実装と、
@@ -40,3 +40,15 @@ node /path/to/turbowarp-kamishibai-app/bin/turbowarp-kamishibai.mjs author-block
 構文・条件式・上限・履歴・切戻しは
 [Appの仕様正本](https://github.com/kubohiroya/turbowarp-kamishibai-app/blob/main/docs/design/dsl-4-narrative-control.md)を参照してください。
 切戻しはflag OFFと旧台本・旧SB3への復帰を同時に行います。名前付き共通エピソードの呼出しは初期版の対象外です。
+
+## 4.0 RCの版と対応能力
+
+[App #986](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/986)の改訂に従い、宣言は`kamishibai: "4.0"`です。
+4.1系列は新設しません。同じ4.0でもこの機能には対応runnerと明示opt-inが必要で、版文字列だけでは使用可否を決めません。
+以前の開発用4.1形式は原本を保存してYAMLへ書き出し、4.0宣言に変更・検証した後に対応runnerで別名のSB3を生成し直します。
+旧4.1宣言は新しいfrontendでは移行案内付きで拒否します。
+
+通常配布への反映は、新しいApp 4.0 RCの公開成果物を既存の依存更新経路で取得し、
+タイトル・メニュー画像を含むベースと作品SB3／Webを揃えて再生成してから行います。runtimeだけを差し替えません。
+安定版3.2系と開発版4.0 RC系の最新公開版をそれぞれ保持し、この開発例のmainを最新公開版の代わりにしません。
+公開カタログ登録と実物での検証は別の公開段階です。
