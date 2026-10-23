@@ -173,7 +173,9 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 
 [音声再生サンプル](stories/audio-playback/README.md)は、rc.38の次の4.0プレリリースに向けた台本です。再生時のfadeIn・volume・fadeOut、停止時のfadeOut、IDごとの制御を確認できます。既存の公開版と配布物lockは維持し、対応版の公開後に生成物を揃えます。
 
-## 物語の反復と条件分岐（開発中・未配布）
+## 物語の反復と条件分岐（4.0 RCのStandard）
 
-[三人の訪問](examples/narrative-control/README.md)はDSL 4.0 RC改訂の開発例です。
-対応Appと明示的なflagが必要で、公開4.0作品とは分けて管理します。
+[三人の訪問](stories/three-visits/README.md)は、App 4.0.0-rc.44以降のStandardで使える公開サンプルです。
+共通の訪問を一度だけ記述し、各回の一覧と条件で結末を比べます。追加の実験flagは不要です。
+公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、公開Editorで表を編集できます。
+この版のnpm公開は保留で、CLIは対応tagからbuildします。安定版3.2系列のサンプルも保持します。

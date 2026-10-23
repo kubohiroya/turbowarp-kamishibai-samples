@@ -1,0 +1,167 @@
+{
+  "formatVersion": 1,
+  "runtime": {
+    "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.0-rc.44",
+    "commit": "5b40af8b354d62e1dc89a550d0b7fb7e1ee80a86",
+    "basePath": "base/kamishibai-4.0.sb3",
+    "baseSourceIdentity": "sha256:248ca174b9e11a6ccb082142e8fd8c9632400ca9ebaba819e326da104ecf59bf",
+    "baseSize": 7045718,
+    "baseSha256": "ede0530c76212da896e0dae6c59bef12c217124a33e0947515e33a2570d98167"
+  },
+  "builder": {
+    "package": "@kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.0-rc.44",
+    "commit": "5b40af8b354d62e1dc89a550d0b7fb7e1ee80a86"
+  },
+  "sources": [
+    {
+      "path": "main.k4.yml",
+      "size": 793,
+      "sha256": "7acec7135b652895e86863c3ca7edbeb990576851f9ed7edd81031b09620c08f"
+    },
+    {
+      "path": "narrator.svg",
+      "size": 459,
+      "sha256": "608e4e7594d03ccae68bfb3b1be4ab3e354d78a85643696063100264542ad2ec"
+    },
+    {
+      "path": "instructions.svg",
+      "size": 515,
+      "sha256": "8331606b20e80d50ad729fb035bf808834839f090c6c3fcf71a5369bd59a9544"
+    }
+  ],
+  "outputs": {
+    "yaml": {
+      "path": "three-visits-4.0.sb3",
+      "size": 6939576,
+      "sha256": "ff645b5b31ebd0c818a009ada4e4b5266d3a45220d13282185bef05af6ed188d"
+    },
+    "blocks": {
+      "path": "three-visits-blocks-4.0.sb3",
+      "size": 7066885,
+      "sha256": "589194b203b626c50656b53938f1af3df3a2287606280380dab148d74b25f139"
+    }
+  },
+  "web": {
+    "enabled": true,
+    "publicPath": "web-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "three-visits-4.0.sb3",
+      "size": 6939576,
+      "sha256": "ff645b5b31ebd0c818a009ada4e4b5266d3a45220d13282185bef05af6ed188d"
+    },
+    "output": {
+      "path": "web-4.0/index.html",
+      "contentType": "text/html",
+      "size": 16202655,
+      "sha256": "7d28c12609e92d3f1006fddd80e9f11f7a98cfa8070de4d7ce623239b2985b7b"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "三人の訪問 | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "19eb853846795e4b5eb29156d0a541005940f3ce3a9eaba085dcd97d84cd1d3d"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded-project",
+    "audioUnlock": {
+      "enabled": false,
+      "events": [],
+      "lifecycleEvents": [],
+      "verification": null
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
+    }
+  },
+  "blocksWeb": {
+    "enabled": true,
+    "publicPath": "web-blocks-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "three-visits-blocks-4.0.sb3",
+      "size": 7066885,
+      "sha256": "589194b203b626c50656b53938f1af3df3a2287606280380dab148d74b25f139"
+    },
+    "output": {
+      "path": "web-blocks-4.0/index.html",
+      "contentType": "text/html",
+      "size": 16796056,
+      "sha256": "61f9a1cd3469268e3aa46b5509bb8f9db3bfa4bad0f532842f9822574a13089d"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "三人の訪問 | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "a86a21d8bb30a1f62bf6a959f4f23c6a070d2d2920aedfb3f86026fb381ec7cd"
+        },
+        {
+          "id": "kubohiroyakamishibaiauthoring4",
+          "source": "input-sb3-data-url",
+          "sha256": "54a36f768934706e83ab5f449a38d8d393e7e3cf35f36d815ebd9ddd87773d04"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded-project",
+    "audioUnlock": {
+      "enabled": false,
+      "events": [],
+      "lifecycleEvents": [],
+      "verification": null
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
+    }
+  }
+}

@@ -78,18 +78,30 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
     },
     {timeout: 2000},
   );
+  const narrativeEnabled = extensionInfo.some((entry) =>
+    entry.blocks?.some(
+      (block) => block.opcode === 'narrativeForEach' && block.hideFromPalette === false,
+    ),
+  );
+  const expectedArguments = new Map(actionArguments);
+  if (narrativeEnabled) {
+    expectedArguments.set(authoringPrefix + 'narrativeForEach', 'ITEMS');
+    expectedArguments.set(authoringPrefix + 'narrativeLogicList', 'VALUES');
+  }
   assert.deepEqual(
     editors.flatMap((editor) => Array.from(editor.opcodes)).sort(),
     [
       ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
-      ...actionArguments.keys(),
+      ...expectedArguments.keys(),
     ].sort(),
     'The embedded authoring extension must register all eight definition forms and the scene/pose/say/think forms.',
   );
   assert(
-    editors.every((editor) =>
-      editor.opcodes.every((opcode) => editor.argument === (actionArguments.get(opcode) ?? 'VALUE')) &&
-      typeof editor.schema === 'object',
+    editors.every(
+      (editor) =>
+        editor.opcodes.every(
+          (opcode) => editor.argument === (expectedArguments.get(opcode) ?? 'VALUE'),
+        ) && typeof editor.schema === 'object',
     ),
     'Definition forms must edit VALUE, scene must edit PROPERTIES, pose must edit STEPS, and say/think must edit SPEC',
   );
@@ -174,30 +186,79 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
             ? sourceScene
             : (sourceScene as {actions: Record<string, unknown>[]}).actions
         ) as Record<string, unknown>[];
-        const commands: string[] = [];
-        let actionParent = id;
-        let actionId = block.inputs?.SUBSTACK?.[1] as string | undefined;
-        while (actionId) {
-          const action = connected(actionId, actionParent);
-          let commandBlock = action;
-          if (action.opcode === `${authoringPrefix}actionOptions`) {
-            const childId = action.inputs?.SUBSTACK?.[1] as string;
-            commandBlock = connected(childId, actionId);
-            assert.equal(commandBlock.next, null, 'Action options must wrap one command.');
+        const inspectInputs = (block: ScratchBlock, owner: string) => {
+          for (const [name, input] of Object.entries(block.inputs ?? {})) {
+            if (name.startsWith('SUBSTACK')) continue;
+            for (const value of input.slice(1)) {
+              if (typeof value !== 'string') continue;
+              const reporter = connected(value, owner);
+              assert(
+                reporter.opcode.startsWith(authoringPrefix + 'narrative') ||
+                  reporter.opcode.startsWith(
+                    'kubohiroyakamishibai4_menu_kubohiroyakamishibairuntime4__',
+                  ),
+                `Unexpected reporter ${reporter.opcode}.`,
+              );
+              inspectInputs(reporter, value);
+            }
           }
-          assert(
-            commandBlock.opcode.startsWith(runtimePrefix),
-            `Scene ${sceneId} must use editable runtime command blocks.`,
-          );
-          commands.push(commandBlock.opcode.slice(runtimePrefix.length));
-          actionParent = actionId;
-          actionId = action.next ?? undefined;
-        }
-        assert.deepEqual(
-          commands,
-          actions.map((action) => Object.keys(action)[0]!.split('.').at(-1)),
-          `Scene ${sceneId} must contain every command in script order.`,
-        );
+        };
+        const inspectActions = (
+          expected: Record<string, unknown>[],
+          owner: string,
+          actionId: string | undefined,
+        ) => {
+          for (const sourceAction of expected) {
+            assert(actionId, `Scene ${sceneId} must contain every command in script order.`);
+            const action = connected(actionId, owner);
+            const command = Object.keys(sourceAction)[0]!;
+            const narrative = (
+              {
+                if: 'narrativeIf',
+                repeat: 'narrativeRepeat',
+                forEach: 'narrativeForEach',
+              } as Record<string, string>
+            )[command];
+            if (narrative) {
+              assert(
+                narrativeEnabled,
+                'Narrative controls must be available in the embedded runtime.',
+              );
+              assert.equal(action.opcode, authoringPrefix + narrative);
+              const structure = sourceAction[command] as Record<string, unknown>;
+              inspectActions(
+                (structure[command === 'if' ? 'then' : 'do'] ?? []) as Record<string, unknown>[],
+                actionId,
+                action.inputs?.SUBSTACK?.[1] as string | undefined,
+              );
+              if (command === 'if')
+                inspectActions(
+                  (structure.else ?? []) as Record<string, unknown>[],
+                  actionId,
+                  action.inputs?.SUBSTACK2?.[1] as string | undefined,
+                );
+              inspectInputs(action, actionId);
+            } else {
+              let commandBlock = action;
+              let commandId = actionId;
+              if (action.opcode === authoringPrefix + 'actionOptions') {
+                commandId = action.inputs?.SUBSTACK?.[1] as string;
+                commandBlock = connected(commandId, actionId);
+                assert.equal(commandBlock.next, null, 'Action options must wrap one command.');
+              }
+              assert.equal(
+                commandBlock.opcode,
+                runtimePrefix + command.split('.').at(-1),
+                `Scene ${sceneId} must contain every command in script order.`,
+              );
+              inspectInputs(commandBlock, commandId);
+            }
+            owner = actionId;
+            actionId = action.next ?? undefined;
+          }
+          assert.equal(actionId, undefined, `Scene ${sceneId} must not contain extra commands.`);
+        };
+        inspectActions(actions, id, block.inputs?.SUBSTACK?.[1] as string | undefined);
       } else {
         assert(
           [

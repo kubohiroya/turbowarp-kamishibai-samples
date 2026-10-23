@@ -35,6 +35,11 @@ const fixtures = new Map<string, Buffer>(
             path.join(projectRoot, 'tmp/tutorial-candidate/web-4.0/index.html'),
           ).then((contents): [string, Buffer] => ['/tutorial', contents])
         : null,
+      ...['web-4.0', 'web-blocks-4.0'].map((directory) =>
+        readFile(path.join(projectRoot, 'dist/stories/three-visits', directory, 'index.html')).then(
+          (contents): [string, Buffer] => [`/three-visits/${directory}`, contents],
+        ),
+      ),
       readFile(path.join(projectRoot, 'dist/stories/audio-playback/web-4.0/index.html')).then(
         (contents): [string, Buffer] => ['/audio', contents],
       ),
@@ -608,7 +613,28 @@ try {
     await audio.page.close();
   }
 
-  const verified = ['audio YAML/block playback and cleanup',
+  for (const directory of ['web-4.0', 'web-blocks-4.0']) {
+    const narrative = await openDsl4Page(browser, origin, `/three-visits/${directory}`);
+    await narrative.page.evaluate(() => {
+      const speech: string[] = [];
+      Reflect.set(globalThis, '__narrativeSpeech', speech);
+      const expected = new Set(['長兄', '次兄', '末弟', '何もなし', '贈り物']);
+      const collect = (node: Node) => {
+        const texts = [node.textContent?.trim(), ...(node instanceof Element ? Array.from(node.querySelectorAll('text,tspan'), (child) => child.textContent?.trim()) : [])];
+        for (const text of texts) if (text && expected.has(text) && speech.at(-1) !== text) speech.push(text);
+      };
+      new MutationObserver((records) => {
+        for (const record of records) { collect(record.target); for (const node of record.addedNodes) collect(node); }
+      }).observe(document.body, {subtree: true, childList: true, characterData: true});
+    });
+    await narrative.page.locator('[data-dsl4-title-action=close]').click();
+    await narrative.page.waitForFunction(() => Reflect.get(globalThis, '__narrativeSpeech').length >= 6);
+    assert.deepEqual(await narrative.page.evaluate(() => Reflect.get(globalThis, '__narrativeSpeech')), ['長兄', '何もなし', '次兄', '何もなし', '末弟', '贈り物']);
+    assert.deepEqual(narrative.failures, [], directory);
+    assert.deepEqual(narrative.externalRequests, [], directory);
+    await narrative.page.close();
+  }
+  const verified = ['narrative YAML/block playback', 'audio YAML/block playback and cleanup',
     ...(urashimaEnabled ? ['Urashima'] : []),
     ...(myUrashimaEnabled ? ['workshop'] : []),
     ...(tutorialEnabled ? ['tutorial release'] : []),

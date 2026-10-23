@@ -31,10 +31,7 @@
       "summary": "紙芝居DSL 3.2の実行版と、台本・画像・音声・ポーズモデルを組み込んだDSL 4.0オフライン版を公開しています。",
       "creator": "Hiroya Kubo",
       "rightsHolder": "Hiroya Kuboおよび個別素材の権利者",
-      "dslSeries": [
-        "3.2",
-        "4.0"
-      ],
+      "dslSeries": ["3.2", "4.0"],
       "distribution": "hosted",
       "license": {
         "label": "MPL-2.0、CC BY-SA 2.0ほか",
@@ -151,10 +148,7 @@
       "summary": "2026年8月1日のワークショップで、ポーズと物語を変更するために使用した公式サンプルです。DSL 3.2とDSL 4.0の作業用SB3、台本、Web版を公開しています。",
       "creator": "Hiroya Kubo",
       "rightsHolder": "Hiroya Kuboおよび親作品に含まれる個別素材の権利者",
-      "dslSeries": [
-        "3.2",
-        "4.0"
-      ],
+      "dslSeries": ["3.2", "4.0"],
       "distribution": "hosted",
       "license": {
         "label": "MPL-2.0、CC BY-SA 2.0ほか",
@@ -254,12 +248,10 @@
       "title": "音声再生サンプル",
       "updatedAt": "2026-10-21",
       "detailHref": "stories/audio-playback/",
-      "summary": "DSL 4.0の音声10操作、音量とフェードを合成音で確認できます。YAML・ブロック・Web版は同じrc.39を使用します。",
+      "summary": "DSL 4.0の音声10操作、音量とフェードを合成音で確認できます。YAML・ブロック・Web版は公開Appの同じRCから生成します。",
       "creator": "Hiroya Kubo",
       "rightsHolder": "Hiroya Kubo",
-      "dslSeries": [
-        "4.0"
-      ],
+      "dslSeries": ["4.0"],
       "distribution": "hosted",
       "license": {
         "label": "MPL-2.0",
@@ -318,6 +310,79 @@
           "label": "ブロック版を開く",
           "style": "secondary",
           "href": "stories/audio-playback/web-blocks-4.0/",
+          "launch": "web"
+        }
+      ]
+    },
+    {
+      "id": "three-visits",
+      "category": "official",
+      "title": "三人の訪問 — 同じ展開、ちがう結末",
+      "updatedAt": "2026-10-23",
+      "detailHref": "stories/three-visits/",
+      "summary": "共通の訪問を一度だけ書き、表の3行と条件分岐で人物ごとの結末を比べる、DSL 4.0 RCの物語制御サンプルです。",
+      "creator": "Hiroya Kubo",
+      "rightsHolder": "Hiroya Kubo",
+      "dslSeries": ["4.0"],
+      "distribution": "hosted",
+      "license": {
+        "label": "MPL-2.0",
+        "href": "stories/three-visits/LICENSES.md"
+      },
+      "thumbnail": {
+        "src": "stories/three-visits/card-scenes.gif",
+        "alt": "三人の訪問と各人の結末",
+        "rightsHolder": "Hiroya Kubo",
+        "licenseHref": "CARD_SCENES.md",
+        "slides": [
+          {
+            "src": "stories/three-visits/card-scenes/01.webp",
+            "alt": "三人の訪問",
+            "caption": "三人の訪問"
+          },
+          {
+            "src": "stories/three-visits/card-scenes/02.webp",
+            "alt": "長兄：何もなし",
+            "caption": "長兄：何もなし"
+          },
+          {
+            "src": "stories/three-visits/card-scenes/03.webp",
+            "alt": "次兄：何もなし",
+            "caption": "次兄：何もなし"
+          },
+          {
+            "src": "stories/three-visits/card-scenes/04.webp",
+            "alt": "末弟：贈り物",
+            "caption": "末弟：贈り物"
+          }
+        ]
+      },
+      "artifacts": {
+        "source-yaml": {
+          "href": "stories/three-visits/main.k4.yml"
+        },
+        "sb3-yaml": {
+          "href": "stories/three-visits/three-visits-4.0.sb3"
+        },
+        "sb3-blocks": {
+          "href": "stories/three-visits/three-visits-blocks-4.0.sb3",
+          "note": "一覧を表で編集して保存し、最初から再生すると変更が反映されます。"
+        },
+        "html": {
+          "href": "stories/three-visits/web-4.0/"
+        }
+      },
+      "actions": [
+        {
+          "label": "物語を再生する",
+          "style": "primary",
+          "href": "stories/three-visits/web-4.0/",
+          "launch": "web"
+        },
+        {
+          "label": "ブロック版を再生する",
+          "style": "secondary",
+          "href": "stories/three-visits/web-blocks-4.0/",
           "launch": "web"
         }
       ]

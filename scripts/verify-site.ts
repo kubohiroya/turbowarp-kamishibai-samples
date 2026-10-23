@@ -633,7 +633,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   // Direct editor links use the standard host and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
-    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima', 'audio-playback/audio']],
+    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima', 'audio-playback/audio', 'three-visits/three-visits']],
     [sampleIndex, ['urashima/urashima']],
     [tutorialIndex, ['tutorial/tutorial']],
     [myUrashimaIndex, ['my-urashima/my-urashima', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses`)]],
