@@ -4,11 +4,13 @@ controls:
     production:
       Space: navigation.nextAction
 assets:
-  NarratorIdle: costume:Narrator
+  Instructions: {kind: backdrop, file: instructions.svg}
+  NarratorIdle: {kind: costume, target: Narrator, file: narrator.svg}
 actors:
   Narrator: NarratorIdle
 scenes:
   visits:
+    - stage: Instructions
     - forEach:
         as: visit
         items:
@@ -16,10 +18,10 @@ scenes:
           - { name: 次兄, kind: false }
           - { name: 末弟, kind: true }
         do:
-          - Narrator.say: { text: { ref: visit.name }, seconds: 0 }
+          - Narrator.say: { text: { ref: visit.name }, seconds: 1.5 }
           - if:
               condition: { ref: visit.kind }
               then:
-                - Narrator.say: { text: 贈り物, seconds: 0 }
+                - Narrator.say: { text: 贈り物, seconds: 1.5 }
               else:
-                - Narrator.say: { text: 何もなし, seconds: 0 }
+                - Narrator.say: { text: 何もなし, seconds: 1.5 }

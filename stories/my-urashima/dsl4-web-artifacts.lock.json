@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-workshop",
     "path": "my-urashima-4.0.sb3",
-    "size": 16362159,
-    "sha256": "91082e249af2fe2052aa447008addede46ef57060184d3d5751f83964490235e"
+    "size": 16391218,
+    "sha256": "2a098ffbeed6619105054296f2c689c51a04afd51bf59a1d3b4ae1847f2b9edc"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 28254073,
-    "sha256": "42910179261a3836f020de56266eee372a3e0363ffaaee1c120e697f32d57663"
+    "size": 28374692,
+    "sha256": "eef95be4d2736ddafe5c9d06853f54b521f821d63e04e11fa22526d53a75a15f"
   },
   "packager": {
     "package": "@turbowarp/packager",
@@ -31,7 +31,7 @@
       {
         "id": "kubohiroyakamishibai4",
         "source": "input-sb3-data-url",
-        "sha256": "77a2fef040ffc635373280b2eae55cf460b61bdd33a3b67b93d1182b081f2d62"
+        "sha256": "211064cc3395ffc318d5bd5649c1b1a5a8f96ff85bc7caf95866aefac98e6e45"
       }
     ],
     "scratchRender": {
@@ -45,8 +45,18 @@
   "assets": "embedded-project",
   "audioUnlock": {
     "enabled": true,
-    "events": ["pointerdown", "pointerup", "touchend", "mousedown", "click", "keydown"],
-    "lifecycleEvents": ["visibilitychange", "pageshow"],
+    "events": [
+      "pointerdown",
+      "pointerup",
+      "touchend",
+      "mousedown",
+      "click",
+      "keydown"
+    ],
+    "lifecycleEvents": [
+      "visibilitychange",
+      "pageshow"
+    ],
     "verification": {
       "strategy": "state-and-clock",
       "clockCheckDelayMs": 250,

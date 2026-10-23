@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
+import {buildThreeVisits} from './build-three-visits.ts';
 import {buildMyUrashima} from './build-my-urashima.ts';
 import {buildMyUrashimaDsl4} from './build-my-urashima-dsl4.ts';
 import {buildUrashima} from './build-urashima.ts';
@@ -1631,6 +1632,30 @@ ${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stori
 <li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
 <p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`,
+    'utf8',
+  );
+
+  const narrativeWork = worksCatalog.works.find(({id}) => id === 'three-visits');
+  assert(narrativeWork, 'three-visits is missing from the works catalog.');
+  const narrativeDirectory = path.join(outputDirectory, 'stories/three-visits');
+  const narrative = await buildThreeVisits({outputDirectory: narrativeDirectory});
+  await writeFile(
+    path.join(narrativeDirectory, 'index.html'),
+    `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三人の訪問 | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fbf1dd;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits/')}
+<main><h1>三人の訪問 — 同じ展開、ちがう結末</h1><p>DSL 4.0 / ${narrative.builder.version}。Standardの物語制御で、共通の訪問を一度だけ書き、各人の親切さから結末を選びます。追加の実験flagは不要です。</p>
+<img src="card-scenes.gif" alt="三人の訪問と各人の結末" width="640" style="max-width:100%;height:auto">
+<p>タイトルを閉じると「長兄 → 何もなし → 次兄 → 何もなし → 末弟 → 贈り物」の順に再生します。</p>
+${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('stories/three-visits/', ''))}
+<ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
+<li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
+<p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
+<p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。npm版rc.44は未公開です。CLIは対応Release tagからbuildしてください。</p>
+<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
 ${renderSiteFooter('../../')}</body></html>`,
     'utf8',
   );

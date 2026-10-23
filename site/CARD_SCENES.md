@@ -62,3 +62,7 @@
 `stories/audio-playback/instructions.svg`を基に、終了待ち・バックグラウンド・ミュート/再開・ループの4場面を説明するカードを書き出しました。写真・第三者素材は含みません。元のSVG・台本・合成音はMPL-2.0、場面選択・キャプションと変換物は下記と同じCC BY-SA 4.0です。
 
 このサンプルのカードは元のステージに合わせ480×360です。`stories/audio-playback/card-scenes.gif`は4フレーム・64色・ディザリングなし、23,462 bytesです。WebPは同フォルダーの`card-scenes/01.webp`〜`04.webp`に収録しています。
+
+## 三人の訪問（物語制御のStandardサンプル）
+
+`stories/three-visits/card-scenes.gif`と`card-scenes/01.webp`〜`04.webp`は、三人の訪問と各人の結末を説明する新規の文字・図形カードです。640×400、GIFは4フレームです。スクリーンショットや第三者素材は含みません。この節のカードはHiroya Kuboが権利を持ち、[サンプルのライセンス](stories/three-visits/LICENSES.md)に従いMPL-2.0で提供します。上記のスクリーンショットのCC BY-SA 4.0とは区別します。
