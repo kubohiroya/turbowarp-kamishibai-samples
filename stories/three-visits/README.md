@@ -12,7 +12,7 @@ DSL 4.0 RCのStandard物語制御を使う、短い創作説話です。原作�
 - `main.k4.yml`が台本の正本です。`instructions.svg`と`narrator.svg`を同じフォルダーに置きます。
 - YAML版SB3・ブロック台本SB3・両Web版は、`app-release.json`が指定する同じ公開App RCから生成します。
 - 最初の対応版は4.0.0-rc.44です。実験flagの追加は不要で、rc.43以前は対応しません。
-- 現在の生成元は公開版4.0.0-rc.46です。[npmの同一版](https://www.npmjs.com/package/@kubohiroya/turbowarp-kamishibai-app/v/4.0.0-rc.46)のCLIを利用できます。このリポジトリでの再生成は、`app-release.json`が固定するRelease commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませて行います。
+- 現在の生成元は公開版4.0.0-rc.47です。同版のnpmパッケージは未公開です。npmの公開済み版rc.46とは分け、公開tagのソースからビルドしたCLIを使います。このリポジトリでの再生成は、`app-release.json`が固定するRelease commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませて行います。
 - 物語制御には専用台本ブロックを使います。Scratch標準の「もし」「くりかえす」は非対応で、実行を止め、日本語ブロック名とステージ／スプライト名を含む診断から該当箇所へ移動できます。
 
 ```bash
