@@ -212,16 +212,56 @@ export async function syncAppRelease({
   return {lock, changed};
 }
 
+/** Record a successful dependency check without implying a deployment succeeded. */
+export function appReleaseCheckSummary(
+  lock: AppRelease,
+  {
+    changed,
+    comparedWithPublished,
+    checkedAt,
+  }: {
+    changed: boolean;
+    comparedWithPublished: boolean;
+    checkedAt: string;
+  },
+) {
+  const comparison = comparedWithPublished
+    ? '公開済みmanifest'
+    : 'checkoutのsnapshot';
+  return `## App公開版の確認
+
+- 確認時刻: ${checkedAt}
+- 検証済みRelease: ${lock.tag}
+- source commit: \`${lock.commit}\`
+- SB3 SHA-256: \`${lock.artifact.sha256}\`
+- 比較先: ${comparison}
+- 比較結果: ${changed ? '差分あり' : '差分なし'}
+
+これは依存の取得・照合結果です。公開完了はdeploy jobと公開URLで確認してください。
+
+`;
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   assert.equal(process.argv.length, 2, 'Usage: node scripts/app-release.ts');
   const {lock, changed} = await syncAppRelease();
-  const publish =
-    process.env.COMPARE_PUBLISHED_APP_RELEASE === 'true'
-      ? await publishedAppReleaseDiffers(lock)
-      : changed;
+  const comparedWithPublished =
+    process.env.COMPARE_PUBLISHED_APP_RELEASE === 'true';
+  const publish = comparedWithPublished
+    ? await publishedAppReleaseDiffers(lock)
+    : changed;
+  if (process.env.GITHUB_STEP_SUMMARY)
+    await appendFile(
+      process.env.GITHUB_STEP_SUMMARY,
+      appReleaseCheckSummary(lock, {
+        changed: publish,
+        comparedWithPublished,
+        checkedAt: new Date().toISOString(),
+      }),
+    );
   if (process.env.GITHUB_OUTPUT)
     await appendFile(process.env.GITHUB_OUTPUT, `changed=${publish}\n`);
 }
