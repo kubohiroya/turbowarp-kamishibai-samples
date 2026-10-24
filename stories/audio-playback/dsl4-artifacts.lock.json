@@ -27,20 +27,20 @@
     },
     {
       "path": "instructions.svg",
-      "size": 533,
-      "sha256": "ef7c98570784449af16711599c9db788170b8b56f2fe4a4e20f083eb483ec297"
+      "size": 538,
+      "sha256": "4e4aacc9b7382c6756e0b0fac7d673cc2647fad12944b88d8ce0ec1105e85a75"
     }
   ],
   "outputs": {
     "yaml": {
       "path": "audio-4.0.sb3",
-      "size": 6945302,
-      "sha256": "f35a3eae65605b8f38cdd8bb23842b369c13c558c1c3731aa987f349f2f2e909"
+      "size": 6945300,
+      "sha256": "acec54183277cd65b2df59bfe57c4a867fdc92e6bb0892d4cd856e1705a3ae67"
     },
     "blocks": {
       "path": "audio-blocks-4.0.sb3",
-      "size": 7073745,
-      "sha256": "53eeddf30e95abcf8ab842e494de299344970bd1447da4101c713d40a6e479da"
+      "size": 7073753,
+      "sha256": "3c4246fbbcfcd1f10aa6486b77ef075f7edbf60777b81b31f0c821e2a6a01eb0"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-4.0.sb3",
-      "size": 6945302,
-      "sha256": "f35a3eae65605b8f38cdd8bb23842b369c13c558c1c3731aa987f349f2f2e909"
+      "size": 6945300,
+      "sha256": "acec54183277cd65b2df59bfe57c4a867fdc92e6bb0892d4cd856e1705a3ae67"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
       "size": 16221267,
-      "sha256": "8209cb0b5e74d29d885cb2bfa598ac28d1c81edbda8f7e70dc9b4a5660c30016"
+      "sha256": "b34fea5b2f6b4ae74e426af22ff9910261dd5cd06a7a6ba46f503d90ab8ec770"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -98,10 +98,7 @@
         "click",
         "keydown"
       ],
-      "lifecycleEvents": [
-        "visibilitychange",
-        "pageshow"
-      ],
+      "lifecycleEvents": ["visibilitychange", "pageshow"],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,
@@ -126,14 +123,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-blocks-4.0.sb3",
-      "size": 7073745,
-      "sha256": "53eeddf30e95abcf8ab842e494de299344970bd1447da4101c713d40a6e479da"
+      "size": 7073753,
+      "sha256": "3c4246fbbcfcd1f10aa6486b77ef075f7edbf60777b81b31f0c821e2a6a01eb0"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
       "size": 16815304,
-      "sha256": "1b2c767195e0def9f90d0fc5c571631fbc80eb1f1f4c326ae8b82fc6652a59ef"
+      "sha256": "697afabc7f4b559f0125bdc48a58a02175b87591c3a263df7dd69ee5632981a9"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -180,10 +177,7 @@
         "click",
         "keydown"
       ],
-      "lifecycleEvents": [
-        "visibilitychange",
-        "pageshow"
-      ],
+      "lifecycleEvents": ["visibilitychange", "pageshow"],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,
