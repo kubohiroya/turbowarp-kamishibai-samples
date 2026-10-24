@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.50",
-    "commit": "c28f1d39d6edd0c2a4ebbc65793645f8fdcc4329",
+    "version": "4.0.0-rc.51",
+    "commit": "f3a5db14ab7d46457e015197236a73ef59188480",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:837dadce1576523185f5af6b42e1eb36c476ed7427576e4340023fe98ec2bc0e",
-    "baseSize": 7058136,
-    "baseSha256": "e9a6c2c930c0aa3816e6a85e1cf202a20ba5a67312e7c9c66f861ee4a66f1621"
+    "baseSourceIdentity": "sha256:f64d2e8e85ffee6e33699d533fa6e3de8d65719d9fa7bc592ef9f94efdae6ddc",
+    "baseSize": 7064344,
+    "baseSha256": "7637c70631e68a929492dbc934e6f0ae34f825e90a31ee4e2431ae32332cf83e"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.50",
-    "commit": "c28f1d39d6edd0c2a4ebbc65793645f8fdcc4329"
+    "version": "4.0.0-rc.51",
+    "commit": "f3a5db14ab7d46457e015197236a73ef59188480"
   },
   "sources": [
     {
@@ -34,13 +34,13 @@
   "outputs": {
     "yaml": {
       "path": "three-visits-4.0.sb3",
-      "size": 6951460,
-      "sha256": "9f061c9ab2f86deeb99b1c17423b452197ded353a8fc7f648597f44ecf4ff500"
+      "size": 6957545,
+      "sha256": "22535c80ea738b9aa204251cd8b462cd702ca13beb1820057dbb26f870b484d1"
     },
     "blocks": {
       "path": "three-visits-blocks-4.0.sb3",
-      "size": 7079102,
-      "sha256": "d383dd5603a4e6bf1ced924b2c696534f33f552d64ae68b8d40260dd0259cfa0"
+      "size": 7084937,
+      "sha256": "bcf3641f2adb1b240fa1d44db8c280f88d182b4864d8bdd259616f7595260ee6"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "three-visits-4.0.sb3",
-      "size": 6951460,
-      "sha256": "9f061c9ab2f86deeb99b1c17423b452197ded353a8fc7f648597f44ecf4ff500"
+      "size": 6957545,
+      "sha256": "22535c80ea738b9aa204251cd8b462cd702ca13beb1820057dbb26f870b484d1"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 16251334,
-      "sha256": "d0af629c2d7aea74ae5f9d41825023757b78e66690ae9413e5c09835d2c3e631"
+      "size": 16276069,
+      "sha256": "1b9e6eb3d846b778e1a6030e5e95144c6d8c1c3977605b5f5e995bcad8997bc2"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -76,7 +76,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "8b26874d52a71ce38ab828bb96f74e8d91478cb0ef16029e3caaeb75a98a514d"
+          "sha256": "5841b06023b0c818a70652fc6b2069c11f0e86d539b36dda80fcf3d041003b7f"
         }
       ],
       "scratchRender": {
@@ -107,14 +107,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "three-visits-blocks-4.0.sb3",
-      "size": 7079102,
-      "sha256": "d383dd5603a4e6bf1ced924b2c696534f33f552d64ae68b8d40260dd0259cfa0"
+      "size": 7084937,
+      "sha256": "bcf3641f2adb1b240fa1d44db8c280f88d182b4864d8bdd259616f7595260ee6"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
-      "size": 16847334,
-      "sha256": "7e3e75199fdc34d2ba7d7895f5f109e093d342d8afcfb4661b0ac2f34b44fbd3"
+      "size": 16872917,
+      "sha256": "85b3191bfc3026e71badba06d369516f8e5ca8974b583bf8b32bc3394d118fa1"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -134,7 +134,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "0773ef09cd239c58dd41444e31a343d71ee25c02a5dd91cb85fed1ce8621dc7c"
+          "sha256": "38b7c69d23161ae5b776c424d74f56f54d3ec2df26d477e8bb95168e9ed29bc8"
         },
         {
           "id": "kubohiroyakamishibaiauthoring4",
