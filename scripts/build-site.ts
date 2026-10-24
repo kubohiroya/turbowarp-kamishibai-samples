@@ -963,8 +963,10 @@ function renderMyUrashimaWorkshop(manifest: MyUrashimaDsl4Manifest): string {
       <ul class="workshop-pose-choices">
 ${links}
       </ul>
-      <p>拡張の読み込み確認でそれぞれ「サンドボックスなしで実行する」を有効にし、許可してください。
+      <p>拡張の名前と配布元を確認し、「動作に必要」と表示された「サンドボックスなし」を明示的に選んで「OK」を押してください。
       専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
+      <p>同梱のCamera Source・Asset Cache・Bubbleは、Editorの実行環境や描画機能へ直接アクセスするため、サンドボックスなしが必要です。
+      <a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security">日英の確認画面と各拡張の説明</a>を参照してください。</p>
       <p>各版は「この部分を使う［オン／オフ］」にも対応しています。今回の実習はポーズ数を選んだ設定のまま進められます。</p>
       <h3>ワークショップ資料の読み替え</h3>
       <ul>
@@ -1064,7 +1066,7 @@ ${renderSiteHeader('../../')}
   </dl>
 ${workMedia}${workFormats}
   <p>フォーム編集用リンクでは、公開済みのmy-urashimaのブロック台本SB3を日本語で開きます。
-  拡張の読み込み確認では、それぞれ「サンドボックスなしで実行する」を有効にして許可してください。
+  拡張の名前と配布元を確認し、「動作に必要」と表示された「サンドボックスなし」を選んで「OK」を押してください。
   ステージの専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
   <div class="artifact-groups">
 ${renderMyUrashimaWorkshop(dsl4Manifest)}    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
