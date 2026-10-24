@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.49",
-    "commit": "84bc52470f73a23c7cea14f713c2cc27bf8ec2cd",
+    "version": "4.0.0-rc.50",
+    "commit": "c28f1d39d6edd0c2a4ebbc65793645f8fdcc4329",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:7c1eac7ceba3aada07d0eb2fa08078be0950952e59e609ce3a9e839a03d43349",
-    "baseSize": 7048164,
-    "baseSha256": "d8ad817064fd12eb7f6f84041e23ba262b76cc7a5b6871aed6e5d5c7f844c231"
+    "baseSourceIdentity": "sha256:837dadce1576523185f5af6b42e1eb36c476ed7427576e4340023fe98ec2bc0e",
+    "baseSize": 7058136,
+    "baseSha256": "e9a6c2c930c0aa3816e6a85e1cf202a20ba5a67312e7c9c66f861ee4a66f1621"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.49",
-    "commit": "84bc52470f73a23c7cea14f713c2cc27bf8ec2cd"
+    "version": "4.0.0-rc.50",
+    "commit": "c28f1d39d6edd0c2a4ebbc65793645f8fdcc4329"
   },
   "sources": [
     {
@@ -34,13 +34,13 @@
   "outputs": {
     "yaml": {
       "path": "audio-4.0.sb3",
-      "size": 6945300,
-      "sha256": "acec54183277cd65b2df59bfe57c4a867fdc92e6bb0892d4cd856e1705a3ae67"
+      "size": 6955554,
+      "sha256": "f3b7c5d26b5ca04b555c09e060143c3fb055e004d618b05b05d33a61573c43c2"
     },
     "blocks": {
       "path": "audio-blocks-4.0.sb3",
-      "size": 7073753,
-      "sha256": "3c4246fbbcfcd1f10aa6486b77ef075f7edbf60777b81b31f0c821e2a6a01eb0"
+      "size": 7084107,
+      "sha256": "c27a266197465bb82fffa666b43187045a7f0980d806bb787014e13ceadeeaae"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-4.0.sb3",
-      "size": 6945300,
-      "sha256": "acec54183277cd65b2df59bfe57c4a867fdc92e6bb0892d4cd856e1705a3ae67"
+      "size": 6955554,
+      "sha256": "f3b7c5d26b5ca04b555c09e060143c3fb055e004d618b05b05d33a61573c43c2"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 16221267,
-      "sha256": "b34fea5b2f6b4ae74e426af22ff9910261dd5cd06a7a6ba46f503d90ab8ec770"
+      "size": 16262120,
+      "sha256": "f7680e638d0d653c1824069a0ee416a096bd3acd9a0ddd40e1374dab371aa573"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -76,7 +76,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "b8ae4805ee14539acebad075e85bd5a9d11ada0e5901971159a7bd9f0fb81748"
+          "sha256": "8b26874d52a71ce38ab828bb96f74e8d91478cb0ef16029e3caaeb75a98a514d"
         }
       ],
       "scratchRender": {
@@ -98,7 +98,10 @@
         "click",
         "keydown"
       ],
-      "lifecycleEvents": ["visibilitychange", "pageshow"],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,
@@ -123,14 +126,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-blocks-4.0.sb3",
-      "size": 7073753,
-      "sha256": "3c4246fbbcfcd1f10aa6486b77ef075f7edbf60777b81b31f0c821e2a6a01eb0"
+      "size": 7084107,
+      "sha256": "c27a266197465bb82fffa666b43187045a7f0980d806bb787014e13ceadeeaae"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
-      "size": 16815304,
-      "sha256": "697afabc7f4b559f0125bdc48a58a02175b87591c3a263df7dd69ee5632981a9"
+      "size": 16857525,
+      "sha256": "7ea545022f19360f05a42ff33752d04fa00b4e671736c130ecc9a1fe42766d7d"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -150,7 +153,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "36ea3f8b5ac9029988e5563f29f8a95ba5abffbc30e7fbb1a9335bbe75b2e3c7"
+          "sha256": "0773ef09cd239c58dd41444e31a343d71ee25c02a5dd91cb85fed1ce8621dc7c"
         },
         {
           "id": "kubohiroyakamishibaiauthoring4",
@@ -177,7 +180,10 @@
         "click",
         "keydown"
       ],
-      "lifecycleEvents": ["visibilitychange", "pageshow"],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
       "verification": {
         "strategy": "state-and-clock",
         "clockCheckDelayMs": 250,
