@@ -45,6 +45,14 @@ import type {
 } from './site-manifest.ts';
 import type {ArtifactsLock, ProfileLock} from './story-config.ts';
 
+/**
+ * The shared TurboWarp Plus header, carried by every page of this site.
+ * It inserts itself at the top of the page in a shadow root, so none of the
+ * styling below can reach it and none of its own can leak out.
+ */
+const familyHeader =
+  '<script type="module" src="https://kubohiroya.github.io/turbowarp-plus-site-header/dist/auto.js"></script>';
+
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceDirectory = path.join(projectRoot, 'stories/urashima');
 const mySourceDirectory = path.join(projectRoot, 'stories/my-urashima');
@@ -793,7 +801,7 @@ ${categories}
 </script>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('')}
-</body>
+${familyHeader}</body>
 </html>
 `;
 }
@@ -943,7 +951,7 @@ ${assetItems}
 ${webCredits}</main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-</body>
+${familyHeader}</body>
 </html>
 `;
 }
@@ -1093,7 +1101,7 @@ ${webHash}  <p><a href="README.md">生成・変換の説明を見る</a></p>
 </main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-</body>
+${familyHeader}</body>
 </html>
 `;
 }
@@ -1177,7 +1185,7 @@ ${renderCapabilityNotice({camera: true}, '    ')}    <div class="actions">
 </main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-</body>
+${familyHeader}</body>
 </html>`;
 }
 
@@ -1242,7 +1250,7 @@ ${renderSiteHeader('../')}
   </section>
 </main>
 ${renderSiteFooter('../')}
-</body>
+${familyHeader}</body>
 </html>
 `;
 }
@@ -1634,7 +1642,7 @@ ${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stori
 <li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
 <p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
-${renderSiteFooter('../../')}</body></html>`,
+${renderSiteFooter('../../')}${familyHeader}</body></html>`,
     'utf8',
   );
 
@@ -1658,7 +1666,7 @@ ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('s
 <p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
 <p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${narrative.builder.version}">${narrative.builder.version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
-${renderSiteFooter('../../')}</body></html>`,
+${renderSiteFooter('../../')}${familyHeader}</body></html>`,
     'utf8',
   );
 
