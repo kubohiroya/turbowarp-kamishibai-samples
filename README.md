@@ -192,8 +192,10 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、公開Editorで表を編集できます。
 この版のnpm公開は保留で、CLIは対応tagからbuildします。安定版3.2系列のサンプルも保持します。
 
-## rc.53の機能拡張セキュリティ
+## rc.55の生成元と機能拡張セキュリティ
 
-現在の4.0サンプルは、公開App `4.0.0-rc.53`と同じcommitのCLIで生成します。Camera Source 0.19.3・Asset Cache 0.3.1・Bubble 0.13.4はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
+現在の4.0サンプルは、公開App `4.0.0-rc.55`と同じcommitのCLIで生成します。Camera Source 0.19.3・Asset Cache 0.3.1・Bubble 0.13.4はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
 
 [日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
+
+rc.55はApp PR #1036・#1039のcleanup所有権と明示dispose再試行を含みます。今回npmは未公開のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。
