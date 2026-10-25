@@ -51,7 +51,7 @@
     "fflate": "0.8.3"
   },
   "devDependencies": {
-    "@kubohiroya/sb3-toolchain": "0.9.0",
+    "@kubohiroya/sb3-toolchain": "^0.9.0",
     "@turbowarp/packager": "3.13.0",
     "@types/node": "26.4.1",
     "playwright": "1.61.1",
