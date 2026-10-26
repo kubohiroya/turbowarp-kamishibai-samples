@@ -192,12 +192,12 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 [三人の訪問](stories/three-visits/README.md)は、App 4.0.0-rc.44以降のStandardで使える公開サンプルです。
 共通の訪問を一度だけ記述し、各回の一覧と条件で結末を比べます。追加の実験flagは不要です。
 公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、公開Editorで表を編集できます。
-この版のnpm公開は保留で、CLIは対応tagからbuildします。安定版3.2系列のサンプルも保持します。
+App rc.58はnpm公開済みで、サンプルの再現生成には対応tagからbuildしたCLIを使います。安定版3.2系列のサンプルも保持します。
 
-## rc.56の生成元と機能拡張セキュリティ
+## rc.58の生成元と機能拡張セキュリティ
 
-現在の4.0サンプルは、公開App `4.0.0-rc.56`と同じcommitのCLIで生成します。Camera Source 0.19.3・Asset Cache 0.3.1・Bubble 0.13.4はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
+現在の4.0サンプルは、公開App `4.0.0-rc.58`と同じcommitのCLIで生成します。Camera Source 0.20.0・Asset Cache 0.4.0・Bubble 0.14.0はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
 
 [日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
 
-rc.56はApp PR #1045のbuilder preview終了処理と#1042のsealed撤去を含みます。source・compiled配布は引き続き利用できます。rc.51〜rc.55の旧sealed作品は非対応のため、原本のYAML・素材からsourceかcompiledで再生成してください。今回npmは未公開のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。
+rc.58はApp PR #1045のbuilder preview終了処理と#1042のsealed撤去を含みます。source・compiled配布は引き続き利用できます。rc.51〜rc.55の旧sealed作品は非対応のため、原本のYAML・素材からsourceかcompiledで再生成してください。再現生成のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。

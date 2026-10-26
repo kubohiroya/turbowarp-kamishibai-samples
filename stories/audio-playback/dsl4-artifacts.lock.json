@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.56",
-    "commit": "7a51d51ea9bb98127d9b858cd19533972c1f8146",
+    "version": "4.0.0-rc.58",
+    "commit": "9fe9d9335e5cca82c430a1d557bc26c6dd6d8a3f",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:a35f8374a8f13213c3192af799ec45235696de427a884418b68a631299018f8d",
-    "baseSize": 7065448,
-    "baseSha256": "ac738a213c49dd5347edd129cbda29ec0d053da31d7882478b6b951df62f66e5"
+    "baseSourceIdentity": "sha256:22dc3320f9d0d9929e1967479072d13e58d7b6794c33cd0bb045ae0dc5de6a62",
+    "baseSize": 7090931,
+    "baseSha256": "7b2c2ceab1c9ec3949c489f268456326c757a51c76a65bc94feb2cdeef520d49"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.56",
-    "commit": "7a51d51ea9bb98127d9b858cd19533972c1f8146"
+    "version": "4.0.0-rc.58",
+    "commit": "9fe9d9335e5cca82c430a1d557bc26c6dd6d8a3f"
   },
   "sources": [
     {
@@ -34,13 +34,13 @@
   "outputs": {
     "yaml": {
       "path": "audio-4.0.sb3",
-      "size": 6960098,
-      "sha256": "4e4cc4706e511654119b2b71a29dfb3eedb628148855c481d5c684f272e7b86e"
+      "size": 6985370,
+      "sha256": "ffd21155b38347e665ef5dbc42ff78bb819b31dc2640873cefdc587da9b7032d"
     },
     "blocks": {
       "path": "audio-blocks-4.0.sb3",
-      "size": 7090576,
-      "sha256": "943e94c833dcc194b4e3cd424a86988cc2bad553e6273a0bd615b4d75120780c"
+      "size": 7119716,
+      "sha256": "ba0af84099d784ffbe9831742f6c303a5fafe9833b5a2f0a0dfe3ce54cfe338a"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-4.0.sb3",
-      "size": 6960098,
-      "sha256": "4e4cc4706e511654119b2b71a29dfb3eedb628148855c481d5c684f272e7b86e"
+      "size": 6985370,
+      "sha256": "ffd21155b38347e665ef5dbc42ff78bb819b31dc2640873cefdc587da9b7032d"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 16277121,
-      "sha256": "311854ac602fa7ff982dbddb8608069da33f00aeea5e4ad17f97dc614d5c56b8"
+      "size": 16318110,
+      "sha256": "ac60c79bbce1c2c2bfbb43df50df861f97305217d285cc75a8731f8e118c9cec"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -76,7 +76,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "2ae71d7a11d5f7f67d43f2f2d85958a4b8e3249a13b19fb7c304fbcd3d083d0d"
+          "sha256": "8cfd2d7a067534026fdd5a9e418bd532877924033322e7b194fd8ded59113920"
         }
       ],
       "scratchRender": {
@@ -126,14 +126,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-blocks-4.0.sb3",
-      "size": 7090576,
-      "sha256": "943e94c833dcc194b4e3cd424a86988cc2bad553e6273a0bd615b4d75120780c"
+      "size": 7119716,
+      "sha256": "ba0af84099d784ffbe9831742f6c303a5fafe9833b5a2f0a0dfe3ce54cfe338a"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
-      "size": 16886176,
-      "sha256": "56ddf7c09c4dc13e9dd01b639654b2346f9a99e2fff13c2365ac1abf7fdac5ad"
+      "size": 16936420,
+      "sha256": "75254b0e0fcc294cf1d894c6e7275cb7fd8725431a723fa29d59fbae55129f47"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -153,12 +153,12 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "984ddfdee97aceeba71fb03150ca2d3c8f804a580a85d24a9e913e56ecba2e47"
+          "sha256": "08e0a58f08d956e0112b8b2a8f128469998bef5595d01f451fd99762c100bfe5"
         },
         {
           "id": "kubohiroyakamishibaiauthoring4",
           "source": "input-sb3-data-url",
-          "sha256": "54a36f768934706e83ab5f449a38d8d393e7e3cf35f36d815ebd9ddd87773d04"
+          "sha256": "7667bda5018a3d05447a63a9b67fb16e927a82cdc599353b6041ed9d95144294"
         }
       ],
       "scratchRender": {
