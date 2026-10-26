@@ -7,8 +7,8 @@
     "name": "turbowarp-kamishibai-samples",
     "private": true,
     "license": "MPL-2.0",
-    "packageManager": "pnpm@11.18.0",
-    "node": ">=22.18.0"
+    "packageManager": "pnpm@11.28.8",
+    "node": ">=24"
   },
   "currentNames": {
     "product": "TurboWarp-Kamishibai",
