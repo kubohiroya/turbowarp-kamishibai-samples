@@ -6,7 +6,7 @@
   "description": "TurboWarp紙芝居の作品カタログとGitHub Pagesサイト",
   "homepage": "https://kubohiroya.github.io/turbowarp-kamishibai-samples/",
   "license": "MPL-2.0",
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.28.8",
   "scripts": {
     "build": "node scripts/build-site.ts",
     "update:app-release": "node scripts/app-release.ts",
@@ -44,7 +44,7 @@
     "update:three-visits": "node scripts/build-three-visits.ts --write-lock"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=24"
   },
   "dependencies": {
     "@kubohiroya/tmpose-kamishibai": "3.2.3",

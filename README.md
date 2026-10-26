@@ -48,6 +48,7 @@ The images and the Teachable Machine project under `resources/20260801/` are lic
 ## Build and verification
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium

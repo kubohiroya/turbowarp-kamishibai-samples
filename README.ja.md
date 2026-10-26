@@ -48,6 +48,7 @@
 ## ビルドと検証
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
