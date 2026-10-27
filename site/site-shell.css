@@ -282,11 +282,36 @@ body.site-document > .site-footer {
     display: none !important;
   }
 }
+/* Keep current release information separate from versioned document evidence. */
+.app-release-notice {
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  max-width: 72rem;
+  border-left: 4px solid #007d66;
+  background: #eef8f5;
+  color: #173e35;
+  font:
+    0.9rem/1.7 system-ui,
+    sans-serif;
+}
 
-:root{color-scheme:light dark}
-@media (prefers-color-scheme:dark){
-  :root{
-    --site-ink:#f0e6de;--site-muted:#b3a497;--site-paper:#15110e;--site-canvas:#1d1713;
-    --site-accent:#e08a74;--site-accent-soft:#33211b;--site-line:#3a2e26;
+@media print {
+  .app-release-notice {
+    display: none;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --site-ink: #f0e6de;
+    --site-muted: #b3a497;
+    --site-paper: #15110e;
+    --site-canvas: #1d1713;
+    --site-accent: #e08a74;
+    --site-accent-soft: #33211b;
+    --site-line: #3a2e26;
   }
 }
