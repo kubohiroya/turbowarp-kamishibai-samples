@@ -2,48 +2,46 @@ name: Navigation contract
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - "site/contracts/navigation-contract.json"
-      - "scripts/site-navigation.ts"
-      - "scripts/site-navigation.mjs"
-      - "scripts/build-site-navigation.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/build-site.ts"
+      - "scripts/verify-site.ts"
       - ".github/workflows/navigation-contract.yml"
   pull_request:
     paths:
-      - "site/contracts/navigation-contract.json"
-      - "scripts/site-navigation.ts"
-      - "scripts/site-navigation.mjs"
-      - "scripts/build-site-navigation.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/build-site.ts"
+      - "scripts/verify-site.ts"
       - ".github/workflows/navigation-contract.yml"
 
 permissions:
   contents: read
 
 jobs:
-  compare:
+  verify-package-consumption:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Check samples repository
         uses: actions/checkout@v4
-      - name: Check canonical docs contract
-        uses: actions/checkout@v4
-        with:
-          repository: kubohiroya/turbowarp-kamishibai-docs
-          ref: 833e43af540971c7099ef5bd7291d18fea2c8b59
-          path: .navigation-contract-source
-          fetch-depth: 1
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # scripts/site-navigation.mjs は scripts/site-navigation.ts からの生成物。
-      # まず生成物が最新であることを確認してから、他リポジトリとの一致を比較する。
-      - name: Check the generated renderer is current
-        run: pnpm check:site-navigation
-      - name: Compare generated contract and renderer
+      # The navigation renderer, contract and site shell come from the shared package only;
+      # a local copy would drift from the other TurboWarp-Kamishibai sites again.
+      - name: Verify shared navigation package consumption
         run: |
-          cmp .navigation-contract-source/docs/tutorials/navigation-contract.json site/contracts/navigation-contract.json
-          cmp .navigation-contract-source/scripts/site-navigation.mjs scripts/site-navigation.mjs
-          cmp .navigation-contract-source/site/site-shell.css site/site-shell.css
+          test ! -e scripts/site-navigation.ts
+          test ! -e scripts/site-navigation.mjs
+          test ! -e site/contracts/navigation-contract.json
+          test ! -e site/site-shell.css
+          node --input-type=module -e "import('@kubohiroya/turbowarp-kamishibai-site-navigation').then((mod) => { if (mod.NAVIGATION_CONTRACT.contractVersion !== '2.0.0') throw new Error('Unexpected navigation contract version'); })"

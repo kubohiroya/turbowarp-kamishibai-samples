@@ -5,10 +5,14 @@ import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {validateBundle} from '@kubohiroya/tmpose-kamishibai/builder';
+import {
+  NAVIGATION_CONTRACT,
+  SITE_SHELL_CSS_URL,
+  renderSiteNavigation,
+} from '@kubohiroya/turbowarp-kamishibai-site-navigation';
 
 import {readDsl4StoryConfig} from './story-config.ts';
 import {verifyMyUrashimaOutput} from './build-my-urashima.ts';
-import {NAVIGATION_CONTRACT, renderSiteNavigation} from './site-navigation.ts';
 import type {
   FileRecord,
   MyUrashimaDsl4Manifest,
@@ -841,11 +845,13 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   );
   await verifyMyUrashimaOutput(path.join(outputDirectory, 'stories/my-urashima'));
 
-  const [siteCss, faviconMetadata, favicon] = await Promise.all([
+  const [siteCss, packageCss, faviconMetadata, favicon] = await Promise.all([
     readFile(path.join(outputDirectory, 'site-shell.css'), 'utf8'),
+    readFile(SITE_SHELL_CSS_URL, 'utf8'),
     readFile(path.join(outputDirectory, 'favicon.source.json'), 'utf8').then(JSON.parse),
     readFile(path.join(outputDirectory, 'favicon.png')),
   ]);
+  assert.equal(siteCss, packageCss, 'The published site shell differs from the shared package.');
   assert.match(
     siteCss,
     /\.site-brand__symbol\s*\{[\s\S]*?border:\s*0;[\s\S]*?border-radius:\s*0;[\s\S]*?background:\s*transparent;/u,

@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {test} from 'vitest';
+import {SITE_SHELL_CSS_URL} from '@kubohiroya/turbowarp-kamishibai-site-navigation';
 import {fileURLToPath} from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 
 test('keeps the Urashima site symbol transparent and free of decorative borders', async () => {
-  const css = await readFile(path.join(projectRoot, 'site/site-shell.css'), 'utf8');
+  const css = await readFile(SITE_SHELL_CSS_URL, 'utf8');
 
   assert.match(
     css,
@@ -16,7 +17,7 @@ test('keeps the Urashima site symbol transparent and free of decorative borders'
 });
 
 test('styles the shared rights footer for narrow screens and print', async () => {
-  const css = await readFile(path.join(projectRoot, 'site/site-shell.css'), 'utf8');
+  const css = await readFile(SITE_SHELL_CSS_URL, 'utf8');
 
   assert.match(css, /\.site-footer\s*\{[\s\S]*?border-top:/u);
   assert.match(css, /\.site-footer__brand\s*\{[\s\S]*?min-height:\s*44px;/u);

@@ -13,11 +13,15 @@ import {buildUrashima} from './build-urashima.ts';
 import {buildUrashimaDsl4} from './build-urashima-dsl4.ts';
 import {buildPackagedWeb} from './build-packaged-web.ts';
 import {
+  SITE_SHELL_CSS_URL,
+  renderSiteHeader as renderContractSiteHeader,
+} from '@kubohiroya/turbowarp-kamishibai-site-navigation';
+
+import {
   buildTutorialDsl4,
   createTutorialPublicSurfaces,
   type TutorialPublicSurfaces,
 } from './build-tutorial-dsl4.ts';
-import {renderSiteHeader as renderContractSiteHeader} from './site-navigation.ts';
 import {refreshChangedStoryArtifacts} from './refresh-story-artifacts.ts';
 import {verifyTutorialCandidate} from './verify-tutorial-dsl4.ts';
 import {verifyPublishedSite} from './verify-site.ts';
@@ -1366,10 +1370,7 @@ export async function buildSite() {
       path.join(siteDirectory, 'favicon.source.json'),
       path.join(outputDirectory, 'favicon.source.json'),
     ),
-    copyFile(
-      path.join(siteDirectory, 'site-shell.css'),
-      path.join(outputDirectory, 'site-shell.css'),
-    ),
+    copyFile(SITE_SHELL_CSS_URL, path.join(outputDirectory, 'site-shell.css')),
     copyFile(worksSchemaPath, path.join(outputDirectory, 'works.schema.json')),
     copyFile(
       path.join(siteDirectory, 'CARD_SCENES.md'),
