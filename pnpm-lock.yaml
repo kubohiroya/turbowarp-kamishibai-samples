@@ -18,6 +18,9 @@ importers:
       '@kubohiroya/sb3-toolchain':
         specifier: ^0.17.0
         version: 0.17.0
+      '@kubohiroya/turbowarp-kamishibai-site-navigation':
+        specifier: ^0.3.0
+        version: 0.3.0
       '@turbowarp/packager':
         specifier: 3.13.0
         version: 3.13.0
@@ -76,6 +79,10 @@ packages:
     engines: {node: '>=22.12.0'}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     hasBin: true
+
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0':
+    resolution: {integrity: sha512-r0zQVhjJPEfzy1NYAK3pDJqcoHyfOdzYgZ2eecvWyjdsrq8e4TW2zWEpge+Sapp2aA07EPR5AUUns4VfbVCTug==}
+    engines: {node: '>=24'}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1':
     resolution: {integrity: sha512-N5Ainmm8l4IfTytfQGlKZWy/gOTkbJ1P3vTsbVmpKVlaIwt8BcFF8pzAQHrJYgtGm+VoBqV8bQrc7631bBG6oA==}
@@ -775,6 +782,8 @@ snapshots:
     dependencies:
       '@kubohiroya/turbowarp-svg-text': 0.2.1
       fflate: 0.8.3
+
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0': {}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1': {}
 

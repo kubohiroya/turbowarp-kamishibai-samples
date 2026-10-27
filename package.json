@@ -10,8 +10,6 @@
   "scripts": {
     "build": "node scripts/build-site.ts",
     "update:app-release": "node scripts/app-release.ts",
-    "build:site-navigation": "node scripts/build-site-navigation.ts",
-    "check:site-navigation": "node scripts/build-site-navigation.ts --check",
     "build-workshop-20260801": "node scripts/build-workshop-20260801.ts",
     "check": "pnpm typecheck && pnpm test && pnpm build && pnpm test:web && pnpm verify && pnpm run repo:check",
     "compact:urashima-actors": "node scripts/compact-urashima-actor-assets.ts",
@@ -33,7 +31,7 @@
     "verify:my-urashima-dsl4": "node scripts/build-my-urashima-dsl4.ts",
     "update:artifacts-lock": "node scripts/refresh-story-artifacts.ts --force",
     "update:turbowarp-extensions": "node scripts/turbowarp-extensions.ts --update",
-    "verify": "node scripts/build-site-navigation.ts --check && node scripts/turbowarp-extensions.ts && node scripts/verify-site.ts && node scripts/verify-tutorial-dsl4.ts && node scripts/verify-dsl4-block-source-round-trip.ts && node scripts/verify-app-release.ts",
+    "verify": "node scripts/turbowarp-extensions.ts && node scripts/verify-site.ts && node scripts/verify-tutorial-dsl4.ts && node scripts/verify-dsl4-block-source-round-trip.ts && node scripts/verify-app-release.ts",
     "verify:external-links": "node scripts/verify-external-works.ts",
     "repo:check": "node scripts/check-repo.ts",
     "release:check": "pnpm run check && pnpm run pack:dry-run",
@@ -51,6 +49,7 @@
     "fflate": "0.8.3"
   },
   "devDependencies": {
+    "@kubohiroya/turbowarp-kamishibai-site-navigation": "^0.3.0",
     "@kubohiroya/sb3-toolchain": "^0.17.0",
     "@turbowarp/packager": "3.13.0",
     "@types/node": "26.4.1",
