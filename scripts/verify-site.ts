@@ -327,7 +327,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.equal(manifest.dsl4Offline.runtimeCommit, dsl4Config.runtime.commit);
   assert.deepEqual(manifest.dsl4Offline.sb3Toolchain, {
     package: '@kubohiroya/sb3-toolchain',
-    version: '0.17.0',
+    version: '0.18.0',
   });
   assert.equal(
     manifest.assets
