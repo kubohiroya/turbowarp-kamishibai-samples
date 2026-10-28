@@ -2,7 +2,7 @@ packages:
   - .
 
 minimumReleaseAgeExclude:
-  - '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0'
+  - '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0 || 0.4.0'
   - '@kubohiroya/tmpose-kamishibai@3.2.3'
   - '@kubohiroya/turbowarp-svg-text@0.1.0'
-  - '@kubohiroya/sb3-toolchain@0.8.0 || 0.9.0 || 0.17.0 || 0.18.0'
+  - '@kubohiroya/sb3-toolchain@0.8.0 || 0.9.0 || 0.17.0 || 0.18.0 || 0.19.0 || 0.19.1'

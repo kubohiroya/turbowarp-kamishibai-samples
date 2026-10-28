@@ -30,7 +30,7 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
     readFile(path.join(storyDirectory, 'urashima.k4.yml')),
   ]);
   assert.equal(artifactLock.formatVersion, 1);
-  assert.equal(artifactLock.sb3Toolchain.version, '0.18.0');
+  assert.equal(artifactLock.sb3Toolchain.version, '0.19.1');
   assert.equal(sourceBytes.length, artifactLock.source.size);
   assert.equal(sha256(sourceBytes), artifactLock.source.sha256);
 
@@ -96,8 +96,18 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   );
   assert(extensionSource.includes('dsl4SpeechAdvanceTypewriter:!0'));
   assert(extensionSource.includes('data-dsl4-runtime-error'));
-  assert(extensionSource.includes('@tensorflow/tfjs Copyright 2019 Google'));
-  assert(extensionSource.includes('var tmPose='));
+  const tmNotices = extensionSource.match(
+    /\/\*! @license\n(# Third-party notices[\s\S]*?)\n\*\//u,
+  );
+  assert(tmNotices, 'The full Teachable Machine third-party notice is missing.');
+  assert.equal(
+    sha256(tmNotices[1] as string),
+    'c28e024ef10a10b53ddefa7ff3014dda02b9845236d1cb14ac2f79fe4ceb8ffe',
+    'The reviewed TM 4.1.0 third-party notice must remain byte-identical.',
+  );
+  assert.match(extensionSource, /\b[A-Za-z_$][\w$]*\.tmPose\s*=(?!=)/u);
+  assert(extensionSource.includes('Webcam'));
+  assert(extensionSource.includes('loadFromFiles'));
   for (const actor of ['Urashima', 'Turtle', 'Princess', 'Fish', 'Narration']) {
     const target = project.targets.find((candidate) => candidate.name === actor);
     assert(target && !target.isStage && target.costumes.length === 1);
