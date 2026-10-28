@@ -16,8 +16,8 @@ importers:
         version: 0.8.3
     devDependencies:
       '@kubohiroya/sb3-toolchain':
-        specifier: ^0.19.0
-        version: 0.19.0
+        specifier: ^0.19.1
+        version: 0.19.1
       '@kubohiroya/turbowarp-kamishibai-site-navigation':
         specifier: ^0.4.0
         version: 0.4.0
@@ -69,8 +69,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kubohiroya/sb3-toolchain@0.19.0':
-    resolution: {integrity: sha512-hVEkzREo1553yYXY9xpCqq9mvz/v/IV+1E8yy/He9wL5cIRbs5a6yzcGhnN5mmWKKXyQS7LPCZYbrWCe5+L5Mw==}
+  '@kubohiroya/sb3-toolchain@0.19.1':
+    resolution: {integrity: sha512-0FdrNofHYTG1zJihralYqJX4tvcC3LtrQVsQZ/tRp9xDaPOdbi4+v723W5mQGUowJ+5tcumQhrI9zYnUClPfvA==}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -768,7 +768,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@kubohiroya/sb3-toolchain@0.19.0':
+  '@kubohiroya/sb3-toolchain@0.19.1':
     dependencies:
       fflate: 0.8.3
       music-metadata: 11.14.0
