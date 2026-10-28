@@ -16,11 +16,11 @@ importers:
         version: 0.8.3
     devDependencies:
       '@kubohiroya/sb3-toolchain':
-        specifier: ^0.18.0
-        version: 0.18.0
+        specifier: ^0.19.0
+        version: 0.19.0
       '@kubohiroya/turbowarp-kamishibai-site-navigation':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.4.0
+        version: 0.4.0
       '@turbowarp/packager':
         specifier: 3.13.0
         version: 3.13.0
@@ -69,8 +69,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kubohiroya/sb3-toolchain@0.18.0':
-    resolution: {integrity: sha512-lzb72VnPESRQoTnP3oIA8jbpHgIqaj///xX7WBg/8lqEbgPA0G46Osm6NH9Mp19gqNHfS87Em4yC2b4bTlHe3w==}
+  '@kubohiroya/sb3-toolchain@0.19.0':
+    resolution: {integrity: sha512-hVEkzREo1553yYXY9xpCqq9mvz/v/IV+1E8yy/He9wL5cIRbs5a6yzcGhnN5mmWKKXyQS7LPCZYbrWCe5+L5Mw==}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -80,8 +80,8 @@ packages:
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     hasBin: true
 
-  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0':
-    resolution: {integrity: sha512-r0zQVhjJPEfzy1NYAK3pDJqcoHyfOdzYgZ2eecvWyjdsrq8e4TW2zWEpge+Sapp2aA07EPR5AUUns4VfbVCTug==}
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.4.0':
+    resolution: {integrity: sha512-ATrksLsKzxPAUUs/T6oYAK3Mqqg4TH3XlhH288fK09jpMhsvseOScrd9xslhfF9eYjTLJ5xmBN6sB02c7LWNmg==}
     engines: {node: '>=24'}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1':
@@ -768,7 +768,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@kubohiroya/sb3-toolchain@0.18.0':
+  '@kubohiroya/sb3-toolchain@0.19.0':
     dependencies:
       fflate: 0.8.3
       music-metadata: 11.14.0
@@ -783,7 +783,7 @@ snapshots:
       '@kubohiroya/turbowarp-svg-text': 0.2.1
       fflate: 0.8.3
 
-  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0': {}
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.4.0': {}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1': {}
 
