@@ -49,14 +49,6 @@ import type {
 } from './site-manifest.ts';
 import type {ArtifactsLock, ProfileLock} from './story-config.ts';
 
-/**
- * The shared TurboWarp Plus header, carried by every page of this site.
- * It inserts itself at the top of the page in a shadow root, so none of the
- * styling below can reach it and none of its own can leak out.
- */
-const familyHeader =
-  '<script type="module" src="https://kubohiroya.github.io/turbowarp-plus-site-header/dist/auto.js"></script>';
-
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceDirectory = path.join(projectRoot, 'stories/urashima');
 const mySourceDirectory = path.join(projectRoot, 'stories/my-urashima');
@@ -805,7 +797,7 @@ ${categories}
 </script>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('')}
-${familyHeader}</body>
+</body>
 </html>
 `;
 }
@@ -955,7 +947,7 @@ ${assetItems}
 ${webCredits}</main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-${familyHeader}</body>
+</body>
 </html>
 `;
 }
@@ -1105,7 +1097,7 @@ ${webHash}  <p><a href="README.md">生成・変換の説明を見る</a></p>
 </main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-${familyHeader}</body>
+</body>
 </html>
 `;
 }
@@ -1189,11 +1181,11 @@ ${renderCapabilityNotice({camera: true}, '    ')}    <div class="actions">
 </main>
 ${renderCapabilityLaunchScript()}
 ${renderSiteFooter('../../')}
-${familyHeader}</body>
+</body>
 </html>`;
 }
 
-function renderRightsIndex() {
+export function renderRightsIndex() {
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -1254,7 +1246,7 @@ ${renderSiteHeader('../')}
   </section>
 </main>
 ${renderSiteFooter('../')}
-${familyHeader}</body>
+</body>
 </html>
 `;
 }
@@ -1300,6 +1292,40 @@ export function verifyConfiguredWebBuild(
   } else {
     assert.deepEqual(web, {enabled: false}, `${description} disabled result is invalid.`);
   }
+}
+
+export function renderAudioPlaybackIndex(audioWork: WorkEntry, version: string): string {
+  return `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>音声再生サンプル | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fff8ee;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/audio-playback/')}
+<main><h1>音声再生サンプル</h1><p>DSL 4.0 / ${version}。タイトルを閉じると合成音の再生を開始し、全10操作と音量・フェードを順に実行します。</p>
+${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stories/audio-playback/', ''))}
+<ul><li><a href="web-4.0/">YAML版をブラウザーで開く</a></li><li><a href="web-blocks-4.0/">ブロック版をブラウザーで開く</a></li>
+<li><a href="audio-4.0.sb3" download>YAML版SB3</a> / <a href="audio-blocks-4.0.sb3" download>ブロック版SB3</a></li>
+<li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
+<p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
+<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`;
+}
+
+export function renderThreeVisitsIndex(narrativeWork: WorkEntry, version: string): string {
+  return `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三人の訪問 | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fbf1dd;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits/')}
+<main><h1>三人の訪問 — 同じ展開、ちがう結末</h1><p>DSL 4.0 / ${version}。Standardの物語制御で、共通の訪問を一度だけ書き、各人の親切さから結末を選びます。追加の実験flagは不要です。</p>
+<img src="card-scenes.gif" alt="三人の訪問と各人の結末" width="640" style="max-width:100%;height:auto">
+<p>タイトルを閉じると「長兄 → 何もなし → 次兄 → 何もなし → 末弟 → 贈り物」の順に再生します。</p>
+${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('stories/three-visits/', ''))}
+<ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
+<li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
+<p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
+<p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${version}">${version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
+<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`;
 }
 
 export async function buildSite() {
@@ -1631,19 +1657,7 @@ export async function buildSite() {
   const audio = await buildAudioPlayback({outputDirectory: audioDirectory});
   await writeFile(
     path.join(audioDirectory, 'index.html'),
-    `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>音声再生サンプル | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
-<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fff8ee;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
-${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/audio-playback/')}
-<main><h1>音声再生サンプル</h1><p>DSL 4.0 / ${audio.builder.version}。タイトルを閉じると合成音の再生を開始し、全10操作と音量・フェードを順に実行します。</p>
-${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stories/audio-playback/', ''))}
-<ul><li><a href="web-4.0/">YAML版をブラウザーで開く</a></li><li><a href="web-blocks-4.0/">ブロック版をブラウザーで開く</a></li>
-<li><a href="audio-4.0.sb3" download>YAML版SB3</a> / <a href="audio-blocks-4.0.sb3" download>ブロック版SB3</a></li>
-<li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
-<p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
-<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
-${renderSiteFooter('../../')}${familyHeader}</body></html>`,
+    renderAudioPlaybackIndex(audioWork, audio.builder.version),
     'utf8',
   );
 
@@ -1653,21 +1667,7 @@ ${renderSiteFooter('../../')}${familyHeader}</body></html>`,
   const narrative = await buildThreeVisits({outputDirectory: narrativeDirectory});
   await writeFile(
     path.join(narrativeDirectory, 'index.html'),
-    `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>三人の訪問 | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
-<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fbf1dd;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
-${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits/')}
-<main><h1>三人の訪問 — 同じ展開、ちがう結末</h1><p>DSL 4.0 / ${narrative.builder.version}。Standardの物語制御で、共通の訪問を一度だけ書き、各人の親切さから結末を選びます。追加の実験flagは不要です。</p>
-<img src="card-scenes.gif" alt="三人の訪問と各人の結末" width="640" style="max-width:100%;height:auto">
-<p>タイトルを閉じると「長兄 → 何もなし → 次兄 → 何もなし → 末弟 → 贈り物」の順に再生します。</p>
-${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('stories/three-visits/', ''))}
-<ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
-<li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
-<p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
-<p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${narrative.builder.version}">${narrative.builder.version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
-<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
-${renderSiteFooter('../../')}${familyHeader}</body></html>`,
+    renderThreeVisitsIndex(narrativeWork, narrative.builder.version),
     'utf8',
   );
 

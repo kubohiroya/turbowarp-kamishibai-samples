@@ -83,6 +83,14 @@ async function verifyLinks(htmlPath: string): Promise<string> {
   return html;
 }
 
+export function verifyNoPlusHeader(html: string, page: string): void {
+  assert.doesNotMatch(
+    html,
+    /turbowarp-plus-site-header|<turbowarp-plus-header(?:\s|>)/iu,
+    `TurboWarp Plus header is not allowed on Samples pages: ${page}`,
+  );
+}
+
 async function verifyFile(
   outputSampleDirectory: string,
   record: FileRecord,
@@ -255,6 +263,10 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       ),
       readFile(path.join(outputDirectory, 'WORKS_POLICY.md'), 'utf8'),
     ]);
+
+  for (const filename of publishedFiles.filter((file) => file.endsWith('.html'))) {
+    verifyNoPlusHeader(await readFile(path.join(outputDirectory, filename), 'utf8'), filename);
+  }
 
   const dsl4WebEnabled = dsl4Config.web?.enabled === true;
   const myDsl4WebEnabled = myDsl4Config.web?.enabled === true;
