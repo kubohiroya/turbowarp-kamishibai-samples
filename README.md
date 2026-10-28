@@ -199,3 +199,19 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 [日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
 
 rc.56はApp PR #1045のbuilder preview終了処理と#1042のsealed撤去を含みます。source・compiled配布は引き続き利用できます。rc.51〜rc.55の旧sealed作品は非対応のため、原本のYAML・素材からsourceかcompiledで再生成してください。今回npmは未公開のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。
+
+## DSL4の宣言省略・簡易セリフの候補
+
+[App #1083](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/1083)・[#1084](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/1084)に対応するCLI・ランタイムを使い、DSL4のブロック台本サンプル全8本を簡易方式で生成・検証できます。公開済み成果物とlockを保持し、別ディレクトリへ開発候補を出します。
+
+```sh
+node scripts/build-simplified-dsl4-candidates.ts \
+  --app-root ../turbowarp-kamishibai-app \
+  --output-dir .tmp/simple-native-dsl4
+```
+
+App側は対象実装を含むcheckoutで、先に`pnpm run build:lib`を実行します。出力先は新しいディレクトリを指定します。生成したSB3とYAMLは`*-simple-candidate`という別名になり、`verification.json`にAppのcommit・作業差分のハッシュ、runtimeのハッシュ、入力・出力のハッシュ、省略した宣言、保持した理由を記録します。候補を現在の公開版として扱いません。
+
+SB3内に実在する背景・衣装・音は、実名への置換と宣言省略を試し、共通frontendで正規化した実行内容が等しい場合だけ適用します。同名spriteの最初の衣装と初期状態が一致するactor、既定値と一致するcover、初期値1のstartSceneIndexも同様です。動的・外部参照を確定できない宣言、file・remote素材、独自初期値、表紙の選択、必要な操作・認識設定を保持します。
+
+textとsecondsだけのsay/thinkは簡易版になります。装飾・入力待ちなどを使うものはSPEC版を保持します。生成後は台本を読み戻して実行内容を比較し、埋込アセットの整合とランタイム読込も検証します。既存の公開版参照を更新する際は、対応Appの公開を確認してから従来の公開版追従経路で成果物とlockを揃えます。切戻しは既存の公開SB3・YAML・lockを使います。
