@@ -122,7 +122,7 @@ async function assertPackage(policy: RepoPolicy): Promise<void> {
   );
   assert.equal(
     packageJson.devDependencies["@kubohiroya/sb3-toolchain"],
-    policy.dependencies.sb3Toolchain,
+    `^${policy.dependencies.sb3Toolchain}`,
   );
   assert.equal(packageJson.devDependencies["@turbowarp/packager"], policy.dependencies.packager);
   for (const script of ["check", "repo:check", "pack:dry-run", "release:check"]) {

@@ -19,7 +19,7 @@ runs:
   steps:
     - uses: actions/setup-node@v7
       with:
-        node-version: 24
+        node-version-file: .nvmrc
     - name: Resolve and verify the published app dependency
       shell: bash
       env:
@@ -38,11 +38,10 @@ runs:
         repository: kubohiroya/turbowarp-kamishibai-app
         ref: ${{ steps.pin.outputs.commit }}
         path: .tmp/turbowarp-kamishibai-app
-    - shell: bash
-      run: corepack enable
+    - uses: pnpm/action-setup@v6
     - uses: actions/setup-node@v7
       with:
-        node-version: 24
+        node-version-file: .nvmrc
         cache: pnpm
         cache-dependency-path: |
           pnpm-lock.yaml

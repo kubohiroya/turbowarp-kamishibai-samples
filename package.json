@@ -1,17 +1,15 @@
 {
   "name": "turbowarp-kamishibai-samples",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "description": "TurboWarp紙芝居の作品カタログとGitHub Pagesサイト",
   "homepage": "https://kubohiroya.github.io/turbowarp-kamishibai-samples/",
   "license": "MPL-2.0",
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.28.8",
   "scripts": {
     "build": "node scripts/build-site.ts",
     "update:app-release": "node scripts/app-release.ts",
-    "build:site-navigation": "node scripts/build-site-navigation.ts",
-    "check:site-navigation": "node scripts/build-site-navigation.ts --check",
     "build-workshop-20260801": "node scripts/build-workshop-20260801.ts",
     "check": "pnpm typecheck && pnpm test && pnpm build && pnpm test:web && pnpm verify && pnpm run repo:check",
     "compact:urashima-actors": "node scripts/compact-urashima-actor-assets.ts",
@@ -33,7 +31,7 @@
     "verify:my-urashima-dsl4": "node scripts/build-my-urashima-dsl4.ts",
     "update:artifacts-lock": "node scripts/refresh-story-artifacts.ts --force",
     "update:turbowarp-extensions": "node scripts/turbowarp-extensions.ts --update",
-    "verify": "node scripts/build-site-navigation.ts --check && node scripts/turbowarp-extensions.ts && node scripts/verify-site.ts && node scripts/verify-tutorial-dsl4.ts && node scripts/verify-dsl4-block-source-round-trip.ts && node scripts/verify-app-release.ts",
+    "verify": "node scripts/turbowarp-extensions.ts && node scripts/verify-site.ts && node scripts/verify-tutorial-dsl4.ts && node scripts/verify-dsl4-block-source-round-trip.ts && node scripts/verify-app-release.ts",
     "verify:external-links": "node scripts/verify-external-works.ts",
     "repo:check": "node scripts/check-repo.ts",
     "release:check": "pnpm run check && pnpm run pack:dry-run",
@@ -44,14 +42,15 @@
     "update:three-visits": "node scripts/build-three-visits.ts --write-lock"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=24"
   },
   "dependencies": {
     "@kubohiroya/tmpose-kamishibai": "3.2.3",
     "fflate": "0.8.3"
   },
   "devDependencies": {
-    "@kubohiroya/sb3-toolchain": "0.9.0",
+    "@kubohiroya/turbowarp-kamishibai-site-navigation": "^0.3.0",
+    "@kubohiroya/sb3-toolchain": "^0.18.0",
     "@turbowarp/packager": "3.13.0",
     "@types/node": "26.4.1",
     "playwright": "1.61.1",

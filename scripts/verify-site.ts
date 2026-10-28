@@ -5,10 +5,14 @@ import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {validateBundle} from '@kubohiroya/tmpose-kamishibai/builder';
+import {
+  NAVIGATION_CONTRACT,
+  SITE_SHELL_CSS_URL,
+  renderSiteNavigation,
+} from '@kubohiroya/turbowarp-kamishibai-site-navigation';
 
 import {readDsl4StoryConfig} from './story-config.ts';
 import {verifyMyUrashimaOutput} from './build-my-urashima.ts';
-import {NAVIGATION_CONTRACT, renderSiteNavigation} from './site-navigation.ts';
 import type {
   FileRecord,
   MyUrashimaDsl4Manifest,
@@ -77,6 +81,14 @@ async function verifyLinks(htmlPath: string): Promise<string> {
     await access(target);
   }
   return html;
+}
+
+export function verifyNoPlusHeader(html: string, page: string): void {
+  assert.doesNotMatch(
+    html,
+    /turbowarp-plus-site-header|<turbowarp-plus-header(?:\s|>)/iu,
+    `TurboWarp Plus header is not allowed on Samples pages: ${page}`,
+  );
 }
 
 async function verifyFile(
@@ -252,6 +264,10 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       readFile(path.join(outputDirectory, 'WORKS_POLICY.md'), 'utf8'),
     ]);
 
+  for (const filename of publishedFiles.filter((file) => file.endsWith('.html'))) {
+    verifyNoPlusHeader(await readFile(path.join(outputDirectory, filename), 'utf8'), filename);
+  }
+
   const dsl4WebEnabled = dsl4Config.web?.enabled === true;
   const myDsl4WebEnabled = myDsl4Config.web?.enabled === true;
 
@@ -323,7 +339,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.equal(manifest.dsl4Offline.runtimeCommit, dsl4Config.runtime.commit);
   assert.deepEqual(manifest.dsl4Offline.sb3Toolchain, {
     package: '@kubohiroya/sb3-toolchain',
-    version: '0.9.0',
+    version: '0.18.0',
   });
   assert.equal(
     manifest.assets
@@ -841,11 +857,13 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   );
   await verifyMyUrashimaOutput(path.join(outputDirectory, 'stories/my-urashima'));
 
-  const [siteCss, faviconMetadata, favicon] = await Promise.all([
+  const [siteCss, packageCss, faviconMetadata, favicon] = await Promise.all([
     readFile(path.join(outputDirectory, 'site-shell.css'), 'utf8'),
+    readFile(SITE_SHELL_CSS_URL, 'utf8'),
     readFile(path.join(outputDirectory, 'favicon.source.json'), 'utf8').then(JSON.parse),
     readFile(path.join(outputDirectory, 'favicon.png')),
   ]);
+  assert.equal(siteCss, packageCss, 'The published site shell differs from the shared package.');
   assert.match(
     siteCss,
     /\.site-brand__symbol\s*\{[\s\S]*?border:\s*0;[\s\S]*?border-radius:\s*0;[\s\S]*?background:\s*transparent;/u,

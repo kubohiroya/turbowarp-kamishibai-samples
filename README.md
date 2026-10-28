@@ -1,51 +1,54 @@
 # turbowarp-kamishibai-samples
 
-`TurboWarp-Kamishibai` の作品カタログ、台本、作品固有アセット、生成設定、検証、公開物を管理するリポジトリです。公開ページでは「TurboWarp紙芝居 作品ライブラリ」として提供します。
+English | [日本語](README.ja.md)
 
-作品ライブラリ: <https://kubohiroya.github.io/turbowarp-kamishibai-samples/>
+This repository holds the work catalogue, scripts, per-work assets, generation settings, verification and published artifacts for `TurboWarp-Kamishibai`. The published site presents them as the TurboWarp Kamishibai work library.
 
-作品の掲載区分、権利情報、配布形態は[`site/works.json`](site/works.json)で管理し、その形式を[`site/works.schema.json`](site/works.schema.json)で定義します。公式サンプル、コミュニティ作品、外部作品の扱いは[`WORKS_POLICY.md`](WORKS_POLICY.md)を参照してください。外部作品はリンクのみを掲載し、このサイトでは作品データを再配布しません。
+Work library: <https://kubohiroya.github.io/turbowarp-kamishibai-samples/>
 
-浦島太郎サンプルの台本、元アセット、生成設定は `stories/urashima/` に配置しています。
+Each work's listing category, rights information and distribution form are kept in [`site/works.json`](site/works.json), whose format is defined by [`site/works.schema.json`](site/works.schema.json). For how official samples, community works and external works are treated, see [`WORKS_POLICY.md`](WORKS_POLICY.md). External works are listed as links only; this site does not redistribute their data.
 
-- `source.txt`: 元アセットを `file:` 参照するビルド元台本
-- `urashima.txt`: editor/playerで共通の変換済み公開用台本
-- `urashima.k4.yml`: 公式CLIで`urashima.txt`から変換したDSL 4.0 YAML
-- `assets/images/`: 画像元データ 24ファイル
-- `assets/sounds/`: Web再生互換性のためMP3へ統一した音声元データ 22ファイル
-- `assets.lock.json`: 組み込み対象44件の名前・target・ハッシュ・メタデータ
-- `sample.config.json`: `generic` / `editor` / `player` とWeb版の生成設定
-- `artifacts.lock.json`: 再現可能な生成物のサイズとSHA-256
-- `base/kamishibai.sb3`: ポーズ認識成立音対応済み本体コミットから生成したDSL 3.2 `generic` ベース
-- `base/kamishibai-4.0.sb3`: appの公開済み最新DSL 4.0 Releaseから取得・照合した`generic`ベース。出典は`app-release.json`
+The script, source assets and generation settings for the Urashima Tarō sample live in `stories/urashima/`:
 
-`stories/my-urashima/`はワークショップ用の依存ストーリーです。DSL 3.2版に加え、Princess PNGを唯一のコスチュームとして持つ`Princess`スプライトと浦島太郎のプロジェクトアセットを組み込んだ、台本非埋め込みの`my-urashima-4.0.sb3`およびWeb版も生成します。生成規約と更新方法は[`stories/my-urashima/README.md`](stories/my-urashima/README.md)に記載しています。
+- `source.txt`: the build-time script, which refers to source assets with `file:`
+- `urashima.txt`: the converted public script shared by editor and player
+- `urashima.k4.yml`: DSL 4.0 YAML converted from `urashima.txt` by the official CLI
+- `assets/images/`: 24 source image files
+- `assets/sounds/`: 22 source audio files, unified to MP3 for web playback compatibility
+- `assets.lock.json`: names, targets, hashes and metadata for the 44 embedded assets
+- `sample.config.json`: generation settings for `generic` / `editor` / `player` and the web build
+- `artifacts.lock.json`: sizes and SHA-256 of the reproducible artifacts
+- `base/kamishibai.sb3`: the DSL 3.2 `generic` base, generated from an app commit that already carries the pose-recognition cue sound
+- `base/kamishibai-4.0.sb3`: the `generic` base fetched from the app's latest published DSL 4.0 release and verified against it; its provenance is recorded in `app-release.json`
 
-`stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。`app-release.json`で確認した公開済みTurboWarp-Kamishibaiを入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
+`stories/my-urashima/` is a dependent story for workshops. Besides the DSL 3.2 build, it also produces `my-urashima-4.0.sb3` — which embeds no script, carries a `Princess` sprite whose only costume is the Princess PNG, and includes the Urashima Tarō project assets — and its web build. Its generation rules and how to update it are described in [`stories/my-urashima/README.md`](stories/my-urashima/README.md).
 
-正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL 4.0 YAML、オフラインSB3、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
+`stories/tutorial/` holds the four-scene work for the DSL 4.0 tutorial, its starter, its addition kit, a self-contained SB3 and the pinned information for the web build. Taking the published TurboWarp-Kamishibai confirmed in `app-release.json` as its input, it publishes Pages and the work list with `publication.enabled` turned on. The docs repository uses that published URL and its integrity to perform its capture and tutorial publication. Its generation rules and how to roll back are described in [`stories/tutorial/README.md`](stories/tutorial/README.md).
 
-`pnpm build` は、完全固定したTurboWarp-Kamishibai 3.2 npmビルダー、本体コミット`2b5005d`から生成してハッシュ固定したclone-only UIの3.2汎用ベース、commitとハッシュを固定した4.0汎用ベースおよび4.0ビルダー、`@turbowarp/packager` `3.13.0` を使い、次の成果物を生成します。
+The official Urashima Tarō runtime artifact uses DSL 3.2 SVG Text, and demonstrates named styles, relative font sizes and a multi-line Narration actor. The work library also distributes the DSL 4.0 YAML converted and verified by the official CLI, an offline SB3 and a single-file HTML web build. Compatibility with the deprecated older Text Asset is covered by a test fixture kept separate from the official script.
 
-- `_urashima.sb3` (`editor`): 台本非埋め込み・アセット埋め込み。物語作成者の編集用
-- `urashima.sb3` (`player`): 台本・アセット埋め込み。配布・再生用
-- `my-urashima.sb3` (`dependent editor`): `urashima`依存・台本非埋め込み・Princess専用スプライト付きの教材用
-- `web/index.html`: `player`だけを入力とする、画像・音声・台本組み込み済みの単一HTML
-- `urashima-4.0.sb3` / `web-4.0/index.html`: DSL 4.0台本・全アセット・ポーズモデル組み込み済みのオフライン版
-- `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: DSL 4.0外部台本をファイル選択またはドラッグ＆ドロップで開くワークショップ版
-- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 同じappリリースで再現・検証して公開するDSL 4.0チュートリアル成果物
+`pnpm build` uses the fully pinned TurboWarp-Kamishibai 3.2 npm builder, a 3.2 generic base with clone-only UI generated from app commit `2b5005d` and pinned by hash, a 4.0 generic base and 4.0 builder pinned by commit and hash, and `@turbowarp/packager` `3.13.0`, to produce:
 
-先頭の `_` は物語作成者による内部的使用を示します。`player` は編集禁止を意味する「再生専用」ではなく「再生用」です。GitHub Pagesのビルド時には空の`dist/`へすべての成果物をロック済み入力から生成します。DSL 4.0のチェックイン済みSB3は配布元かつ再現性検証対象であり、Web版HTMLはリポジトリへコミットせず自動生成します。
+- `_urashima.sb3` (`editor`): no embedded script, embedded assets; for story authors to edit
+- `urashima.sb3` (`player`): script and assets embedded; for distribution and playback
+- `my-urashima.sb3` (`dependent editor`): depends on `urashima`, embeds no script, carries the Princess-only sprite; for teaching
+- `web/index.html`: a single HTML file with images, audio and script embedded, taking only `player` as its input
+- `urashima-4.0.sb3` / `web-4.0/index.html`: offline builds with the DSL 4.0 script, every asset and the pose model embedded
+- `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: the workshop build, which opens an external DSL 4.0 script through a file picker or drag and drop
+- `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: the DSL 4.0 tutorial artifacts, reproduced, verified and published from the same app release
 
-## ライセンス
+A leading `_` marks a file for a story author's own use. `player` means "for playback", not "playback only" in the sense of forbidding edits. When Pages builds, every artifact is generated into an empty `dist/` from pinned inputs. The checked-in DSL 4.0 SB3 files are both the distribution source and the subject of reproducibility checks; the web HTML builds are generated rather than committed.
 
-本リポジトリのソースコードと、個別のライセンス表示がないコンテンツは[Mozilla Public License 2.0](LICENSE)（SPDX: `MPL-2.0`）で提供します。浦島太郎サンプルの適用範囲は[`stories/urashima/LICENSES.md`](stories/urashima/LICENSES.md)に明記しています。
+## License
 
-`resources/20260801/`の画像とTeachable MachineプロジェクトにはCC BY-SA 4.0が適用されます。ワークショップ配布物にビルド時に加えるPDF教材はHiroya KuboのAll rights reservedです。詳細な境界は[`resources/20260801/LICENSES.md`](resources/20260801/LICENSES.md)を参照してください。
+The source code in this repository, and any content without its own license notice, is provided under the [Mozilla Public License 2.0](LICENSE) (SPDX: `MPL-2.0`). What that covers for the Urashima Tarō sample is stated in [`stories/urashima/LICENSES.md`](stories/urashima/LICENSES.md).
 
-## ビルドと検証
+The images and the Teachable Machine project under `resources/20260801/` are licensed CC BY-SA 4.0. The teaching PDF added to the workshop distribution at build time is All rights reserved, Hiroya Kubo. For the exact boundaries, see [`resources/20260801/LICENSES.md`](resources/20260801/LICENSES.md).
+
+## Build and verification
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
@@ -58,147 +61,124 @@ pnpm run check
 pnpm run release:check
 ```
 
-ビルド・検証スクリプトとテストはTypeScript 6で書かれています。Nodeのネイティブ型剥がしで`.ts`をそのまま実行するため、ビルド成果物や事前のトランスパイルはありません（`node scripts/build-site.ts`）。`pnpm typecheck`は`tsc --noEmit`による型検査だけを行い、`pnpm test`はVitestでテストを実行します。Viteはブラウザ向けバンドルを持たないこのリポジトリではVitest設定（`vite.config.ts`）のホストとして使います。固定CLIを含むビルドにはNode 24以上が必要です。
+The build and verification scripts and the tests are written in TypeScript 6. Node's native type stripping runs the `.ts` files as they are, so there is no build output and no transpilation step beforehand (`node scripts/build-site.ts`). `pnpm typecheck` only type-checks, through `tsc --noEmit`, and `pnpm test` runs the tests with Vitest. Vite is used in this repository — which has no browser bundle — as the host for the Vitest configuration (`vite.config.ts`). A build that includes the pinned CLI needs Node 24 or newer.
 
-`scripts/site-navigation.mjs`はTurboWarp-Kamishibaiの3リポジトリ間で`cmp`によりバイト一致を保つ契約ファイルです。正本は`scripts/site-navigation.ts`で、`pnpm build:site-navigation`が`.mjs`を生成します。生成はNode自身の型剥がし（`module.stripTypeScriptTypes`）で行うため、元の整形と空行がそのまま残り、生成物は各リポジトリの現行ファイルとバイト単位で一致します。仕上げのPrettierは契約先リポジトリの`.prettierrc.json`と同じ設定です。`pnpm verify`（および`.github/workflows/navigation-contract.yml`）は`pnpm check:site-navigation`で生成物が最新かを検査します。ナビゲーション描画を変更するときは`.ts`を編集して再生成し、生成された`.mjs`を各リポジトリへ配布します。`.mjs`を直接編集した場合は`pnpm check:site-navigation`が検出します。
+The site header, navigation contract and `site-shell.css` come from the shared package `@kubohiroya/turbowarp-kamishibai-site-navigation`, which TurboWarp-Kamishibai also uses. `pnpm build` copies the package's `site-shell.css` into the published site, and `pnpm verify` checks that the published copy is byte-identical to the package. To change how the navigation renders, change and release the package, then update the dependency here. `.github/workflows/navigation-contract.yml` checks that no local copy of the renderer, contract or shell has come back.
 
-`pnpm build` は空の `dist/` からDSL 3.2／4.0のSB3、Packager Web版、公開サイトを生成し、台本・SB3・HTML・全アセット・ライセンス・リンク・SHA-256を検証します。同じ入力から各Web版を2回生成してハッシュが一致することも確認します。`pnpm test:web` はPages相当のHTTPサーバで各Web版を開きます。DSL 4.0浦島太郎では外部ネットワークを遮断した状態でタイトル画面から組み込み台本が開始すること、my-urashimaではタイトルからメニューへ進み、`.k4.yml`をファイル選択して物語が開始すること、tutorial公開版では偽カメラを使って4場面を最後まで進められることをheadless Chromiumで検証します。
+`pnpm build` generates the DSL 3.2 and 4.0 SB3 files, the Packager web builds and the published site from an empty `dist/`, and verifies scripts, SB3 files, HTML, every asset, licenses, links and SHA-256. It also generates each web build twice from the same input and confirms the hashes match. `pnpm test:web` opens each web build through an HTTP server equivalent to Pages. In headless Chromium it verifies that DSL 4.0 Urashima Tarō starts its embedded script from the title screen with outside network access blocked; that my-urashima moves from the title to the menu, opens a `.k4.yml` through a file picker and starts the story; and that the published tutorial build can be played through all four scenes with a fake camera.
 
-`pnpm test:web`には、ブロック台本を実際のTurboWarpエディターで開く回帰テストも含まれます。CIで生成した`dist/stories/urashima/urashima-blocks-4.0.sb3`をファイルメニューから読み込み、埋め込み拡張を「サンドボックスなしで実行する」で許可します。10場面・174命令と未定義ブロックの不在を確認し、各場面の見出しを画面内へ移して撮影します。冒頭の待機時間を数値入力から`2`→`2.75`へ編集し、ファイルメニューから保存したSB3を公式CLIでYAMLへ戻し、変更した待機時間以外の意味が維持されることまで検証します。ファイル操作は、OS固有のピッカーを使わない標準のファイル入力・ダウンロード経路を使います。
+`pnpm test:web` also includes a regression test that opens the block script in the real TurboWarp editor. It loads `dist/stories/urashima/urashima-blocks-4.0.sb3`, generated in CI, from the file menu, and allows the embedded extension with "run extension without sandbox". It confirms 10 scenes and 174 instructions and the absence of undefined blocks, and moves each scene's heading into view to photograph it. It then edits the opening wait from `2` to `2.75` in a number input, saves the SB3 from the file menu, converts it back to YAML with the official CLI, and verifies that nothing but the changed wait has changed in meaning. File operations use the standard file-input and download paths rather than an OS-specific picker.
 
-このエディター回帰テストは`https://turbowarp.org/editor`へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせずチェックイン済みSB3を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
+This editor regression test is an online check that connects to `https://turbowarp.org/editor`. It does not depend on a published work — it verifies the SB3 generated in that run — but it can also fail because of an editor outage or a UI change. It runs even on pull requests that skip the DSL 3.2 verification. On its own it is `pnpm test:block-editor`, and to check a checked-in SB3 without building, `pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`. The YAML comparison uses the same pinned builder as the other DSL 4.0 checks.
 
-受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
+The acceptance criteria are that loading, displaying 10 scenes, editing on screen and the semantic comparison of the saved script all succeed. The per-scene images, the post-edit image, the interaction trace, the saved SB3 and the YAML written back are stored under `.tmp/block-editor-browser/run-*/`. On failure the last screen, the failing phase and the error log are stored too, and the shared action used by CI, Pages and the scheduled verification keeps them as the `block-editor-regression` artifact for 7 days. To roll back, restore the editor-check registration in `run-web-checks.ts` and the artifact-storing step of the shared action to their state before this change.
 
-CIとPagesは、RCを含むappの公開済み最新DSL 4.0 Releaseを自動取得します。
-同じtagのcommit・release metadata・SB3のサイズ・SHA-256を照合し、ベースSB3本体と
-再生用・編集用ビルダーを同じリリースへ揃えてから、全DSL4配布物を再生成・検証します。
-タイトル・メニュー画像も含めてベース全体を更新し、拡張機能だけを差し替える運用は行いません。
-出典を`app-release.json`と各artifact lockへ記録し、公開サイトにも`app-release.json`を配置します。
+CI and Pages fetch the app's latest published DSL 4.0 release automatically, release candidates included. They verify the commit, the release metadata and the SB3 size and SHA-256 of the same tag, line the base SB3 itself up with the player and editor builders on that one release, and then regenerate and verify every DSL 4 distribution. The whole base is updated, title and menu images included; there is no practice of swapping only the extension.
 
-ローカルで上流へ更新する場合は`pnpm update:app-release`を実行し、記録されたcommitの
-app checkoutを`TURBOWARP_KAMISHIBAI_APP_ROOT`へ指定して`pnpm update:dsl4-artifacts`を実行します。
-ブロック編集用CLIも同じcommitを使います。Node.js 24以上が必要です。
-通常のローカルビルドは記録済みの依存を使い、毎回最新版を解決する必要はありません。
+The provenance is recorded in `app-release.json` and in each artifact lock, and `app-release.json` is placed on the published site as well.
 
-Pagesはmain更新・手動実行・`app-release-published`のrepository dispatchから実行します。
-App公開版の定期pollは行いません。各起動で公開Appの取得・照合・検証を行い、成功した成果物を公開します。
-取得・照合・再生成・検証に失敗した場合は公開を停止し、直前の検証済み公開物を保持します。
+To update to upstream locally, run `pnpm update:app-release`, then point `TURBOWARP_KAMISHIBAI_APP_ROOT` at an app checkout of the recorded commit and run `pnpm update:dsl4-artifacts`. The block-authoring CLI uses that same commit. Node.js 24 or newer is required. An ordinary local build uses the recorded dependencies and does not need to resolve the latest version every time.
 
-`app-release-published`は受信口です。他repoのReleaseは自動伝播せず、調査時点のAppにはこの通知の送信処理がありません。
-Appの新版公開後は、承認された手動起動またはmain更新によってDocs・Samplesを更新し、実際の公開反映まで確認します。
-各実行のjob summaryに確認時刻・検証済みRelease・source commit・SB3 hash・比較先・差分判定を記録します。
-summaryは依存の照合結果であり、公開完了はdeploy jobと公開URLで確認します。
+Pages runs on updates to main, on manual dispatch, and on an `app-release-published` repository dispatch. There is no scheduled poll of the app's published version. Every run fetches, verifies and checks the published app, and publishes only artifacts that passed. If fetching, verification, regeneration or checking fails, publication stops and the previously verified published artifacts stay in place.
 
-[Actionsの実行履歴](https://github.com/kubohiroya/turbowarp-kamishibai-samples/actions)と
-[公開app-release.json](https://kubohiroya.github.io/turbowarp-kamishibai-samples/app-release.json)を照合します。
-write権限のある担当者が手動で更新する場合は次を実行し、deploy成功と公開URLの版・commit・hashを確認します。
+`app-release-published` is a receiving end. Releases in other repositories do not propagate automatically, and at the time this was investigated the app had no code to send that notification. After the app publishes a new version, Docs and Samples are updated by an approved manual dispatch or by an update to main, and the publication is confirmed as actually live.
+
+Each run records in its job summary the time of the check, the verified release, the source commit, the SB3 hash, what it was compared against, and the difference verdict. The summary is the result of comparing dependencies; publication itself is confirmed from the deploy job and the published URL.
+
+Compare the [Actions history](https://github.com/kubohiroya/turbowarp-kamishibai-samples/actions) with the [published `app-release.json`](https://kubohiroya.github.io/turbowarp-kamishibai-samples/app-release.json). A maintainer with write access who updates it by hand runs the following, then confirms that deploy succeeded and checks the version, commit and hash at the published URL:
 
 ```bash
 gh workflow run deploy.yml --repo kubohiroya/turbowarp-kamishibai-samples --ref main
 ```
 
-依存情報・配布物・生成処理の切戻しは直前の検証済みの組へ揃えます。定期pollを自動復活させません。
+To roll back dependency information, distributions or the generation process, line them all up with the last verified set. Do not let the scheduled poll come back on its own.
 
-ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
+A block-script SB3 reads, at startup, the script whose name on the Stage is empty, as its root, and starts that story when the title is closed. Starting again after an edit picks the change up. The actual data behind a `file:` asset is shipped as the matching asset bundle.
 
-ブロック台本SB3は[Extension Data Editor](https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
+Loading a block-script SB3 into the [Extension Data Editor](https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja) and allowing the embedded extension without the sandbox lets you edit the JSON of a placed block as a form, from the block's icon. Besides the eight definitions, it covers `STEPS` of `recognize actor … pose steps` and `SPEC` of `actor … say spec` and `actor … think spec`. The 11 form registrations are verified by running the embedded extension, and both works are converted back to YAML to confirm they match their original scripts. To back the form UI out, drop `blockEditorDialogs=1` from the URL; the artifacts themselves are restored by reverting this change.
 
-DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
+The canonical command for deliberately updating the DSL 4.0 SB3 files and web locks together is `pnpm update:dsl4-artifacts`. To update only the tutorial, use `pnpm update:tutorial-dsl4`.
 
-浦島太郎とmy-urashimaのDSL 4.0 Web版は、各`sample.config.json`の`dsl4.web.enabled`を起動時固定のfeature flagとして使います。未指定または`false`ではPackager生成とWeb lock更新をスキップし、チェックイン済みの有効版lockを保持したまま公開導線をdisabledの「準備中」へ戻します。再公開時は`true`へ戻すだけで、保持したlockとの一致を再検証します。
+The DSL 4.0 web builds of Urashima Tarō and my-urashima use `dsl4.web.enabled` in their own `sample.config.json` as a feature flag fixed at startup. Left unset or `false`, Packager generation and the web lock update are skipped, the checked-in lock of the working version is kept, and the published route returns to a disabled "coming soon". To publish again, set it back to `true`; the match against the kept lock is then verified again.
 
-台本の`# date:`は手動更新しません。`pnpm build`は日付行を除いた台本内容のSHA-256をartifact lockと比較し、実質内容が変わった台本だけ、ビルド実行環境のローカル年月日へ更新します。内容が同じなら翌日の再ビルドでも既存日付と成果物ハッシュを維持します。台本変更に伴う公開台本、SB3、artifact lockは同じビルドで更新されます。ローカル実行ではOSのタイムゾーンを使い、GitHub ActionsのCI／Pagesリリースでは`Asia/Tokyo`を明示します。
+The `# date:` line in a script is not updated by hand. `pnpm build` compares the SHA-256 of the script content excluding the date line against the artifact lock, and updates the date to the local date of the build environment only for scripts whose substance changed. If the content is the same, rebuilding the next day keeps the existing date and artifact hashes. The published script, SB3 and artifact lock that follow from a script change are all updated in the same build. A local run uses the OS time zone; CI and Pages releases on GitHub Actions state `Asia/Tokyo` explicitly.
 
-アセット、生成設定など、台本以外の成果物入力を意図的に変更した場合は、`pnpm update:artifacts-lock` で `stories/urashima/artifacts.lock.json`を再生成してから`pnpm build`を実行します。更新コマンドはSB3とWeb版を実際に生成し、Web版の2回生成が一致した後にだけロックファイルを置き換えます。通常のビルドでは、日付以外の意図しない生成環境差分を引き続きエラーとして検出します。
+When an artifact input other than a script — an asset, a generation setting — is changed deliberately, regenerate `stories/urashima/artifacts.lock.json` with `pnpm update:artifacts-lock` before running `pnpm build`. The update command actually generates the SB3 and web builds, and replaces the lock file only after two generations of the web build match. An ordinary build continues to report unintended differences in the generation environment, other than the date, as errors.
 
-Pull Requestでは `.github/workflows/ci.yml` が生成と検証だけを行います。`main` へのマージ後は `.github/workflows/deploy.yml` が同じ検証を再実行し、成功した `dist/` だけをGitHub Pagesへ公開します。
+On a pull request, `.github/workflows/ci.yml` only generates and verifies. After a merge to `main`, `.github/workflows/deploy.yml` runs the same verification again and publishes only a `dist/` that passed to GitHub Pages.
 
-Pagesデプロイ成功後は、deploymentの出力URLから浦島太郎のブロック台本SB3を新規取得し、今回公開した`dist/`のSB3とサイズ・SHA-256が一致することを確認してから、同じ実画面回帰テストを実行します。配信の反映遅延や一時的な取得失敗は15秒の取得タイムアウト・10秒間隔・最大12回で待ちます。ハッシュ不一致が続く場合や画面操作・台本照合が失敗した場合はworkflowを失敗させます。画面テスト自体の再試行は行いません。
+After a successful Pages deployment, the Urashima Tarō block-script SB3 is fetched fresh from the deployment's output URL, its size and SHA-256 are confirmed to match the SB3 in the `dist/` just published, and then the same real-screen regression test runs. Propagation delay and temporary fetch failures are waited out with a 15-second fetch timeout, a 10-second interval and at most 12 attempts. A persistent hash mismatch, or a failure in the screen interaction or the script comparison, fails the workflow. The screen test itself is not retried.
 
-受け入れ基準は、公開URLから取得した一致済みSB3で10場面・174命令の表示、命令ブロックの編集・保存、保存後の台本照合が成功することです。取得URL・日時・ハッシュ・再試行履歴は`.tmp/published-block-editor/run-*/download.json`、画面テストの証跡はその配下へ保存し、失敗時も`published-block-editor-regression` artifactとして7日間保持します。手動では`node scripts/verify-published-block-editor.ts --base-url https://kubohiroya.github.io/turbowarp-kamishibai-samples/`で実行できます。固定ビルダーと今回公開したSB3を含む`dist/`が必要です。ロールバックはdeploy workflow末尾の公開版検証・artifact保存の2ステップを戻します。検証失敗後もデプロイ済みのサイトは残るため、作品の切り戻しが必要な場合は別途元の成果物を再デプロイします。
+The acceptance criteria are that, with a matching SB3 fetched from the published URL, the 10 scenes and 174 instructions display, an instruction block can be edited and saved, and the saved script compares equal. The fetch URL, time, hash and retry history go to `.tmp/published-block-editor/run-*/download.json`, with the screen test's evidence underneath it, and both are kept as the `published-block-editor-regression` artifact for 7 days, failures included. By hand it is `node scripts/verify-published-block-editor.ts --base-url https://kubohiroya.github.io/turbowarp-kamishibai-samples/`, which needs the pinned builder and a `dist/` containing the SB3 just published. To roll back, restore the two steps at the end of the deploy workflow: the published-version verification and the artifact storage. The deployed site stays up even after a failed verification, so backing a work out means redeploying the earlier artifacts separately.
 
-## 2026年8月1日ワークショップ配布物
+## Workshop distribution for 1 August 2026
 
-ワークショップ用の元素材は`resources/20260801/`で管理します。次のコマンドは公開サイトを再生成した後、教材PDF、浦島太郎とmy-urashimaの台本・SB3、ライセンス表示を集め、ディレクトリとZIPを作成します。
+The source material for the workshop is kept in `resources/20260801/`. The command below regenerates the published site, then collects the teaching PDF, the scripts and SB3 files of Urashima Tarō and my-urashima, and the license notices, into a directory and a ZIP:
 
 ```bash
 pnpm run build-workshop-20260801
 ```
 
-出力先は`dist/workshop/20260801/`と`dist/workshop/20260801.zip`です。教材PDFの既定入力は、隣接する`turbowarp-kamishibai-app`リポジトリの`output/pdf/workshops/2026-08-01/tm-kamishibai-20260801.pdf`です。別の場所を使う場合は`TURBOWARP_KAMISHIBAI_WORKSHOP_PDF`に絶対パスを指定します。
+The output goes to `dist/workshop/20260801/` and `dist/workshop/20260801.zip`. The teaching PDF is taken by default from the neighbouring `turbowarp-kamishibai-app` repository, at `output/pdf/workshops/2026-08-01/tm-kamishibai-20260801.pdf`. To use another location, give an absolute path in `TURBOWARP_KAMISHIBAI_WORKSHOP_PDF`.
 
-## 手動デプロイ
+## Manual deployment
 
-GitHub CLIをインストールして、このリポジトリへのActions実行権限を持つアカウントで認証した後、次を実行します。
+Install the GitHub CLI, authenticate with an account that may run Actions in this repository, then run:
 
 ```bash
 gh auth status
 pnpm deploy
 ```
 
-`pnpm deploy` は、既存の `Deploy GitHub Pages` workflowをリモートの `main` に対して起動します。コマンドの出力に表示されるActions runのURLから進行状況を確認できます。ローカルの未コミット変更や、`main` へpushされていないコミットは公開対象になりません。
+`pnpm deploy` starts the existing `Deploy GitHub Pages` workflow against the remote `main`. The Actions run URL printed by the command shows its progress. Local uncommitted changes, and commits not pushed to `main`, are not published.
 
-公開に問題がある場合はdeploy workflowを停止し、問題の変更をrevertします。Web版だけに問題がある場合は `sample.config.json` の `web.enabled` を `false` にし、Web出力と導線を止めても既存のSB3・台本配信は維持できます。`player`に問題がある場合は一般向け導線を停止し、外部台本を開く`editor`へ切り戻せます。ビルダーの不具合では依存タグとベースSB3を直前の検証済み組へ戻し、修正後に `workflow_dispatch` から再検証・再公開します。
+If something is wrong with a publication, stop the deploy workflow and revert the offending change. If only the web build is affected, set `web.enabled` to `false` in `sample.config.json`: that stops the web output and its route while the existing SB3 and script distribution carry on. If `player` is affected, stop the general route and fall back to the `editor`, which opens an external script. For a builder defect, return the dependency tags and the base SB3 to the last verified set, and verify and publish again from `workflow_dispatch` after the fix.
 
-実装計画は次のIssueで管理します。
+The implementation plan is tracked in these issues:
 
-- [サンプル生成とGitHub Pages公開](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/1)
-- [浦島太郎の生成・検証・公開](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)
-- [Packager Web版の生成・公開](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)
-- [DSL 4.0 SB3・Web版の自動生成](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90)
-- [DSL 4.0チュートリアル作品・starter・addition kit](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/94)
+- [Sample generation and GitHub Pages publication](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/1)
+- [Generating, verifying and publishing Urashima Tarō](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/2)
+- [Generating and publishing the Packager web build](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/7)
+- [Generating DSL 4.0 SB3 and web builds automatically](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/90)
+- [The DSL 4.0 tutorial work, starter and addition kit](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/94)
 
-## 台本の一部をオン／オフにする
+## Turning part of a script on and off
 
-公開ブロック台本SB3は、紫色の「Kamishibai Block Script」から「この部分を使う［オン／オフ］」を追加できます。
-定義またはscene内の命令列を囲み、オフにすると内側を残したまま実行対象から外します。保存後、物語を開始し直して確認します。
-[図版付きの使い方](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section)を参照してください。
+In a published block-script SB3, the purple "Kamishibai Block Script" palette offers "use this section [on/off]". Wrap a definition, or a run of instructions inside a scene; turning it off leaves the inside in place but takes it out of what runs. Save, then start the story again to see the effect. See the [illustrated instructions](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section).
 
-本体の既定値はOFFのまま、samplesの`stories/urashima/sample.config.json`の`dsl4.blockAuthoring.sourceSections: true`で
-生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
-切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
+The app's own default stays OFF; here, `dsl4.blockAuthoring.sourceSections: true` in `stories/urashima/sample.config.json` passes `--block-sections true` at generation time. The 2-, 3- and 4-pose builds of my-urashima use the same setting. To back it out, revert that setting, the generation and verification changes, and the block SB3 files and locks together, then publish Pages again.
 
-YAML→ブロック変換では、control・asset・cover・textStyle・variable・loading・recognitionの定義を
-`kamishibaiConfig [名前]`へ分離します。空名の設定を最初に、その後は名前順に、Stageの空名`kamishibai`から
-暗黙に読み込みます。同名の設定ハットは空名同士も含め起動時エラーです。
-対応は[app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916)、
-配布更新は[samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184)で追跡します。
-配布する6種類のブロック台本SB3は、設定ハットを読める組み込みランタイムも同じauthoring pinから生成します。
-再生用のrc.25 runtime pinは維持します。切り戻しはauthoring pin・6SB3・lockを一組で戻します。
+The YAML-to-blocks conversion separates the control, asset, cover, textStyle, variable, loading and recognition definitions into `kamishibaiConfig [name]`. The setting with an empty name comes first, then the rest in name order, loaded implicitly from the Stage's empty-named `kamishibai`. Two setting hats with the same name — including two empty ones — are a startup error. The app side is [app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916), and the distribution update is tracked in [samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184). The six block-script SB3 files distributed here are generated from the same authoring pin, including the embedded runtime that can read the setting hats. The rc.25 runtime pin for playback stays as it is. To back out, return the authoring pin, the six SB3 files and the locks as one set.
 
-### 公開配布物の非対応ブロック診断
+### Diagnosing unsupported blocks in the published distribution
 
-`pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合して公開エディターへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
+`pnpm test:block-diagnostics` fetches the Urashima Tarō block-script SB3 currently being served, checks its hash and size against the generated artifact, and loads it into the published editor. It injects an "if", a "repeat" and a "say" into a sprite's script in turn, and confirms the Japanese block and sprite names, switching to the code tab, expanding the parent, moving to and highlighting the target, and clean recovery once they are removed. The evidence is stored under `.tmp/published-block-diagnostics/`.
 
-PRのCIでは同じ確認にローカル生成済みSB3を渡し、Pages公開後は実配信SB3を使います。ブラウザ検証で追加する非対応ブロックは確認用ブラウザ内だけに置き、配布SB3や元の台本へ保存しません。
+In CI on a pull request the same check is given the locally generated SB3; after Pages publishes, it uses the SB3 actually being served. The unsupported blocks added during a browser check exist only inside that browser, and are never saved into a distributed SB3 or an original script.
 
-### app依存情報と作品設定
+### App dependency information and work settings
 
-DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-256の正本は、rootの`app-release.json`だけです。再生CLI、ブロック編集CLI、CIのcheckout、成果物検証が同じmanifestを参照します。公開Release同期はmanifestとベースSB3だけを更新し、作品設定は書き換えません。生成済みartifact lockの依存情報は検証証跡であり、ビルドの入力pinとしては使いません。
+The only source of truth for the DSL 4.0 dependency version and commit, and for the source identity, size and SHA-256 of the Standard SB3, is `app-release.json` at the root. The playback CLI, the block-authoring CLI, the CI checkout and artifact verification all read that one manifest. Syncing a published release updates only the manifest and the base SB3; it does not rewrite work settings. The dependency information in a generated artifact lock is verification evidence, not a build input pin.
 
-作品固有の出力名、容量上限、Web公開・教材公開のフラグは各`sample.config.json`の`dsl4`へ統合しています。作品設定への`runtime`・`version`・`releaseDependency`、authoring用の独立commit指定はエラーです。ローカルではチェックイン済みmanifestを使い、ネット接続なしでも同じ公開版でビルドできます。依存版を更新するときは`pnpm update:app-release`を実行し、manifestとベースを一組で確認してください。
+Per-work output names, size limits and the flags for web and teaching publication are consolidated under `dsl4` in each `sample.config.json`. `runtime`, `version` or `releaseDependency` in a work setting, and a separate commit for authoring, are errors. Locally, the checked-in manifest is used, so the same published version builds without a network connection. To update the dependency version, run `pnpm update:app-release` and check the manifest and the base as one set.
 
-この移行のロールバックは、設定・共有reader・CI変更を含むPRを一体でrevertします。公開済みappの同版成果物は変更しません。
+Rolling this migration back means reverting, as a whole, the pull request that carries the settings, the shared reader and the CI changes. It does not change artifacts of the same published app version.
 
-## 次回4.0プレリリースの音声例
+## Audio example for the next 4.0 prerelease
 
-[音声再生サンプル](stories/audio-playback/README.md)は、rc.38の次の4.0プレリリースに向けた台本です。再生時のfadeIn・volume・fadeOut、停止時のfadeOut、IDごとの制御を確認できます。既存の公開版と配布物lockは維持し、対応版の公開後に生成物を揃えます。
+The [audio playback sample](stories/audio-playback/README.md) is a script aimed at the 4.0 prerelease after rc.38. It exercises fadeIn, volume and fadeOut during playback, fadeOut on stop, and per-ID control. The existing published build and distribution lock are kept; the artifacts will be lined up once the supporting version is published.
 
-## 物語の反復と条件分岐（4.0 RCのStandard）
+## Repetition and branching in a story (Standard in the 4.0 RCs)
 
-[三人の訪問](stories/three-visits/README.md)は、App 4.0.0-rc.44以降のStandardで使える公開サンプルです。
-共通の訪問を一度だけ記述し、各回の一覧と条件で結末を比べます。追加の実験flagは不要です。
-公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、公開Editorで表を編集できます。
-この版のnpm公開は保留で、CLIは対応tagからbuildします。安定版3.2系列のサンプルも保持します。
+[Three Visits](stories/three-visits/README.md) is a published sample for the Standard available from App 4.0.0-rc.44 onwards. The visit the three share is written once, and the endings are compared through each round's list and its conditions. No extra experimental flag is needed. The YAML build, the block build and both web builds are generated from the official base SB3 and a CLI at the same release commit, and the table can be edited in the published editor. App rc.59 is published to npm; reproducible sample generation uses the CLI from the matching release tag. The samples for the stable 3.2 series are kept as they are.
 
-## rc.56の生成元と機能拡張セキュリティ
+## What rc.59 is generated from, and extension security
 
-現在の4.0サンプルは、公開App `4.0.0-rc.56`と同じcommitのCLIで生成します。Camera Source 0.19.3・Asset Cache 0.3.1・Bubble 0.13.4はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
+The current 4.0 samples are generated with a CLI at the same commit as published App `4.0.0-rc.59`. Camera Source 0.21.0, Asset Cache 0.5.0 and Bubble 0.15.0 reach directly into the editor's internals, so they have to run outside the sandbox. The published editor does not support "with sandbox" for them, and shows "Required to run" beside "without sandbox". Check where the extension came from and choose it deliberately. Granting camera access is a separate step in the browser.
 
-[日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
+See the [explanation of the dialogs and run modes, in English and Japanese](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security). The works and published routes for the stable 3.2 series are kept.
 
-rc.56はApp PR #1045のbuilder preview終了処理と#1042のsealed撤去を含みます。source・compiled配布は引き続き利用できます。rc.51〜rc.55の旧sealed作品は非対応のため、原本のYAML・素材からsourceかcompiledで再生成してください。今回npmは未公開のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。
+rc.59 includes the builder preview teardown of App PR #1045 and the removal of sealed in #1042. The source and compiled distributions remain available. Older sealed works from rc.51 to rc.55 are not supported, so regenerate them as source or compiled from the original YAML and material. For reproducible generation, prepare the generating CLI from the commit of the published tag named in `app-release.json`, and line it up with the same version as the base SB3. The stable 3.2 works are not regenerated by this update.
 
 ## DSL4の宣言省略・簡易セリフの候補
 

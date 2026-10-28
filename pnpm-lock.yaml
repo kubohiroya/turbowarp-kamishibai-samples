@@ -16,8 +16,11 @@ importers:
         version: 0.8.3
     devDependencies:
       '@kubohiroya/sb3-toolchain':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: ^0.18.0
+        version: 0.18.0
+      '@kubohiroya/turbowarp-kamishibai-site-navigation':
+        specifier: ^0.3.0
+        version: 0.3.0
       '@turbowarp/packager':
         specifier: 3.13.0
         version: 3.13.0
@@ -66,15 +69,20 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kubohiroya/sb3-toolchain@0.9.0':
-    resolution: {integrity: sha512-A7Dj4hkYFb12P2w+T6BJWJvI9XGbd8dzZQhdXSWdc6ToZx8PmCRzmUQcJeTwyND159QCqMa0xRficG5Uu1V3Ew==}
-    engines: {node: '>=22.12.0'}
+  '@kubohiroya/sb3-toolchain@0.18.0':
+    resolution: {integrity: sha512-lzb72VnPESRQoTnP3oIA8jbpHgIqaj///xX7WBg/8lqEbgPA0G46Osm6NH9Mp19gqNHfS87Em4yC2b4bTlHe3w==}
+    engines: {node: '>=24'}
     hasBin: true
 
   '@kubohiroya/tmpose-kamishibai@3.2.3':
     resolution: {integrity: sha512-U/A7p9OL6HGpJUwrFmQ3BR8QxWhN5UwvK4VL2OdnMqdsZJ9upxLWRVEzV2AZWLRWpE4KtZ4DZDSFlei88WNRvA==}
     engines: {node: '>=22.12.0'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     hasBin: true
+
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0':
+    resolution: {integrity: sha512-r0zQVhjJPEfzy1NYAK3pDJqcoHyfOdzYgZ2eecvWyjdsrq8e4TW2zWEpge+Sapp2aA07EPR5AUUns4VfbVCTug==}
+    engines: {node: '>=24'}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1':
     resolution: {integrity: sha512-N5Ainmm8l4IfTytfQGlKZWy/gOTkbJ1P3vTsbVmpKVlaIwt8BcFF8pzAQHrJYgtGm+VoBqV8bQrc7631bBG6oA==}
@@ -554,6 +562,11 @@ packages:
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
 
+  semver@7.8.5:
+    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -755,10 +768,12 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@kubohiroya/sb3-toolchain@0.9.0':
+  '@kubohiroya/sb3-toolchain@0.18.0':
     dependencies:
       fflate: 0.8.3
       music-metadata: 11.14.0
+      rolldown: 1.2.7
+      semver: 7.8.5
       yaml: 2.9.0
     transitivePeerDependencies:
       - supports-color
@@ -767,6 +782,8 @@ snapshots:
     dependencies:
       '@kubohiroya/turbowarp-svg-text': 0.2.1
       fflate: 0.8.3
+
+  '@kubohiroya/turbowarp-kamishibai-site-navigation@0.3.0': {}
 
   '@kubohiroya/turbowarp-svg-text@0.2.1': {}
 
@@ -1171,6 +1188,8 @@ snapshots:
   safe-buffer@5.1.2: {}
 
   safe-buffer@5.2.1: {}
+
+  semver@7.8.5: {}
 
   set-function-length@1.2.2:
     dependencies:
