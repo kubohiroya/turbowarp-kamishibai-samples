@@ -1,3 +1,4 @@
+import {canonicalDsl4ProjectStory} from '../scripts/simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
@@ -179,23 +180,10 @@ test('an edited wait block exports its new value without changing the remaining 
     firstWait.wait = 2.75;
     const expectedPath = path.join(directory, 'expected.k4.yml');
     await writeFile(expectedPath, stringify(expected));
-    const canonical = (input: string) => {
-      const validated = spawnSync(
-        process.execPath,
-        [
-          path.join(builderRoot, 'bin/turbowarp-kamishibai.mjs'),
-          'validate-dsl4',
-          '--input',
-          input,
-          '--format',
-          'canonical-json',
-        ],
-        {encoding: 'utf8'},
-      );
-      assert.equal(validated.status, 0, `${validated.stdout}${validated.stderr}`);
-      return validated.stdout;
-    };
-    assert.equal(canonical(path.join(directory, 'edited.k4.yml')), canonical(expectedPath));
+    const canonical = async (input: string) =>
+      canonicalDsl4ProjectStory(await readFile(input, 'utf8'), edited, archive,
+        builderRoot, path.dirname(storyPath));
+    assert.equal(await canonical(path.join(directory, 'edited.k4.yml')), await canonical(expectedPath));
   } finally {
     await rm(directory, {recursive: true, force: true});
   }

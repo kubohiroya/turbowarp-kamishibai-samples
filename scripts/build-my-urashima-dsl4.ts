@@ -1,3 +1,4 @@
+import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -241,6 +242,7 @@ export async function buildMyUrashimaDsl4({
     );
     if (authored.error) throw authored.error;
     assert.equal(authored.status, 0, authored.stdout + authored.stderr);
+    await simplifyPublishedDsl4Blocks(blockInputPath, blockAuthoring.root, blockAuthoring.identity.sourceSections ?? false, path.dirname(sourcePath));
     const blocksBytes = await canonicalizeSb3(
       blockInputPath,
       path.join(temporaryDirectory, 'block-source-canonical'),

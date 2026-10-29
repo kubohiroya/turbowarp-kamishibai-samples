@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-offline",
     "path": "tutorial-4.0.sb3",
-    "size": 14045053,
-    "sha256": "9172c9e35f1b4366cdb7b55b7fbe97426a22b3b135e6beff6b35e75d49d7518e"
+    "size": 14052056,
+    "sha256": "ce3bdec9cf169ccee6918dc2d1e3618c7dba0ff1f9661419d063674d434949b2"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 28049093,
-    "sha256": "74edecbaaf60d47e8fd5fbdf60d301ff8f13148b59e14dc2a88aa7265acf919a"
+    "size": 28078043,
+    "sha256": "4a460e816afb1100c78092a641aa9a64b361865eae7df58cb2f2224a9e99ff3a"
   },
   "packager": {
     "package": "@turbowarp/packager",
@@ -25,13 +25,14 @@
       "cloudVariables": {
         "mode": "disabled"
       },
-      "bakeExtensions": true
+      "bakeExtensions": true,
+      "packagedRuntime": false
     },
     "projectExtensions": [
       {
         "id": "kubohiroyakamishibai4",
         "source": "input-sb3-data-url",
-        "sha256": "09b09847fa3bce3c82b8627929f5d9969ad8b237e605d91efd3472be3d2de20a"
+        "sha256": "373ffcfc91911c780fe8ae399ca59b557bc73558feafe9ebaeaf95aa2fa0b268"
       }
     ],
     "scratchRender": {

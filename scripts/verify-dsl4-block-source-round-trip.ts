@@ -1,12 +1,7 @@
 /**
- * ブロック台本SB3とYAML台本が同じ意味であることを確かめる。
- *
- * バイト一致では成立しない。ブロックへ書くとコメントとキー順が落ち、書き戻したYAMLの改行位置も
- * 元とは違う。そこで公式CLIの `validate-dsl4 --format canonical-json` を両方に通し、frontendに
- * 依存しない正規形を比べる。比較しているのは台本の構造そのもので、書式ではない。
- *
- * 対象は `artifacts` に `source-yaml` と `sb3-blocks` の両方をhrefで宣言した作品すべてなので、
- * 2作目以降を足すときにこのスクリプトを触る必要はない。
+ * Compare block and YAML stories with the published frontend and concrete SB3 context.
+ * Formatting, declaration storage and media locations may differ, but executable values
+ * and image/audio hashes must match. Check every work declaring both source-yaml and sb3-blocks.
  *
  * @see https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/132
  */
@@ -19,6 +14,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {strFromU8, unzipSync} from 'fflate';
 
+import {canonicalDsl4ProjectStory} from './simplify-published-dsl4-blocks.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -26,8 +22,6 @@ import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {readWorksCatalog, type WorkEntry} from './works-catalog.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-/** 台本1本あたりの上限。stories/tutorial/sample.config.json dsl4 の limits と同じ値。 */
-const maxSourceBytes = 262_144;
 
 export interface BlockSourceRoundTrip {
   workId: string;
@@ -70,27 +64,17 @@ export async function verifyDsl4BlockSourceRoundTrip({
     'No work declares both a YAML source and a block source SB3; the round trip would check nothing.',
   );
 
-  const canonical = (sourcePath: string) =>
-    commandOutput(
-      process.execPath,
-      [
-        builderCli,
-        'validate-dsl4',
-        '--input',
-        sourcePath,
-        '--max-source-bytes',
-        String(maxSourceBytes),
-        '--format',
-        'canonical-json',
-      ],
-      kamishibaiRoot,
-    );
-
   const verified: BlockSourceRoundTrip[] = [];
   const temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'dsl4-block-round-trip-'));
   try {
     for (const {work, sourceHref, blocksHref} of candidates) {
       const archive = unzipSync(new Uint8Array(await readFile(path.join(projectRoot, blocksHref))));
+      const project = JSON.parse(strFromU8(archive['project.json']!));
+      const canonical = async (sourcePath: string) =>
+        canonicalDsl4ProjectStory(
+          await readFile(sourcePath, 'utf8'), project, archive, kamishibaiRoot,
+          path.dirname(path.join(projectRoot, sourceHref)),
+        );
       verifyStructuredBlockSource(
         JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject,
         await readFile(path.join(projectRoot, sourceHref), 'utf8'),
@@ -111,8 +95,8 @@ export async function verifyDsl4BlockSourceRoundTrip({
         kamishibaiRoot,
       );
       const exportedPath = path.join(exportDirectory, `${work.id}.k4.yml`);
-      const authored = canonical(path.join(projectRoot, sourceHref));
-      const exported = canonical(exportedPath);
+      const authored = await canonical(path.join(projectRoot, sourceHref));
+      const exported = await canonical(exportedPath);
       assert.equal(
         exported,
         authored,

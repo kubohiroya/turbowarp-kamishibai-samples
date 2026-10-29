@@ -82,6 +82,7 @@ export interface PackagedWebResult {
       app: {windowTitle: string};
       cloudVariables: {mode: string};
       bakeExtensions: true;
+      packagedRuntime?: false;
     };
     projectExtensions: ProjectExtensionRecord[];
     scratchRender: {
@@ -335,6 +336,8 @@ function configurePackager(
   packager.options.cloudVariables.mode = webConfig.packager.options.cloudVariables.mode;
   packager.options.bakeExtensions = true;
   packager.options.extensions = extensionUrls;
+  // DSL 4 needs native sound bytes for audio actions after the VM decodes project sounds.
+  if (webConfig.inputProfile.startsWith('dsl4-')) packager.options.packagedRuntime = false;
   if (webConfig.audioUnlock?.enabled === true) {
     packager.options.custom.js = AUDIO_UNLOCK_SCRIPT;
   }
@@ -471,6 +474,7 @@ export async function buildPackagedWeb({
         app: {windowTitle: webConfig.packager.options.app.windowTitle},
         cloudVariables: {mode: webConfig.packager.options.cloudVariables.mode},
         bakeExtensions: true,
+        ...(webConfig.inputProfile.startsWith('dsl4-') ? {packagedRuntime: false as const} : {}),
       },
       projectExtensions: extensionRecords,
       scratchRender: {

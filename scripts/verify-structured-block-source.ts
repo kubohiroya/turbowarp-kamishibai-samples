@@ -246,11 +246,33 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
                 commandBlock = connected(commandId, actionId);
                 assert.equal(commandBlock.next, null, 'Action options must wrap one command.');
               }
-              assert.equal(
-                commandBlock.opcode,
-                runtimePrefix + command.split('.').at(-1),
-                `Scene ${sceneId} must contain every command in script order.`,
-              );
+              const suffix = command.split('.').at(-1)!;
+              if (
+                ['say', 'think'].includes(suffix) &&
+                commandBlock.opcode === runtimePrefix + suffix + 'Text'
+              ) {
+                const spec = sourceAction[command] as Record<string, unknown>;
+                assert.deepEqual(
+                  Object.keys(spec).sort(),
+                  ['seconds', 'text'],
+                  'Advanced speech must retain SPEC.',
+                );
+                assert.equal(commandBlock.inputs?.TEXT?.[1]?.[1], spec.text);
+                assert.equal(
+                  Number(commandBlock.inputs?.SECONDS?.[1]?.[1]),
+                  spec.seconds,
+                );
+                assert.equal(
+                  commandBlock.inputs?.TARGET?.[1]?.[1],
+                  command.slice(0, -(suffix.length + 1)),
+                );
+              } else {
+                assert.equal(
+                  commandBlock.opcode,
+                  runtimePrefix + suffix,
+                  `Scene ${sceneId} must contain every command in script order.`,
+                );
+              }
               inspectInputs(commandBlock, commandId);
             }
             owner = actionId;
