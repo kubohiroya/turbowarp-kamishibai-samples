@@ -150,11 +150,15 @@ The app's own default stays OFF; here, `dsl4.blockAuthoring.sourceSections: true
 
 The YAML-to-blocks conversion separates the control, asset, cover, textStyle, variable, loading and recognition definitions into `kamishibaiConfig [name]`. The setting with an empty name comes first, then the rest in name order, loaded implicitly from the Stage's empty-named `kamishibai`. Two setting hats with the same name — including two empty ones — are a startup error. The app side is [app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916), and the distribution update is tracked in [samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184). The six block-script SB3 files distributed here are generated from the same authoring pin, including the embedded runtime that can read the setting hats. The rc.25 runtime pin for playback stays as it is. To back out, return the authoring pin, the six SB3 files and the locks as one set.
 
-### Diagnosing unsupported blocks in the published distribution
+### Block and Schema diagnostics in the published distribution
 
 `pnpm test:block-diagnostics` fetches the Urashima Tarō block-script SB3 currently being served, checks its hash and size against the generated artifact, and loads it into the published editor. It injects an "if", a "repeat" and a "say" into a sprite's script in turn, and confirms the Japanese block and sprite names, switching to the code tab, expanding the parent, moving to and highlighting the target, and clean recovery once they are removed. The evidence is stored under `.tmp/published-block-diagnostics/`.
 
-In CI on a pull request the same check is given the locally generated SB3; after Pages publishes, it uses the SB3 actually being served. The unsupported blocks added during a browser check exist only inside that browser, and are never saved into a distributed SB3 or an original script.
+The same browser regression combines `includeBlocks` on the Stage, an included script on one sprite, and `kamishibaiConfig` on another. An asset definition is tested with an object whose `kind` is invalid, then an invalid string. Even when the diagnostic names the generated Stage YAML, the selected target and block IDs must match the original configuration sprite and asset block. Each edit must reach the VM before restarting, so both cases cannot accidentally inspect the previous value. It also checks parent expansion, scrolling, highlighting and normal startup after removing the temporary definition.
+
+The test uses the published [TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja). Failures retain the phase, diagnostics, expected and actual IDs, screenshots and trace. The shared verify action runs all five cases for PR CI and scheduled verification; the Pages workflow repeats them against the actually published SB3.
+
+In CI on a pull request the same check is given the locally generated SB3; after Pages publishes, it uses the SB3 actually being served. The test blocks and values exist only inside that browser, and are never saved into a distributed SB3 or an original script.
 
 ### App dependency information and work settings
 
