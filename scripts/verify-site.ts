@@ -857,13 +857,14 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   );
   await verifyMyUrashimaOutput(path.join(outputDirectory, 'stories/my-urashima'));
 
-  const [siteCss, packageCss, faviconMetadata, favicon] = await Promise.all([
+  const [siteCss, packageCss, editorButtonCss, faviconMetadata, favicon] = await Promise.all([
     readFile(path.join(outputDirectory, 'site-shell.css'), 'utf8'),
     readFile(SITE_SHELL_CSS_URL, 'utf8'),
+    readFile(path.join(projectRoot, 'site/editor-button.css'), 'utf8'),
     readFile(path.join(outputDirectory, 'favicon.source.json'), 'utf8').then(JSON.parse),
     readFile(path.join(outputDirectory, 'favicon.png')),
   ]);
-  assert.equal(siteCss, packageCss, 'The published site shell differs from the shared package.');
+  assert.equal(siteCss, `${packageCss}\n${editorButtonCss}`, 'The published site shell differs from the shared package and editor button styles.');
   assert.match(
     siteCss,
     /\.site-brand__symbol\s*\{[\s\S]*?border:\s*0;[\s\S]*?border-radius:\s*0;[\s\S]*?background:\s*transparent;/u,
