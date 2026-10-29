@@ -1,3 +1,4 @@
+import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -489,11 +490,13 @@ export async function buildTutorialDsl4({
       ],
       {cwd: blockAuthoring.root},
     );
+    await simplifyPublishedDsl4Blocks(blocksPath, blockAuthoring.root, blockAuthoring.identity.sourceSections ?? false, storyDirectory);
     const blocksBytes = await buildEditableBlockSource(
       blocksPath,
       path.join(temporaryDirectory, 'editable-block-source'),
       canonicalBytes,
       blockAuthoring.refreshRuntime,
+      blockAuthoring.root,
     );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const archives = await buildArchives(config);

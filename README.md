@@ -174,7 +174,7 @@ The [audio playback sample](stories/audio-playback/README.md) is a script aimed 
 
 ## What rc.59 is generated from, and extension security
 
-The current 4.0 samples are generated with a CLI at the same commit as published App `4.0.0-rc.59`. Camera Source 0.21.0, Asset Cache 0.5.0 and Bubble 0.15.0 reach directly into the editor's internals, so they have to run outside the sandbox. The published editor does not support "with sandbox" for them, and shows "Required to run" beside "without sandbox". Check where the extension came from and choose it deliberately. Granting camera access is a separate step in the browser.
+The earlier rc.59 samples were generated with a CLI at the same commit as published App `4.0.0-rc.59`. Camera Source 0.21.0, Asset Cache 0.5.0 and Bubble 0.15.0 reach directly into the editor's internals, so they have to run outside the sandbox. The published editor does not support "with sandbox" for them, and shows "Required to run" beside "without sandbox". Check where the extension came from and choose it deliberately. Granting camera access is a separate step in the browser.
 
 See the [explanation of the dialogs and run modes, in English and Japanese](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security). The works and published routes for the stable 3.2 series are kept.
 
@@ -195,3 +195,9 @@ App側は対象実装を含むcheckoutで、先に`pnpm run build:lib`を実行�
 SB3内に実在する背景・衣装・音は、実名への置換と宣言省略を試し、共通frontendで正規化した実行内容が等しい場合だけ適用します。同名spriteの最初の衣装と初期状態が一致するactor、既定値と一致するcover、初期値1のstartSceneIndexも同様です。動的・外部参照を確定できない宣言、file・remote素材、独自初期値、表紙の選択、必要な操作・認識設定を保持します。
 
 textとsecondsだけのsay/thinkは簡易版になります。装飾・入力待ちなどを使うものはSPEC版を保持します。生成後は台本を読み戻して実行内容を比較し、埋込アセットの整合とランタイム読込も検証します。既存の公開版参照を更新する際は、対応Appの公開を確認してから従来の公開版追従経路で成果物とlockを揃えます。切戻しは既存の公開SB3・YAML・lockを使います。
+
+## rc.68公開版と標準素材によるブロック台本
+
+現在の対応Appと生成元commitは`app-release.json`を参照してください。rc.68以降の公開版に追従する生成では、ブロック台本の背景・衣装・音のfile素材をStage／スプライトの標準素材へ設定し、画像・音の実バイトと初期状態を照合してからasset・actor等の宣言を省略します。`Urashima`の`Urashima-walk-1`は元のPNGをそのコスチュームへ設定して実名参照します。YAML制作元のfile指定やposeモデル等の必要な宣言は保持します。
+
+元のYAMLと生成ブロックの比較は、SB3実体を文脈として正規化した実行値と素材のSHA-256で行います。媒体の保持形式が変わっても画像・音・命令・初期状態が変わらないこと、text／secondsだけのsay/thinkは簡易版になり、高度なSPEC版は保持されることを検証します。Stageに音を追加した場合も、元の表紙が無音ならそれを保つcoverを明示します。旧file素材の配信用データは整合性を検証してから除き、保持するモデル等だけでbundleを作り直します。DSL4のWeb版は標準音のバイト列を音声命令から取得できるようPackagerのpackagedRuntimeをfalseにし、その設定をlockに記録します。公開前候補の生成コマンドは引き続き別出力用であり、公開済み成果物の上書きには使いません。

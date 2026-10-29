@@ -594,6 +594,8 @@ try {
         const status = Object.entries(vm.runtime._primitives).find(([name]) =>
           name.endsWith('kamishibairuntime4__statusReporter'),
         )?.[1] as ((args: object) => string) | undefined;
+        const error = document.querySelector<HTMLElement>('[data-dsl4-runtime-error=true]');
+        if (error && getComputedStyle(error).display !== 'none') throw new Error(error.textContent ?? 'Audio story failed.');
         return voices.length > 0 && status?.({}) === 'menu';
       },
       undefined,

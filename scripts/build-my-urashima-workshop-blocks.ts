@@ -1,3 +1,4 @@
+import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -64,6 +65,7 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     if (authored.error) throw authored.error;
     assert.equal(authored.status, 0, authored.stdout + authored.stderr);
     const imported = prefix + '-source';
+    await simplifyPublishedDsl4Blocks(authoredPath, options.authoring.root, options.authoring.authorOptions[options.authoring.authorOptions.indexOf('--block-sections') + 1] === 'true', path.dirname(sourcePath));
     await importSb3({inputPath: authoredPath, outputDirectory: imported});
     await options.authoring.refreshRuntime?.(imported);
     const first = await createDeterministicSb3(imported);

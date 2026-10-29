@@ -1,3 +1,4 @@
+import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
@@ -133,11 +134,13 @@ export async function buildThreeVisits({
       path.join(temporary, blocksName),
       ...builder.authorOptions,
     ]);
+    await simplifyPublishedDsl4Blocks(path.join(temporary, blocksName), builder.root, builder.identity.sourceSections ?? false, storyRoot);
     const editable = await buildEditableBlockSource(
       path.join(temporary, blocksName),
       path.join(temporary, 'block-source'),
       await readFile(path.join(temporary, yamlName)),
       builder.refreshRuntime,
+      builder.root,
     );
     await writeFile(path.join(temporary, blocksName), editable);
     const webConfig: WebConfig = {

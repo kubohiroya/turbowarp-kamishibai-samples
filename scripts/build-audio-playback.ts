@@ -1,3 +1,4 @@
+import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -85,6 +86,7 @@ export async function buildAudioPlayback({
       path.join(temporary, blocksName),
       ...builder.authorOptions,
     ]);
+    await simplifyPublishedDsl4Blocks(path.join(temporary, blocksName), builder.root, builder.identity.sourceSections ?? false, storyRoot);
     const webConfig: WebConfig = {
       enabled: true,
       inputProfile: 'dsl4-offline',

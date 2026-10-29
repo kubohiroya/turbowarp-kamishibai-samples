@@ -1,3 +1,4 @@
+import {canonicalDsl4ProjectStory} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -37,12 +38,13 @@ function conciseFailure(value: unknown): string {
     .slice(0, 1800);
 }
 
+const builderRoot = path.resolve(
+  process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
+    process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
+    path.join(projectRoot, '../turbowarp-kamishibai-app'),
+);
+
 function builderOutput(arguments_: string[]): string {
-  const builderRoot = path.resolve(
-    process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
-      process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
-      path.join(projectRoot, '../turbowarp-kamishibai-app'),
-  );
   const result = spawnSync(
     process.execPath,
     [path.join(builderRoot, 'bin/turbowarp-kamishibai.mjs'), ...arguments_],
@@ -305,11 +307,12 @@ try {
   firstWait.wait = Number(editedSeconds);
   const expectedPath = path.join(outputDirectory, 'expected.k4.yml');
   await writeFile(expectedPath, stringify(story));
-  const canonical = (input: string) =>
-    builderOutput(['validate-dsl4', '--input', input, '--format', 'canonical-json']);
+  const canonical = async (input: string) =>
+    canonicalDsl4ProjectStory(await readFile(input, 'utf8'), inputProject, unzipSync(inputBytes),
+      builderRoot, path.join(projectRoot, 'stories/urashima'));
   assert.equal(
-    canonical(path.join(outputDirectory, 'edited.k4.yml')),
-    canonical(expectedPath),
+    await canonical(path.join(outputDirectory, 'edited.k4.yml')),
+    await canonical(expectedPath),
     'The saved SB3 must preserve the edit and all remaining story semantics.',
   );
   report.savedStoryMatches = true;
@@ -350,7 +353,7 @@ try {
           ?.getCostumes()
           .filter(({name}: any) => /^(?:Title|Menu)/u.test(name))
           .map(({skinId}: any) => skinId);
-        // File-backed story images update the drawable without changing the VM costume index.
+        // Story images must replace shell art, including renderers that keep the VM costume index.
         return (
           !visible('[data-dsl4-title-controls=true]') &&
           !visible('[data-dsl4-application-menu=true]') &&

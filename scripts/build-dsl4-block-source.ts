@@ -5,6 +5,8 @@ import path from 'node:path';
 import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 
+import {alignDsl4BlockAssetBundle} from './simplify-published-dsl4-blocks.ts';
+
 import type {ScratchProject} from './scratch.ts';
 
 /** Verify the upstream wrapper permits the bundle's per-component Scratch proxy. */
@@ -30,6 +32,7 @@ export async function buildEditableBlockSource(
   sourceDirectory: string,
   storyArchive: Uint8Array,
   refreshRuntime?: (sourceDirectory: string) => Promise<void>,
+  appRoot?: string,
 ): Promise<Buffer> {
   await importSb3({inputPath, outputDirectory: sourceDirectory});
   const runtimePath = path.join(sourceDirectory, 'extensions/kubohiroyakamishibai4.js');
@@ -52,7 +55,9 @@ export async function buildEditableBlockSource(
     storyComponent?.assets,
     'The built story must contain its embedded asset bundle.',
   );
-  component.assets = structuredClone(storyComponent.assets);
+  component.assets = appRoot
+    ? await alignDsl4BlockAssetBundle(project, storyComponent.assets, appRoot)
+    : structuredClone(storyComponent.assets);
   await writeFile(projectPath, `${JSON.stringify(project)}\n`);
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
