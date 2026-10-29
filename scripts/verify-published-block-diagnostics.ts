@@ -9,7 +9,7 @@ import {downloadPublishedBlockProject} from './verify-published-block-editor.ts'
 
 const root = path.resolve(import.meta.dirname, '..');
 const editorUrl =
-  'https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?lang=ja';
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja';
 const options = {
   baseUrl: 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/',
   input: '',
@@ -66,7 +66,7 @@ const errors: string[] = [];
 page.on('pageerror', (error) =>
   errors.push(error.message.replace(/data:[^\s)]+/gu, 'data:<embedded>').slice(0, 1000)),
 );
-let phase = 'load-public-editor';
+let phase = 'load-turbowarp-plus-editor';
 try {
   await page.goto(editorUrl, {
     waitUntil: 'domcontentloaded',

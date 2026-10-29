@@ -4,6 +4,7 @@ import {copyFile, cp, mkdir, readFile, readdir, rm, writeFile} from 'node:fs/pro
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {renderEditorButton} from './editor-button.ts';
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildThreeVisits} from './build-three-visits.ts';
@@ -351,10 +352,7 @@ function renderArtifactFormats(
     if (entry.href) {
       let editorLink = '';
       if (format === 'sb3-blocks') {
-        const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
-        editor.searchParams.set('lang', 'ja');
-        editor.searchParams.set('project_url', new URL(entry.href, publicUrl).href);
-        editorLink = `<br><a href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">Extension Data Editorでフォーム編集（別タブ）</a><span class="work-formats__note">「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a></span>`;
+        editorLink = `<br>${renderEditorButton(new URL(entry.href, publicUrl).href)}<span class="work-formats__note">「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a></span>`;
       }
       return `${indent}  <li><a href="${escapeHtml(resolveHref(entry.href))}">${label}</a>${note}${editorLink}</li>`;
     }
@@ -955,19 +953,17 @@ ${renderSiteFooter('../../')}
 function renderMyUrashimaWorkshop(manifest: MyUrashimaDsl4Manifest): string {
   if (!manifest.workshopBlocks?.length) return '';
   const links = manifest.workshopBlocks.map(({poseCount, path: file}) => {
-    const editor = new URL('https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html');
-    editor.searchParams.set('lang', 'ja');
-    editor.searchParams.set('project_url', new URL(`stories/my-urashima/${file}`, publicUrl).href);
-    return `        <li><a class="button" href="${escapeHtml(editor.href)}" target="_blank" rel="noopener noreferrer">${poseCount}ポーズでフォーム編集（別タブ）</a> <a href="${escapeHtml(file)}" download>SB3をダウンロード</a></li>`;
+    const projectUrl = new URL(`stories/my-urashima/${file}`, publicUrl).href;
+    return `        <li>${poseCount}ポーズ： ${renderEditorButton(projectUrl)} <a href="${escapeHtml(file)}" download>SB3をダウンロード</a></li>`;
   }).join('\n');
   return `    <section class="artifact-group" id="block-workshop" aria-labelledby="block-workshop-heading">
       <h2 id="block-workshop-heading">台本ブロックでワークショップを行う場合</h2>
-      <p>使用するポーズ数を選ぶと、設定済みのブロック台本SB3を日本語のExtension Data Editorで開けます。
+      <p>使用するポーズ数を選ぶと、設定済みのブロック台本SB3を日本語のTurboWarp-Plus-Editorで開けます。
       衣装の参照と乙姫のポーズ列は、選んだ数に合わせて設定済みです。</p>
       <ul class="workshop-pose-choices">
 ${links}
       </ul>
-      <p>拡張の名前と配布元を確認し、「動作に必要」と表示された「サンドボックスなし」を明示的に選んで「OK」を押してください。
+      <p>拡張の名前と配布元を確認し、「必要」と表示された「サンドボックスなし」を明示的に選んで「OK」を押してください。
       専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
       <p>同梱のCamera Source・Asset Cache・Bubbleは、Editorの実行環境や描画機能へ直接アクセスするため、サンドボックスなしが必要です。
       <a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security">日英の確認画面と各拡張の説明</a>を参照してください。</p>
@@ -1069,8 +1065,8 @@ ${renderSiteHeader('../../')}
     <div><dt>ライセンス・利用条件</dt><dd><a href="../urashima/LICENSES.md">${escapeHtml(work.license.label)}</a></dd></div>
   </dl>
 ${workMedia}${workFormats}
-  <p>フォーム編集用リンクでは、公開済みのmy-urashimaのブロック台本SB3を日本語で開きます。
-  拡張の名前と配布元を確認し、「動作に必要」と表示された「サンドボックスなし」を選んで「OK」を押してください。
+  <p>TurboWarp-Plus-Editorで編集ボタンでは、公開済みのmy-urashimaのブロック台本SB3を日本語で開きます。
+  拡張の名前と配布元を確認し、「必要」と表示された「サンドボックスなし」を選んで「OK」を押してください。
   ステージの専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
   <div class="artifact-groups">
 ${renderMyUrashimaWorkshop(dsl4Manifest)}    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
@@ -1322,7 +1318,7 @@ ${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits
 ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('stories/three-visits/', ''))}
 <ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
 <li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
-<p>公開Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
+<p>TurboWarp-Plus-Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
 <p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${version}">${version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・再生成</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
 ${renderSiteFooter('../../')}</body></html>`;
@@ -1396,7 +1392,10 @@ export async function buildSite() {
       path.join(siteDirectory, 'favicon.source.json'),
       path.join(outputDirectory, 'favicon.source.json'),
     ),
-    copyFile(SITE_SHELL_CSS_URL, path.join(outputDirectory, 'site-shell.css')),
+    writeFile(
+      path.join(outputDirectory, 'site-shell.css'),
+      `${await readFile(SITE_SHELL_CSS_URL, 'utf8')}\n${await readFile(path.join(siteDirectory, 'editor-button.css'), 'utf8')}`,
+    ),
     copyFile(worksSchemaPath, path.join(outputDirectory, 'works.schema.json')),
     copyFile(
       path.join(siteDirectory, 'CARD_SCENES.md'),

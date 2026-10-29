@@ -1,0 +1,43 @@
+/* Keep this button compatible with TurboWarp-Plus-Editor's embed contract. */
+.twpe-edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 56px;
+  max-width: 100%;
+  margin-block: 0.35rem;
+  padding: 0.75rem 1.1rem;
+  border: 2px solid #0087a8;
+  border-radius: 12px;
+  background: #d9f5ff;
+  color: #093647;
+  font:
+    600 1rem/1.5 system-ui,
+    sans-serif;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.twpe-edit-button img {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.twpe-edit-button:hover {
+  background: #bceafa;
+  color: #093647;
+  text-decoration: none;
+}
+.twpe-edit-button:focus-visible {
+  outline: 3px solid #005fa3;
+  outline-offset: 3px;
+}
