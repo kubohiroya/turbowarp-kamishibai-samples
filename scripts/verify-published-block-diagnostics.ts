@@ -6,10 +6,11 @@ import {chromium} from 'playwright';
 import {strFromU8, unzipSync} from 'fflate';
 
 import {downloadPublishedBlockProject} from './verify-published-block-editor.ts';
+import {verifySchemaBlockDiagnostics} from './verify-schema-block-diagnostics.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const editorUrl =
-  'https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?lang=ja';
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja';
 const options = {
   baseUrl: 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/',
   input: '',
@@ -41,6 +42,9 @@ const allowedSources = new Set(
         .update(Buffer.from(url.split(',')[1], 'base64'))
         .digest('hex'),
     ),
+);
+const allowedExtensionIds = Object.keys(inputProject.extensionURLs).filter(
+  (id) => inputProject.extensionURLs[id].startsWith('data:text/javascript;base64,'),
 );
 const report: Record<string, unknown> = {
   editorUrl,
@@ -80,6 +84,9 @@ try {
   const chooser = page.waitForEvent('filechooser');
   await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click();
   await (await chooser).setFiles(input);
+  const approvedExtensionIds = new Set<string>();
+  const permissionChecks: unknown[] = [];
+  report.extensionPermissions = permissionChecks;
   for (let permission = 0; permission < 3; permission += 1) {
     await page.waitForFunction(
       () =>
@@ -90,26 +97,42 @@ try {
           ),
         ),
     );
-    const dialog = page.locator('.twextsec-modal');
+    const dialog = page.getByRole('dialog');
     if (!(await page.getByRole('dialog').count())) break;
     await dialog.waitFor({state: 'visible'});
-    const rows = dialog.locator('.twextsec-row');
+    const rows = dialog.getByRole('article');
     await rows.first().waitFor({state: 'visible'});
     const count = await rows.count();
     assert(count > 0 && count <= allowedSources.size, 'Unexpected extension permission rows.');
     for (let index = 0; index < count; index += 1) {
       const row = rows.nth(index);
-      await row.getByRole('button', {name: /^(詳細|Details)$/u}).click();
-      const source = await row.locator('textarea[readonly]').inputValue();
-      assert(
-        allowedSources.has(createHash('sha256').update(source).digest('hex')),
-        'Unexpected extension permission request; source must match the verified SB3.',
-      );
-      await row.locator('input[type=radio][value=unsandboxed]').check();
+      const rowText = await row.innerText();
+      const ids = allowedExtensionIds.filter((id) => rowText.includes(id));
+      assert.equal(ids.length, 1, 'Permission must identify an extension in the verified input.');
+      const id = ids[0]!;
+      assert(!approvedExtensionIds.has(id), 'Duplicate extension permission request.');
+      const details = row.getByRole('button', {name: /^(詳細|Details)$/u});
+      let dialogSourceChecked = false;
+      if (await details.count()) {
+        await details.click();
+        const source = await row.locator('textarea[readonly]').inputValue();
+        const expected = Buffer.from(inputProject.extensionURLs[id].split(',')[1], 'base64');
+        assert.equal(
+          createHash('sha256').update(source).digest('hex'),
+          createHash('sha256').update(expected).digest('hex'),
+          'Extension permission source must match its ID in the verified SB3.',
+        );
+        dialogSourceChecked = true;
+      }
+      // Current Plus Editor identifies the extensions loaded from the verified local SB3.
+      await row.getByRole('radio', {name: /サンドボックスなし$/u}).check();
+      approvedExtensionIds.add(id);
+      permissionChecks.push({id, verifiedInput: true, dialogSourceChecked});
     }
     await dialog.getByRole('button', {name: 'OK', exact: true}).click();
     await dialog.waitFor({state: 'hidden'});
   }
+  assert.equal(approvedExtensionIds.size, allowedExtensionIds.length);
   await page.waitForFunction(() =>
     window.vm.runtime.targets.some((target: any) =>
       Object.values(target.blocks?._blocks ?? {}).some(
@@ -327,6 +350,9 @@ try {
       includeId,
     );
   }
+  await verifySchemaBlockDiagnostics(page, output, report, (next) => {
+    phase = next;
+  });
   phase = 'recover-valid-story';
   await page.locator('[class*="green-flag_green-flag"]').first().click();
   await page
@@ -348,11 +374,23 @@ try {
     path: path.join(output, 'valid-story-recovered.png'),
   });
   assert.deepEqual(errors, [], 'Unexpected page errors');
+  assert.equal(
+    createHash('sha256').update(await readFile(input)).digest('hex'),
+    report.inputSha256,
+    'Browser fixtures must not change the input SB3.',
+  );
   report.recoveredValidStory = true;
   report.status = 'passed';
 } catch (error) {
   report.status = 'failed';
   report.phase = phase;
+  report.failedSelection = await page
+    .evaluate(() => ({
+      targetId: window.vm?.editingTarget?.id ?? null,
+      targetName: window.vm?.editingTarget?.getName() ?? null,
+      blockId: window.ScratchBlocks?.selected?.id ?? null,
+    }))
+    .catch(() => null);
   report.error = String(error)
     .replace(/data:[^\s)]+/gu, 'data:<embedded>')
     .slice(0, 2000);
