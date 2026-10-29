@@ -235,21 +235,38 @@ try {
       const field = document.querySelector('[data-dsl4-runtime-error-blockName]');
       return field?.textContent?.includes(name) && field.textContent.includes(expected);
     }, scenario);
-    const blockName = await indicator.locator('[data-dsl4-runtime-error-blockName]').innerText();
-    const targetName = await indicator.locator('[data-dsl4-runtime-error-targetName]').innerText();
+    const blockName = await indicator.locator('[data-dsl4-runtime-error-blockName]').textContent() ?? '';
+    const targetName = await indicator.locator('[data-dsl4-runtime-error-targetName]').textContent() ?? '';
+    const explanation = await indicator.locator('[data-dsl4-runtime-error-message]').innerText();
+    const place = await indicator.locator('[data-dsl4-runtime-error-where]').innerText();
+    const recovery = await indicator.locator('[data-dsl4-runtime-error-recovery]').innerText();
+    const technical = indicator.locator('[data-dsl4-runtime-error-technical]');
+    assert.equal(await technical.evaluate((element) => (element as HTMLDetailsElement).open), false);
+    assert(explanation.includes('台本として読み取れない'), explanation);
+    assert(place.includes(identity.spriteName) && place.includes(blockName), place);
+    assert(recovery.includes('接続') && recovery.includes('対応ブロック'), recovery);
+    assert.equal(await indicator.getByRole('button', {name: '診断情報をコピー', exact: true}).isVisible(), true);
     report.lastDiagnostic = {
       blockName,
       targetName,
+      explanation,
+      place,
+      recovery,
       text: await indicator.innerText(),
       identity,
       created,
     };
     assert(blockName.includes(scenario.name) && blockName.includes(scenario.expected), blockName);
     assert.equal(targetName, identity.spriteName);
-    assert((await indicator.innerText()).includes('K4-BLOCK-SOURCE-GRAPH-001'));
     await page.screenshot({
       path: path.join(output, `${scenario.opcode}-error.png`),
     });
+    await technical.locator('summary').click();
+    assert.equal(await indicator.locator('[data-dsl4-runtime-error-code]').innerText(), 'K4-BLOCK-SOURCE-GRAPH-001');
+    assert.equal(await indicator.locator('[data-dsl4-runtime-error-blockName]').innerText(), blockName);
+    assert.equal(await indicator.locator('[data-dsl4-runtime-error-targetName]').innerText(), targetName);
+    await page.screenshot({path: path.join(output, `${scenario.opcode}-details.png`)});
+    await technical.locator('summary').click();
     await indicator.getByRole('button', {name: '該当ブロックを表示', exact: true}).click();
     await page.waitForFunction(
       ({blockId, spriteId}) =>
@@ -286,6 +303,9 @@ try {
       ...created,
       blockName,
       targetName,
+      explanation,
+      place,
+      recovery,
       ...selected,
     });
     await page.evaluate(
