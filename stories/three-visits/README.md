@@ -5,7 +5,7 @@ DSL 4.0 RCのStandard物語制御を使う、短い創作説話です。原作�
 
 ## 遊ぶ・編集する
 
-[公開ページ](https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/three-visits/)からWeb版・ブロック版・公開Editor・SB3を開けます。タイトルを閉じると、
+[公開ページ](https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/three-visits/)からWeb版・ブロック版・TurboWarp-Plus-Editor・SB3を開けます。タイトルを閉じると、
 **長兄 → 何もなし → 次兄 → 何もなし → 末弟 → 贈り物**の順に再生します。
 一覧ブロックの編集アイコンで名前・親切さ（kind）・行順を変え、保存して最初から再生してください。キャンセルは元の値を保ちます。
 

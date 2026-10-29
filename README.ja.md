@@ -105,7 +105,7 @@ gh workflow run deploy.yml --repo kubohiroya/turbowarp-kamishibai-samples --ref 
 
 ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
 
-ブロック台本SB3は[Extension Data Editor](https://kubohiroya.github.io/turbowarp-extension-data-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
+ブロック台本SB3は[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
 
 DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
 
@@ -172,7 +172,7 @@ YAML→ブロック変換では、control・asset・cover・textStyle・variable
 
 ### 公開配布物のブロック・Schema診断
 
-`pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合して公開エディターへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
+`pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合してTurboWarp-Plus-Editorへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
 
 同じ実画面テストで、Stageの`includeBlocks`、別スプライトの取り込み台本、さらに別スプライトの`kamishibaiConfig`を併用します。設定の素材定義へ、不正な`kind`を持つオブジェクトと不正な文字列値を順に設定し、生成YAMLがStageを指していても、元の設定スプライト／素材ブロックのIDと選択・強調先が一致することを検査します。編集値がVMへ反映されてから実行し、2ケースが同じ古い値を検査してしまうことも防ぎます。畳んだ設定の展開、画面内への移動、検証用定義の除去後の正常起動も確認します。
 
@@ -196,12 +196,12 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 
 [三人の訪問](stories/three-visits/README.md)は、App 4.0.0-rc.44以降のStandardで使える公開サンプルです。
 共通の訪問を一度だけ記述し、各回の一覧と条件で結末を比べます。追加の実験flagは不要です。
-公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、公開Editorで表を編集できます。
+公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、TurboWarp-Plus-Editorで表を編集できます。
 App rc.59はnpm公開済みで、サンプルの再現生成には対応tagからbuildしたCLIを使います。安定版3.2系列のサンプルも保持します。
 
 ## rc.59の生成元と機能拡張セキュリティ
 
-現在の4.0サンプルは、公開App `4.0.0-rc.59`と同じcommitのCLIで生成します。Camera Source 0.21.0・Asset Cache 0.5.0・Bubble 0.15.0はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。公開Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
+現在の4.0サンプルは、公開App `4.0.0-rc.59`と同じcommitのCLIで生成します。Camera Source 0.21.0・Asset Cache 0.5.0・Bubble 0.15.0はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。TurboWarp-Plus-Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
 
 [日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
 

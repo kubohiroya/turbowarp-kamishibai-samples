@@ -70,7 +70,7 @@ const errors: string[] = [];
 page.on('pageerror', (error) =>
   errors.push(error.message.replace(/data:[^\s)]+/gu, 'data:<embedded>').slice(0, 1000)),
 );
-let phase = 'load-public-editor';
+let phase = 'load-turbowarp-plus-editor';
 try {
   await page.goto(editorUrl, {
     waitUntil: 'domcontentloaded',

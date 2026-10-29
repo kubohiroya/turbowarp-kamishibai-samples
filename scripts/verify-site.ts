@@ -654,12 +654,12 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     [tutorialIndex, ['tutorial/tutorial']],
     [myUrashimaIndex, ['my-urashima/my-urashima', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses`)]],
   ] as const) {
-    const links = [...page.matchAll(/href="([^"]*turbowarp-extension-data-editor[^"]*)"/gu)]
+    const links = [...page.matchAll(/href="([^"]*turbowarp-plus-editor[^"]*)"/gu)]
       .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
     assert.deepEqual(links.map((url) => url.searchParams.get('project_url')).sort(),
       expectedProjects.map((project) => `${editorSb3Base}${project}-blocks-4.0.sb3`).sort());
     for (const url of links) {
-      assert.equal(url.pathname, '/turbowarp-extension-data-editor/editor.html');
+      assert.equal(url.pathname, '/turbowarp-plus-editor/editor.html');
       assert.equal(url.origin, 'https://kubohiroya.github.io');
       assert.equal(url.searchParams.has('blockEditorDialogs'), false);
       assert.equal(url.searchParams.get('lang'), 'ja');
