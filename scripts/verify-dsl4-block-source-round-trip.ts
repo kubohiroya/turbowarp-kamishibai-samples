@@ -69,10 +69,15 @@ export async function verifyDsl4BlockSourceRoundTrip({
   try {
     for (const {work, sourceHref, blocksHref} of candidates) {
       const archive = unzipSync(new Uint8Array(await readFile(path.join(projectRoot, blocksHref))));
-      const project = JSON.parse(strFromU8(archive['project.json']!));
-      const canonical = async (sourcePath: string) =>
+      const yamlHref = work.artifacts?.['sb3-yaml']?.href ?? path.posix.join(
+        path.posix.dirname(sourceHref),
+        (await readDsl4StoryConfig(path.dirname(path.join(projectRoot, sourceHref)))).output,
+      );
+      const yamlArchive = unzipSync(await readFile(path.join(projectRoot, yamlHref)));
+      // Defaults must use each original project, before and after native media materialization.
+      const canonical = async (sourcePath: string, context = archive) =>
         canonicalDsl4ProjectStory(
-          await readFile(sourcePath, 'utf8'), project, archive, kamishibaiRoot,
+          await readFile(sourcePath, 'utf8'), JSON.parse(strFromU8(context['project.json']!)), context, kamishibaiRoot,
           path.dirname(path.join(projectRoot, sourceHref)),
         );
       verifyStructuredBlockSource(
@@ -95,7 +100,7 @@ export async function verifyDsl4BlockSourceRoundTrip({
         kamishibaiRoot,
       );
       const exportedPath = path.join(exportDirectory, `${work.id}.k4.yml`);
-      const authored = await canonical(path.join(projectRoot, sourceHref));
+      const authored = await canonical(path.join(projectRoot, sourceHref), yamlArchive);
       const exported = await canonical(exportedPath);
       assert.equal(
         exported,
