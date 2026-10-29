@@ -1,18 +1,18 @@
 {
   "formatVersion": 1,
   "status": "published",
-  "version": "4.0.0-rc.68",
+  "version": "4.0.0-rc.69",
   "published": true,
-  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.68",
+  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.69",
   "sourceIdentity": "07d90109499a0a6b3695b60619468d437b0dfb6baf389d3fc3d056f08e728e0c",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.68",
-    "commit": "26a0d28385361a3881f6235bffc6494aa92ce72b",
+    "version": "4.0.0-rc.69",
+    "commit": "2a4b25ce18d266181f482d9467694af0aba4e25d",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:acacb6649f04457e7beab74b102e8b976cb76570cd13c948be58d84d51e2a853",
-    "baseSize": 8154683,
-    "baseSha256": "77954f7aa4ab9209f9bdf7a177c07c475f3ba95362059ebb49ae317172b55846"
+    "baseSourceIdentity": "sha256:b0b7b89de02da172b6db0e5c1bb05d2267a0b6a23bfdf4bd9f675657f352ec17",
+    "baseSize": 8154765,
+    "baseSha256": "bd2a1b90d4b1128ade8455396f3b377572416d8345c6a88e42190e148227af51"
   },
   "license": {
     "spdx": "MPL-2.0",
@@ -36,8 +36,8 @@
     },
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 14052056,
-      "sha256": "ce3bdec9cf169ccee6918dc2d1e3618c7dba0ff1f9661419d063674d434949b2",
+      "size": 14052142,
+      "sha256": "4e1fdba530efa84426d680c575ba6340221eb376a3cdfa0a4c02653cde55bcfa",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -46,8 +46,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 14174805,
-      "sha256": "034e1824fb8ee7d7f4f00694a77e9b16eeb9062215f1bc50f5da54a016409597",
+      "size": 14174675,
+      "sha256": "8152d09d6edeb320c5b03e1691cba9c8062de21a4b07eeafffdbd973a86a5914",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -57,8 +57,8 @@
     "web": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 28078043,
-      "sha256": "4a460e816afb1100c78092a641aa9a64b361865eae7df58cb2f2224a9e99ff3a"
+      "size": 28078138,
+      "sha256": "ba27e1eb3e892fb8c1419d1ffba68d82cbb4cff93d82a7465fd532e31b90da4f"
     },
     "starter": {
       "path": "tutorial-story-starter-4.0.zip",
