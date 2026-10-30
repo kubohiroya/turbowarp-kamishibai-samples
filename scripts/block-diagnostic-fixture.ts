@@ -1,18 +1,30 @@
 import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
+import {createHash, randomUUID} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import type {Page} from 'playwright';
 
 import {assertEmbeddedYamlBlockSource} from './migrate-embedded-yaml.ts';
+import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {ScratchProject} from './scratch.ts';
 
 const prefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const authoring = 'kubohiroyakamishibaiauthoring4_';
 const configuration = new Set(['control', 'asset', 'cover', 'textStyle', 'variable', 'loading', 'recognition']);
 const configurationKeys = new Set(['controls', 'assets', 'cover', 'textStyles', 'variables', 'loading', 'recognition']);
+// Keep trusted fixture sources out of JSON reports, which must not duplicate embedded runtimes.
+interface FixtureSourceVerification {
+  isolatedVm: true;
+  expectedSourceHashes: Record<string, string>;
+  loadedSourceHashes: Record<string, string> | null;
+}
+const verifiedDiagnosticFixtures = new Map<string, {
+  sha256: string; project: ScratchProject; sourceVerification: FixtureSourceVerification;
+}>();
+
 
 /** Make an explicitly separate compatibility fixture; never rewrite the downloaded distribution. */
 export async function createLegacyBlockDiagnosticFixture(input: string, directory: string) {
@@ -54,12 +66,43 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
   assert(component);
   delete component.sourceDocuments; delete component.editorViews;
   component.application = {...component.application, mode: 'menu'};
+  // Legacy block-location diagnostics require the official authoring profile's live IDs.
+  const builder = await resolveBlockAuthoringBuilder();
+  const runtimeModule = await import(pathToFileURL(path.join(builder.root,
+    'dist/builder/dsl4-playback-runtime-source.js')).href) as {
+      readDsl4NarrativeRuntimeExtensionSource(profile: 'authoring'): Promise<string>;
+    };
+  const runtimeSource = await runtimeModule.readDsl4NarrativeRuntimeExtensionSource('authoring');
+  const runtimeSourcePath = 'src/builder/generated/dsl4-narrative-authoring-runtime-extension.js';
+  assert.equal(runtimeSource, await readFile(path.join(builder.root, runtimeSourcePath), 'utf8'),
+    'The authoring profile must match the generated source in the pinned published commit.');
+  const version = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8')).version;
+  assert(runtimeSource.includes(`// ID: kubohiroyakamishibai4\n`) &&
+    runtimeSource.includes(`// Version: ${version}\n`));
+  const originalRuntimeUrl = project.extensionURLs?.kubohiroyakamishibai4;
+  assert(typeof originalRuntimeUrl === 'string' &&
+    originalRuntimeUrl.startsWith('data:text/javascript;base64,'));
+  const originalRuntimeSha256 = createHash('sha256')
+    .update(Buffer.from(originalRuntimeUrl.split(',')[1]!, 'base64')).digest('hex');
+  project.extensionURLs!.kubohiroyakamishibai4 =
+    'data:text/javascript;base64,' + Buffer.from(runtimeSource).toString('base64');
   archive['project.json'] = strToU8(JSON.stringify(project));
   const bytes = zipSync(archive, {level: 6});
   const output = path.join(directory, 'legacy-diagnostic-fixture.sb3');
   await writeFile(output, bytes);
+  const fixtureSha256 = createHash('sha256').update(bytes).digest('hex');
+  const sourceVerification: FixtureSourceVerification = {isolatedVm: true,
+    expectedSourceHashes: Object.fromEntries(Object.entries(project.extensionURLs ?? {})
+      .filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
+      .map(([id, url]) => [id, createHash('sha256')
+        .update(Buffer.from(url.split(',')[1]!, 'base64')).digest('hex')])),
+    loadedSourceHashes: null};
+  verifiedDiagnosticFixtures.set(path.resolve(output), {sha256: fixtureSha256, project, sourceVerification});
   return {input: output, converted: true, originalSha256: createHash('sha256').update(original).digest('hex'),
-    fixtureSha256: createHash('sha256').update(bytes).digest('hex'),
+    fixtureSha256, sourceVerification,
+    runtimeProvenance: {repository: builder.identity.repository, commit: builder.identity.commit,
+      version, profile: 'authoring', source: runtimeSourcePath, originalRuntimeSha256,
+      runtimeSha256: createHash('sha256').update(runtimeSource).digest('hex')},
     purpose: 'Legacy Config/include diagnostics only; generated locally from the verified new document body.'};
 }
 
@@ -98,11 +141,67 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
 }
 
 export async function loadVerifiedBlockProject(page: Page, input: string, project: ScratchProject, legacyOnly = false) {
-  await page.getByText(/^(File|ファイル)$/u).first().click();
-  const chooser = page.waitForEvent('filechooser');
-  await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click();
-  await (await chooser).setFiles(input);
-  return approveVerifiedBlockProject(page, project, legacyOnly);
+  const fixture = verifiedDiagnosticFixtures.get(path.resolve(input));
+  if (fixture) assert.equal(createHash('sha256').update(await readFile(input)).digest('hex'),
+    fixture.sha256, 'The verified diagnostic fixture must not change before permission approval.');
+  const permissionProject = fixture?.project ?? project;
+  if (fixture) {
+    // Extension IDs are cached by a VM; isolate the authoring fixture from the playback VM.
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
+  }
+  const token = randomUUID();
+  // A visible old project or permission dialog does not mean the selected file has loaded.
+  await page.evaluate((token) => {
+    const key = Symbol.for('samples/verified-project-load');
+    if (Reflect.has(window, key)) throw new Error('A verified project load is already pending.');
+    const runtime = window.vm.runtime;
+    const state = {token, runtime, loaded: false, onLoaded: () => { state.loaded = true; }};
+    Reflect.set(window, key, state);
+    runtime.once('PROJECT_LOADED', state.onLoaded);
+  }, token);
+  try {
+    await page.getByText(/^(File|ファイル)$/u).first().click();
+    const chooser = page.waitForEvent('filechooser');
+    await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click();
+    await (await chooser).setFiles(input);
+    const permissions = await approveVerifiedBlockProject(page, permissionProject, legacyOnly);
+    await page.waitForFunction((token) => {
+      const state = Reflect.get(window, Symbol.for('samples/verified-project-load'));
+      const target = window.vm.editingTarget;
+      const workspace = window.ScratchBlocks?.getMainWorkspace();
+      return state?.token === token && state.loaded && target && workspace &&
+        window.vm.runtime.targets.includes(target) &&
+        target.blocks.getScripts().every((id: string) => workspace.getBlockById(id)) &&
+        workspace.getTopBlocks(false).every((block: any) => target.blocks.getBlock(block.id));
+    }, token, {timeout: 120_000, polling: 250});
+    if (fixture) {
+      fixture.sourceVerification.loadedSourceHashes = await page.evaluate(async (expected) => {
+        const urls = window.vm.extensionManager.getExtensionURLs();
+        const actual: Record<string, string> = {};
+        for (const [id, hash] of Object.entries(expected)) {
+          const url = urls[id];
+          if (typeof url !== 'string' || !url.startsWith('data:text/javascript;base64,'))
+            throw new Error(`The loaded diagnostic extension ${id} has no verified embedded source.`);
+          const bytes = Uint8Array.from(atob(url.split(',')[1]!), (char) => char.charCodeAt(0));
+          const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)),
+            (byte) => byte.toString(16).padStart(2, '0')).join('');
+          if (digest !== hash) throw new Error(`Loaded diagnostic extension source differs: ${id}`);
+          actual[id] = digest;
+        }
+        return actual;
+      }, fixture.sourceVerification.expectedSourceHashes);
+    }
+    return permissions;
+  } finally {
+    await page.evaluate((token) => {
+      const key = Symbol.for('samples/verified-project-load');
+      const state = Reflect.get(window, key);
+      if (state?.token !== token) return;
+      state.runtime.removeListener('PROJECT_LOADED', state.onLoaded);
+      Reflect.deleteProperty(window, key);
+    }, token).catch(() => {});
+  }
 }
 
 /** Inspect the actual native Blockly root before switching to compatibility diagnostics. */

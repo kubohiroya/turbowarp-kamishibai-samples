@@ -143,7 +143,7 @@ try {
         ),
       {...identity, ...created},
     );
-    await page.evaluate((stageId) => window.vm.setEditingTarget(stageId), identity.stageId);
+    await page.locator('[class*="stage-selector_stage-selector_"]').click();
     await page.waitForFunction(() =>
       window.ScratchBlocks.getMainWorkspace()
         .getAllBlocks(false)
@@ -271,7 +271,7 @@ try {
       (id) => window.ScratchBlocks.getMainWorkspace().getBlockById(id).dispose(false),
       created.hatId,
     );
-    await page.evaluate((stageId) => window.vm.setEditingTarget(stageId), identity.stageId);
+    await page.locator('[class*="stage-selector_stage-selector_"]').click();
     await page.waitForFunction(
       (id) => Boolean(window.ScratchBlocks.getMainWorkspace().getBlockById(id)),
       includeId,
