@@ -19,7 +19,7 @@ async function selectTarget(page: Page, targetId: string) {
   );
 }
 
-/** Exercise generated-source diagnostics against three distinct live targets. */
+/** Exercise legacy Config/include read compatibility in the explicitly derived three-target fixture. */
 export async function verifySchemaBlockDiagnostics(
   page: Page,
   outputDirectory: string,
@@ -27,6 +27,7 @@ export async function verifySchemaBlockDiagnostics(
   setPhase: (phase: string) => void,
 ) {
   setPhase('schema-setup');
+  report.schemaFixtureKind = 'legacy-compatibility';
   const identity = await page.evaluate(() => {
     window.vm.stopAll();
     const stage = window.vm.runtime.getTargetForStage();

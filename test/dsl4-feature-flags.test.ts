@@ -70,7 +70,7 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   assert(!rootIndex.includes('href="stories/urashima/web-4.0/"'));
   assert(!rootIndex.includes('href="stories/my-urashima/web-4.0/"'));
   assert.equal(
-    (rootIndex.match(/disabled aria-disabled="true">Web版（準備中）<\/button>/gu) ?? [])
+    (rootIndex.match(/disabled aria-disabled="true">Web版でプレイ（準備中）<\/button>/gu) ?? [])
       .length,
     2,
   );
@@ -81,7 +81,7 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   assert(sampleIndex.includes('15 MB（14,951,564 bytes）'));
   assert(sampleIndex.includes('8.7 KB（8,729 bytes）'));
   assert(!sampleIndex.includes('href="web-4.0/"'));
-  assert(sampleIndex.includes('disabled aria-disabled="true">Web版（準備中）</button>'));
+  assert(sampleIndex.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>'));
   assert(!sampleIndex.includes('preserved-enabled-lock'));
   assert(sampleIndex.includes('src="card-scenes.gif"'));
   assert(sampleIndex.includes('data-work-carousel="urashima"'));
@@ -95,7 +95,7 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   );
   assert(myIndex.includes('9.8 MB（9,806,584 bytes）'));
   assert(!myIndex.includes('href="web-4.0/"'));
-  assert(myIndex.includes('disabled aria-disabled="true">Web版（準備中）</button>'));
+  assert(myIndex.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>'));
   assert(!myIndex.includes('preserved-enabled-lock'));
 });
 

@@ -1,3 +1,4 @@
+import {migrateEditableBlockSource} from './migrate-embedded-yaml.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -71,7 +72,9 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     const first = await createDeterministicSb3(imported);
     const second = await createDeterministicSb3(imported);
     assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
-    const bytes = Buffer.from(first.archive);
+    const bytes = await migrateEditableBlockSource(first.archive, {
+      appRoot: options.authoring.root, entryFile: `my-urashima-${poseCount}-poses.k4.yml`,
+    });
     const project = JSON.parse(strFromU8(unzipSync(bytes)['project.json']!)) as ScratchProject;
     verifyStructuredBlockSource(project, source);
     const princess = project.targets.find(({name}) => name === 'Princess');

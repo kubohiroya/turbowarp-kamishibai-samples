@@ -14,7 +14,8 @@ import {
 } from '../scripts/build-dsl4-block-source.ts';
 import type {ScratchProject} from '../scripts/scratch.ts';
 
-const frozen = "Object.defineProperty(scoped, 'extensions', {value: extensions});";
+const frozen =
+  "Object.defineProperty(scoped, 'extensions', {value: extensions});";
 const configurable =
   "Object.defineProperty(scoped, 'extensions', {value: extensions, configurable: true});";
 
@@ -30,66 +31,135 @@ async function runtimeSource(story: string): Promise<string> {
   ).toString();
 }
 
-/** Exercise the emitted wrapper with the bundle's actual per-component proxy contract. */
+/** Exercise the official bundle scope with the actual per-component extension proxy. */
 function registerThroughBundleProxy(source: string): string[] {
-  const inner = source.indexOf('    (function(Scratch){\n');
-  assert(inner > 0, 'The generated authoring wrapper must contain its bundled runtime.');
+  const marker = '  const createComponentScratch = ';
+  assert.equal(
+    source.split(marker).length,
+    2,
+    'The official bundle must contain one scope factory.',
+  );
+  const start = source.indexOf(marker);
+  const end = source.indexOf('  const loadComponent = ', start);
+  assert(
+    end > start,
+    'The official bundle scope factory must precede component loading.',
+  );
   const registrations: string[] = [];
   runInNewContext(
-    `${source.slice(0, inner)}
-    (function(Scratch){
-      const componentExtensions = Object.create(Scratch.extensions);
-      Object.defineProperty(componentExtensions, 'register', {value(extension){
-        Scratch.extensions.register(extension);
-      }});
-      const componentScratch = new Proxy(Scratch, {
-        get(target, property) {
-          if (property === 'extensions') return componentExtensions;
-          return Reflect.get(target, property, target);
-        }
-      });
-      componentScratch.extensions.register({getInfo(){return {
-        id: 'runtime', blocks: [{opcode: 'whenDsl4Source'}, {opcode: 'wait'}]
-      };}});
-    })(scoped);
-  })(Scratch);`,
+    `const createComponentGui = () => undefined;
+    ${source.slice(start, end)}
+    const scoped = createComponentScratch('runtime', accept);
+    const componentExtensions = Object.create(scoped.extensions);
+    Object.defineProperty(componentExtensions, 'register', {value(extension){
+      scoped.extensions.register(extension);
+    }});
+    const componentScratch = new Proxy(scoped, {
+      get(target, property) {
+        return property === 'extensions' ? componentExtensions : Reflect.get(target, property, target);
+      }
+    });
+    componentScratch.extensions.register({getInfo(){return {
+      blocks: [{opcode: 'embeddedYamlRoot'}, {opcode: 'embeddedYaml'}, {opcode: 'wait'}]
+    };}});`,
     {
       Scratch: {
         extensions: {
-          register(extension: {getInfo(): {blocks: {opcode: string}[]}}) {
-            registrations.push(
-              ...extension.getInfo().blocks.map((block) => block.opcode),
-            );
+          register() {
+            throw new Error('Component scope was bypassed.');
           },
         },
       },
+      accept(extension: {getInfo(): {blocks: {opcode: string}[]}}) {
+        registrations.push(
+          ...extension.getInfo().blocks.map((block) => block.opcode),
+        );
+      },
     },
+    {timeout: 2000},
   );
   return registrations;
 }
 
 for (const story of ['urashima', 'tutorial']) {
-  test(`${story} authoring wrapper permits bundle registration and filters retired blocks`, async () => {
+  test(`${story} uses the official bundle proxy and hides retired authoring blocks`, async () => {
     const source = await runtimeSource(story);
-    assertBlockSourceRuntimeWrapper(source);
-    assert.deepEqual(registerThroughBundleProxy(source), ['wait']);
-    const broken = source.replace(
-      /Object\.defineProperty\(scoped, 'extensions', \{[^}]*\}\);/u,
-      frozen,
+    const appRoot =
+      process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
+      path.resolve(import.meta.dirname, '../../turbowarp-kamishibai-app');
+    assert.equal(
+      source,
+      await readFile(
+        path.join(
+          appRoot,
+          'dist/builder/generated/dsl4-narrative-playback-runtime-extension.js',
+        ),
+        'utf8',
+      ),
+      'Migrated samples must retain the exact official runtime rather than a local wrapper.',
     );
+    assert.deepEqual(registerThroughBundleProxy(source), [
+      'embeddedYamlRoot',
+      'embeddedYaml',
+      'wait',
+    ]);
+    const broken = source.replace(
+      "if (property === 'extensions') return extensions;",
+      '',
+    );
+    assert.notEqual(broken, source);
     assert.throws(
       () => registerThroughBundleProxy(broken),
-      /read-only and non-configurable/,
+      /Component scope was bypassed/u,
     );
-    assert.throws(
-      () => assertBlockSourceRuntimeWrapper(broken),
-      /BLOCK_SOURCE_WRAPPER_DRIFT/,
+
+    const file = fileURLToPath(
+      new URL(`../stories/${story}/${story}-blocks-4.0.sb3`, import.meta.url),
     );
+    const project = JSON.parse(
+      strFromU8(unzipSync(await readFile(file))['project.json']!),
+    );
+    const authoring = Buffer.from(
+      project.extensionURLs.kubohiroyakamishibaiauthoring4.split(',')[1],
+      'base64',
+    ).toString('utf8');
+    const blocks: {opcode: string; hideFromPalette?: boolean}[] = [];
+    runInNewContext(
+      authoring,
+      {
+        Scratch: {
+          extensions: {
+            register(extension: {getInfo(): {blocks: typeof blocks}}) {
+              blocks.push(...extension.getInfo().blocks);
+            },
+          },
+        },
+      },
+      {timeout: 2000},
+    );
+    for (const opcode of ['kamishibai', 'kamishibaiConfig', 'includeBlocks']) {
+      const definitions = blocks.filter((block) => block.opcode === opcode);
+      assert.equal(
+        definitions.length,
+        1,
+        `Legacy ${opcode} must remain readable.`,
+      );
+      assert.equal(
+        definitions[0]!.hideFromPalette,
+        true,
+        `Legacy ${opcode} must not be offered.`,
+      );
+    }
+    assert(!blocks.some((block) => block.opcode === 'whenDsl4Source'));
   });
 }
 
 test('accepts upstream configurable wrappers and refuses absent or duplicated wrappers', () => {
   assertBlockSourceRuntimeWrapper(configurable);
+  assert.throws(
+    () => assertBlockSourceRuntimeWrapper(frozen),
+    /BLOCK_SOURCE_WRAPPER_DRIFT/,
+  );
   assertBlockSourceRuntimeWrapper(
     "Object.defineProperty(scoped, 'extensions', {configurable: true, value: extensions});",
   );

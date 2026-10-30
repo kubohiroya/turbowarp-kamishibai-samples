@@ -1,15 +1,15 @@
 {
   "formatVersion": 1,
   "repository": "kubohiroya/turbowarp-kamishibai-app",
-  "version": "4.0.0-rc.71",
-  "tag": "v4.0.0-rc.71",
-  "commit": "86c78aec97dfaafcaa8ca375ab760fc6dd5b0e81",
-  "publishedAt": "2026-10-29T15:35:58Z",
-  "sourceIdentity": "sha256:c8a808962eedf856c89bf1dad9373feb3e5321613847412a5839ee78b0b627bd",
+  "version": "4.0.0-rc.79",
+  "tag": "v4.0.0-rc.79",
+  "commit": "962337f0fd8c77191453cc51c4b27e136f911731",
+  "publishedAt": "2026-10-30T18:15:33Z",
+  "sourceIdentity": "sha256:720b7368022762dfa9276eda853343dd2231ce3feeb17c1b0dacc9af0e82ee48",
   "artifact": {
-    "filename": "kamishibai-4.0.0-rc.71.sb3",
-    "sha256": "c1dd0254b6fe73e6be42437a844ef8fcc2cced7f466004d10688d16041c0bf67",
-    "size": 8167160,
-    "url": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/download/v4.0.0-rc.71/kamishibai-4.0.0-rc.71.sb3"
+    "filename": "kamishibai-4.0.0-rc.79.sb3",
+    "sha256": "444cc3607b8541644ee520e08cc376058f153305c43c1de2e6ce0506298c93f7",
+    "size": 8320658,
+    "url": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/download/v4.0.0-rc.79/kamishibai-4.0.0-rc.79.sb3"
   }
 }

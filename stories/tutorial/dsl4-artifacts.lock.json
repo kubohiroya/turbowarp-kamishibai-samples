@@ -1,22 +1,22 @@
 {
   "formatVersion": 1,
   "status": "published",
-  "version": "4.0.0-rc.71",
-  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.71",
+  "version": "4.0.0-rc.79",
+  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.0-rc.79",
   "sourceIdentity": "07d90109499a0a6b3695b60619468d437b0dfb6baf389d3fc3d056f08e728e0c",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.71",
-    "commit": "86c78aec97dfaafcaa8ca375ab760fc6dd5b0e81",
+    "version": "4.0.0-rc.79",
+    "commit": "962337f0fd8c77191453cc51c4b27e136f911731",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:c8a808962eedf856c89bf1dad9373feb3e5321613847412a5839ee78b0b627bd",
-    "baseSize": 8167160,
-    "baseSha256": "c1dd0254b6fe73e6be42437a844ef8fcc2cced7f466004d10688d16041c0bf67"
+    "baseSourceIdentity": "sha256:720b7368022762dfa9276eda853343dd2231ce3feeb17c1b0dacc9af0e82ee48",
+    "baseSize": 8320658,
+    "baseSha256": "444cc3607b8541644ee520e08cc376058f153305c43c1de2e6ce0506298c93f7"
   },
   "blockAuthoring": {
     "sourceSections": true,
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "commit": "86c78aec97dfaafcaa8ca375ab760fc6dd5b0e81"
+    "commit": "962337f0fd8c77191453cc51c4b27e136f911731"
   },
   "sb3Toolchain": {
     "package": "@kubohiroya/sb3-toolchain",
@@ -177,8 +177,8 @@
   "outputs": {
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 14065327,
-      "sha256": "3c2b29ace8157e92f0fe63faf699aba1a9766c845fc0d3ed33999f9d54504ed0",
+      "size": 14205523,
+      "sha256": "f2a023bd0a3ffd0bb1b3feebcc98acc2d6622b3c22cbad9be5fcee14063eed96",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -187,8 +187,8 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 14186206,
-      "sha256": "2b08906685256b4e01066a083d5b9c25210506b67bbaaa4f0bc81312219f46c5",
+      "size": 14218981,
+      "sha256": "17fb320688a3a191c2697696404d93993db818439478f9020a9ebe92f4e3d5ac",
       "archiveEntryCount": 10,
       "targetNames": [
         "Stage",
@@ -240,7 +240,7 @@
   },
   "publication": {
     "enabled": true,
-    "reason": "TurboWarp-Kamishibai 4.0.0-rc.71 release artifacts are published and integrity-verified",
+    "reason": "TurboWarp-Kamishibai 4.0.0-rc.79 release artifacts are published and integrity-verified",
     "issue": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/125"
   }
 }

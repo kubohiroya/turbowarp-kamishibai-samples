@@ -18,18 +18,46 @@ test('published Urashima blocks use exact source image/audio bytes as native slo
     await readFile(path.join(root, 'stories/urashima/urashima-blocks-4.0.sb3')),
   );
   const project = JSON.parse(strFromU8(archive['project.json']!));
-  const {extractDsl4BlockSourcesFromProject} = await import(
-    pathToFileURL(
-      path.join(appRoot, 'dist/dsl4/turbowarp-yaml-json-block-source.js'),
-    ).href
+  const {extractEmbeddedYamlDocumentSources} = await import(
+    pathToFileURL(path.join(appRoot, 'dist/dsl4/embedded-yaml-migration.js'))
+      .href
   );
   const {readProjectMaterial} = await import(
     pathToFileURL(
       path.join(appRoot, 'dist/builder/dsl4-asset-project-material.js'),
     ).href
   );
-  const graph = extractDsl4BlockSourcesFromProject(project);
+  const {validateKamishibaiEmbeddedYamlRoot} = await import(
+    pathToFileURL(
+      path.join(appRoot, 'dist/dsl4/embedded-yaml-root-validation.js'),
+    ).href
+  );
+  const {createDsl4ProductionSourceFrontend} = await import(
+    pathToFileURL(path.join(appRoot, 'dist/builder/dsl4-source-frontend.js'))
+      .href
+  );
+  const schema = JSON.parse(
+    await readFile(path.join(appRoot, 'schema/dsl-4.schema.json'), 'utf8'),
+  );
+  const frontend = createDsl4ProductionSourceFrontend(schema, {
+    narrativeControlEnabled: true,
+  });
+  const selection = validateKamishibaiEmbeddedYamlRoot(project, {
+    allowLegacySingle: false,
+  });
+  const graph = await extractEmbeddedYamlDocumentSources(project, frontend);
+  assert.equal(
+    selection.path,
+    graph.entryPath,
+    'The independent root must select the exported named file.',
+  );
+  assert.equal(
+    Object.keys(graph.sources).length,
+    1,
+    'The full Urashima story must remain one named document.',
+  );
   const exported = graph.sources[graph.entryPath];
+  assert.equal(typeof exported, 'string');
   const sourcePath = path.join(root, 'stories/urashima/urashima.k4.yml');
   const source = await readFile(sourcePath, 'utf8');
   const original = parse(source);
@@ -50,28 +78,17 @@ test('published Urashima blocks use exact source image/audio bytes as native slo
     ),
     'Migrated image/audio payloads must not remain in the file bundle.',
   );
-  const {createDsl4ProductionSourceFrontend} = await import(
-    pathToFileURL(path.join(appRoot, 'dist/builder/dsl4-source-frontend.js'))
-      .href
-  );
   const {prepareDsl4EmbeddedBlockStoryProject} = await import(
     pathToFileURL(
       path.join(appRoot, 'dist/dsl4/platform/embedded-block-story.js'),
     ).href
   );
-  const schema = JSON.parse(
-    await readFile(path.join(appRoot, 'schema/dsl-4.schema.json'), 'utf8'),
-  );
-  await prepareDsl4EmbeddedBlockStoryProject(
-    project,
-    createDsl4ProductionSourceFrontend(schema, {narrativeControlEnabled: true}),
-    {
-      maxSourceBytes: 262144,
-      maxAssetFiles: 4096,
-      maxTotalAssetBytes: 256 * 1024 * 1024,
-      subtleCrypto: webcrypto.subtle,
-    },
-  );
+  await prepareDsl4EmbeddedBlockStoryProject(project, frontend, {
+    maxSourceBytes: 262144,
+    maxAssetFiles: 4096,
+    maxTotalAssetBytes: 256 * 1024 * 1024,
+    subtleCrypto: webcrypto.subtle,
+  });
   let checked = 0;
   for (const [id, raw] of Object.entries(original.assets)) {
     const asset = raw as {kind: string; file?: string};

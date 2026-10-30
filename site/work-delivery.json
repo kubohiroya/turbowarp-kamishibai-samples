@@ -1,0 +1,158 @@
+{
+  "$schema": "./work-delivery.schema.json",
+  "formatVersion": 1,
+  "works": {
+    "urashima": [
+      {
+        "id": "yaml-embedded",
+        "assets": [
+          {
+            "scope": "画像・音声・認識モデル",
+            "mode": "internal"
+          }
+        ],
+        "script": {
+          "format": "dsl4-yaml",
+          "mode": "embedded"
+        },
+        "sb3": "stories/urashima/urashima-4.0.sb3",
+        "source": "stories/urashima/urashima.k4.yml",
+        "web": "stories/urashima/web-4.0/"
+      },
+      {
+        "id": "blocks-embedded",
+        "assets": [
+          {
+            "scope": "画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル",
+            "mode": "internal"
+          }
+        ],
+        "script": {
+          "format": "dsl4-blocks",
+          "mode": "embedded"
+        },
+        "sb3": "stories/urashima/urashima-blocks-4.0.sb3"
+      },
+      {
+        "id": "txt-embedded",
+        "assets": [
+          {
+            "scope": "画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル",
+            "mode": "external"
+          }
+        ],
+        "script": {
+          "format": "dsl32-txt",
+          "mode": "embedded"
+        },
+        "sb3": "stories/urashima/urashima.sb3",
+        "source": "stories/urashima/urashima.txt",
+        "web": "stories/urashima/web/"
+      }
+    ],
+    "my-urashima": [
+      {
+        "id": "yaml-external",
+        "assets": [
+          {
+            "scope": "画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル",
+            "mode": "external"
+          }
+        ],
+        "script": {
+          "format": "dsl4-yaml",
+          "mode": "external"
+        },
+        "sb3": "stories/my-urashima/my-urashima-4.0.sb3",
+        "source": "stories/my-urashima/my-urashima.k4.yml",
+        "web": "stories/my-urashima/web-4.0/",
+        "note": "my-urashima.k4.ymlをダウンロードし、Web版／SB3内の紙芝居メニューから台本を選んでください。アセットの表示は、この台本を読み込んだ後の構成です。"
+      },
+      {
+        "id": "blocks-embedded",
+        "assets": [
+          {
+            "scope": "画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル",
+            "mode": "external"
+          }
+        ],
+        "script": {
+          "format": "dsl4-blocks",
+          "mode": "embedded"
+        },
+        "sb3": "stories/my-urashima/my-urashima-blocks-4.0.sb3"
+      },
+      {
+        "id": "txt-external",
+        "assets": [
+          {
+            "scope": "画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル",
+            "mode": "external"
+          }
+        ],
+        "script": {
+          "format": "dsl32-txt",
+          "mode": "external"
+        },
+        "sb3": "stories/my-urashima/my-urashima.sb3",
+        "source": "stories/my-urashima/my-urashima.txt"
+      }
+    ],
+    "tutorial-earthquake-safety": [
+      {
+        "id": "yaml-embedded",
+        "assets": [
+          {
+            "scope": "画像・音声・認識モデル・補助画像",
+            "mode": "internal"
+          }
+        ],
+        "script": {
+          "format": "dsl4-yaml",
+          "mode": "embedded"
+        },
+        "sb3": "stories/tutorial/tutorial-4.0.sb3",
+        "source": "stories/tutorial/story.kamishibai.yaml",
+        "web": "stories/tutorial/web-4.0/"
+      },
+      {
+        "id": "blocks-embedded",
+        "assets": [
+          {
+            "scope": "場面画像・音声",
+            "mode": "project"
+          },
+          {
+            "scope": "認識モデル・カメラ補助画像",
+            "mode": "internal"
+          }
+        ],
+        "script": {
+          "format": "dsl4-blocks",
+          "mode": "embedded"
+        },
+        "sb3": "stories/tutorial/tutorial-blocks-4.0.sb3"
+      }
+    ]
+  }
+}
