@@ -1,3 +1,4 @@
+import {migrateEditableBlockSource} from './migrate-embedded-yaml.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
@@ -62,6 +63,7 @@ export async function buildAudioPlayback({
     run(['validate-dsl4', '--input', path.join(storyRoot, 'main.k4.yml')]);
     run([
       'build-dsl4',
+      '--embedded-source-documents',
       '--base',
       appBasePath(),
       '--project-root',
@@ -87,6 +89,10 @@ export async function buildAudioPlayback({
       ...builder.authorOptions,
     ]);
     await simplifyPublishedDsl4Blocks(path.join(temporary, blocksName), builder.root, builder.identity.sourceSections ?? false, storyRoot);
+    await writeFile(path.join(temporary, blocksName), await migrateEditableBlockSource(
+      await readFile(path.join(temporary, blocksName)),
+      {appRoot: builder.root, entryFile: 'main.k4.yml'},
+    ));
     const webConfig: WebConfig = {
       enabled: true,
       inputProfile: 'dsl4-offline',

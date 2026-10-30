@@ -25,7 +25,7 @@
 
 `stories/tutorial/`にはDSL 4.0チュートリアル用の4場面作品、starter、addition kit、自己完結SB3、Web版の固定情報があります。`app-release.json`で確認した公開済みTurboWarp-Kamishibaiを入力として、`publication.enabled`をONにしたPagesと作品一覧を公開します。docs側はその公開URLとintegrityを使ってcaptureとチュートリアルpublicationを行います。生成規約とロールバック方法は[`stories/tutorial/README.md`](stories/tutorial/README.md)に記載しています。
 
-正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL 4.0 YAML、オフラインSB3、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
+正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL4.0 YAML台本、作品ファイル（SB3）、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
 
 `pnpm build` は、完全固定したTurboWarp-Kamishibai 3.2 npmビルダー、本体コミット`2b5005d`から生成してハッシュ固定したclone-only UIの3.2汎用ベース、commitとハッシュを固定した4.0汎用ベースおよび4.0ビルダー、`@turbowarp/packager` `3.13.0` を使い、次の成果物を生成します。
 
@@ -33,7 +33,7 @@
 - `urashima.sb3` (`player`): 台本・アセット埋め込み。配布・再生用
 - `my-urashima.sb3` (`dependent editor`): `urashima`依存・台本非埋め込み・Princess専用スプライト付きの教材用
 - `web/index.html`: `player`だけを入力とする、画像・音声・台本組み込み済みの単一HTML
-- `urashima-4.0.sb3` / `web-4.0/index.html`: DSL 4.0台本・全アセット・ポーズモデル組み込み済みのオフライン版
+- `urashima-4.0.sb3` / `web-4.0/index.html`: DSL 4.0台本・全アセット・ポーズモデル組み込み済みの作品ファイル
 - `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: DSL 4.0外部台本をファイル選択またはドラッグ＆ドロップで開くワークショップ版
 - `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 同じappリリースで再現・検証して公開するDSL 4.0チュートリアル成果物
 
@@ -67,9 +67,9 @@ pnpm run release:check
 
 `pnpm build` は空の `dist/` からDSL 3.2／4.0のSB3、Packager Web版、公開サイトを生成し、台本・SB3・HTML・全アセット・ライセンス・リンク・SHA-256を検証します。同じ入力から各Web版を2回生成してハッシュが一致することも確認します。`pnpm test:web` はPages相当のHTTPサーバで各Web版を開きます。DSL 4.0浦島太郎では外部ネットワークを遮断した状態でタイトル画面から組み込み台本が開始すること、my-urashimaではタイトルからメニューへ進み、`.k4.yml`をファイル選択して物語が開始すること、tutorial公開版では偽カメラを使って4場面を最後まで進められることをheadless Chromiumで検証します。
 
-`pnpm test:web`には、ブロック台本を実際のTurboWarpエディターで開く回帰テストも含まれます。CIで生成した`dist/stories/urashima/urashima-blocks-4.0.sb3`をファイルメニューから読み込み、埋め込み拡張を「サンドボックスなしで実行する」で許可します。10場面・174命令と未定義ブロックの不在を確認し、各場面の見出しを画面内へ移して撮影します。冒頭の待機時間を数値入力から`2`→`2.75`へ編集し、ファイルメニューから保存したSB3を公式CLIでYAMLへ戻し、変更した待機時間以外の意味が維持されることまで検証します。ファイル操作は、OS固有のピッカーを使わない標準のファイル入力・ダウンロード経路を使います。
+`pnpm test:web`には、ブロック台本を実際のTurboWarpエディターで開く回帰テストも含まれます。CIで生成した`dist/stories/urashima/urashima-blocks-4.0.sb3`をファイルメニューから読み込み、埋め込み拡張を「サンドボックスなしで実行する」で許可します。10場面・174命令と未定義ブロックの不在を確認し、各場面の見出しを画面内へ移して撮影します。冒頭の待機時間を数値入力から`2`→`2.75`へ編集し、文書ダイアログの「表示されている形式に変換して検証・保存」で作品へ反映します。その後、ファイルメニューから保存したSB3を公式CLIでYAMLへ戻し、変更した待機時間以外の意味が維持されることまで検証します。ファイル操作は、OS固有のピッカーを使わない標準のファイル入力・ダウンロード経路を使います。
 
-このエディター回帰テストは`https://turbowarp.org/editor`へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせずチェックイン済みSB3を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
+このエディター回帰テストは、公開中の[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1)へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせずチェックイン済みSB3を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
@@ -103,9 +103,9 @@ gh workflow run deploy.yml --repo kubohiroya/turbowarp-kamishibai-samples --ref 
 
 依存情報・配布物・生成処理の切戻しは直前の検証済みの組へ揃えます。定期pollを自動復活させません。
 
-ブロック台本SB3はStage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。
+台本ブロックSB3は、Stageの独立した `embedded YAML root [4.0] [ファイル名]` が開始文書を指定します。本文は、同じファイル名の通常の `embedded YAML [ファイル名]` の下に置きます。ファイル名を空にして開始文書を推測することはありません。file素材の実体は対応するアセットバンドルとして同梱します。
 
-ブロック台本SB3は[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
+ブロック台本SB3は[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?twPlusYamlEditor=1&blockEditorDialogs=1&lang=ja)へ読み込み、埋め込み拡張をサンドボックスなしで許可すると、配置済みブロックのアイコンからJSONをフォーム編集できます。8種類の定義に加え、`recognize actor … pose steps`の`STEPS`と、`actor … say spec`・`actor … think spec`の`SPEC`に対応します。11種類のフォーム登録を埋め込み拡張の実行で検証し、両作品をYAMLへ戻して元台本との一致も確認します。フォームUIの切り戻しはURLの`blockEditorDialogs=1`を外し、成果物自体はこの更新のrevertで戻します。
 
 DSL 4.0のSB3とWebロックを意図的に一括更新する正規コマンドは`pnpm update:dsl4-artifacts`です。tutorialだけを更新する場合は`pnpm update:tutorial-dsl4`を使います。
 
@@ -162,19 +162,17 @@ pnpm deploy
 生成時に`--block-sections true`を指定しています。my-urashimaの2・3・4ポーズ版も同じ設定です。
 切り戻しはこの設定と生成・検証変更、ブロックSB3・lockをまとめてrevertしてPagesを再公開します。
 
-YAML→ブロック変換では、control・asset・cover・textStyle・variable・loading・recognitionの定義を
-`kamishibaiConfig [名前]`へ分離します。空名の設定を最初に、その後は名前順に、Stageの空名`kamishibai`から
-暗黙に読み込みます。同名の設定ハットは空名同士も含め起動時エラーです。
-対応は[app #916](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/916)、
-配布更新は[samples #184](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/184)で追跡します。
-配布する6種類のブロック台本SB3は、設定ハットを読める組み込みランタイムも同じauthoring pinから生成します。
-再生用のrc.25 runtime pinは維持します。切り戻しはauthoring pin・6SB3・lockを一組で戻します。
+新しい配布SB3では、旧 `kamishibai`・`kamishibaiConfig`・`includeBlocks` を出力しません。設定と場面は同じ名前付き文書へまとめ、開始文書は独立したrootで明示します。旧SB3の読み込み互換はApp側に残します。
+
+生成時は、素材を標準コスチューム・背景・音へ配置した後、同じ公開Appの公式 `migrate-embedded-yaml` を使って移行し、その最終SB3から配布ロックを作ります。ZIP内の全素材の実バイト、対象・変数・衣装・音の保持と、台本の場面・命令順を検証します。切戻しは `app-release.json`、ベースSB3、生成処理、配布SB3・Web・lock・表示を直前の検証済みの組へ戻します。
+
+「TurboWarp-Plus-Editorで編集」は、新文書編集を明示的に有効にしたURLを開きます。文書アイコンから「原文YAML」「共通YAMLブロック」「台本ブロック」を表示し、変更を反映する形式を選んで「表示されている形式に変換して検証・保存」を押します。文書ダイアログの保存はEditor上の作品へ反映する操作です。SB3ファイルを持ち帰るときは、Editorのファイルメニューから保存します。VSCodeとの連携はローカルの起動手順に従ってください。安定版3.2の配布物と再生導線は変更しません。
 
 ### 公開配布物のブロック・Schema診断
 
 `pnpm test:block-diagnostics` は配信中の浦島太郎ブロック台本SB3を取得し、生成済み成果物とhash/sizeを照合してTurboWarp-Plus-Editorへ読み込みます。スプライトの台本に「もし」「繰り返す」「言う」をそれぞれ混入させ、日本語のブロック名・スプライト名、コードタブへの切替・親の展開・対象の移動／強調、および除去後の正常復帰を確認します。証跡は `.tmp/published-block-diagnostics/` へ保存します。
 
-同じ実画面テストで、Stageの`includeBlocks`、別スプライトの取り込み台本、さらに別スプライトの`kamishibaiConfig`を併用します。設定の素材定義へ、不正な`kind`を持つオブジェクトと不正な文字列値を順に設定し、生成YAMLがStageを指していても、元の設定スプライト／素材ブロックのIDと選択・強調先が一致することを検査します。編集値がVMへ反映されてから実行し、2ケースが同じ古い値を検査してしまうことも防ぎます。畳んだ設定の展開、画面内への移動、検証用定義の除去後の正常起動も確認します。
+旧形式の互換性検証では、配布SB3から別のローカル検証用SB3を作り、Stageの`includeBlocks`、別スプライトの取り込み台本、さらに別スプライトの`kamishibaiConfig`を併用します。新形式の配布SB3は書き換えず、先に実際の独立rootと名前付き文書を確認します。設定の素材定義へ、不正な`kind`を持つオブジェクトと不正な文字列値を順に設定し、生成YAMLがStageを指していても、元の設定スプライト／素材ブロックのIDと選択・強調先が一致することを検査します。編集値がVMへ反映されてから実行し、2ケースが同じ古い値を検査してしまうことも防ぎます。畳んだ設定の展開、画面内への移動、検証用定義の除去後の正常起動も確認します。
 
 現在の検証先は公開[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja)です。失敗時は段階、診断、期待／実際のID、画面、traceを保存します。共有verify actionからPRのCIと定期検証で実行し、Pages公開後も実配信SB3で同じ5ケースを検証します。
 
@@ -188,21 +186,31 @@ DSL 4.0の依存版・commit・Standard SB3のsource identity／サイズ／SHA-
 
 この移行のロールバックは、設定・共有reader・CI変更を含むPRを一体でrevertします。公開済みappの同版成果物は変更しません。
 
-## 次回4.0プレリリースの音声例
+## 音声操作（4.0 RCのStandard）
 
-[音声再生サンプル](stories/audio-playback/README.md)は、rc.38の次の4.0プレリリースに向けた台本です。再生時のfadeIn・volume・fadeOut、停止時のfadeOut、IDごとの制御を確認できます。既存の公開版と配布物lockは維持し、対応版の公開後に生成物を揃えます。
+[音声再生サンプル](stories/audio-playback/README.md)では、再生時のfadeIn・volume・fadeOut、停止時のfadeOut、IDごとの制御を確認できます。他の4.0作品と同じ公開App・CLI・ベースSB3から生成し、対応版は`app-release.json`で確認できます。
 
 ## 物語の反復と条件分岐（4.0 RCのStandard）
 
 [三人の訪問](stories/three-visits/README.md)は、App 4.0.0-rc.44以降のStandardで使える公開サンプルです。
 共通の訪問を一度だけ記述し、各回の一覧と条件で結末を比べます。追加の実験flagは不要です。
 公式ベースSB3・同じRelease commitのCLIからYAML版・ブロック版・両Web版を生成し、TurboWarp-Plus-Editorで表を編集できます。
-App rc.59はnpm公開済みで、サンプルの再現生成には対応tagからbuildしたCLIを使います。安定版3.2系列のサンプルも保持します。
+サンプルの再現生成には、`app-release.json`に記録した公開tagからbuildしたCLIを使います。安定版3.2系列のサンプルも保持します。
 
-## rc.59の生成元と機能拡張セキュリティ
+## 公開版の生成元と機能拡張セキュリティ
 
-現在の4.0サンプルは、公開App `4.0.0-rc.59`と同じcommitのCLIで生成します。Camera Source 0.21.0・Asset Cache 0.5.0・Bubble 0.15.0はEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。TurboWarp-Plus-Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「動作に必要／Required to run」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
+現在の4.0サンプルは、`app-release.json`で検証した公開Appと同じcommitのCLIで生成します。Camera Source・Asset Cache・BubbleはEditor内部へ直接アクセスするため、サンドボックス外の実行が必要です。TurboWarp-Plus-Editorでは「サンドボックスあり」が非対応となり、「サンドボックスなし」に「必要／Required」と表示されます。配布元を確認して明示的に選択してください。カメラの使用許可は別のブラウザー操作です。
 
 [日英ダイアログと実行モードの説明](https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/user-guides/user-guide-4.0/#extension-security)を参照してください。安定版3.2の作品と公開導線は維持しています。
 
 rc.59はApp PR #1045のbuilder preview終了処理と#1042のsealed撤去を含みます。source・compiled配布は引き続き利用できます。rc.51〜rc.55の旧sealed作品は非対応のため、原本のYAML・素材からsourceかcompiledで再生成してください。再現生成のため、生成CLIは`app-release.json`が示す公開tagのcommitから準備し、ベースSB3と同じ版へ揃えます。安定版3.2の作品はこの更新で再生成しません。
+
+### 作品一覧の構成と操作名
+
+ホームと3作品の詳細は、`site/work-delivery.json`の同じ宣言と共通rendererから「アセットの持ち方」「台本の持ち方」「操作」を表示します。アセットは「外部URL参照」「内部パス参照（同梱ファイル）」「コスチューム・背景・音」を区別し、画像・音声と認識モデルなどの方式が違う場合は別々に明示します。台本は「外部から読み込み／組み込み」と「DSL4.0 YAML台本／DSL4.0 ブロック台本」を独立して示します。DSL3.2 TXT台本は別枠です。
+
+実際に配布する組合せだけを1行ずつ表示し、未提供の9組合せやWeb版を作りません。URL文字列から台本方式を推測しません。Web版は宣言済みのactionとビルド時フラグを使います。my-urashimaは付属YAMLをダウンロードし、Web版／SB3内の紙芝居メニューから台本を選ぶ構成です。
+
+HTMLプレーヤーは「Web版でプレイ」、保存は通常の「SB3をダウンロード」「DSL4.0 YAML台本をダウンロード」「DSL3.2 TXT台本をダウンロード」リンクです。「ブロック台本SB3をダウンロード」の直後に、アイコン付きの「TurboWarp-Plus-Editorで編集」ボタンを並べます。どの組合せのSB3かは、その行のアセット列と台本列から確認できます。狭い画面では同じ行を縦に並べます。
+
+ホームには浦島太郎、my-urashima、地震だ！頭を守ろうの3作品を掲載します。音声再生サンプルと三人の訪問は一覧から除き、検証・生成物・互換用URLは維持します。教材スターター・addition kit、2/3/4ポーズ版も従来の配布先を保持します。

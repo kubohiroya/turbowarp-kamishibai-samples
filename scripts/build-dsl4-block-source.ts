@@ -6,6 +6,7 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 
 import {alignDsl4BlockAssetBundle} from './simplify-published-dsl4-blocks.ts';
+import {migrateEditableBlockSource} from './migrate-embedded-yaml.ts';
 
 import type {ScratchProject} from './scratch.ts';
 
@@ -26,13 +27,14 @@ export function assertBlockSourceRuntimeWrapper(source: string): void {
   );
 }
 
-/** Keep editable declarations and the menu stub while supplying the story's file payloads. */
+/** Materialize the story assets, then migrate editable declarations with the pinned App. */
 export async function buildEditableBlockSource(
   inputPath: string,
   sourceDirectory: string,
   storyArchive: Uint8Array,
   refreshRuntime?: (sourceDirectory: string) => Promise<void>,
   appRoot?: string,
+  entryFile = 'story.k4.yml',
 ): Promise<Buffer> {
   await importSb3({inputPath, outputDirectory: sourceDirectory});
   const runtimePath = path.join(sourceDirectory, 'extensions/kubohiroyakamishibai4.js');
@@ -62,5 +64,7 @@ export async function buildEditableBlockSource(
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
   assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
-  return Buffer.from(first.archive);
+  return appRoot
+    ? migrateEditableBlockSource(first.archive, {appRoot, entryFile})
+    : Buffer.from(first.archive);
 }

@@ -589,8 +589,8 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     assert(detailIndex.includes('ArrowLeft'));
     assert(detailIndex.includes('ArrowRight'));
   }
-  assert(myUrashimaIndex.includes('data-dsl-series="3.2"'));
-  assert(myUrashimaIndex.includes('data-dsl-series="4.0"'));
+  assert(myUrashimaIndex.includes('data-script-format="dsl32-txt"'));
+  assert(myUrashimaIndex.includes('data-script-format="dsl4-yaml"'));
   assert(myUrashimaIndex.includes('my-urashima.k4.yml'));
   assert(!rootIndex.includes('>GitHubリポジトリ</a>'));
   assert(!rootIndex.includes('https://kubohiroya.github.io/turbowarp-kamishibai-app/stories/'));
@@ -600,14 +600,14 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.equal(
     manifest.dsl4Web.enabled
       ? sampleIndex.includes(manifest.dsl4Web.output.sha256)
-      : sampleIndex.includes('Web版（準備中）') && !sampleIndex.includes('href="web-4.0/"'),
+      : sampleIndex.includes('Web版でプレイ（準備中）') && !sampleIndex.includes('href="web-4.0/"'),
     true,
   );
   assert(myUrashimaIndex.includes(myDsl4Manifest.output.sha256));
   assert.equal(
     myDsl4Manifest.web.enabled
       ? myUrashimaIndex.includes(myDsl4Manifest.web.output.sha256)
-      : myUrashimaIndex.includes('Web版（準備中）') &&
+      : myUrashimaIndex.includes('Web版でプレイ（準備中）') &&
           !myUrashimaIndex.includes('href="web-4.0/"'),
     true,
   );
@@ -615,53 +615,38 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     rootIndex.indexOf('data-work-id="urashima"'),
     rootIndex.indexOf('data-work-id="my-urashima"'),
   );
-  const rootDsl32Actions = urashimaCard.slice(
-    urashimaCard.indexOf('data-action-group="DSL 3.2 実行版"'),
-    urashimaCard.indexOf('data-action-group="DSL 4.0 オフライン実行版"'),
-  );
-  const rootDsl40Actions = urashimaCard.slice(
-    urashimaCard.indexOf('data-action-group="DSL 4.0 オフライン実行版"'),
-  );
-  // 標準4形式は、提供するものはリンクで、提供しないものは理由を添えて必ず4件並ぶ。
-  for (const [formatsPage, label] of [
-    [urashimaCard, 'urashima card'],
-    [sampleIndex, 'urashima detail'],
-    [myUrashimaIndex, 'my-urashima detail'],
-    [tutorialIndex, 'tutorial detail'],
-  ] as const) {
-    assert(formatsPage.includes('<h4>提供形式</h4>'), `${label} is missing the format list.`);
-    for (const formatLabel of ['YAML台本', '台本埋め込みSB3', 'ブロック台本SB3', 'Web版']) {
-      assert(formatsPage.includes(formatLabel), `${label} is missing ${formatLabel}.`);
-    }
+  const rootDsl40Actions = urashimaCard.slice(urashimaCard.indexOf('<h4>DSL4.0</h4>'), urashimaCard.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  const rootDsl32Actions = urashimaCard.slice(urashimaCard.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  // Home and detail pages use the same independently declared asset/script configurations.
+  for (const [page, href] of [[sampleIndex, 'urashima-blocks-4.0.sb3'], [myUrashimaIndex, 'my-urashima-blocks-4.0.sb3'], [tutorialIndex, 'tutorial-blocks-4.0.sb3']] as const) {
+    assert(!page.includes('<h4>提供形式</h4>'));
+    for (const label of ['アセットの持ち方', '台本の持ち方', 'DSL4.0 YAML台本', 'DSL4.0 ブロック台本']) assert(page.includes(label));
+    assert(page.includes(`href="${href}" download>ブロック台本SB3をダウンロード</a>`));
   }
-  // Every published block source must be linked from its detail page.
-  for (const [formatsPage, href, label] of [
-    [tutorialIndex, 'tutorial-blocks-4.0.sb3', 'tutorial detail'],
-    [myUrashimaIndex, 'my-urashima-blocks-4.0.sb3', 'my-urashima detail'],
-    [urashimaCard, 'stories/urashima/urashima-blocks-4.0.sb3', 'urashima card'],
-    [sampleIndex, 'urashima-blocks-4.0.sb3', 'urashima detail'],
-  ] as const) {
-    assert(
-      formatsPage.includes(`<a href="${href}">ブロック台本SB3</a>`),
-      `${label} must link its block source SB3.`,
-    );
+  for (const workId of ['audio-playback', 'three-visits']) {
+    assert(!rootIndex.includes(`data-work-id="${workId}"`), `${workId} must not be listed as a story.`);
   }
+  const listedWorkCount = worksCatalog.works.filter(({id}) => !['audio-playback', 'three-visits'].includes(id)).length;
+  assert(!rootIndex.includes('<h4>提供形式</h4>'), 'The home page must show action buttons instead of the format summary.');
+  assert(!rootIndex.includes('class="work-formats__note"'), 'The home page must omit format notes.');
+  assert.match(urashimaCard, /<div class="block-editor-actions">\s*<a class="work-download" href="stories\/urashima\/urashima-blocks-4\.0\.sb3" download>ブロック台本SB3をダウンロード<\/a>\s*<a class="twpe-edit-button"/u, 'The block download must immediately precede its edit button.');
   // Direct editor links use the standard host and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
-    [rootIndex, ['urashima/urashima', 'tutorial/tutorial', 'my-urashima/my-urashima', 'audio-playback/audio', 'three-visits/three-visits']],
-    [sampleIndex, ['urashima/urashima']],
-    [tutorialIndex, ['tutorial/tutorial']],
-    [myUrashimaIndex, ['my-urashima/my-urashima', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses`)]],
+    [rootIndex, ['urashima/urashima-4.0.sb3', 'urashima/urashima-blocks-4.0.sb3', 'tutorial/tutorial-4.0.sb3', 'tutorial/tutorial-blocks-4.0.sb3', 'my-urashima/my-urashima-blocks-4.0.sb3']],
+    [sampleIndex, ['urashima/urashima-4.0.sb3', 'urashima/urashima-blocks-4.0.sb3']],
+    [tutorialIndex, ['tutorial/tutorial-4.0.sb3', 'tutorial/tutorial-blocks-4.0.sb3']],
+    [myUrashimaIndex, ['my-urashima/my-urashima-blocks-4.0.sb3', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses-blocks-4.0.sb3`)]],
   ] as const) {
     const links = [...page.matchAll(/href="([^"]*turbowarp-plus-editor[^"]*)"/gu)]
       .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
     assert.deepEqual(links.map((url) => url.searchParams.get('project_url')).sort(),
-      expectedProjects.map((project) => `${editorSb3Base}${project}-blocks-4.0.sb3`).sort());
+      expectedProjects.map((project) => `${editorSb3Base}${project}`).sort());
     for (const url of links) {
       assert.equal(url.pathname, '/turbowarp-plus-editor/editor.html');
       assert.equal(url.origin, 'https://kubohiroya.github.io');
       assert.equal(url.searchParams.has('blockEditorDialogs'), false);
+      assert.equal(url.searchParams.get('twPlusYamlEditor'), '1');
       assert.equal(url.searchParams.get('lang'), 'ja');
     }
   }
@@ -677,10 +662,8 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     myDsl4Manifest.blocksOutput,
     'my-urashima block source SB3',
   );
-  assert(
-    myUrashimaIndex.includes('台本埋め込みSB3：未提供'),
-    'the workshop work must state why it embeds no script.',
-  );
+  assert(myUrashimaIndex.includes('外部から読み込み'));
+  assert(myUrashimaIndex.includes('Web版／SB3内の紙芝居メニュー'));
   assert(urashimaCard.includes('class="capability-note"'));
   assert.equal(rootDsl32Actions.includes('data-capability-launch="camera"'), manifest.web.enabled);
   assert.equal(rootDsl40Actions.includes('data-capability-launch="camera"'), dsl4WebEnabled);
@@ -705,22 +688,22 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(urashimaCard.includes('aria-haspopup="dialog"'));
   assert(urashimaCard.includes('loading="lazy" decoding="async"'));
   assert(urashimaCard.includes('4場面のループ画像：Hiroya Kuboおよび個別素材の権利者'));
-  assert(rootDsl32Actions.includes('<h4>DSL 3.2 実行版</h4>'));
-  assert(rootDsl32Actions.includes('Web版を開く'));
-  assert(rootDsl32Actions.includes('DSL 3.2台本を表示'));
-  assert(rootDsl32Actions.includes('再生用SB3をダウンロード'));
+  assert(rootDsl32Actions.includes('<h4>DSL3.2 TXT台本</h4>'));
+  assert(rootDsl32Actions.includes('Web版でプレイ'));
+  assert(rootDsl32Actions.includes('DSL3.2 TXT台本をダウンロード'));
+  assert(rootDsl32Actions.includes('SB3をダウンロード'));
   assert(!rootDsl32Actions.includes('urashima.k4.yml'));
-  assert(rootDsl40Actions.includes('<h4>DSL 4.0 オフライン実行版</h4>'));
+  assert(rootDsl40Actions.includes('<h4>DSL4.0</h4>'));
   assert(rootDsl40Actions.includes('urashima.k4.yml'));
   assert(rootDsl40Actions.includes('urashima-4.0.sb3'));
   assert.equal(
     dsl4WebEnabled
       ? rootDsl40Actions.includes('href="stories/urashima/web-4.0/"')
-      : rootDsl40Actions.includes('disabled aria-disabled="true">Web版（準備中）</button>') &&
+      : rootDsl40Actions.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>') &&
           !rootDsl40Actions.includes('href="stories/urashima/web-4.0/"'),
     true,
   );
-  assert(rootDsl40Actions.includes('オフラインSB3をダウンロード'));
+  assert(rootDsl40Actions.includes('SB3をダウンロード'));
   assert(!urashimaCard.includes('data-action-group="作品情報"'));
   assert(!urashimaCard.includes('>manifest</a>'));
   assert(!urashimaCard.includes('>詳細を見る</a>'));
@@ -737,7 +720,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(myUrashimaCard.includes('data-scene-gallery="my-urashima"'));
   assert(rootIndex.includes('src="stories/tutorial/card-scenes.gif"'));
   assert(rootIndex.includes('data-scene-gallery="tutorial-earthquake-safety"'));
-  assert.equal((rootIndex.match(/loading="lazy" decoding="async"/gu) ?? []).length, worksCatalog.works.length);
+  assert.equal((rootIndex.match(/loading="lazy" decoding="async"/gu) ?? []).length, listedWorkCount);
   assert(rootIndex.includes('id="scene-gallery-dialog"'));
   assert(rootIndex.includes('data-scene-gallery-previous'));
   assert(rootIndex.includes('data-scene-gallery-next'));
@@ -745,26 +728,21 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(rootIndex.includes("event.key === 'ArrowRight'"));
   assert(rootIndex.includes("event.key === 'Escape'"));
   assert(rootIndex.includes('dialog.showModal()'));
-  assert.equal((rootIndex.match(/class="work-card__scene-button"/gu) ?? []).length, worksCatalog.works.length);
-  const myUrashimaDsl32Actions = myUrashimaCard.slice(
-    myUrashimaCard.indexOf('data-action-group="DSL 3.2 作業版"'),
-    myUrashimaCard.indexOf('data-action-group="DSL 4.0 作業版"'),
-  );
-  const myUrashimaDsl40Actions = myUrashimaCard.slice(
-    myUrashimaCard.indexOf('data-action-group="DSL 4.0 作業版"'),
-  );
-  assert(myUrashimaDsl32Actions.includes('<h4>DSL 3.2 作業版</h4>'));
+  assert.equal((rootIndex.match(/class="work-card__scene-button"/gu) ?? []).length, listedWorkCount);
+  const myUrashimaDsl40Actions = myUrashimaCard.slice(myUrashimaCard.indexOf('<h4>DSL4.0</h4>'), myUrashimaCard.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  const myUrashimaDsl32Actions = myUrashimaCard.slice(myUrashimaCard.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  assert(myUrashimaDsl32Actions.includes('<h4>DSL3.2 TXT台本</h4>'));
   assert(myUrashimaDsl32Actions.includes('my-urashima.sb3'));
   assert(myUrashimaDsl32Actions.includes('my-urashima.txt'));
   assert(!myUrashimaDsl32Actions.includes('my-urashima.k4.yml'));
-  assert(myUrashimaDsl40Actions.includes('<h4>DSL 4.0 作業版</h4>'));
+  assert(myUrashimaDsl40Actions.includes('<h4>DSL4.0</h4>'));
   assert(myUrashimaDsl40Actions.includes('my-urashima.k4.yml'));
   assert(!myUrashimaDsl40Actions.includes('href="stories/my-urashima/my-urashima.sb3"'));
   assert.equal(
     myDsl4WebEnabled
       ? myUrashimaDsl40Actions.includes('href="stories/my-urashima/web-4.0/"')
       : myUrashimaDsl40Actions.includes(
-          'disabled aria-disabled="true">Web版（準備中）</button>',
+          'disabled aria-disabled="true">Web版でプレイ（準備中）</button>',
         ) && !myUrashimaDsl40Actions.includes('href="stories/my-urashima/web-4.0/"'),
     true,
   );
@@ -793,29 +771,23 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(!rootIndex.includes('<dt>掲載形態</dt>'));
   assert(!rootIndex.includes('<dt>ライセンス・利用条件</dt>'));
   assert(rootIndex.includes('<a href="WORKS_POLICY.md">作品掲載方針</a>'));
-  const sampleDsl32Actions = sampleIndex.slice(
-    sampleIndex.indexOf('data-dsl-series="3.2"'),
-    sampleIndex.indexOf('data-dsl-series="4.0"'),
-  );
-  const sampleDsl40Actions = sampleIndex.slice(
-    sampleIndex.indexOf('data-dsl-series="4.0"'),
-    sampleIndex.indexOf('aria-labelledby="work-info-heading"'),
-  );
-  assert(sampleDsl32Actions.includes('<h2 id="dsl-32-heading">DSL 3.2 実行版</h2>'));
-  assert(sampleDsl32Actions.includes('Web版を開く'));
-  assert(sampleDsl32Actions.includes('再生用SB3をダウンロード'));
-  assert(!sampleDsl32Actions.includes('urashima.k4.yml'));
-  assert(sampleDsl40Actions.includes('<h2 id="dsl-40-heading">DSL 4.0 オフライン実行版</h2>'));
+  const sampleDsl40Actions = sampleIndex.slice(sampleIndex.indexOf('<h4>DSL4.0</h4>'), sampleIndex.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  const sampleDsl32Actions = sampleIndex.slice(sampleIndex.indexOf('<h4>DSL3.2 TXT台本</h4>'));
+  assert(sampleDsl32Actions.includes('<h4>DSL3.2 TXT台本</h4>'));
+  assert(sampleDsl32Actions.includes('Web版でプレイ'));
+  assert(sampleDsl32Actions.includes('SB3をダウンロード'));
+  assert(!sampleDsl32Actions.includes('href="urashima.k4.yml"'));
+  assert(sampleDsl40Actions.includes('<h4>DSL4.0</h4>'));
   assert(sampleDsl40Actions.includes('urashima.k4.yml'));
   assert(sampleDsl40Actions.includes('urashima-4.0.sb3'));
   assert.equal(
     dsl4WebEnabled
       ? sampleDsl40Actions.includes('href="web-4.0/"')
-      : sampleDsl40Actions.includes('disabled aria-disabled="true">Web版（準備中）</button>') &&
+      : sampleDsl40Actions.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>') &&
           !sampleDsl40Actions.includes('href="web-4.0/"'),
     true,
   );
-  assert(sampleDsl40Actions.includes('オフラインSB3をダウンロード'));
+  assert(sampleDsl40Actions.includes('SB3をダウンロード'));
   assert(publishedFiles.includes('.nojekyll'));
   assert(publishedFiles.includes('favicon.png'));
   assert(publishedFiles.includes('favicon.source.json'));

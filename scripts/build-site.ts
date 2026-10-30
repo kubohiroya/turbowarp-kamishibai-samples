@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {renderEditorButton} from './editor-button.ts';
+import {assetModeLabels, scriptFormatLabels, workDelivery, type WorkDelivery} from './work-delivery.ts';
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildThreeVisits} from './build-three-visits.ts';
@@ -144,7 +145,8 @@ function renderSiteFooter(assetPrefix: string): string {
 function detailRelativeHref(work: WorkEntry, href: string): string {
   if (/^(?:[a-z]+:|\/|#)/iu.test(href)) return href;
   const detailDirectory = (work.detailHref ?? '').replace(/\/+$/u, '');
-  return path.posix.relative(detailDirectory, href) || '.';
+  const relative = path.posix.relative(detailDirectory, href) || '.';
+  return href.endsWith('/') ? `${relative}/` : relative;
 }
 
 function renderDetailMediaStyles() {
@@ -324,7 +326,7 @@ async function assetRecords(directory: string, kind: string): Promise<AssetRecor
 
 /** 標準4形式の表示名。内部識別名は issue #132 で固定したもの。 */
 const artifactFormatLabels: Record<ArtifactFormatId, string> = {
-  'source-yaml': 'YAML台本',
+  'source-yaml': 'DSL4.0 YAML台本',
   'sb3-yaml': '台本埋め込みSB3',
   'sb3-blocks': 'ブロック台本SB3',
   html: 'Web版',
@@ -351,8 +353,11 @@ function renderArtifactFormats(
     }
     if (entry.href) {
       let editorLink = '';
-      if (format === 'sb3-blocks') {
-        editorLink = `<br>${renderEditorButton(new URL(entry.href, publicUrl).href)}<span class="work-formats__note">「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a></span>`;
+      if (format === 'sb3-blocks' || format === 'sb3-yaml') {
+        const editorNote = format === 'sb3-blocks'
+          ? '「この部分を使う［オン／オフ］」も追加できます。<a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/block-author-guides/dsl-4.0-block-author-guide/#use-section">図版付きの使い方</a>'
+          : '文書アイコンから原文YAML・共通YAMLブロック・台本ブロックを表示できます。';
+        editorLink = `<br>${renderEditorButton(new URL(entry.href, publicUrl).href)}<span class="work-formats__note">${editorNote}</span>`;
       }
       return `${indent}  <li><a href="${escapeHtml(resolveHref(entry.href))}">${label}</a>${note}${editorLink}</li>`;
     }
@@ -420,7 +425,7 @@ function renderCapabilityLaunchScript(): string {
         const start = document.createElement('a');
         start.className = 'button';
         start.href = link.href;
-        start.textContent = '作品をはじめる';
+        start.textContent = 'Web版でプレイ';
         const cancel = document.createElement('button');
         cancel.className = 'button secondary';
         cancel.type = 'button';
@@ -467,7 +472,9 @@ function renderCapabilityLaunchScript(): string {
 }
 
 function renderDisabledAction(className: string, label: string): string {
-  return `        <button class="${className}" type="button" disabled aria-disabled="true">${escapeHtml(label)}</button>`;
+  return className === 'work-download'
+    ? `        <span class="work-download" aria-disabled="true">${escapeHtml(label)}</span>`
+    : `        <button class="${className}" type="button" disabled aria-disabled="true">${escapeHtml(label)}</button>`;
 }
 
 function renderWorkAction(
@@ -475,27 +482,66 @@ function renderWorkAction(
   features: SiteFeatures,
   capabilities?: WorkCapabilities,
 ): string {
-  const className = action.style === 'secondary' ? 'button secondary' : 'button';
+  const pathname = action.href ? new URL(action.href, publicUrl).pathname : '';
+  const webPlayer = action.launch === 'web';
+  const textFormat = /\.txt$/u.test(pathname) ? 'DSL3.2 TXT台本'
+    : /\.ya?ml$/u.test(pathname) ? 'DSL4.0 YAML台本' : undefined;
+  const projectDownload = action.download && /\.sb3$/u.test(pathname) && !/-blocks-4\.0\.sb3$/u.test(pathname);
+  const label = webPlayer ? 'Web版でプレイ'
+    : textFormat ? `${textFormat}${action.download ? 'をダウンロード' : 'を表示'}`
+      : projectDownload ? '作品をダウンロード（SB3）'
+        : action.label.replaceAll('DSL 4.0', 'DSL4.0').replaceAll('DSL 3.2', 'DSL3.2');
+  const className = action.download || textFormat ? 'work-download'
+    : action.style === 'secondary' ? 'button secondary' : 'button';
+  let html: string;
   if (action.disabled) {
-    return renderDisabledAction(className, action.label);
-  }
-  if (action.requires && features[action.requires] !== true) {
-    return renderDisabledAction(
+    html = renderDisabledAction(className, label);
+  } else if (action.requires && features[action.requires] !== true) {
+    html = renderDisabledAction(
       className,
-      action.unavailableLabel ?? `${action.label}（準備中）`,
+      webPlayer ? 'Web版でプレイ（準備中）' : action.unavailableLabel ?? `${label}（準備中）`,
     );
+  } else {
+    const download = action.download ? ' download' : '';
+    const external = action.external ? ' target="_blank" rel="noopener external"' : '';
+    const externalLabel = action.external ? '（外部サイト）' : '';
+    const capabilityLaunch =
+      action.launch === 'web' && capabilities?.camera ? ' data-capability-launch="camera"' : '';
+    html = `        <a class="${className}" href="${escapeHtml(action.href ?? '')}"${download}${external}${capabilityLaunch}>${escapeHtml(label)}${externalLabel}</a>`;
   }
-  const download = action.download ? ' download' : '';
-  const external = action.external ? ' target="_blank" rel="noopener external"' : '';
-  const externalLabel = action.external ? '（外部サイト）' : '';
-  const capabilityLaunch =
-    action.launch === 'web' && capabilities?.camera ? ' data-capability-launch="camera"' : '';
-  return `        <a class="${className}" href="${escapeHtml(action.href ?? '')}"${download}${external}${capabilityLaunch}>${escapeHtml(action.label)}${externalLabel}</a>`;
+  return html;
 }
 
 function renderWorkActions(work: WorkEntry, features: SiteFeatures): string {
-  const renderedActions = work.actions
-    .map((action) => ({action, html: renderWorkAction(action, features, work.capabilities)}))
+  const blockFormat = work.artifacts?.['sb3-blocks'];
+  const actions = [...work.actions];
+  if (blockFormat?.href && !actions.some((action) => action.href === blockFormat.href)) {
+    const artifactHrefs = Object.values(work.artifacts!).map((entry) => entry.href);
+    const group = actions.find((action) => action.group && artifactHrefs.includes(action.href))?.group;
+    actions.push({
+      label: 'ブロック台本SB3をダウンロード',
+      href: blockFormat.href,
+      download: true,
+      style: 'secondary',
+      requires: blockFormat.requires,
+      group,
+    });
+  }
+  const renderedActions = actions
+    .map((action) => {
+      let html = renderWorkAction(action, features, work.capabilities);
+      const blockHref = blockFormat?.href;
+      if (blockFormat && ((blockHref && action.href === blockHref) ||
+          (action.download && /-blocks-4\.0\.sb3$/u.test(action.href ?? '')))) {
+        const available = action.href === blockHref && !action.disabled &&
+          (!action.requires || features[action.requires] === true) &&
+          (!blockFormat.requires || features[blockFormat.requires] === true);
+        html = available && blockHref
+          ? `        <div class="block-editor-actions">${renderWorkAction({...action, label: 'ブロック台本SB3をダウンロード', download: true}, features)}${renderEditorButton(new URL(blockHref, publicUrl).href)}</div>`
+          : renderDisabledAction('work-download', 'ブロック台本SB3（準備中）');
+      }
+      return {action, html};
+    })
     .filter(({html}) => html);
   if (!renderedActions.some(({action}) => action.group)) {
     return `        <div class="actions">
@@ -513,7 +559,7 @@ ${renderedActions.map(({html}) => html).join('\n')}
 ${[...groups.entries()]
   .map(
     ([group, actions]) => `          <section class="action-group" data-action-group="${escapeHtml(group)}">
-            <h4>${escapeHtml(group)}</h4>
+            <h4>${escapeHtml(group.replaceAll('DSL 4.0', 'DSL4.0').replaceAll('DSL 3.2', 'DSL3.2').replaceAll(' オフライン実行版', ' 実行版'))}</h4>
             <div class="actions">
 ${actions.join('\n')}
             </div>
@@ -523,8 +569,41 @@ ${actions.join('\n')}
         </div>`;
 }
 
+function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], features: SiteFeatures, resolveHref: (href: string) => string = (href) => href): string {
+  const renderRow = (row: WorkDelivery): string => {
+    const blocks = row.script.format === 'dsl4-blocks';
+    const blockFormat = work.artifacts?.['sb3-blocks'];
+    const available = !blocks || !blockFormat?.requires || features[blockFormat.requires] === true;
+    const project = available
+      ? `<a class="work-download" href="${escapeHtml(resolveHref(row.sb3))}" download>${blocks ? 'ブロック台本SB3をダウンロード' : 'SB3をダウンロード'}</a>`
+      : '<span class="work-download" aria-disabled="true">ブロック台本SB3（準備中）</span>';
+    const editable = blocks || (row.script.format === 'dsl4-yaml' && row.script.mode === 'embedded');
+    const editor = editable && available ? renderEditorButton(new URL(row.sb3, publicUrl).href) : '';
+    const webAction = row.web ? work.actions.find(({href}) => href === row.web)! : undefined;
+    const web = webAction
+      ? renderWorkAction({...webAction, href: resolveHref(webAction.href!), label: 'Web版でプレイ'}, features, work.capabilities)
+      : '';
+    const source = row.source
+      ? `<a class="work-download" href="${escapeHtml(resolveHref(row.source))}" download>${scriptFormatLabels[row.script.format]}をダウンロード</a>`
+      : '';
+    return `<tr data-delivery-id="${row.id}" data-script-format="${row.script.format}" data-script-mode="${row.script.mode}">
+      <td data-column="アセットの持ち方">${row.assets.map((asset) => `<p class="delivery-asset"><span>${escapeHtml(asset.scope)}</span><strong>${assetModeLabels[asset.mode]}</strong></p>`).join('')}</td>
+      <td data-column="台本の持ち方"><span class="delivery-script-mode">${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</span><strong>${scriptFormatLabels[row.script.format]}</strong></td>
+      <td data-column="操作"><div class="delivery-actions">${web}${editable ? `<div class="block-editor-actions">${project}${editor}</div>` : project}${source}</div>${row.note ? `<p class="delivery-note">${escapeHtml(row.note)}</p>` : ''}</td>
+    </tr>`;
+  };
+  const table = (title: string, variants: WorkDelivery[]): string => variants.length
+    ? `<section class="delivery-group"><h4>${title}</h4><table class="delivery-table"><thead><tr><th scope="col">アセットの持ち方</th><th scope="col">台本の持ち方</th><th scope="col">操作</th></tr></thead><tbody>${variants.map(renderRow).join('')}</tbody></table></section>`
+    : '';
+  const learningLinks = work.id === 'tutorial-earthquake-safety'
+    ? `<p class="delivery-learning">作り方の教材：<a href="${resolveHref('stories/tutorial/tutorial-story-starter-4.0.zip')}" download>スターター</a> ／ <a href="${resolveHref('stories/tutorial/tutorial-story-addition-kit-4.0.zip')}" download>addition kit</a></p>`
+    : '';
+  return `${table('DSL4.0', rows.filter(({script}) => script.format !== 'dsl32-txt'))}${table('DSL3.2 TXT台本', rows.filter(({script}) => script.format === 'dsl32-txt'))}${learningLinks}`;
+}
+
 function renderWorkCard(work: WorkEntry, features: SiteFeatures): string {
-  const actions = renderWorkActions(work, features);
+  const delivery = workDelivery(work);
+  const actions = delivery ? renderDeliveryRows(work, delivery, features) : renderWorkActions(work, features);
   const title = work.detailHref
     ? `<a class="work-card__title-link" href="${escapeHtml(work.detailHref)}">${escapeHtml(work.title)}</a>`
     : escapeHtml(work.title);
@@ -548,13 +627,13 @@ function renderWorkCard(work: WorkEntry, features: SiteFeatures): string {
     : '';
   return `      <article data-work-id="${escapeHtml(work.id)}" data-distribution="${escapeHtml(work.distribution)}">
 ${thumbnail}        <h3>${title}</h3>
-        <p>${escapeHtml(work.summary)}</p>
+        <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
         <dl class="work-meta">
           <div><dt>更新日</dt><dd><time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></dd></div>
           <div><dt>作者</dt><dd>${escapeHtml(work.creator)}</dd></div>
           <div><dt>著作権者</dt><dd>${escapeHtml(work.rightsHolder)}</dd></div>
         </dl>
-${renderArtifactFormats(work, (requirement) => features[requirement] === true, '        ')}${renderCapabilityNotice(work.capabilities)}${actions}
+${renderCapabilityNotice(work.capabilities)}${actions}
       </article>`;
 }
 
@@ -584,11 +663,12 @@ export function renderRootIndex(
     urashimaDsl4Web: manifest.dsl4Web.enabled,
     myUrashimaDsl4Web: myDsl4Manifest.web.enabled,
   };
+  const listedWorks = worksCatalog.works.filter(({id}) => !['audio-playback', 'three-visits'].includes(id));
   const categories = worksCatalog.categories
-    .map((category) => renderWorkCategory(category, worksCatalog.works, features))
+    .map((category) => renderWorkCategory(category, listedWorks, features))
     .join('\n');
   const galleries = Object.fromEntries(
-    worksCatalog.works
+    listedWorks
       .filter((work) => work.thumbnail?.slides)
       .map((work) => [work.id, {title: work.title, slides: work.thumbnail!.slides}]),
   );
@@ -605,7 +685,7 @@ export function renderRootIndex(
     :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --paper: #fffdf8; --canvas: #fff8ee; --accent: #963f2f; --line: #dbc9bb; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
-    main { max-width: 920px; margin: auto; padding: 48px 24px 72px; }
+    main { max-width: 1320px; margin: auto; padding: 48px 24px 72px; }
     h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin-bottom: .35rem; }
     .lead { color: var(--muted); font-size: 1.15rem; }
     .work-category { margin-top: 42px; }
@@ -632,8 +712,13 @@ export function renderRootIndex(
     .action-groups { display: grid; gap: 12px; margin-top: 1.25rem; }
     .action-group { padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--canvas); }
     .action-group h4 { margin: 0; font-size: 1rem; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: .75rem; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: .75rem; }
     article > .actions { margin-top: 1.25rem; }
+    .block-editor-actions { display: flex; flex-basis: 100%; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
+    .block-editor-actions > .work-download { line-height: 1.6; overflow-wrap: anywhere; }
+    .work-player-action { display: grid; justify-items: start; align-content: start; gap: 6px; }
+    .work-player-action__format { color: var(--muted); font-size: .85rem; font-weight: 600; }
+    .block-editor-actions > .twpe-edit-button { margin-block: 0; }
     .button { display: inline-block; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-weight: 700; }
     .button.secondary { border: 1px solid var(--accent); background: white; color: var(--accent); }
     .button:disabled { cursor: not-allowed; opacity: .55; }
@@ -804,9 +889,6 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
   const webDescription = manifest.web.enabled
     ? '<p>Web版には画像・音声・台本を組み込み済みです。Teachable Machine拡張のライブラリ・モデル取得とカメラ利用にはネットワーク接続が必要です。</p>'
     : '';
-  const webAction = manifest.web.enabled
-    ? `${renderCapabilityNotice({camera: true}, '    ')}    <a class="button" href="web/" data-capability-launch="camera">Web版を開く</a>\n`
-    : '';
   const webHash = manifest.web.enabled
     ? `  <p>Web版 SHA-256: <code>${manifest.web.output.sha256}</code></p>\n`
     : '';
@@ -814,17 +896,14 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
     ? `  <h2>Web版のクレジット</h2>
   <p>Web版は <a href="https://packager.turbowarp.org/">TurboWarp Packager</a> ${escapeHtml(manifest.web.packager.version)} で生成しています。PackagerはMPL-2.0で提供され、ライセンスと同梱ランタイムのクレジットは<a href="LICENSES.md">ライセンス情報</a>および生成HTML内で確認できます。</p>\n`
     : '';
-  const dsl4WebAction = manifest.dsl4Web.enabled
-    ? `${renderCapabilityNotice({camera: true}, '        ')}        <a class="button" href="web-4.0/" data-capability-launch="camera">Web版を開く</a>\n`
-    : '        <button class="button" type="button" disabled aria-disabled="true">Web版（準備中）</button>\n';
   const dsl4WebHash = manifest.dsl4Web.enabled
     ? `  <p>DSL 4.0 Web版 SHA-256: <code>${manifest.dsl4Web.output.sha256}</code></p>\n`
     : '';
   const dsl32Sizes = renderArtifactSizes('DSL 3.2成果物のファイルサイズ', [
     {name: 'Web版ファイル', record: manifest.web.enabled ? manifest.web.output : undefined},
     {name: '台本ファイル', record: manifest.script},
-    {name: '再生用SB3ファイル', record: manifest.profiles.player.sb3},
-    {name: '編集用SB3ファイル', record: manifest.profiles.editor.sb3},
+    {name: '作品ファイル（SB3）', record: manifest.profiles.player.sb3},
+    {name: '作品ファイル（SB3・編集用）', record: manifest.profiles.editor.sb3},
   ]);
   const dsl4Sizes = renderArtifactSizes('DSL 4.0成果物のファイルサイズ', [
     {
@@ -832,7 +911,7 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
       record: manifest.dsl4Web.enabled ? manifest.dsl4Web.output : undefined,
     },
     {name: '台本ファイル（YAML）', record: manifest.source.dsl4Script},
-    {name: 'オフラインSB3ファイル', record: manifest.dsl4Offline},
+    {name: '作品ファイル（SB3）', record: manifest.dsl4Offline},
   ]);
   const assetItems = manifest.assets
     .map(
@@ -841,15 +920,7 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
     )
     .join('\n');
   const workMedia = renderDetailMediaGallery(work);
-  const workFormats = renderArtifactFormats(
-    work,
-    (requirement) =>
-      requirement === 'urashimaWeb'
-        ? manifest.web.enabled
-        : requirement === 'urashimaDsl4Web' && manifest.dsl4Web.enabled,
-    '  ',
-    (href) => detailRelativeHref(work, href),
-  );
+  const workFormats = renderDeliveryRows(work, workDelivery(work)!, {urashimaWeb: manifest.web.enabled, urashimaDsl4Web: manifest.dsl4Web.enabled, myUrashimaDsl4Web: false}, (href) => detailRelativeHref(work, href));
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -862,7 +933,7 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --canvas: #fff8ee; --accent: #963f2f; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
-    main { max-width: 920px; margin: auto; padding: 40px 24px 72px; }
+    main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
     .local-nav { margin-bottom: 32px; }
     a { color: var(--accent); }
     .artifact-groups { display: grid; gap: 18px; margin: 28px 0; }
@@ -875,7 +946,7 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
     .work-meta div { display: grid; grid-template-columns: minmax(7.5rem, auto) 1fr; gap: .75rem; }
     .work-meta dt { color: var(--muted); font-weight: 700; }
     .work-meta dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
     .button { display: inline-block; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-weight: 700; }
     .button.secondary { border: 1px solid var(--accent); background: white; color: var(--accent); }
     .button:disabled { cursor: not-allowed; opacity: .55; }
@@ -890,52 +961,27 @@ ${renderSiteHeader('../../')}
 <main id="main-content">
   <nav class="local-nav" aria-label="作品内ナビゲーション"><a href="../../">作品一覧へ戻る</a></nav>
   <h1>浦島太郎</h1>
-  <p>DSL 3.2の実行用成果物と、台本・画像・音声・ポーズモデルを組み込んだDSL 4.0オフライン実行版を区別して公開しています。</p>
+  <p>DSL 3.2の実行用成果物と、台本・画像・音声・ポーズモデルを組み込んだDSL4.0実行版を区別して公開しています。</p>
   <dl class="work-meta">
     <div><dt>更新日</dt><dd><time datetime="${manifest.updatedAt}">${formatDisplayDate(manifest.updatedAt)}</time></dd></div>
     <div><dt>対応DSL</dt><dd>3.2／4.0</dd></div>
     <div><dt>掲載形態</dt><dd>当サイトで配布</dd></div>
     <div><dt>ライセンス・利用条件</dt><dd><a href="LICENSES.md">MPL-2.0、CC BY-SA 2.0ほか</a></dd></div>
   </dl>
-${workMedia}${workFormats}
-  <div class="artifact-groups">
-    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="dsl-32-heading">
-      <h2 id="dsl-32-heading">DSL 3.2 実行版</h2>
-      <p>Web版、台本、SB3はDSL 3.2で実行するための成果物です。同じ台本とアセットロックから、編集用と再生用の2種類のSB3を生成しています。</p>
-      ${webDescription}
-${dsl32Sizes}
-      <div class="actions">
-${webAction}        <a class="button secondary" href="urashima.txt">DSL 3.2台本を表示</a>
-        <a class="button secondary" href="urashima.sb3" download>再生用SB3をダウンロード</a>
-        <a class="button secondary" href="_urashima.sb3" download>編集用SB3をダウンロード</a>
-      </div>
-    </section>
-    <section class="artifact-group" data-dsl-series="4.0" aria-labelledby="dsl-40-heading">
-      <h2 id="dsl-40-heading">DSL 4.0 オフライン実行版</h2>
-      <p>DSL 4.0 YAML、49アセット、Urashima／Turtle／Princess／Fish／Narration target、4.0実行基盤を一つのSB3に組み込んでいます。モデル取得にネットワーク接続は不要です。</p>
-${dsl4Sizes}
-      <div class="actions">
-${dsl4WebAction}        <a class="button" href="urashima.k4.yml" download>DSL 4.0 YAMLをダウンロード</a>
-        <a class="button secondary" href="urashima-4.0.sb3" download>オフラインSB3をダウンロード</a>
-      </div>
-    </section>
-    <section class="artifact-group" aria-labelledby="work-info-heading">
-      <h2 id="work-info-heading">作品情報</h2>
-      <div class="actions">
-        <a class="button secondary" href="manifest.json">manifest</a>
-        <a class="button secondary" href="LICENSES.md">ライセンス</a>
-      </div>
-    </section>
-  </div>
-  <p>再生用SB3 SHA-256: <code>${manifest.profiles.player.sb3.sha256}</code></p>
-  <p>編集用SB3 SHA-256: <code>${manifest.profiles.editor.sb3.sha256}</code></p>
-  <p>DSL 4.0オフラインSB3 SHA-256: <code>${manifest.dsl4Offline.sha256}</code></p>
+${workMedia}${renderCapabilityNotice(work.capabilities)}${workFormats}
+  <p>DSL3.2 TXT台本を別ファイルから読み込む場合：<a class="work-download" href="_urashima.sb3" download>外部TXT台本読込用SB3をダウンロード</a></p>
+  <details><summary>ファイルサイズ・生成情報</summary>${dsl32Sizes}${dsl4Sizes}
+    <p><a href="manifest.json">manifest</a> ／ <a href="LICENSES.md">ライセンス</a></p>
+  </details>
+  <p>作品ファイル（SB3）SHA-256: <code>${manifest.profiles.player.sb3.sha256}</code></p>
+  <p>作品ファイル（SB3・編集用）SHA-256: <code>${manifest.profiles.editor.sb3.sha256}</code></p>
+  <p>DSL4.0 作品ファイル（SB3）SHA-256: <code>${manifest.dsl4Offline.sha256}</code></p>
 ${dsl4WebHash}${webHash}  <h2>成果物プロファイル</h2>
   <ul>
     <li><code>generic</code>: <code>base/kamishibai.sb3</code> — 台本・物語固有アセット非埋め込みの汎用雛形</li>
     <li><code>editor</code>: <code>_urashima.sb3</code> — 台本非埋め込み・アセット埋め込みの編集用</li>
     <li><code>player</code>: <code>urashima.sb3</code> — 台本・アセット埋め込みの再生用</li>
-    <li><code>dsl4-offline</code>: <code>urashima-4.0.sb3</code> — DSL 4.0台本・49アセット・実行基盤埋め込みのオフライン動作確認用</li>
+    <li><code>dsl4-offline</code>: <code>urashima-4.0.sb3</code> — DSL 4.0台本・49アセット・実行基盤埋め込みの作品再生用</li>
   </ul>
   <h2>元アセット</h2>
   <p>画像${manifest.assetCounts.images}件、音声${manifest.assetCounts.sounds}件（組み込み対象${manifest.assetCounts.embedded}件）。ファイル名はScratchの <code>md5ext</code> 名です。</p>
@@ -989,15 +1035,12 @@ export function renderMyUrashimaIndex(
   dsl4Manifest: MyUrashimaDsl4Manifest,
   dsl32Artifacts: ArtifactsLock,
 ): string {
-  const webAction = dsl4Manifest.web.enabled
-    ? `${renderCapabilityNotice({camera: true}, '        ')}        <a class="button" href="web-4.0/" data-capability-launch="camera">Web版を開く</a>\n`
-    : '        <button class="button" type="button" disabled aria-disabled="true">Web版（準備中）</button>\n';
   const webHash = dsl4Manifest.web.enabled
     ? `  <p>DSL 4.0 Web版 SHA-256: <code>${dsl4Manifest.web.output.sha256}</code></p>\n`
     : '';
   const dsl32Output = dsl32Artifacts.output as Record<string, {size: number}> | undefined;
   const dsl32Sizes = renderArtifactSizes('DSL 3.2成果物のファイルサイズ', [
-    {name: '作業用SB3ファイル', record: dsl32Output?.sb3},
+    {name: '作品ファイル（SB3）', record: dsl32Output?.sb3},
     {name: '台本ファイル', record: dsl32Output?.script},
   ]);
   const dsl4Sizes = renderArtifactSizes('DSL 4.0成果物のファイルサイズ', [
@@ -1006,16 +1049,11 @@ export function renderMyUrashimaIndex(
       record: dsl4Manifest.web.enabled ? dsl4Manifest.web.output : undefined,
     },
     {name: '台本ファイル（YAML）', record: dsl4Manifest.source as {size: number}},
-    {name: '作業用SB3ファイル', record: dsl4Manifest.output},
+    {name: '作品ファイル（SB3）', record: dsl4Manifest.output},
     {name: 'ブロック台本SB3ファイル', record: dsl4Manifest.blocksOutput},
   ]);
   const workMedia = renderDetailMediaGallery(work);
-  const workFormats = renderArtifactFormats(
-    work,
-    (requirement) => requirement === 'myUrashimaDsl4Web' && dsl4Manifest.web.enabled,
-    '  ',
-    (href) => detailRelativeHref(work, href),
-  );
+  const workFormats = renderDeliveryRows(work, workDelivery(work)!, {urashimaWeb: false, urashimaDsl4Web: false, myUrashimaDsl4Web: dsl4Manifest.web.enabled}, (href) => detailRelativeHref(work, href));
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -1029,7 +1067,7 @@ export function renderMyUrashimaIndex(
     :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --canvas: #fff8ee; --paper: #fffdf8; --accent: #963f2f; --line: #dbc9bb; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
-    main { max-width: 920px; margin: auto; padding: 40px 24px 72px; }
+    main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
     .local-nav { margin-bottom: 32px; }
     a { color: var(--accent); }
     code { overflow-wrap: anywhere; }
@@ -1043,7 +1081,7 @@ export function renderMyUrashimaIndex(
     .artifact-group p { line-height: 1.7; }
     .artifact-sizes { margin: 16px 0; padding-left: 1.4rem; color: var(--muted); }
     .artifact-sizes data { color: var(--ink); font-weight: 700; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
     .button { display: inline-block; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-weight: 700; }
     .button.secondary { border: 1px solid var(--accent); background: white; color: var(--accent); }
     .button:disabled { cursor: not-allowed; opacity: .55; }
@@ -1055,7 +1093,7 @@ ${renderSiteHeader('../../')}
 <main id="main-content">
   <nav class="local-nav" aria-label="作品内ナビゲーション"><a href="../../">作品一覧へ戻る</a></nav>
   <h1>${escapeHtml(work.title)}</h1>
-  <p>${escapeHtml(work.summary)}</p>
+  <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
   <dl class="work-meta">
     <div><dt>更新日</dt><dd><time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></dd></div>
     <div><dt>作者</dt><dd>${escapeHtml(work.creator)}</dd></div>
@@ -1064,30 +1102,12 @@ ${renderSiteHeader('../../')}
     <div><dt>掲載形態</dt><dd>当サイトで配布</dd></div>
     <div><dt>ライセンス・利用条件</dt><dd><a href="../urashima/LICENSES.md">${escapeHtml(work.license.label)}</a></dd></div>
   </dl>
-${workMedia}${workFormats}
+${workMedia}${renderCapabilityNotice(work.capabilities)}${workFormats}
   <p>TurboWarp-Plus-Editorで編集ボタンでは、公開済みのmy-urashimaのブロック台本SB3を日本語で開きます。
   拡張の名前と配布元を確認し、「必要」と表示された「サンドボックスなし」を選んで「OK」を押してください。
   ステージの専用定義ブロックの白い書類アイコンからフォームを開き、編集後はファイルメニューからSB3を保存します。</p>
-  <div class="artifact-groups">
-${renderMyUrashimaWorkshop(dsl4Manifest)}    <section class="artifact-group" data-dsl-series="3.2" aria-labelledby="my-dsl-32-heading">
-      <h2 id="my-dsl-32-heading">DSL 3.2 作業版</h2>
-      <p>ワークショップでポーズと物語を編集するための外部台本と作業用SB3です。</p>
-${dsl32Sizes}
-      <div class="actions">
-        <a class="button" href="my-urashima.sb3" download>作業用SB3をダウンロード</a>
-        <a class="button secondary" href="my-urashima.txt" download>作業用台本をダウンロード</a>
-      </div>
-    </section>
-    <section class="artifact-group" data-dsl-series="4.0" aria-labelledby="my-dsl-40-heading">
-      <h2 id="my-dsl-40-heading">DSL 4.0 作業版</h2>
-      <p>全作品アセットとPrincess.png由来のPrincess costumeを持つ非台本埋め込みSB3です。Web版またはSB3のメニューから、編集したYAMLを開いて実行できます。</p>
-${dsl4Sizes}
-      <div class="actions">
-${webAction}        <a class="button secondary" href="my-urashima.k4.yml" download>DSL 4.0 YAMLをダウンロード</a>
-        <a class="button secondary" href="my-urashima-4.0.sb3" download>作業用SB3をダウンロード</a>
-      </div>
-    </section>
-  </div>
+  <div class="artifact-groups">${renderMyUrashimaWorkshop(dsl4Manifest)}</div>
+  <details><summary>ファイルサイズ・生成情報</summary>${dsl32Sizes}${dsl4Sizes}</details>
   <p>DSL 4.0作業用SB3 SHA-256: <code>${dsl4Manifest.output.sha256}</code></p>
 ${webHash}  <p><a href="README.md">生成・変換の説明を見る</a></p>
 </main>
@@ -1110,12 +1130,7 @@ export function renderTutorialIndex(
     {name: 'addition kitファイル', record: manifest.artifacts.additionKit},
   ]);
   const workMedia = renderDetailMediaGallery(work);
-  const workFormats = renderArtifactFormats(
-    work,
-    () => true,
-    '  ',
-    (href) => detailRelativeHref(work, href),
-  );
+  const workFormats = renderDeliveryRows(work, workDelivery(work)!, {urashimaWeb: false, urashimaDsl4Web: false, myUrashimaDsl4Web: false}, (href) => detailRelativeHref(work, href));
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -1128,12 +1143,12 @@ export function renderTutorialIndex(
     :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --paper: #fffdf8; --canvas: #fff8ee; --accent: #963f2f; --line: #dbc9bb; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
-    main { max-width: 920px; margin: auto; padding: 40px 24px 72px; }
+    main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
     nav { margin-bottom: 32px; }
     article { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
     a { color: var(--accent); }
     .eyebrow { color: var(--muted); font-weight: 800; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 32px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 24px 0 32px; }
     .artifact-sizes { margin: 20px 0; padding-left: 1.4rem; color: var(--muted); }
     .artifact-sizes li { margin: .45rem 0; }
     .artifact-sizes data { color: var(--ink); font-weight: 700; }
@@ -1153,17 +1168,10 @@ ${renderSiteHeader('../../')}
   <article>
     <p class="eyebrow">DSL 4.0 チュートリアル</p>
     <h1>${escapeHtml(work.title)}</h1>
-    <p>${escapeHtml(work.summary)}</p>
+    <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
     <p>更新日: <time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></p>
-${workMedia}${workFormats}
+${workMedia}${renderCapabilityNotice(work.capabilities)}${workFormats}
 ${artifactSizes}
-${renderCapabilityNotice({camera: true}, '    ')}    <div class="actions">
-      <a class="button" href="web-4.0/" data-capability-launch="camera">Web版を開く</a>
-      <a class="button secondary" href="${manifest.artifacts.starter.path}" download>スターターをダウンロード</a>
-      <a class="button secondary" href="${manifest.artifacts.additionKit.path}" download>addition kitをダウンロード</a>
-      <a class="button secondary" href="${manifest.artifacts.sb3.path}" download>完成版SB3をダウンロード</a>
-      <a class="button secondary" href="story.kamishibai.yaml" download>完成版YAMLをダウンロード</a>
-    </div>
     <h2>固定情報</h2>
     <dl>
       <dt>version</dt><dd><code>${escapeHtml(manifest.version)}</code></dd>
@@ -1298,8 +1306,8 @@ export function renderAudioPlaybackIndex(audioWork: WorkEntry, version: string):
 ${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/audio-playback/')}
 <main><h1>音声再生サンプル</h1><p>DSL 4.0 / ${version}。タイトルを閉じると合成音の再生を開始し、全10操作と音量・フェードを順に実行します。</p>
 ${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stories/audio-playback/', ''))}
-<ul><li><a href="web-4.0/">YAML版をブラウザーで開く</a></li><li><a href="web-blocks-4.0/">ブロック版をブラウザーで開く</a></li>
-<li><a href="audio-4.0.sb3" download>YAML版SB3</a> / <a href="audio-blocks-4.0.sb3" download>ブロック版SB3</a></li>
+<ul><li>DSL4.0 YAML台本： <a href="web-4.0/">Web版でプレイ</a></li><li>DSL4.0 ブロック台本： <a href="web-blocks-4.0/">Web版でプレイ</a></li>
+<li><a href="audio-4.0.sb3" download>YAML版SB3</a> / <a href="audio-blocks-4.0.sb3" download>ブロック台本SB3</a></li>
 <li>ソース: <a href="main.k4.yml" download>台本</a>・<a href="tone.wav" download>合成音</a>・<a href="instructions.svg" download>背景</a>を同じフォルダーへ保存してください。</li></ul>
 <p>音量は既定100で、0は無音、50は半分、200は2倍です。再生時にfadeIn・volume・fadeOut、停止時にfadeOutを指定できます。</p>
 <p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-audio-guide/">音声再生ガイド</a> / <a href="README.md">使い方</a> / <a href="LICENSES.md">ライセンス</a></p></main>
@@ -1316,7 +1324,7 @@ ${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits
 <img src="card-scenes.gif" alt="三人の訪問と各人の結末" width="640" style="max-width:100%;height:auto">
 <p>タイトルを閉じると「長兄 → 何もなし → 次兄 → 何もなし → 末弟 → 贈り物」の順に再生します。</p>
 ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('stories/three-visits/', ''))}
-<ul><li><a href="web-4.0/">YAML版を再生する</a></li><li><a href="web-blocks-4.0/">ブロック版を再生する</a></li>
+<ul><li>DSL4.0 YAML台本： <a href="web-4.0/">Web版でプレイ</a></li><li>DSL4.0 ブロック台本： <a href="web-blocks-4.0/">Web版でプレイ</a></li>
 <li><a href="three-visits-4.0.sb3" download>YAML版SB3</a> / <a href="three-visits-blocks-4.0.sb3" download>ブロック台本SB3</a></li></ul>
 <p>TurboWarp-Plus-Editorで一覧の編集アイコンを開き、名前・親切さ・行順を編集して保存し、最初から再生してください。キャンセルは元の値を保ちます。標準Scratchの制御ブロックは台本内では非対応です。</p>
 <p>ソース: <a href="main.k4.yml" download>台本</a>・<a href="instructions.svg" download>背景</a>・<a href="narrator.svg" download>語り手</a>。CLI・SB3は同じ公開App版へ揃えてください。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${version}">${version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>

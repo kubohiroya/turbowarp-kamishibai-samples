@@ -110,6 +110,7 @@ export async function buildThreeVisits({
     run(['validate-dsl4', '--input', path.join(storyRoot, 'main.k4.yml')]);
     run([
       'build-dsl4',
+      '--embedded-source-documents',
       '--base',
       actorBasePath,
       '--project-root',
@@ -141,6 +142,7 @@ export async function buildThreeVisits({
       await readFile(path.join(temporary, yamlName)),
       builder.refreshRuntime,
       builder.root,
+      'main.k4.yml',
     );
     await writeFile(path.join(temporary, blocksName), editable);
     const webConfig: WebConfig = {

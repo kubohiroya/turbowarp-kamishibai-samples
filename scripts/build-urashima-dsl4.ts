@@ -122,7 +122,7 @@ function inspectProject(sb3Bytes: Uint8Array): {
   };
 }
 
-/** Inspect an editable scene/action graph and keep the runtime payload as the base stub. */
+/** Inspect the final schema block view together with its canonical named source. */
 function inspectBlockProject(
   sb3Bytes: Uint8Array,
   sourceText: string,
@@ -144,14 +144,12 @@ function inspectBlockProject(
     project.extensionStorage?.kubohiroyakamishibai4?.components?.kubohiroyakamishibairuntime4;
   assert.equal(
     component?.application?.mode,
-    'menu',
-    'The block source project must stay the authoring base, not a built story.',
+    'story',
+    'The named document root must start the migrated block story.',
   );
-  assert.notEqual(
-    (component?.source as {text?: string} | undefined)?.text,
-    sourceText,
-    'The block source project must hold the script as blocks, not as an embedded payload.',
-  );
+  assert(component?.sourceDocuments, 'The block view must retain its canonical named source.');
+  assert(component.editorViews, 'The schema block view must be recorded explicitly.');
+  assert(component.source.text.length > 0, 'The canonical runtime projection must be present.');
   return {
     archiveEntryCount: Object.keys(archive).length,
     targetNames: project.targets.map((target) => target.name),
@@ -224,6 +222,7 @@ export async function buildUrashimaDsl4({
       [
         builderCli,
         'build-dsl4',
+        '--embedded-source-documents',
         '--base',
         actorBasePath,
         '--project-root',
@@ -279,6 +278,7 @@ export async function buildUrashimaDsl4({
       canonicalBytes,
       blockAuthoring.refreshRuntime,
       blockAuthoring.root,
+      path.basename(sourcePath),
     );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);

@@ -5,6 +5,7 @@ import {parse} from 'yaml';
 
 import sampleConfig from '../stories/urashima/sample.config.json' with {type: 'json'};
 
+import {assertEmbeddedYamlBlockSource} from './migrate-embedded-yaml.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
 
@@ -131,18 +132,27 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
       );
     }
   }
-  const hats = Object.entries(blocks).filter(
-    ([, block]) => block.opcode === `${authoringPrefix}kamishibai` && block.topLevel === true,
+  const explicitRoot = Object.values(blocks).find(
+    (block) => block.opcode === `${runtimePrefix}embeddedYamlRoot`,
+  );
+  if (explicitRoot) assertEmbeddedYamlBlockSource(project);
+  const hats = Object.entries(blocks).filter(([, block]) =>
+    explicitRoot
+      ? block.opcode === `${runtimePrefix}embeddedYaml` &&
+        block.fields?.DOCUMENT?.[0] === explicitRoot.fields?.DOCUMENT?.[0]
+      : block.opcode === `${authoringPrefix}kamishibai` && block.topLevel === true,
   );
   assert.equal(hats.length, 1, 'The story must have one root script hat.');
   const [hatId, hat] = hats[0]!;
-  assert.deepEqual(hat.inputs?.VERSION, [1, [10, '4.0']]);
-  assert.deepEqual(hat.inputs?.LABEL, [1, [10, '']], 'The Stage root script name must be empty.');
+  if (!explicitRoot) {
+    assert.deepEqual(hat.inputs?.VERSION, [1, [10, '4.0']]);
+    assert.deepEqual(hat.inputs?.LABEL, [1, [10, '']], 'The Stage root script name must be empty.');
+  }
   const story = parse(sourceText, {uniqueKeys: true}) as Dsl4Story;
   const configHats = Object.entries(blocks).filter(
     ([, block]) => block.opcode === `${authoringPrefix}kamishibaiConfig`,
   );
-  const usesConfigHat = info?.blocks?.some((block) => block.opcode === 'kamishibaiConfig') ?? false;
+  const usesConfigHat = !explicitRoot && (info?.blocks?.some((block) => block.opcode === 'kamishibaiConfig') ?? false);
   if (usesConfigHat) {
     assert.equal(
       configHats.length,

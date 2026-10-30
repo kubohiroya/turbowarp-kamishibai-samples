@@ -1,3 +1,4 @@
+import {assertEmbeddedYamlBlockSource} from '../scripts/migrate-embedded-yaml.ts';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {test} from 'vitest';
@@ -75,29 +76,24 @@ test('refreshes relocated metadata and an exact body while preserving the wrappe
   );
 });
 
-test('every published block project separates config and embeds its runtime reader', async () => {
+test('every newly generated block project has an explicit independent root and a named script document', async () => {
   const paths = [
     'urashima/urashima-blocks-4.0.sb3',
     'tutorial/tutorial-blocks-4.0.sb3',
     'my-urashima/my-urashima-blocks-4.0.sb3',
     ...[2, 3, 4].map((count) => `my-urashima/my-urashima-${count}-poses-blocks-4.0.sb3`),
+    'audio-playback/audio-blocks-4.0.sb3',
+    'three-visits/three-visits-blocks-4.0.sb3',
   ];
   for (const path of paths) {
     const bytes = await readFile(new URL(`../stories/${path}`, import.meta.url));
     const project = JSON.parse(strFromU8(unzipSync(bytes)['project.json']!));
-    const stage = project.targets.find((target: {isStage: boolean}) => target.isStage);
-    const hats = Object.values(stage.blocks).filter(
-      (block: any) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibaiConfig',
-    ) as {inputs: {LABEL: unknown}; topLevel: boolean; parent: unknown}[];
-    assert.equal(hats.length, 1, path);
-    assert.deepEqual(hats[0]!.inputs.LABEL, [1, [10, '']], path);
-    assert.equal(hats[0]!.topLevel, true, path);
-    assert.equal(hats[0]!.parent, null, path);
-    const runtime = Buffer.from(
-      project.extensionURLs.kubohiroyakamishibai4.split(',')[1],
-      'base64',
-    ).toString();
-    assert(runtime.includes('kamishibaiConfig'), path);
-    assert(runtime.includes('Configuration label is duplicated'), path);
+    assertEmbeddedYamlBlockSource(project);
+    const component = project.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+    assert(component.sourceDocuments, `${path}: the source graph must retain each named document.`);
+    assert.equal(component.sourceDocuments.formatVersion, 1, path);
+    assert(Object.keys(component.sourceDocuments.files).length > 0, path);
+    const runtime = Buffer.from(project.extensionURLs.kubohiroyakamishibai4.split(',')[1], 'base64').toString();
+    assert(runtime.includes('embeddedYamlRoot'), path);
   }
 });

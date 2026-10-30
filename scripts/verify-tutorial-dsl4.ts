@@ -197,7 +197,7 @@ export async function verifyTutorialCandidate(
       ?.kubohiroyakamishibairuntime4?.application?.mode,
     'story',
   );
-  // ブロック台本SB3は authoring 成果物なので、payload ではなくブロックに台本を持つ。
+  // The named source remains canonical while the project stores its explicit schema block view.
   const blocksProject = JSON.parse(
     strFromU8(unzipSync(new Uint8Array(blocksSb3))['project.json'] as Uint8Array),
   ) as ScratchProject;
@@ -208,8 +208,10 @@ export async function verifyTutorialCandidate(
   assert.equal(
     blocksProject.extensionStorage?.kubohiroyakamishibai4?.components
       ?.kubohiroyakamishibairuntime4?.application?.mode,
-    'menu',
+    'story',
   );
+  assert(blocksProject.extensionStorage?.kubohiroyakamishibai4?.components
+    ?.kubohiroyakamishibairuntime4?.sourceDocuments);
   assert.match(web.toString('utf8', 0, 256), /^<!DOCTYPE html>/u);
   assert(
     web.includes(Buffer.from('<title>地震だ！頭を守ろう DSL 4.0 | TurboWarp紙芝居</title>')),

@@ -1,3 +1,4 @@
+import {createLegacyBlockDiagnosticFixture} from '../scripts/block-diagnostic-fixture.ts';
 import {canonicalDsl4ProjectStory} from '../scripts/simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -19,10 +20,21 @@ const storyPath = path.join(projectRoot, 'stories/urashima/urashima.k4.yml');
 const blocksPath = path.join(projectRoot, 'stories/urashima/urashima-blocks-4.0.sb3');
 const sourceText = await readFile(storyPath, 'utf8');
 const archive = unzipSync(new Uint8Array(await readFile(blocksPath)));
-const project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
+const artifactProject = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
+// Malformed legacy-hat cases remain compatibility tests after the published artifact migrates.
+const legacyDirectory = await mkdtemp(path.join(tmpdir(), 'samples-legacy-verifier-'));
+let project: ScratchProject;
+try {
+  const fixture = await createLegacyBlockDiagnosticFixture(blocksPath, legacyDirectory);
+  project = fixture.converted
+    ? JSON.parse(strFromU8(unzipSync(await readFile(fixture.input))['project.json']!)) as ScratchProject
+    : artifactProject;
+} finally {
+  await rm(legacyDirectory, {recursive: true, force: true});
+}
 
 test('Urashima exposes all scenes and commands as connected editable blocks', () => {
-  verifyStructuredBlockSource(project, sourceText);
+  verifyStructuredBlockSource(artifactProject, sourceText);
 });
 
 test('tutorial embeds the eight definition forms and scene/pose/say/think forms', async () => {

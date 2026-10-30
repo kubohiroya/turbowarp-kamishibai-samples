@@ -1,3 +1,4 @@
+import {migrateEditableBlockSource} from './migrate-embedded-yaml.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -243,11 +244,14 @@ export async function buildMyUrashimaDsl4({
     if (authored.error) throw authored.error;
     assert.equal(authored.status, 0, authored.stdout + authored.stderr);
     await simplifyPublishedDsl4Blocks(blockInputPath, blockAuthoring.root, blockAuthoring.identity.sourceSections ?? false, path.dirname(sourcePath));
-    const blocksBytes = await canonicalizeSb3(
+    const legacyBlocksBytes = await canonicalizeSb3(
       blockInputPath,
       path.join(temporaryDirectory, 'block-source-canonical'),
       blockAuthoring.refreshRuntime,
     );
+    const blocksBytes = await migrateEditableBlockSource(legacyBlocksBytes, {
+      appRoot: blockAuthoring.root, entryFile: path.basename(sourcePath),
+    });
     const blocksArchive = unzipSync(new Uint8Array(blocksBytes));
     const blocksProject = JSON.parse(strFromU8(blocksArchive['project.json']!)) as ScratchProject;
     verifyStructuredBlockSource(blocksProject, await readFile(sourcePath, 'utf8'));

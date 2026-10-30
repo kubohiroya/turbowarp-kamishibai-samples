@@ -1,3 +1,4 @@
+import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot} from './block-diagnostic-fixture.ts';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
@@ -10,7 +11,8 @@ import {verifySchemaBlockDiagnostics} from './verify-schema-block-diagnostics.ts
 
 const root = path.resolve(import.meta.dirname, '..');
 const editorUrl =
-  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja';
+  process.env.TURBOWARP_PLUS_EDITOR_URL ??
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja&twPlusYamlEditor=1';
 const options = {
   baseUrl: 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/',
   input: '',
@@ -34,18 +36,6 @@ const input =
     outputDirectory: output,
   }));
 const inputProject = JSON.parse(strFromU8(unzipSync(await readFile(input))['project.json']));
-const allowedSources = new Set(
-  Object.values(inputProject.extensionURLs as Record<string, string>)
-    .filter((url) => url.startsWith('data:text/javascript;base64,'))
-    .map((url) =>
-      createHash('sha256')
-        .update(Buffer.from(url.split(',')[1], 'base64'))
-        .digest('hex'),
-    ),
-);
-const allowedExtensionIds = Object.keys(inputProject.extensionURLs).filter(
-  (id) => inputProject.extensionURLs[id].startsWith('data:text/javascript;base64,'),
-);
 const report: Record<string, unknown> = {
   editorUrl,
   input,
@@ -55,6 +45,8 @@ const report: Record<string, unknown> = {
     .digest('hex'),
   cases: [],
 };
+const legacyFixture = await createLegacyBlockDiagnosticFixture(input, output);
+report.legacyDiagnosticFixture = legacyFixture;
 const browser = await chromium.launch({headless: true});
 const context = await browser.newContext({
   locale: 'ja-JP',
@@ -77,69 +69,13 @@ try {
     timeout: 60_000,
   });
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
-  await page
-    .getByText(/^(File|ファイル)$/u)
-    .first()
-    .click();
-  const chooser = page.waitForEvent('filechooser');
-  await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click();
-  await (await chooser).setFiles(input);
-  const approvedExtensionIds = new Set<string>();
-  const permissionChecks: unknown[] = [];
-  report.extensionPermissions = permissionChecks;
-  for (let permission = 0; permission < 3; permission += 1) {
-    await page.waitForFunction(
-      () =>
-        document.querySelector('[role=dialog]') ||
-        window.vm.runtime.targets.some((target: any) =>
-          Object.values(target.blocks?._blocks ?? {}).some(
-            (block: any) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai',
-          ),
-        ),
-    );
-    const dialog = page.getByRole('dialog');
-    if (!(await page.getByRole('dialog').count())) break;
-    await dialog.waitFor({state: 'visible'});
-    const rows = dialog.getByRole('article');
-    await rows.first().waitFor({state: 'visible'});
-    const count = await rows.count();
-    assert(count > 0 && count <= allowedSources.size, 'Unexpected extension permission rows.');
-    for (let index = 0; index < count; index += 1) {
-      const row = rows.nth(index);
-      const rowText = await row.innerText();
-      const ids = allowedExtensionIds.filter((id) => rowText.includes(id));
-      assert.equal(ids.length, 1, 'Permission must identify an extension in the verified input.');
-      const id = ids[0]!;
-      assert(!approvedExtensionIds.has(id), 'Duplicate extension permission request.');
-      const details = row.getByRole('button', {name: /^(詳細|Details)$/u});
-      let dialogSourceChecked = false;
-      if (await details.count()) {
-        await details.click();
-        const source = await row.locator('textarea[readonly]').inputValue();
-        const expected = Buffer.from(inputProject.extensionURLs[id].split(',')[1], 'base64');
-        assert.equal(
-          createHash('sha256').update(source).digest('hex'),
-          createHash('sha256').update(expected).digest('hex'),
-          'Extension permission source must match its ID in the verified SB3.',
-        );
-        dialogSourceChecked = true;
-      }
-      // Current Plus Editor identifies the extensions loaded from the verified local SB3.
-      await row.getByRole('radio', {name: /サンドボックスなし$/u}).check();
-      approvedExtensionIds.add(id);
-      permissionChecks.push({id, verifiedInput: true, dialogSourceChecked});
-    }
-    await dialog.getByRole('button', {name: 'OK', exact: true}).click();
-    await dialog.waitFor({state: 'hidden'});
+  report.extensionPermissions = await loadVerifiedBlockProject(page, input, inputProject);
+  report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);
+  await page.screenshot({path: path.join(output, 'explicit-document-root.png')});
+  if (legacyFixture.converted) {
+    phase = 'load-explicit-legacy-compatibility-fixture';
+    await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, true);
   }
-  assert.equal(approvedExtensionIds.size, allowedExtensionIds.length);
-  await page.waitForFunction(() =>
-    window.vm.runtime.targets.some((target: any) =>
-      Object.values(target.blocks?._blocks ?? {}).some(
-        (block: any) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai',
-      ),
-    ),
-  );
   const cases = [
     {opcode: 'control_if', name: 'もし', expected: 'なら'},
     {opcode: 'control_repeat', name: '回', expected: '繰り返す'},

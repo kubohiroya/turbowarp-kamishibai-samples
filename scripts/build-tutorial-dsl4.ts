@@ -237,7 +237,7 @@ function inspectProject(sb3Bytes: Uint8Array): ProjectInspection {
   };
 }
 
-/** Inspect an editable scene/action graph and keep the runtime payload as the base stub. */
+/** Inspect the final schema block view together with its canonical named source. */
 function inspectBlockProject(sb3Bytes: Uint8Array, sourceText: string): ProjectInspection {
   const archive = unzipSync(new Uint8Array(sb3Bytes));
   const project = JSON.parse(strFromU8(archive['project.json'] as Uint8Array)) as ScratchProject;
@@ -254,14 +254,12 @@ function inspectBlockProject(sb3Bytes: Uint8Array, sourceText: string): ProjectI
     project.extensionStorage?.kubohiroyakamishibai4?.components?.kubohiroyakamishibairuntime4;
   assert.equal(
     component?.application?.mode,
-    'menu',
-    'The block source project must stay the authoring base, not a built story.',
+    'story',
+    'The named document root must start the migrated block story.',
   );
-  assert.notEqual(
-    (component?.source as {text?: string} | undefined)?.text,
-    sourceText,
-    'The block source project must hold the script as blocks, not as an embedded payload.',
-  );
+  assert(component?.sourceDocuments, 'The block view must retain its canonical named source.');
+  assert(component.editorViews, 'The schema block view must be recorded explicitly.');
+  assert(component.source.text.length > 0, 'The canonical runtime projection must be present.');
   return {
     archiveEntryCount: Object.keys(archive).length,
     targetNames: project.targets.map(({name}) => name),
@@ -443,6 +441,7 @@ export async function buildTutorialDsl4({
       [
         builderCli,
         'build-dsl4',
+        '--embedded-source-documents',
         '--base',
         actorBasePath,
         '--project-root',
@@ -497,6 +496,7 @@ export async function buildTutorialDsl4({
       canonicalBytes,
       blockAuthoring.refreshRuntime,
       blockAuthoring.root,
+      sourceName,
     );
     const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
     const archives = await buildArchives(config);

@@ -32,7 +32,7 @@
 - `sample.config.json`の`dsl4`: 作品固有の出力名・入力上限・Web公開設定。app依存はrootの`app-release.json`から取得
 - `dsl4-artifacts.lock.json`: `urashima-4.0.sb3`と`urashima-blocks-4.0.sb3`の入力・出力ハッシュとtarget構成
 - `urashima-blocks-4.0.sb3`: 10場面・174命令を個別のTurboWarpブロックとして持ち、編集・再生できるSB3。各場面の中で背景・表示・待機・台詞・移動・ポーズを編集できます。
-  Stage上の名前が空の台本をルートとして起動時に読み取り、タイトルを閉じるとその物語を開始します。
+  Stageの独立した`embedded YAML root [4.0] [urashima.k4.yml]`が開始文書を指定し、本文は同じ名前の通常の`embedded YAML`ハットに置きます。空名によるルート推測は使いません。
   編集後に開始し直すと変更が反映されます。file素材の実体は対応するアセットバンドルとして同梱します。`pnpm verify`は、ここから書き戻したYAMLが`urashima.k4.yml`と同じ意味であることを
   canonical形で確認します。場面順・命令順・ブロックの接続も検査し、YAML全文を1個の文字列ブロックへ入れる旧形式は拒否します
 - `dsl4-web-artifacts.lock.json`: `web-4.0/index.html`の入力・出力ハッシュとPackager設定
@@ -72,9 +72,9 @@ pnpm update:dsl4-artifacts
 4. 生成途中のSB3をもう一度`sb3-toolchain`へimportし、最終`urashima-4.0.sb3`を決定的再構築する。
 5. 完成したSB3をTurboWarp Packager 3.13.0へ渡し、二度の生成結果が一致することを確認してWeb版ロックを更新する。
 
-ブロック台本SB3は、公式CLIの生成結果を`sb3-toolchain`へimportし、rc.25の編集用ラッパーが`extensions`属性を`configurable: true`として定義することを検証します。完成作品のfile素材bundleを引き継いで再構築し、編集用の台本ブロックとメニュー設定は保持します。想定する属性定義が1件でない場合や変更不可の場合は生成を停止します。
+台本ブロックSB3は、同じ公開AppのCLIの生成結果を`sb3-toolchain`へimportし、編集用ラッパーが`extensions`属性を`configurable: true`として定義することを検証します。完成作品のfile素材bundleを引き継ぎ、公式`migrate-embedded-yaml`で独立root・名前付き文書・同じ文書内の設定と場面へ移行してから、最終SB3とlockを生成します。素材のバイト列、対象・衣装・音・変数と、場面・命令順を保持していることを検証します。
 
-SB3のZIPや`project.json`を直接編集する別経路はありません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
+手作業でSB3のZIPや`project.json`を書き換える経路は使いません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
 
 DSL 4.0 Web版だけを一時停止するときは、`sample.config.json`の`dsl4.web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。
 
