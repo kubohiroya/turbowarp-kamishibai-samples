@@ -154,6 +154,8 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
   const sources = new Map(Object.entries(project.extensionURLs ?? {}).filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
     .map(([id, url]) => [id, createHash('sha256').update(Buffer.from(url.split(',')[1]!, 'base64')).digest('hex')]));
   let count = 0;
+  // Project activation can keep Chromium's navigation wait pending after this click has succeeded.
+  const confirm = {noWaitAfter: true, timeout: 60_000};
   for (;;) {
     await page.waitForFunction((legacyOnly) => document.querySelector('[role=dialog]') ||
       window.vm.runtime.targets.some((target: any) => Object.values(target.blocks?._blocks ?? {}).some((block: any) =>
@@ -175,7 +177,7 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
       for (const choice of await choices.all())
         if (await choice.getAttribute('name') !== 'execution-all')
           assert(await choice.isChecked(), 'Each verified extension must be selected.');
-      await dialog.getByRole('button', {name: 'OK', exact: true}).click();
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
     } else if (await rows.count()) {
       await rows.first().waitFor({state: 'visible'});
       for (const row of await rows.all()) {
@@ -185,14 +187,14 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
         if (await row.locator('textarea').count()) assert.equal(createHash('sha256').update(await row.locator('textarea').inputValue()).digest('hex'), sources.get(ids[0]!));
         await row.getByRole('radio', {name: /(?:サンドボックスなし|Without sandbox)$/u}).check();
       }
-      await dialog.getByRole('button', {name: 'OK', exact: true}).click();
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
     } else {
       const source = await dialog.locator('textarea').inputValue();
       assert([...sources.values()].includes(createHash('sha256').update(source).digest('hex')));
       await dialog.getByLabel('Run without sandbox', {exact: true}).check();
-      await dialog.getByRole('button', {name: 'Allow', exact: true}).click();
+      await dialog.getByRole('button', {name: 'Allow', exact: true}).click(confirm);
     }
-    await dialog.waitFor({state: 'hidden'});
+    await dialog.waitFor({state: 'hidden', timeout: 60_000});
   }
 }
 
