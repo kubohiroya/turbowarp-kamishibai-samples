@@ -51,17 +51,20 @@ test('published Urashima blocks use exact source image/audio bytes as native slo
     graph.entryPath,
     'The independent root must select the exported named file.',
   );
-  assert.equal(
-    Object.keys(graph.sources).length,
-    1,
-    'The full Urashima story must remain one named document.',
-  );
   const exported = graph.sources[graph.entryPath];
   assert.equal(typeof exported, 'string');
   const sourcePath = path.join(root, 'stories/urashima/urashima.k4.yml');
   const source = await readFile(sourcePath, 'utf8');
   const original = parse(source);
   const simplified = parse(exported);
+  assert.deepEqual(simplified.include, original.include);
+  assert.deepEqual(Object.keys(graph.sources).sort(), [graph.entryPath, ...original.include].sort());
+  for (const filename of original.include) {
+    assert.deepEqual(
+      Object.keys(parse(graph.sources[filename]).scenes),
+      Object.keys(parse(await readFile(path.join(path.dirname(sourcePath), filename), 'utf8')).scenes),
+    );
+  }
   for (const asset of Object.values(simplified.assets ?? {}) as {
     kind: string;
   }[])

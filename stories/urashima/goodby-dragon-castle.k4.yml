@@ -1,0 +1,50 @@
+scenes:
+  goodby-dragon-castle:
+    recognitionModel: PoseModel2
+    actions:
+      - stage: Dragon Castle
+      - wait: 2
+      - bgm: Medieval2
+      - wait: 1.4
+      - Princess.show:
+          skin: Princess
+          x: -130
+          y: -27
+          scale: 70
+      - wait: 1.9
+      - Urashima.show:
+          skin: Urashima-walk-1
+          x: 80
+          y: -77
+          scale: 45
+      - wait: 1.9
+      - Princess.say:
+          text: お帰りになる前に、この玉手箱をどうぞ。
+          seconds: 2.2
+      - wait: 2.4
+      - Urashima.moveTo:
+          x: 55
+          y: -77
+          seconds: 0.5
+      - Urashima.setSkin:
+          skin: Urashima-box-1
+      - Urashima.pose:
+          steps:
+            - pose: receive
+              skin: Urashima-box-1
+              sound: Rip
+            - pose: goodbye
+              skin: Urashima-box-2
+              sound: Rip
+      - Urashima.moveTo:
+          x: 170
+          y: -77
+          seconds: 2.5
+      - wait: 1
+      - Urashima.setTransparency: 100
+      - wait: 1
+      - Princess.think:
+          text: ............
+          seconds: 2.5
+      - Princess.setTransparency: 100
+      - wait: 2

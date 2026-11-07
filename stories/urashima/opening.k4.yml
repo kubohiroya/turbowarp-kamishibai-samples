@@ -1,0 +1,31 @@
+scenes:
+  opening:
+    - transition:
+        effect: fadeOut
+        seconds: 1
+    - stage: Stars
+    - transition:
+        effect: fadeUp
+        seconds: 1
+    - Narration.show:
+        skin: TextPlaceholder
+        x: 0
+        y: 0
+        scale: 100
+    - Narration.setText:
+        text: むかし
+        style: narration
+    - wait: 2
+    - Narration.setText:
+        text: むかし　むかし、
+        style: narration
+    - wait: 2
+    - Narration.setText:
+        text: |-
+          むかし　むかし、
+          あるところに...
+        style: narration
+    - wait: 2
+    - Narration.setText:
+        text: ""
+        style: narration

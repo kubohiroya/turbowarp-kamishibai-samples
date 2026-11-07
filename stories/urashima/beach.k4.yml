@@ -1,0 +1,101 @@
+scenes:
+  beach:
+    recognitionModel: PoseModel1
+    actions:
+      - transition:
+          effect: fadeOut
+          seconds: 1
+      - stage: Beach1
+      - transition:
+          effect: fadeUp
+          seconds: 1
+      - wait: 0.5
+      - bgm: Guitar Chords2
+      - wait: 0.3
+      - Urashima.show:
+          skin: Urashima-walk-1
+          x: 172
+          y: -77
+          scale: 45
+      - wait: 1.5
+      - Urashima.say:
+          text: 今日は浜辺を散歩しよう。
+          seconds: 2
+      - wait: 1
+      - Urashima.moveTo:
+          x: 40
+          y: -77
+          seconds: 1.5
+      - wait: 0.25
+      - Turtle.show:
+          skin: Turtle
+          x: -190
+          y: -110
+          scale: 35
+      - Turtle.moveTo:
+          x: -165
+          y: -110
+          seconds: 0.5
+      - wait: 0.75
+      - Urashima.say:
+          text: あっカメだ！どうしたの？
+          seconds: 2
+      - wait: 1
+      - Turtle.say:
+          text: ............
+          seconds: 2
+      - wait: 1
+      - bgm: Squeaky Toy
+      - Turtle.say:
+          text: 助けてください！
+          seconds: 2
+      - wait: 2
+      - Urashima.say:
+          text: ""
+          seconds: 0
+      - Turtle.say:
+          text: ""
+          seconds: 0
+      - Urashima.show:
+          skin: Urashima-help-1
+          x: 40
+          y: -77
+          scale: 45
+      - Urashima.moveTo:
+          x: 0
+          y: -77
+          seconds: 0.5
+      - Urashima.pose:
+          steps:
+            - pose: help
+              skin: Urashima-help-1
+              sound: Squish Pop
+      - Urashima.setSkin:
+          skin: Urashima-walk-1
+      - wait: 1.5
+      - Urashima.moveTo:
+          x: 120
+          y: -77
+          seconds: 1.5
+      - bgm: Squeaky Toy
+      - Turtle.say:
+          text: ありがとうございます！
+          seconds: 1
+      - wait: 1
+      - bgm: Squeaky Toy
+      - Turtle.say:
+          text: お礼に竜宮城へご案内します。
+          seconds: 2
+      - wait: 1
+      - bgm: Jump
+      - Urashima.setSkin:
+          skin: Urashima-dance-1
+      - Urashima.say:
+          text: わーい🎵
+          seconds: 2
+      - wait: 1.5
+      - Urashima.say:
+          text: ""
+          seconds: 0
+      - bgm: Odesong
+      - wait: 1.2

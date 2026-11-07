@@ -11,7 +11,7 @@ for (const count of workshopPoseCounts) {
     const variant = parse(createMyUrashimaPoseVariant(source, count));
     const names = Array.from({length: count}, (_, i) => `p${i + 1}`);
     assert.deepEqual(Object.keys(variant.assets).filter((id) => /^p[1-4]$/.test(id)), names);
-    const key = 'welcome to dragon castle';
+    const key = 'welcome-to-dragon-castle';
     const actions = variant.scenes[key].actions;
     const poses = actions.filter((action: Record<string, unknown>) => 'Princess.pose' in action);
     assert.equal(poses.length, 1);

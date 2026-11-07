@@ -1,0 +1,33 @@
+scenes:
+  regret:
+    recognitionModel: PoseModel3
+    actions:
+      - transition:
+          effect: fadeToWhite
+          seconds: 1
+      - stage: Smoke
+      - transition:
+          effect: fadeFromWhite
+          seconds: 1
+      - sound: Gong
+      - Urashima.show:
+          skin: Urashima-old-1
+          x: 0
+          y: -57
+          scale: 45
+      - bgm: Crowd Gasp
+      - wait: 2
+      - Urashima.setSkin: Urashima-old-2
+      - wait: 1
+      - Urashima.think:
+          text: あっという間におじいさんになってしまった…
+          seconds: 3
+      - Urashima.pose:
+          steps:
+            - pose: despair
+              skin: Urashima-old-2
+              sound: Ocean Wave
+      - bgm: Medieval1
+      - wait: 4
+      - Urashima.setTransparency: 100
+      - wait: 1

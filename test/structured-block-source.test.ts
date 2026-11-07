@@ -1,5 +1,5 @@
 import {createLegacyBlockDiagnosticFixture} from '../scripts/block-diagnostic-fixture.ts';
-import {canonicalDsl4ProjectStory} from '../scripts/simplify-published-dsl4-blocks.ts';
+import {canonicalDsl4ProjectStory, composeDsl4Source, readExportedDsl4Source} from '../scripts/simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
@@ -18,7 +18,12 @@ import {verifyStructuredBlockSource} from '../scripts/verify-structured-block-so
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyPath = path.join(projectRoot, 'stories/urashima/urashima.k4.yml');
 const blocksPath = path.join(projectRoot, 'stories/urashima/urashima-blocks-4.0.sb3');
-const sourceText = await readFile(storyPath, 'utf8');
+const builderRoot = path.resolve(
+  process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
+    process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
+    path.join(projectRoot, '../turbowarp-kamishibai-app'),
+);
+const sourceText = await composeDsl4Source(await readFile(storyPath, 'utf8'), builderRoot, path.dirname(storyPath));
 const archive = unzipSync(new Uint8Array(await readFile(blocksPath)));
 const artifactProject = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
 // Malformed legacy-hat cases remain compatibility tests after the published artifact migrates.
@@ -164,11 +169,6 @@ test('an edited wait block exports its new value without changing the remaining 
     const rebuilt = await createDeterministicSb3(sourceDirectory);
     const editedPath = path.join(directory, 'edited.sb3');
     await writeFile(editedPath, rebuilt.archive);
-    const builderRoot = path.resolve(
-      process.env.TURBOWARP_KAMISHIBAI_BLOCK_AUTHORING_ROOT ??
-        process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
-        path.join(projectRoot, '../turbowarp-kamishibai-app'),
-    );
     const result = spawnSync(
       process.execPath,
       [
@@ -180,6 +180,8 @@ test('an edited wait block exports its new value without changing the remaining 
         directory,
         '--name',
         'edited',
+        '--format',
+        'json',
       ],
       {encoding: 'utf8'},
     );
@@ -190,12 +192,12 @@ test('an edited wait block exports its new value without changing the remaining 
     );
     assert(firstWait, 'The opening scene must demonstrate an editable wait.');
     firstWait.wait = 2.75;
-    const expectedPath = path.join(directory, 'expected.k4.yml');
-    await writeFile(expectedPath, stringify(expected));
-    const canonical = async (input: string) =>
-      canonicalDsl4ProjectStory(await readFile(input, 'utf8'), edited, archive,
-        builderRoot, path.dirname(storyPath));
-    assert.equal(await canonical(path.join(directory, 'edited.k4.yml')), await canonical(expectedPath));
+    const canonical = (source: string) =>
+      canonicalDsl4ProjectStory(source, edited, archive, builderRoot, path.dirname(storyPath));
+    assert.equal(
+      await canonical(await readExportedDsl4Source(result.stdout, builderRoot, edited)),
+      await canonical(stringify(expected)),
+    );
   } finally {
     await rm(directory, {recursive: true, force: true});
   }

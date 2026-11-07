@@ -13,7 +13,8 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Playwright WebKit 1.61 uses the Ubuntu 24.04 system libraries.
+    runs-on: ubuntu-24.04
     # The run finishes in about four minutes. Anything near this ceiling is hung, and without
     # it a stuck Playwright holds a runner for the six-hour default.
     timeout-minutes: 40

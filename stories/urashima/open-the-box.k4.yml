@@ -1,0 +1,29 @@
+scenes:
+  open-the-box:
+    recognitionModel: PoseModel3
+    actions:
+      - stage: Beach2
+      - Urashima.show:
+          skin: Urashima-open-1
+          x: 0
+          y: -57
+          scale: 45
+      - wait: 2
+      - Urashima.say:
+          text: 開けてはいけないと言われたけれど......
+          seconds: 4
+      - Urashima.pose:
+          steps:
+            - pose: open1
+              skin: Urashima-open-1
+              sound: Lo Geh Tabla
+            - pose: open2
+              skin: Urashima-open-2
+              sound: Lo Gliss Tabla
+            - pose: open3
+              skin: Urashima-open-3
+              sound: Low Conga
+      - Urashima.say:
+          text: ""
+          seconds: 0
+      - wait: 2

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {createHash, randomUUID} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
 import {pathToFileURL} from 'node:url';
 
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
@@ -36,10 +37,37 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
   }
   assertEmbeddedYamlBlockSource(project);
   const [rootId, root] = Object.entries(stage.blocks).find(([, b]) => b.opcode === prefix + 'embeddedYamlRoot')!;
-  const documents = Object.entries(stage.blocks).filter(([, b]) => b.opcode === prefix + 'embeddedYaml');
-  assert.equal(documents.length, 1, 'The legacy diagnostic fixture only supports one real document.');
-  const [id, document] = documents[0]!;
-  assert.equal(document.fields?.DOCUMENT?.[0], root.fields?.DOCUMENT?.[0]);
+  const documents = new Map(Object.entries(stage.blocks)
+    .filter(([, block]) => block.opcode === prefix + 'embeddedYaml')
+    .map(([id, block]) => [block.fields?.DOCUMENT?.[0], {id, block}]));
+  const entry = documents.get(root.fields?.DOCUMENT?.[0]);
+  assert(entry, 'The diagnostic fixture requires a named entry document.');
+  const {id, block: document} = entry;
+  documents.delete(root.fields?.DOCUMENT?.[0]);
+  // Diagnostics exercise a single legacy body; inline included commands in this isolated copy.
+  let previous = id;
+  while (stage.blocks[previous]!.next) {
+    const next = stage.blocks[previous]!.next!;
+    const block = stage.blocks[next]!;
+    if (block.opcode !== prefix + 'embeddedYamlInclude') {
+      previous = next;
+      continue;
+    }
+    const reference = block.fields?.DOCUMENT?.[0];
+    const module = documents.get(reference);
+    assert(module?.block.next, 'A diagnostic include must refer to an unvisited document body.');
+    const first = module.block.next;
+    let tail = first;
+    while (stage.blocks[tail]!.next) tail = stage.blocks[tail]!.next!;
+    stage.blocks[previous]!.next = first;
+    stage.blocks[first]!.parent = previous;
+    stage.blocks[tail]!.next = block.next ?? null;
+    if (block.next) stage.blocks[block.next]!.parent = tail;
+    delete stage.blocks[next];
+    delete stage.blocks[module.id];
+    documents.delete(reference);
+  }
+  assert.equal(documents.size, 0, 'All documents must be reachable from the diagnostic entry.');
   assert(!root.comment, 'Do not discard a comment on the new root when deriving a compatibility fixture.');
   delete stage.blocks[rootId];
   document.opcode = authoring + 'kamishibai';
@@ -106,11 +134,28 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
     purpose: 'Legacy Config/include diagnostics only; generated locally from the verified new document body.'};
 }
 
+/** Retry transient navigation failures without retrying a failed editor assertion. */
+export async function openBlockEditor(page: Page, url: string): Promise<void> {
+  for (const waitMs of [0, 2_000, 5_000]) {
+    if (waitMs) await delay(waitMs);
+    try {
+      await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 60_000});
+      return;
+    } catch (error) {
+      if (waitMs === 5_000 ||
+          !(error instanceof Error && /net::ERR_(?:NAME_NOT_RESOLVED|CONNECTION_(?:RESET|CLOSED|TIMED_OUT)|NETWORK_CHANGED)/u.test(error.message)))
+        throw error;
+    }
+  }
+}
+
 /** Approve only extension IDs/sources present in the verified input, with current and legacy dialogs. */
 export async function approveVerifiedBlockProject(page: Page, project: ScratchProject, legacyOnly = false) {
   const sources = new Map(Object.entries(project.extensionURLs ?? {}).filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
     .map(([id, url]) => [id, createHash('sha256').update(Buffer.from(url.split(',')[1]!, 'base64')).digest('hex')]));
   let count = 0;
+  // Project activation can keep Chromium's navigation wait pending after this click has succeeded.
+  const confirm = {noWaitAfter: true, timeout: 60_000};
   for (;;) {
     await page.waitForFunction((legacyOnly) => document.querySelector('[role=dialog]') ||
       window.vm.runtime.targets.some((target: any) => Object.values(target.blocks?._blocks ?? {}).some((block: any) =>
@@ -120,7 +165,20 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
     if (!await dialog.count()) return count;
     assert(count++ < sources.size + 1, 'Unexpected additional extension permission request.');
     const rows = dialog.getByRole('article');
-    if (await rows.count()) {
+    const bulkChoice = dialog.locator('input[name="execution-all"][value="unsandboxed"]');
+    if (await bulkChoice.count()) {
+      const expected = Object.entries(project.extensionURLs ?? {}).filter(([id]) => sources.has(id));
+      const choices = dialog.locator('input[type="radio"][value="unsandboxed"]');
+      assert.equal(await choices.count(), expected.length + 1);
+      const details = await dialog.innerText();
+      for (const [id, url] of expected)
+        assert(details.includes(id) || details.includes(url), `Unexpected extension permissions for ${id}.`);
+      await bulkChoice.click();
+      for (const choice of await choices.all())
+        if (await choice.getAttribute('name') !== 'execution-all')
+          assert(await choice.isChecked(), 'Each verified extension must be selected.');
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
+    } else if (await rows.count()) {
       await rows.first().waitFor({state: 'visible'});
       for (const row of await rows.all()) {
         const text = await row.innerText();
@@ -129,14 +187,14 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
         if (await row.locator('textarea').count()) assert.equal(createHash('sha256').update(await row.locator('textarea').inputValue()).digest('hex'), sources.get(ids[0]!));
         await row.getByRole('radio', {name: /(?:サンドボックスなし|Without sandbox)$/u}).check();
       }
-      await dialog.getByRole('button', {name: 'OK', exact: true}).click();
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
     } else {
       const source = await dialog.locator('textarea').inputValue();
       assert([...sources.values()].includes(createHash('sha256').update(source).digest('hex')));
       await dialog.getByLabel('Run without sandbox', {exact: true}).check();
-      await dialog.getByRole('button', {name: 'Allow', exact: true}).click();
+      await dialog.getByRole('button', {name: 'Allow', exact: true}).click(confirm);
     }
-    await dialog.waitFor({state: 'hidden'});
+    await dialog.waitFor({state: 'hidden', timeout: 60_000});
   }
 }
 
@@ -147,7 +205,7 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
   const permissionProject = fixture?.project ?? project;
   if (fixture) {
     // Extension IDs are cached by a VM; isolate the authoring fixture from the playback VM.
-    await page.reload({waitUntil: 'domcontentloaded'});
+    await openBlockEditor(page, page.url());
     await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
   }
   const token = randomUUID();

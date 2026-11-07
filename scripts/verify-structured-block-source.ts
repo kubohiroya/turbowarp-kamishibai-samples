@@ -185,7 +185,21 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   function declarations(parent: string, id: string | null | undefined, config = false) {
     while (id) {
       const block = connected(id, parent);
-      if (block.opcode === `${authoringPrefix}scene`) {
+      if (block.opcode === runtimePrefix + 'embeddedYamlInclude' ||
+          block.opcode === authoringPrefix + 'includeBlocks') {
+        assert(!config, 'Includes must stay in a story document.');
+        const [moduleId, module] = Object.entries(blocks).find(([, candidate]) =>
+          explicitRoot
+            ? candidate.opcode === runtimePrefix + 'embeddedYaml' &&
+              candidate.fields?.DOCUMENT?.[0] === block.fields?.DOCUMENT?.[0]
+            : candidate.opcode === authoringPrefix + 'kamishibai' &&
+              candidate.inputs?.LABEL?.[1]?.[1] === block.inputs?.LABEL?.[1]?.[1],
+        ) ?? [];
+        assert(moduleId && module?.topLevel && module.parent === null, 'The include must name a document.');
+        assert(!visited.has(moduleId), 'Each scene document must be included once.');
+        visited.add(moduleId);
+        declarations(moduleId, module.next);
+      } else if (block.opcode === `${authoringPrefix}scene`) {
         assert(!config, 'Scenes must stay under the root script hat.');
         const sceneId = block.inputs?.SCENE?.[1]?.[1] as string;
         sceneIds.push(sceneId);

@@ -1,0 +1,60 @@
+scenes:
+  welcome-to-dragon-castle:
+    recognitionModel: PoseModel2
+    actions:
+      - stage: Dragon Castle
+      - wait: 0.5
+      - Urashima.show:
+          skin: Urashima-walk-1
+          x: 172
+          y: -57
+          scale: 45
+      - wait: 1
+      - Urashima.moveTo:
+          x: 40
+          y: -57
+          seconds: 1.5
+      - Princess.show:
+          skin: Princess
+          x: -130
+          y: -27
+          scale: 70
+      - wait: 1
+      - Princess.say:
+          text: ようこそ竜宮城へ。
+          seconds: 2.5
+      - wait: 0.1
+      - Princess.say:
+          text: 楽しんでいってくださいね。
+          seconds: 2.5
+      - wait: 1
+      - bgm: Jump
+      - Fish.show:
+          skin: Fish1
+          x: -130
+          y: -27
+          scale: 70
+      - Fish.setSkin: Fish2
+      - wait: 0.3
+      - Fish.setSkin: Fish1
+      - wait: 0.3
+      - Fish.setSkin: Fish2
+      - wait: 0.3
+      - Fish.setSkin: Fish1
+      - Urashima.setSkin:
+          skin: Urashima-dance-1
+      - Urashima.pose:
+          steps:
+            - pose: dance1
+              skin: Urashima-dance-1
+              sound: Drum Funky
+            - pose: dance2
+              skin: Urashima-dance-2
+              sound: Drum Funky
+            - pose: dance1
+              skin: Urashima-dance-1
+              sound: Drum Funky
+            - pose: dance2
+              skin: Urashima-dance-2
+              sound: Drum Funky
+      - wait: 2

@@ -1,0 +1,17 @@
+scenes:
+  end credit:
+    - stage: End
+    - Narration.show:
+        skin: TextPlaceholder
+        x: 0
+        y: 0
+        scale: 100
+    - Narration.setText:
+        text: お し ま い
+        style: ending
+    - wait: 0.5
+    - sound: Goal Cheer
+    - wait: 4
+    - transition:
+        effect: fadeOut
+        seconds: 1

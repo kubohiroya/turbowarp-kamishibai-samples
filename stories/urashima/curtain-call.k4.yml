@@ -1,0 +1,37 @@
+scenes:
+  curtain-call:
+    - transition:
+        effect: fadeOut
+        seconds: 1
+    - stage: Dragon Castle
+    - transition:
+        effect: fadeUp
+        seconds: 1
+    - sound: Ocean Wave
+    - wait: 1.5
+    - bgm: Xylo2
+    - wait: 2.7
+    - Turtle.show:
+        skin: Turtle
+        x: -170
+        y: -20
+        scale: 40
+    - wait: 1.2
+    - Princess.show:
+        skin: Princess
+        x: 0
+        y: -27
+        scale: 70
+    - Princess.setTransparency: 0
+    - wait: 1.2
+    - Urashima.show:
+        skin: Urashima-walk-1
+        x: 155
+        y: -10
+        scale: 45
+    - Urashima.setTransparency: 0
+    - wait: 1.2
+    - Princess.say:
+        text: バイバイ！
+        seconds: 4.6
+    - wait: 0.1

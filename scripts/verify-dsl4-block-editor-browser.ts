@@ -1,5 +1,5 @@
-import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot} from './block-diagnostic-fixture.ts';
-import {canonicalDsl4ProjectStory} from './simplify-published-dsl4-blocks.ts';
+import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot, openBlockEditor} from './block-diagnostic-fixture.ts';
+import {canonicalDsl4ProjectStory, composeDsl4Source, readExportedDsl4Source} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -13,7 +13,7 @@ import {strFromU8, unzipSync} from 'fflate';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
-  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1';
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1&twPlusStandardLayout=0';
 const authoringScene = 'kubohiroyakamishibaiauthoring4_scene';
 const actionPrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const editedSeconds = '2.75';
@@ -83,8 +83,8 @@ async function alignScene(page: Page, id: string): Promise<void> {
 }
 
 /** Audit the already-loaded VM; Scratch may normalize bitmap costumes while loading an SB3. */
-async function beginDocumentSaveAudit(page: Page): Promise<void> {
-  await page.evaluate(async () => {
+async function beginDocumentSaveAudit(page: Page, reference: string): Promise<void> {
+  await page.evaluate(async (reference) => {
     const vm = window.vm, runtime = vm.runtime;
     const ownerAssets = runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4.assets;
     const ownerFiles = ownerAssets.files.map((file: Record<string, unknown>) => ({...file}));
@@ -95,9 +95,6 @@ async function beginDocumentSaveAudit(page: Page): Promise<void> {
     const ownerKeys = Object.keys(ownerAssets).sort().join(',');
     const targets = [...runtime.targets];
     const editable = new Set<string>();
-    const root = Object.values(runtime.getTargetForStage().blocks._blocks)
-      .find((block: any) => block.opcode.endsWith('__embeddedYamlRoot')) as {fields: {DOCUMENT: {value: string}}};
-    const reference = root.fields.DOCUMENT.value;
     for (const target of targets) {
       const visit = (id: string | null) => {
         if (!id || editable.has(id)) return;
@@ -126,11 +123,20 @@ async function beginDocumentSaveAudit(page: Page): Promise<void> {
         sha256: await digest(item.asset.data)}))));
     const methods = {stopAll: vm.stopAll, saveProjectSb3: vm.saveProjectSb3, loadProject: vm.loadProject};
     const counts = {stop: 0, save: 0, load: 0};
-    vm.stopAll = () => { counts.stop++; throw new Error('Document Save must not stop unrelated scripts.'); };
-    vm.saveProjectSb3 = () => { counts.save++; throw new Error('Document Save must not serialize the complete SB3.'); };
-    vm.loadProject = () => { counts.load++; throw new Error('Document Save must not reload the complete project.'); };
+    let active = true;
+    function audit(name: keyof typeof methods, count: keyof typeof counts, message: string) {
+      return (...args: unknown[]) => {
+        // A UI handler can capture this wrapper while the document pane is updating.
+        if (!active) return Reflect.apply(methods[name], vm, args);
+        counts[count]++;
+        throw new Error(message);
+      };
+    }
+    vm.stopAll = audit('stopAll', 'stop', 'Document Save must not stop unrelated scripts.');
+    vm.saveProjectSb3 = audit('saveProjectSb3', 'save', 'Document Save must not serialize the complete SB3.');
+    vm.loadProject = audit('loadProject', 'load', 'Document Save must not reload the complete project.');
     Reflect.set(window, Symbol.for('samples/document-save-audit'), {
-      restore() { Object.assign(vm, methods); },
+      restore() { active = false; Object.assign(vm, methods); },
       async verify() {
         const assets = runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4.assets;
         const mediaUnchanged = (await Promise.all(media.map(async saved =>
@@ -150,7 +156,7 @@ async function beginDocumentSaveAudit(page: Page): Promise<void> {
           media: media.map(({filename, sha256}) => ({filename, sha256}))};
       },
     });
-  });
+  }, reference);
 }
 
 async function finishDocumentSaveAudit(page: Page) {
@@ -162,18 +168,20 @@ async function finishDocumentSaveAudit(page: Page) {
 }
 
 /** Commit edited declaration blocks through the document owner before ordinary SB3 persistence. */
-async function saveCurrentScriptDocument(page: Page) {
-  const selectedDocument = await page.evaluate(() => {
+async function saveCurrentScriptDocument(page: Page, sceneId: string) {
+  const selectedDocument = await page.evaluate((sceneId) => {
     const workspace = window.ScratchBlocks.getMainWorkspace();
     const root = workspace.getTopBlocks(false).find((block: any) => block.type.endsWith('__embeddedYamlRoot'));
     if (!root) return null;
-    const reference = root.getFieldValue('DOCUMENT');
-    const body = workspace.getTopBlocks(false).find((block: any) =>
-      block.type.endsWith('__embeddedYaml') && block.getFieldValue('DOCUMENT') === reference);
-    if (!body) throw new Error('The explicit root must resolve to its named document.');
+    const body = workspace.getBlockById(sceneId)?.getRootBlock();
+    if (!body?.type.endsWith('__embeddedYaml')) throw new Error('The scene must belong to a named document.');
+    const reference = body.getFieldValue('DOCUMENT');
     const component = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
-    return {id: body.id, reference, source: component.sourceDocuments.files[component.sourceDocuments.entryPath].source};
-  });
+    const documents = component.sourceDocuments;
+    const filename = documents.files['opening.k4.yml'] ? 'opening.k4.yml' : documents.entryPath;
+    return {id: body.id, reference, filename, source: documents.files[filename].source,
+      composedSource: component.source.text as string};
+  }, sceneId);
   if (!selectedDocument) return {legacy: true as const};
   await alignScene(page, selectedDocument.id);
   await page.waitForFunction((id) => {
@@ -198,24 +206,22 @@ async function saveCurrentScriptDocument(page: Page) {
     return {x: rect.x + rect.width / 2, y: rect.y + rect.height / 2};
   }, selectedDocument.id);
   await page.mouse.click(point.x, point.y);
-  const dialog = page.getByRole('dialog', {name: /^(Embedded document|組み込み文書)$/u});
+  const saveButton = {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u};
+  const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', saveButton)});
   await dialog.waitFor();
   const tab = dialog.getByRole('tab', {name: /^(?:💽.*)?(?:Script blocks|台本ブロック)$/u});
   assert.equal(await tab.getAttribute('aria-selected'), 'true');
-  const save = dialog.getByRole('button', {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u});
-  await save.waitFor();
-  await page.waitForFunction(() => !document.querySelector<HTMLButtonElement>('.twpe-yaml-save')?.disabled);
-  await beginDocumentSaveAudit(page);
+  const save = dialog.getByRole('button', saveButton);
+  await beginDocumentSaveAudit(page, selectedDocument.reference);
   let audit, outcome, failure;
   try {
     await save.click();
-    const result = await page.waitForFunction(() => {
-      const modal = document.querySelector<HTMLDialogElement>('.twpe-yaml-dialog');
-      const error = modal?.querySelector('.twpe-yaml-error')?.textContent;
+    const result = await page.waitForFunction(({filename, original}) => {
+      const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+      const error = document.querySelector('.twpe-yaml-error')?.textContent;
       if (error) return {error};
-      const close = modal?.querySelector<HTMLButtonElement>('.twpe-yaml-close');
-      return modal && !modal.open && close && !close.disabled ? {saved: true} : false;
-    }, undefined, {timeout: 120_000, polling: 250});
+      return owner.sourceDocuments.files[filename].source !== original ? {saved: true} : false;
+    }, {filename: selectedDocument.filename, original: selectedDocument.source}, {timeout: 120_000, polling: 250});
     outcome = await result.jsonValue();
   } catch (cause) {
     failure = cause;
@@ -231,17 +237,17 @@ async function saveCurrentScriptDocument(page: Page) {
   if (failure || saveError) throw Object.assign(failure instanceof Error ? failure : new Error(saveError || 'Document Save failed.'), {documentSaveAudit: audit});
   assert.equal(await page.getByRole('dialog', {name: /形式に変換しますか？$|^Convert to .+\?$/u}).count(), 0,
     'Saving the current block format must not request a different-format conversion.');
-  const result = await page.evaluate((reference) => {
+  const result = await page.evaluate(({reference, filename}) => {
     const component = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
-    return {source: component.sourceDocuments.files[component.sourceDocuments.entryPath].source,
+    return {source: component.sourceDocuments.files[filename].source,
       activeKind: component.editorViews.views[reference].activeKind};
-  }, selectedDocument.reference);
+  }, {reference: selectedDocument.reference, filename: selectedDocument.filename});
   assert.equal(result.activeKind, 'schema-blocks');
   assert.notEqual(result.source, selectedDocument.source, 'Document Save must reflect the edited blocks into canonical YAML.');
   const saved = parse(result.source);
   const opening = Array.isArray(saved.scenes.opening) ? saved.scenes.opening : saved.scenes.opening.actions;
   assert.equal(opening.find((action: Record<string, unknown>) => 'wait' in action).wait, Number(editedSeconds));
-  return {legacy: false as const, activeKind: result.activeKind, canonicalEditReflected: true, sameFormatConfirmation: false, menuCapability, audit, sourceBefore: selectedDocument.source as string};
+  return {legacy: false as const, activeKind: result.activeKind, canonicalEditReflected: true, sameFormatConfirmation: false, menuCapability, audit, sourceBefore: selectedDocument.composedSource};
 }
 
 const options = argumentsFromCli();
@@ -263,9 +269,11 @@ try {
   const legacyFixture = options.skipLegacyDiagnostics ? null :
     await createLegacyBlockDiagnosticFixture(options.input, outputDirectory);
   report.legacyDiagnosticFixture = legacyFixture;
-  const story = parse(
-    await readFile(path.join(projectRoot, 'stories/urashima/urashima.k4.yml'), 'utf8'),
-  );
+  const sourceDirectory = path.join(projectRoot, 'stories/urashima');
+  const story = parse(await composeDsl4Source(
+    await readFile(path.join(sourceDirectory, 'urashima.k4.yml'), 'utf8'),
+    builderRoot, sourceDirectory,
+  ));
   const expectedScenes = Object.entries(story.scenes).map(([name, scene]: [string, any]) => ({
     name,
     commands: (Array.isArray(scene) ? scene : scene.actions).length,
@@ -310,7 +318,7 @@ try {
       rejectFatal(new Error(text));
     }
   });
-  await Promise.race([page.goto(editorUrl, {waitUntil: 'domcontentloaded'}), fatal]);
+  await Promise.race([openBlockEditor(page, editorUrl), fatal]);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
 
   phase = 'open-project';
@@ -328,7 +336,7 @@ try {
   ]);
 
   phase = 'display-scenes';
-  const scenes: SceneEvidence[] = await page.evaluate(
+  const visibleScenes: SceneEvidence[] = await page.evaluate(
     ({authoringScene, actionPrefix}) => {
       const workspace = window.ScratchBlocks.getMainWorkspace();
       workspace.setScale(0.85);
@@ -337,7 +345,6 @@ try {
       if (unknown.length) throw new Error('Undefined block types in the editor.');
       return blocks
         .filter((block: any) => block.type === authoringScene)
-        .sort((a: any, b: any) => a.getRelativeToSurfaceXY().y - b.getRelativeToSurfaceXY().y)
         .map((block: any) => ({
           id: block.id,
           name: block.getInputTargetBlock('SCENE').getFieldValue('TEXT'),
@@ -349,6 +356,12 @@ try {
     },
     {authoringScene, actionPrefix},
   );
+  assert.equal(visibleScenes.length, expectedScenes.length);
+  const scenes = expectedScenes.map(({name}) => {
+    const scene = visibleScenes.find((candidate) => candidate.name === name);
+    assert(scene, `The editor must display scene ${name}.`);
+    return scene;
+  });
   assert.deepEqual(
     scenes.map(({name, commands}) => ({name, commands})),
     expectedScenes,
@@ -407,7 +420,7 @@ try {
   await page.screenshot({path: path.join(outputDirectory, 'edited-field.png')});
 
   phase = 'save-current-document';
-  const documentSave = await saveCurrentScriptDocument(page);
+  const documentSave = await saveCurrentScriptDocument(page, scenes[0]!.id);
   report.documentSave = {...documentSave};
   if (!documentSave.legacy) {
     await writeFile(path.join(outputDirectory, 'loaded-canonical-before.k4.yml'), documentSave.sourceBefore);
@@ -415,13 +428,11 @@ try {
   }
 
   phase = 'save-project';
-  await page.getByText('File', {exact: true}).click();
+  const saveToComputer = page.getByText('Save to your computer', {exact: true}).first();
+  if (!await saveToComputer.isVisible()) await page.getByText('File', {exact: true}).click();
   const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page
-      .locator('[class*="menu_menu-item_"]')
-      .filter({hasText: /^Save to your computer$/u})
-      .click(),
+    page.waitForEvent('download', {timeout: 120_000}),
+    saveToComputer.click(),
   ]);
   const savedPath = path.join(outputDirectory, 'edited.sb3');
   await download.saveAs(savedPath);
@@ -437,7 +448,7 @@ try {
   }
 
   phase = 'validate-saved-source';
-  builderOutput([
+  const cliOutput = builderOutput([
     'export-block-dsl',
     '--input',
     savedPath,
@@ -445,6 +456,8 @@ try {
     outputDirectory,
     '--name',
     'edited',
+    '--format',
+    'json',
   ]);
   // The offline generation checks authored file media against the pre-load project. Native
   // Save starts from the loaded canonical document, whose implicit media may be normalized.
@@ -455,28 +468,43 @@ try {
   const firstWait = opening.find((action: Record<string, unknown>) => 'wait' in action);
   assert(firstWait);
   firstWait.wait = Number(editedSeconds);
-  const expectedPath = path.join(outputDirectory, 'expected.k4.yml');
-  await writeFile(expectedPath, stringify(expectedStory));
-  const canonical = async (input: string) =>
-    canonicalDsl4ProjectStory(await readFile(input, 'utf8'), documentSave.legacy ? inputProject : savedProject,
+  await writeFile(path.join(outputDirectory, 'expected.k4.yml'), stringify(expectedStory));
+  const contextProject = documentSave.legacy ? inputProject : savedProject;
+  const canonical = (source: string) =>
+    canonicalDsl4ProjectStory(source, contextProject,
       documentSave.legacy ? unzipSync(inputBytes) : nativeSavedEntries,
-      builderRoot, path.join(projectRoot, 'stories/urashima'));
+      builderRoot, sourceDirectory);
   assert.equal(
-    await canonical(path.join(outputDirectory, 'edited.k4.yml')),
-    await canonical(expectedPath),
+    await canonical(await readExportedDsl4Source(cliOutput, builderRoot, savedProject)),
+    await canonical(stringify(expectedStory)),
     'The saved SB3 must preserve the edit and all remaining story semantics.',
   );
   report.savedStoryMatches = true;
 
   phase = 'reload-saved-document';
-  await page.evaluate(() => {
-    document.documentElement.dataset.samplesSavedProjectLoaded = 'false';
-    window.vm.runtime.once('PROJECT_LOADED', () => { document.documentElement.dataset.samplesSavedProjectLoaded = 'true'; });
-  });
+  await openBlockEditor(page, editorUrl);
+  await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
   await loadVerifiedBlockProject(page, savedPath, savedProject);
-  await page.waitForFunction(() => document.documentElement.dataset.samplesSavedProjectLoaded === 'true',
-    undefined, {timeout: 120_000, polling: 250});
   report.savedDocumentRoot = await inspectLoadedEmbeddedYamlRoot(page);
+  if (!documentSave.legacy) {
+    const documents = await page.evaluate(() => {
+      const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+      const graph = owner.sourceDocuments;
+      return {
+        entry: graph.files[graph.entryPath].source,
+        opening: graph.files['opening.k4.yml']?.source ?? graph.files[graph.entryPath].source,
+      };
+    });
+    const originalEntry = parse(await readFile(path.join(sourceDirectory, 'urashima.k4.yml'), 'utf8'));
+    const include = parse(documents.entry).include;
+    assert.deepEqual(include, originalEntry.include, 'The reloaded entry must preserve include order.');
+    const scene = parse(documents.opening).scenes.opening;
+    const actions = Array.isArray(scene) ? scene : scene.actions;
+    const wait = actions.find((action: Record<string, unknown>) => Object.hasOwn(action, 'wait'));
+    assert.equal(wait?.wait, Number(editedSeconds), 'The reloaded opening must preserve the saved wait.');
+    report.reloadedOpeningWait = wait.wait;
+    report.reloadedIncludeOrder = include;
+  }
   report.savedProjectReloaded = true;
 
   phase = 'start-edited-block-story';
