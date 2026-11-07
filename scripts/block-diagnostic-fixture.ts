@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {createHash, randomUUID} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
 import {pathToFileURL} from 'node:url';
 
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
@@ -133,6 +134,21 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
     purpose: 'Legacy Config/include diagnostics only; generated locally from the verified new document body.'};
 }
 
+/** Retry transient navigation failures without retrying a failed editor assertion. */
+export async function openBlockEditor(page: Page, url: string): Promise<void> {
+  for (const waitMs of [0, 2_000, 5_000]) {
+    if (waitMs) await delay(waitMs);
+    try {
+      await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 60_000});
+      return;
+    } catch (error) {
+      if (waitMs === 5_000 ||
+          !(error instanceof Error && /net::ERR_(?:NAME_NOT_RESOLVED|CONNECTION_(?:RESET|CLOSED|TIMED_OUT)|NETWORK_CHANGED)/u.test(error.message)))
+        throw error;
+    }
+  }
+}
+
 /** Approve only extension IDs/sources present in the verified input, with current and legacy dialogs. */
 export async function approveVerifiedBlockProject(page: Page, project: ScratchProject, legacyOnly = false) {
   const sources = new Map(Object.entries(project.extensionURLs ?? {}).filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
@@ -147,7 +163,20 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
     if (!await dialog.count()) return count;
     assert(count++ < sources.size + 1, 'Unexpected additional extension permission request.');
     const rows = dialog.getByRole('article');
-    if (await rows.count()) {
+    const bulkChoice = dialog.locator('input[name="execution-all"][value="unsandboxed"]');
+    if (await bulkChoice.count()) {
+      const expected = Object.entries(project.extensionURLs ?? {}).filter(([id]) => sources.has(id));
+      const choices = dialog.locator('input[type="radio"][value="unsandboxed"]');
+      assert.equal(await choices.count(), expected.length + 1);
+      const details = await dialog.innerText();
+      for (const [id, url] of expected)
+        assert(details.includes(id) || details.includes(url), `Unexpected extension permissions for ${id}.`);
+      await bulkChoice.click();
+      for (const choice of await choices.all())
+        if (await choice.getAttribute('name') !== 'execution-all')
+          assert(await choice.isChecked(), 'Each verified extension must be selected.');
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click();
+    } else if (await rows.count()) {
       await rows.first().waitFor({state: 'visible'});
       for (const row of await rows.all()) {
         const text = await row.innerText();
@@ -174,7 +203,7 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
   const permissionProject = fixture?.project ?? project;
   if (fixture) {
     // Extension IDs are cached by a VM; isolate the authoring fixture from the playback VM.
-    await page.reload({waitUntil: 'domcontentloaded'});
+    await openBlockEditor(page, page.url());
     await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
   }
   const token = randomUUID();

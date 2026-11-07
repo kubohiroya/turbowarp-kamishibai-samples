@@ -16,7 +16,8 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Playwright WebKit 1.61 uses the Ubuntu 24.04 system libraries.
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
       TZ: Asia/Tokyo

@@ -1,4 +1,4 @@
-import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot} from './block-diagnostic-fixture.ts';
+import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot, openBlockEditor} from './block-diagnostic-fixture.ts';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
@@ -12,7 +12,7 @@ import {verifySchemaBlockDiagnostics} from './verify-schema-block-diagnostics.ts
 const root = path.resolve(import.meta.dirname, '..');
 const editorUrl =
   process.env.TURBOWARP_PLUS_EDITOR_URL ??
-  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja&twPlusYamlEditor=1';
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=ja&twPlusYamlEditor=1&twPlusStandardLayout=0';
 const options = {
   baseUrl: 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/',
   input: '',
@@ -64,10 +64,7 @@ page.on('pageerror', (error) =>
 );
 let phase = 'load-turbowarp-plus-editor';
 try {
-  await page.goto(editorUrl, {
-    waitUntil: 'domcontentloaded',
-    timeout: 60_000,
-  });
+  await openBlockEditor(page, editorUrl);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
   report.extensionPermissions = await loadVerifiedBlockProject(page, input, inputProject);
   report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);

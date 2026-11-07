@@ -1,4 +1,4 @@
-import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot} from './block-diagnostic-fixture.ts';
+import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot, openBlockEditor} from './block-diagnostic-fixture.ts';
 import {canonicalDsl4ProjectStory, composeDsl4Source, readExportedDsl4Source} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -13,7 +13,7 @@ import {strFromU8, unzipSync} from 'fflate';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
-  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1';
+  'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1&twPlusStandardLayout=0';
 const authoringScene = 'kubohiroyakamishibaiauthoring4_scene';
 const actionPrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const editedSeconds = '2.75';
@@ -123,11 +123,20 @@ async function beginDocumentSaveAudit(page: Page, reference: string): Promise<vo
         sha256: await digest(item.asset.data)}))));
     const methods = {stopAll: vm.stopAll, saveProjectSb3: vm.saveProjectSb3, loadProject: vm.loadProject};
     const counts = {stop: 0, save: 0, load: 0};
-    vm.stopAll = () => { counts.stop++; throw new Error('Document Save must not stop unrelated scripts.'); };
-    vm.saveProjectSb3 = () => { counts.save++; throw new Error('Document Save must not serialize the complete SB3.'); };
-    vm.loadProject = () => { counts.load++; throw new Error('Document Save must not reload the complete project.'); };
+    let active = true;
+    function audit(name: keyof typeof methods, count: keyof typeof counts, message: string) {
+      return (...args: unknown[]) => {
+        // A UI handler can capture this wrapper while the document pane is updating.
+        if (!active) return Reflect.apply(methods[name], vm, args);
+        counts[count]++;
+        throw new Error(message);
+      };
+    }
+    vm.stopAll = audit('stopAll', 'stop', 'Document Save must not stop unrelated scripts.');
+    vm.saveProjectSb3 = audit('saveProjectSb3', 'save', 'Document Save must not serialize the complete SB3.');
+    vm.loadProject = audit('loadProject', 'load', 'Document Save must not reload the complete project.');
     Reflect.set(window, Symbol.for('samples/document-save-audit'), {
-      restore() { Object.assign(vm, methods); },
+      restore() { active = false; Object.assign(vm, methods); },
       async verify() {
         const assets = runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4.assets;
         const mediaUnchanged = (await Promise.all(media.map(async saved =>
@@ -197,24 +206,22 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
     return {x: rect.x + rect.width / 2, y: rect.y + rect.height / 2};
   }, selectedDocument.id);
   await page.mouse.click(point.x, point.y);
-  const dialog = page.getByRole('dialog', {name: /^(Embedded document|組み込み文書)$/u});
+  const saveButton = {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u};
+  const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', saveButton)});
   await dialog.waitFor();
   const tab = dialog.getByRole('tab', {name: /^(?:💽.*)?(?:Script blocks|台本ブロック)$/u});
   assert.equal(await tab.getAttribute('aria-selected'), 'true');
-  const save = dialog.getByRole('button', {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u});
-  await save.waitFor();
-  await page.waitForFunction(() => !document.querySelector<HTMLButtonElement>('.twpe-yaml-save')?.disabled);
+  const save = dialog.getByRole('button', saveButton);
   await beginDocumentSaveAudit(page, selectedDocument.reference);
   let audit, outcome, failure;
   try {
     await save.click();
-    const result = await page.waitForFunction(() => {
-      const modal = document.querySelector<HTMLDialogElement>('.twpe-yaml-dialog');
-      const error = modal?.querySelector('.twpe-yaml-error')?.textContent;
+    const result = await page.waitForFunction(({filename, original}) => {
+      const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+      const error = document.querySelector('.twpe-yaml-error')?.textContent;
       if (error) return {error};
-      const close = modal?.querySelector<HTMLButtonElement>('.twpe-yaml-close');
-      return modal && !modal.open && close && !close.disabled ? {saved: true} : false;
-    }, undefined, {timeout: 120_000, polling: 250});
+      return owner.sourceDocuments.files[filename].source !== original ? {saved: true} : false;
+    }, {filename: selectedDocument.filename, original: selectedDocument.source}, {timeout: 120_000, polling: 250});
     outcome = await result.jsonValue();
   } catch (cause) {
     failure = cause;
@@ -311,7 +318,7 @@ try {
       rejectFatal(new Error(text));
     }
   });
-  await Promise.race([page.goto(editorUrl, {waitUntil: 'domcontentloaded'}), fatal]);
+  await Promise.race([openBlockEditor(page, editorUrl), fatal]);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
 
   phase = 'open-project';
@@ -421,13 +428,11 @@ try {
   }
 
   phase = 'save-project';
-  await page.getByText('File', {exact: true}).click();
+  const saveToComputer = page.getByText('Save to your computer', {exact: true}).first();
+  if (!await saveToComputer.isVisible()) await page.getByText('File', {exact: true}).click();
   const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page
-      .locator('[class*="menu_menu-item_"]')
-      .filter({hasText: /^Save to your computer$/u})
-      .click(),
+    page.waitForEvent('download', {timeout: 120_000}),
+    saveToComputer.click(),
   ]);
   const savedPath = path.join(outputDirectory, 'edited.sb3');
   await download.saveAs(savedPath);
@@ -477,14 +482,29 @@ try {
   report.savedStoryMatches = true;
 
   phase = 'reload-saved-document';
-  await page.evaluate(() => {
-    document.documentElement.dataset.samplesSavedProjectLoaded = 'false';
-    window.vm.runtime.once('PROJECT_LOADED', () => { document.documentElement.dataset.samplesSavedProjectLoaded = 'true'; });
-  });
+  await openBlockEditor(page, editorUrl);
+  await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
   await loadVerifiedBlockProject(page, savedPath, savedProject);
-  await page.waitForFunction(() => document.documentElement.dataset.samplesSavedProjectLoaded === 'true',
-    undefined, {timeout: 120_000, polling: 250});
   report.savedDocumentRoot = await inspectLoadedEmbeddedYamlRoot(page);
+  if (!documentSave.legacy) {
+    const documents = await page.evaluate(() => {
+      const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+      const graph = owner.sourceDocuments;
+      return {
+        entry: graph.files[graph.entryPath].source,
+        opening: graph.files['opening.k4.yml']?.source ?? graph.files[graph.entryPath].source,
+      };
+    });
+    const originalEntry = parse(await readFile(path.join(sourceDirectory, 'urashima.k4.yml'), 'utf8'));
+    const include = parse(documents.entry).include;
+    assert.deepEqual(include, originalEntry.include, 'The reloaded entry must preserve include order.');
+    const scene = parse(documents.opening).scenes.opening;
+    const actions = Array.isArray(scene) ? scene : scene.actions;
+    const wait = actions.find((action: Record<string, unknown>) => Object.hasOwn(action, 'wait'));
+    assert.equal(wait?.wait, Number(editedSeconds), 'The reloaded opening must preserve the saved wait.');
+    report.reloadedOpeningWait = wait.wait;
+    report.reloadedIncludeOrder = include;
+  }
   report.savedProjectReloaded = true;
 
   phase = 'start-edited-block-story';
