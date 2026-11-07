@@ -68,7 +68,7 @@ assets:
     kind: recognitionModel
     delivery: remote
     source:
-      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/1and2/
+      url: https://teachablemachine.withgoogle.com/models/wFFbSC_2m/
     loading: lazy
   PoseModel2:
     kind: recognitionModel
@@ -315,7 +315,7 @@ scenes:
           x: -100
           y: -5
           seconds: 0.25
-  welcome to dragon castle:
+  welcome-to-dragon-castle:
     recognitionModel: PoseModel2
     actions:
       - stage: Dragon Castle
@@ -361,7 +361,7 @@ scenes:
 #      - Princess.pose: {steps: [{pose: p1, skin: p1, sound: Drum Funky}, {pose: p2, skin: p2, sound: Drum Funky}, {pose: p3, skin: p3, sound: Drum Funky}, {pose: p1, skin: p1, sound: Drum Funky}, {pose: p2, skin: p2, sound: Drum Funky}, {pose: p3, skin: p3, sound: Drum Funky}]}
 #      - Princess.pose: {steps: [{pose: p1, skin: p1, sound: Drum Funky}, {pose: p2, skin: p2, sound: Drum Funky}, {pose: p3, skin: p3, sound: Drum Funky}, {pose: p4, skin: p4, sound: Drum Funky}, {pose: p1, skin: p1, sound: Drum Funky}, {pose: p2, skin: p2, sound: Drum Funky}, {pose: p3, skin: p3, sound: Drum Funky}, {pose: p4, skin: p4, sound: Drum Funky}]}
       - wait: 2
-  goodbye dragon castle:
+  goodby-dragon-castle:
     recognitionModel: PoseModel2
     actions:
       - stage: Dragon Castle
@@ -410,7 +410,7 @@ scenes:
           seconds: 2.5
       - Princess.setTransparency: 100
       - wait: 2
-  home village:
+  home-village:
     - transition:
         effect: fadeOut
         seconds: 1
@@ -441,7 +441,7 @@ scenes:
         text: 村の様子が変わっている
         seconds: 3
     - wait: 1
-  open the box:
+  open-the-box:
     recognitionModel: PoseModel3
     actions:
       - stage: Beach2
@@ -501,7 +501,7 @@ scenes:
       - wait: 4
       - Urashima.setTransparency: 100
       - wait: 1
-  curtain call:
+  curtain-call:
     - transition:
         effect: fadeOut
         seconds: 1

@@ -55,7 +55,9 @@ async function simplifyNativeAssets(
     {collectDsl4DefinitionReferences},
     {extractDsl4BlockSourcesFromProject},
     {removeDsl4BlockSourceDeclarations},
-    {authorDsl4BlockSourceSb3},
+    {authorDsl4BlockSourceSb3, authorDsl4BlockSourceGraphSb3},
+    {createDsl4BlockSourceGraph},
+    {createDsl4SourceGraphFrontend},
     {addProjectAsset, projectTarget, readProjectMaterial},
   ] = await Promise.all([
     load('dist/builder/dsl4-source-frontend.js'),
@@ -63,6 +65,8 @@ async function simplifyNativeAssets(
     load('dist/dsl4/turbowarp-yaml-json-block-source.js'),
     load('dist/dsl4/compiled-project.js'),
     load('dist/builder/dsl4-block-source-author.js'),
+    load('dist/dsl4/block-source-export.js'),
+    load('dist/dsl4/source-graph-frontend.js'),
     load('dist/builder/dsl4-asset-project-material.js'),
   ]);
   const schema = JSON.parse(
@@ -72,12 +76,19 @@ async function simplifyNativeAssets(
     narrativeControlEnabled: true,
   });
   const graph = extractDsl4BlockSourcesFromProject(project);
-  assert.equal(
-    Object.keys(graph.sources).length,
-    1,
-    'Preserve multi-module source graphs.',
-  );
-  const text = graph.sources[graph.entryPath];
+  const entry = graph.sources[graph.entryPath];
+  const hasModules = Object.keys(graph.sources).length > 1;
+  const composed = async (sources: typeof graph) => {
+    if (Object.keys(sources.sources).length === 1) return sources.sources[sources.entryPath];
+    const sourceGraph = await createDsl4BlockSourceGraph(sources);
+    const parsed = createDsl4SourceGraphFrontend(frontend).parse(sourceGraph, {
+      project, featureFlags: {dsl4Runtime: true, dsl4SourceIncludes: true},
+      maxComposedSourceBytes: sourceGraph.limits.maxTotalSourceBytes,
+    });
+    assert(parsed.ok, JSON.stringify(parsed.diagnostics));
+    return parsed.canonicalSource;
+  };
+  const text = await composed(graph);
   assert(
     !text.includes('# kamishibai-block-sections-v1:'),
     'Preserve disabled source sections.',
@@ -180,6 +191,33 @@ async function simplifyNativeAssets(
   });
   if (materialized === 0 && simplified.removed.length === 0) return;
   assert.equal(executable(simplified.source), expected);
+  let sourceGraph;
+  if (hasModules) {
+    // Scene-only modules retain their own authored declarations while media moves into native slots.
+    const sources: Record<string, string> = {};
+    const filenames = new Map<string, string>();
+    for (const [sourcePath, text] of Object.entries(graph.sources)) {
+      if (sourcePath === graph.entryPath) continue;
+      assert.deepEqual(Object.keys(parse(text as string)), ['scenes']);
+      const {targetName, blockId} = graph.sourceLocations[sourcePath];
+      const target = project.targets.find((candidate: {name: string}) => candidate.name === targetName);
+      const filename = target.blocks[blockId].inputs.LABEL[1][1];
+      assert(typeof filename === 'string' && !Object.hasOwn(sources, filename));
+      filenames.set(sourcePath, filename);
+      sources[filename] = text as string;
+    }
+    const {scenes: _scenes, ...definitions} = simplified.source;
+    const include = parse(entry).include as string | string[];
+    sources[graph.entryPath] = stringify({
+      ...definitions,
+      include: [include].flat().map((sourcePath) => {
+        const filename = filenames.get(sourcePath);
+        assert(filename, `The included scene ${sourcePath} needs its original filename.`);
+        return filename;
+      }),
+    });
+    sourceGraph = await createDsl4BlockSourceGraph({...graph, sources});
+  }
   removeDsl4BlockSourceDeclarations(project);
   archive['project.json'] = strToU8(JSON.stringify(project));
   // Reuse the pinned embedded bytes; rebuilding here depends on the caller's build mode.
@@ -194,20 +232,22 @@ async function simplifyNativeAssets(
   );
   const runtime =
     header + bundle.slice(start + bodyStart.length, -bodyEnd.length);
-  const authored = authorDsl4BlockSourceSb3({
+  const authoringOptions = {
     baseBytes: zipSync(archive),
-    sourceText: stringify(simplified.source),
     sourceFrontend: frontend,
     sourceSections,
     narrativeRuntimeSource: runtime,
-  });
+  };
+  const authored = sourceGraph
+    ? await authorDsl4BlockSourceGraphSb3({...authoringOptions, sourceGraph})
+    : authorDsl4BlockSourceSb3({...authoringOptions, sourceText: stringify(simplified.source)});
   assert(authored.ok, JSON.stringify(authored.diagnostics));
   const outputProject = JSON.parse(
     strFromU8(unzipSync(authored.bytes)['project.json']!),
   );
   const exported = extractDsl4BlockSourcesFromProject(outputProject);
   assert.equal(
-    executable(parse(exported.sources[exported.entryPath])),
+    executable(parse(await composed(exported))),
     expected,
     'Published simplification must preserve every executable value and media byte.',
   );
@@ -233,6 +273,79 @@ async function simplifyNativeAssets(
   );
 }
 
+/** Resolve the same ordered include graph used by the pinned App's CLI. */
+export async function composeDsl4Source(
+  sourceText: string,
+  appRoot: string,
+  includeDirectory: string,
+  project?: Record<string, unknown>,
+  sources?: {entryPath: string; files: Record<string, string>},
+): Promise<string> {
+  if (!Object.hasOwn(record(parse(sourceText)), 'include')) return sourceText;
+  const load = (file: string) => import(pathToFileURL(path.join(appRoot, file)).href);
+  const [
+    {loadDsl4BuildSourceGraph},
+    {createDsl4SourceGraph},
+    {createDsl4ProductionSourceFrontend},
+    {createDsl4SourceGraphFrontend},
+    schema,
+  ] = await Promise.all([
+    load('dist/builder/dsl4-source-graph.js'),
+    load('dist/dsl4/source-graph.js'),
+    load('dist/builder/dsl4-source-frontend.js'),
+    load('dist/dsl4/source-graph-frontend.js'),
+    readFile(path.join(appRoot, 'schema/dsl-4.schema.json'), 'utf8').then(JSON.parse),
+  ]);
+  const graph = sources
+    ? await createDsl4SourceGraph(sources.entryPath, {
+        readSource(filename: string) {
+          assert(Object.hasOwn(sources.files, filename), `Missing exported source ${filename}.`);
+          return sources.files[filename];
+        },
+      })
+    : await loadDsl4BuildSourceGraph(includeDirectory, {
+        manifest: {path: 'story.k4.yml'},
+        descriptor: {text: sourceText},
+      });
+  const frontend = createDsl4ProductionSourceFrontend(schema, {narrativeControlEnabled: true});
+  const parsed = createDsl4SourceGraphFrontend(frontend).parse(graph, {
+    project,
+    featureFlags: {dsl4Runtime: true, dsl4SourceIncludes: true},
+    maxComposedSourceBytes: graph.limits.maxTotalSourceBytes,
+  });
+  assert(parsed.ok, JSON.stringify(parsed.diagnostics));
+  return parsed.canonicalSource;
+}
+
+/** Read either output shape returned by export-block-dsl. */
+export async function readExportedDsl4Source(
+  cliOutput: string,
+  appRoot: string,
+  project: Record<string, unknown>,
+): Promise<string> {
+  const {kind, entryFilename, outputPath, files: entries} = JSON.parse(cliOutput) as {
+    kind: 'single' | 'package';
+    entryFilename: string;
+    outputPath: string;
+    files: {path: string}[];
+  };
+  if (kind === 'single') return readFile(outputPath, 'utf8');
+  const entry = entries.find(({path: filename}) => filename.endsWith('/' + entryFilename));
+  assert(entry, `Missing export entry ${entryFilename}.`);
+  const packagePrefix = path.posix.dirname(entry.path) + '/';
+  const files = Object.fromEntries(
+    Object.entries(unzipSync(await readFile(outputPath))).map(([name, bytes]) => {
+      assert(name.startsWith(packagePrefix), `Unexpected export entry ${name}.`);
+      return [name.slice(packagePrefix.length), strFromU8(bytes)];
+    }),
+  );
+  assert(Object.hasOwn(files, entryFilename), `Missing export entry ${entryFilename}.`);
+  return composeDsl4Source(files[entryFilename]!, appRoot, path.dirname(outputPath), project, {
+    entryPath: entryFilename,
+    files,
+  });
+}
+
 /** Compare storage changes by media bytes as well as normalized commands and settings. */
 export async function canonicalDsl4ProjectStory(
   sourceText: string,
@@ -254,7 +367,10 @@ export async function canonicalDsl4ProjectStory(
   const frontend = createDsl4ProductionSourceFrontend(schema, {
     narrativeControlEnabled: true,
   });
-  const result = frontend.parse(sourceText, {project});
+  const result = frontend.parse(
+    await composeDsl4Source(sourceText, appRoot, assetRoot, project),
+    {project},
+  );
   assert(result.ok, JSON.stringify(result.diagnostics));
   const story = structuredClone(result.storyDocument);
   for (const [id, raw] of Object.entries(record(story.assets))) {
@@ -290,10 +406,14 @@ export async function alignDsl4BlockAssetBundle(
     {createDsl4ProductionSourceFrontend},
     {extractDsl4BlockSourcesFromProject},
     {createDsl4EmbeddedAssetBundle, validateDsl4EmbeddedAssetBundle},
+    {createDsl4BlockSourceGraph},
+    {createDsl4SourceGraphFrontend},
   ] = await Promise.all([
     load('dist/builder/dsl4-source-frontend.js'),
     load('dist/dsl4/turbowarp-yaml-json-block-source.js'),
     load('dist/dsl4/asset-bundle-descriptor.js'),
+    load('dist/dsl4/block-source-export.js'),
+    load('dist/dsl4/source-graph-frontend.js'),
   ]);
   const frontend = createDsl4ProductionSourceFrontend(
     JSON.parse(
@@ -302,7 +422,11 @@ export async function alignDsl4BlockAssetBundle(
     {narrativeControlEnabled: true},
   );
   const graph = extractDsl4BlockSourcesFromProject(project);
-  const parsed = frontend.parse(graph.sources[graph.entryPath], {project});
+  const sourceGraph = await createDsl4BlockSourceGraph(graph);
+  const parsed = createDsl4SourceGraphFrontend(frontend).parse(sourceGraph, {
+    project, featureFlags: {dsl4Runtime: true, dsl4SourceIncludes: true},
+    maxComposedSourceBytes: sourceGraph.limits.maxTotalSourceBytes,
+  });
   assert(parsed.ok, JSON.stringify(parsed.diagnostics));
   const story = parsed.storyDocument;
   const retained = new Map<string, any>(

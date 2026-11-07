@@ -1,0 +1,32 @@
+scenes:
+  home-village:
+    - transition:
+        effect: fadeOut
+        seconds: 1
+    - stage: Beach2
+    - transition:
+        effect: fadeUp
+        seconds: 1
+    - wait: 1
+    - bgm: Medieval1
+    - wait: 3
+    - Urashima.show:
+        skin: Urashima-walk-1
+        x: 172
+        y: -57
+        scale: 45
+    - Urashima.setTransparency: 0
+    - wait: 2
+    - Urashima.moveTo:
+        x: 0
+        y: -57
+        seconds: 2
+    - wait: 0.5
+    - Urashima.setSkin:
+        skin: Urashima-surprised
+    - wait: 1
+    - bgm: Ocean Wave
+    - Urashima.say:
+        text: 村の様子が変わっている
+        seconds: 3
+    - wait: 1

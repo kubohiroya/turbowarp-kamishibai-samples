@@ -14,7 +14,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 
 import {strFromU8, unzipSync} from 'fflate';
 
-import {canonicalDsl4ProjectStory} from './simplify-published-dsl4-blocks.ts';
+import {canonicalDsl4ProjectStory, composeDsl4Source, readExportedDsl4Source} from './simplify-published-dsl4-blocks.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -75,17 +75,22 @@ export async function verifyDsl4BlockSourceRoundTrip({
       );
       const yamlArchive = unzipSync(await readFile(path.join(projectRoot, yamlHref)));
       // Defaults must use each original project, before and after native media materialization.
-      const canonical = async (sourcePath: string, context = archive) =>
+      const canonical = async (source: string, context = archive) =>
         canonicalDsl4ProjectStory(
-          await readFile(sourcePath, 'utf8'), JSON.parse(strFromU8(context['project.json']!)), context, kamishibaiRoot,
+          source, JSON.parse(strFromU8(context['project.json']!)), context, kamishibaiRoot,
           path.dirname(path.join(projectRoot, sourceHref)),
         );
       verifyStructuredBlockSource(
         JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject,
-        await readFile(path.join(projectRoot, sourceHref), 'utf8'),
+        await composeDsl4Source(
+          await readFile(path.join(projectRoot, sourceHref), 'utf8'),
+          kamishibaiRoot,
+          path.dirname(path.join(projectRoot, sourceHref)),
+          JSON.parse(strFromU8(yamlArchive['project.json']!)),
+        ),
       );
       const exportDirectory = path.join(temporaryDirectory, work.id);
-      commandOutput(
+      const cliOutput = commandOutput(
         process.execPath,
         [
           builderCli,
@@ -96,12 +101,15 @@ export async function verifyDsl4BlockSourceRoundTrip({
           exportDirectory,
           '--name',
           work.id,
+          '--format',
+          'json',
         ],
         kamishibaiRoot,
       );
-      const exportedPath = path.join(exportDirectory, `${work.id}.k4.yml`);
-      const authored = await canonical(path.join(projectRoot, sourceHref), yamlArchive);
-      const exported = await canonical(exportedPath);
+      const authored = await canonical(await readFile(path.join(projectRoot, sourceHref), 'utf8'), yamlArchive);
+      const exported = await canonical(await readExportedDsl4Source(
+        cliOutput, kamishibaiRoot, JSON.parse(strFromU8(archive['project.json']!)),
+      ));
       assert.equal(
         exported,
         authored,

@@ -1,0 +1,63 @@
+scenes:
+  ocean:
+    recognitionModel: PoseModel1
+    actions:
+      - stage: Ocean
+      - wait: 1.5
+      - Urashima.show:
+          skin: Urashima-ride-1
+          x: 170
+          y: 5
+          scale: 40
+      - Urashima.moveTo:
+          x: 140
+          y: -5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: 110
+          y: 5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: 80
+          y: -5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: 50
+          y: 5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: 20
+          y: -5
+          seconds: 0.25
+      - Urashima.pose:
+          steps:
+            - pose: ride2
+              skin: Urashima-ride-2
+              sound: Splash
+            - pose: ride1
+              skin: Urashima-ride-1
+              sound: Splash
+            - pose: ride2
+              skin: Urashima-ride-2
+              sound: Splash
+            - pose: ride1
+              skin: Urashima-ride-1
+              sound: Splash
+      - bgm: Odesong
+      - wait: 2
+      - Urashima.moveTo:
+          x: -10
+          y: 5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: -40
+          y: -5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: -70
+          y: 5
+          seconds: 0.25
+      - Urashima.moveTo:
+          x: -100
+          y: -5
+          seconds: 0.25

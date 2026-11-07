@@ -36,10 +36,37 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
   }
   assertEmbeddedYamlBlockSource(project);
   const [rootId, root] = Object.entries(stage.blocks).find(([, b]) => b.opcode === prefix + 'embeddedYamlRoot')!;
-  const documents = Object.entries(stage.blocks).filter(([, b]) => b.opcode === prefix + 'embeddedYaml');
-  assert.equal(documents.length, 1, 'The legacy diagnostic fixture only supports one real document.');
-  const [id, document] = documents[0]!;
-  assert.equal(document.fields?.DOCUMENT?.[0], root.fields?.DOCUMENT?.[0]);
+  const documents = new Map(Object.entries(stage.blocks)
+    .filter(([, block]) => block.opcode === prefix + 'embeddedYaml')
+    .map(([id, block]) => [block.fields?.DOCUMENT?.[0], {id, block}]));
+  const entry = documents.get(root.fields?.DOCUMENT?.[0]);
+  assert(entry, 'The diagnostic fixture requires a named entry document.');
+  const {id, block: document} = entry;
+  documents.delete(root.fields?.DOCUMENT?.[0]);
+  // Diagnostics exercise a single legacy body; inline included commands in this isolated copy.
+  let previous = id;
+  while (stage.blocks[previous]!.next) {
+    const next = stage.blocks[previous]!.next!;
+    const block = stage.blocks[next]!;
+    if (block.opcode !== prefix + 'embeddedYamlInclude') {
+      previous = next;
+      continue;
+    }
+    const reference = block.fields?.DOCUMENT?.[0];
+    const module = documents.get(reference);
+    assert(module?.block.next, 'A diagnostic include must refer to an unvisited document body.');
+    const first = module.block.next;
+    let tail = first;
+    while (stage.blocks[tail]!.next) tail = stage.blocks[tail]!.next!;
+    stage.blocks[previous]!.next = first;
+    stage.blocks[first]!.parent = previous;
+    stage.blocks[tail]!.next = block.next ?? null;
+    if (block.next) stage.blocks[block.next]!.parent = tail;
+    delete stage.blocks[next];
+    delete stage.blocks[module.id];
+    documents.delete(reference);
+  }
+  assert.equal(documents.size, 0, 'All documents must be reachable from the diagnostic entry.');
   assert(!root.comment, 'Do not discard a comment on the new root when deriving a compatibility fixture.');
   delete stage.blocks[rootId];
   document.opcode = authoring + 'kamishibai';

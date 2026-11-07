@@ -35,7 +35,6 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   assert.equal(sha256(sourceBytes), artifactLock.source.sha256);
 
   const story = parse(sourceBytes.toString('utf8'), {uniqueKeys: true}) as Dsl4Story;
-  verifyEndCreditCheerDelay(story);
   const assets = Object.values(story.assets ?? {});
   assert.equal(assets.length, 49);
   assert.equal(
@@ -122,11 +121,25 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   assert.equal(component.artifact.controlProfile, 'production');
   assert.equal(component.assets.manifest.assets.length, 49);
   assert.equal(component.assets.files.length, 55);
+  const composed = parse(component.source.text, {uniqueKeys: true}) as Dsl4Story;
+  verifyEndCreditCheerDelay(composed);
+  const {include} = parse(sourceBytes.toString('utf8')) as {include: string[]};
+  const documents = component.sourceDocuments as {entryPath: string; files: Record<string, {source: string}>};
+  assert.equal(documents.entryPath, artifactLock.source.path);
+  assert.deepEqual(Object.keys(documents.files).sort(), [documents.entryPath, ...include].sort());
+  assert.equal(documents.files[documents.entryPath]?.source, sourceBytes.toString('utf8'));
+  const sceneNames = [];
+  for (const filename of include) {
+    const source = await readFile(path.join(storyDirectory, filename), 'utf8');
+    assert.equal(documents.files[filename]?.source, source);
+    sceneNames.push(...Object.keys((parse(source) as Dsl4Story).scenes ?? {}));
+  }
+  assert.deepEqual(Object.keys(composed.scenes ?? {}), sceneNames);
   assert(!component.source.text.includes('delivery: remote'));
   assert(!component.source.text.includes('https://sqs.prof.cuc.ac.jp/'));
 
   const expectedLabels = [
-    ['walk', 'help', 'ride1', 'ride2'],
+    ['help', 'ride1', 'ride2'],
     ['dance1', 'dance2', 'receive', 'goodbye'],
     ['open1', 'open2', 'open3', 'despair'],
   ];

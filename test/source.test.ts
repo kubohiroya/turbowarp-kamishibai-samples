@@ -566,7 +566,7 @@ test('keeps my-urashima external-script-only and publishes its DSL 4.0 workshop 
   );
   assert.equal((dsl4.match(/^#      - Princess\.pose:/gmu) ?? []).length, 3);
   assert.equal((dsl4.match(/^\s{6}- Princess\.pose:/gmu) ?? []).length, 0);
-  assert.match(dsl4, /^\s{2}welcome to dragon castle:\n\s{4}recognitionModel: PoseModel2$/mu);
+  assert.match(dsl4, /^\s{2}welcome-to-dragon-castle:\n\s{4}recognitionModel: PoseModel2$/mu);
   assert.match(
     dsl4,
     /^\s{6}- Urashima\.setSkin:\n\s{10}skin: Urashima-dance-1\n\s{6}- wait: 1\n(?:^#.*\n){4}\s{6}- wait: 2$/mu,
@@ -756,9 +756,21 @@ test('locks every external script asset and publishes DSL 3.2 and offline DSL 4.
   assert.equal(dsl4Document.assets.PoseModel1.file, 'pose-models/1and2');
   assert.equal(dsl4Document.assets.PoseModel2.file, 'pose-models/3and4');
   assert.equal(dsl4Document.assets.PoseModel3.file, 'pose-models/6and7');
-  assert.match(dsl4, /^\s{2}opening:\n/mu);
-  assert.match(dsl4, /^\s{2}beach:\n\s{4}recognitionModel: PoseModel1\n\s{4}actions:$/mu);
-  assert.match(dsl4, /^\s{6}- Urashima\.pose:\n\s{10}steps:\n/mu);
+  assert.equal(dsl4Document.scenes, undefined);
+  const sceneNames = [
+    'opening', 'beach', 'ocean', 'welcome-to-dragon-castle', 'goodby-dragon-castle',
+    'home-village', 'open-the-box', 'regret', 'curtain-call', 'end credit',
+  ];
+  assert.deepEqual(dsl4Document.include, sceneNames.map((name) => name.replaceAll(' ', '-') + '.k4.yml'));
+  for (const [index, filename] of dsl4Document.include.entries()) {
+    const module = parseYaml(await readFile(path.join(sampleDirectory, filename), 'utf8'));
+    assert.deepEqual(Object.keys(module), ['scenes']);
+    assert.deepEqual(Object.keys(module.scenes), [sceneNames[index]]);
+    if (sceneNames[index] === 'beach') {
+      assert.equal(module.scenes.beach.recognitionModel, 'PoseModel1');
+      assert(module.scenes.beach.actions.some((action: object) => Object.hasOwn(action, 'Urashima.pose')));
+    }
+  }
   assert.deepEqual(dsl4Document.controls.keymaps.production, {
     Space: 'rehearsal.skipPose',
     ArrowRight: 'rehearsal.skipAction',

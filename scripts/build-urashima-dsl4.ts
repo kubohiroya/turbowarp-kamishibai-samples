@@ -1,4 +1,4 @@
-import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
+import {composeDsl4Source, simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -280,7 +280,8 @@ export async function buildUrashimaDsl4({
       blockAuthoring.root,
       path.basename(sourcePath),
     );
-    const blocksProject = inspectBlockProject(blocksBytes, sourceBytes.toString('utf8'));
+    const composed = await composeDsl4Source(sourceBytes.toString('utf8'), kamishibaiRoot, storyDirectory);
+    const blocksProject = inspectBlockProject(blocksBytes, composed);
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);
     const toolchainPackage = JSON.parse(
       await readFile(

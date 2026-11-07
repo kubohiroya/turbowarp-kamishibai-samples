@@ -81,7 +81,7 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     assert(princess);
     for (const name of poseNames) assert(princess.costumes.some((costume) => costume.name === name));
     const story = parse(source);
-    const steps = story.scenes['welcome to dragon castle'].actions.find(
+    const steps = story.scenes['welcome-to-dragon-castle'].actions.find(
       (action: Record<string, unknown>) => Object.hasOwn(action, 'Princess.pose'),
     )['Princess.pose'].steps;
     assert.deepEqual(steps.map((step: {pose: string}) => step.pose), [...poseNames, ...poseNames]);

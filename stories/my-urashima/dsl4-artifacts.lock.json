@@ -3,23 +3,23 @@
     {
       "poseCount": 2,
       "path": "my-urashima-2-poses-blocks-4.0.sb3",
-      "size": 17585523,
-      "sha256": "05cdeb21414b50edce842358c405d41740e0b2830c468b4f3ab1ef1bb8cbd066",
-      "sourceSha256": "7f401510c387824910878c9c6e7034bad5f688b1600812f127647bd10386edb4"
+      "size": 17585632,
+      "sha256": "b83260cd4ae59a2ebf00fc6248652e2fca0c3f1c1b5d5b23fb4c1485694bafe7",
+      "sourceSha256": "e627cd39e57f7a886a7786b54ebdac5f0880736162258f551ed8c0c0c695a666"
     },
     {
       "poseCount": 3,
       "path": "my-urashima-3-poses-blocks-4.0.sb3",
-      "size": 17585611,
-      "sha256": "7e08488ad463ca9d4b340e5288624c8519b4f10b8e01795364e484cabda0cbd0",
-      "sourceSha256": "ddee53302f02023538a99ecf06cbc1eb0206318522d73e9a80449eb04d3314eb"
+      "size": 17585755,
+      "sha256": "7e2e712e46f26ab217291c7da2e2db58e0f658e5c77787a677dd4dd0236cdd77",
+      "sourceSha256": "56cc80e9c35769569af2078ba4292fd376ebefd2d559a204afeb94294013f8f8"
     },
     {
       "poseCount": 4,
       "path": "my-urashima-4-poses-blocks-4.0.sb3",
-      "size": 17585733,
-      "sha256": "da6e6386d966799f2c72e46113c4e88c6c3dd142fb84f7616137d361f3e3ce1b",
-      "sourceSha256": "77a0efd26bbb47da7f45c3dbfe293bd2c4091108d13decb29576c61abc7fafb1"
+      "size": 17585817,
+      "sha256": "01a9b1d8f5b4f6190de370fed090466c876e8f415fcafe28b71e1c95058af18b",
+      "sourceSha256": "1ebee14ccc9e87200697e257ddbd4c248ca6734fbb0900b8df8e21b49b0e094b"
     }
   ],
   "formatVersion": 1,
@@ -39,8 +39,8 @@
   },
   "blocksOutput": {
     "path": "my-urashima-blocks-4.0.sb3",
-    "size": 17585045,
-    "sha256": "ca3e1b28c958d450425039de0bfd89ad299dd1ac352125cbfa5f50bb51ac12d1",
+    "size": 17585136,
+    "sha256": "0173685032c6d8bf7bf71f7abc9ec294720cc66fd5a335112f86ebf504561e60",
     "archiveEntryCount": 51,
     "targetNames": [
       "Stage",
@@ -57,8 +57,8 @@
   },
   "source": {
     "path": "my-urashima.k4.yml",
-    "size": 13485,
-    "sha256": "d2d7a952f144ec50aaa8b3f82b16617e7a89836c2c7563470f6d60296334d36c"
+    "size": 13488,
+    "sha256": "c5053eda498e3b6b121a8a64ad8df75d04598148feade427ffb01c769a359fd9"
   },
   "projectAssets": {
     "manifest": {

@@ -21,23 +21,23 @@
   "poseModels": [
     {
       "name": "PoseModel1",
-      "source": "https://sqs.prof.cuc.ac.jp/kamishibai/20260630/1and2/",
+      "source": "https://teachablemachine.withgoogle.com/models/wFFbSC_2m/",
       "output": "pose-models/1and2",
       "files": [
         {
           "path": "metadata.json",
-          "size": 350,
-          "sha256": "c9aaedfe0b83964025b6a7d710fca3630846f89efe3f59b8433dadd484a63bc3"
+          "size": 343,
+          "sha256": "c259f3a67fc3288fae0679d9b6608510712e420160fcfb654f975b9e42b66c07"
         },
         {
           "path": "model.json",
-          "size": 1435,
-          "sha256": "fd9f3f13857985eba87fb3a311ead4009536cff9175a752b2cdd5d3887130379"
+          "size": 1535,
+          "sha256": "0eaa30bf26e08d096a65bf38098846141f8b64c0078e3514e733e2bbc26b5fa7"
         },
         {
-          "path": "weights.bin",
-          "size": 5897600,
-          "sha256": "14d7a87a0c6d1c74e14593d13a1dd30b3911adf062803fc58705fd0fd16c2ffc"
+          "path": "model.weights.bin",
+          "size": 5897200,
+          "sha256": "28f0962b3af0829485301d57194a85fda56524dd98e757f1a77749be9b71bcbb"
         }
       ]
     },

@@ -20,15 +20,15 @@
   },
   "source": {
     "path": "urashima.k4.yml",
-    "size": 16648,
-    "sha256": "39ecf561401c3cca7a481cb44f2408d197d38a03db98b86c4fe8f878113f5ff7",
+    "size": 6760,
+    "sha256": "80c28b57814500471c850d4a055dabebdbb109b6f5db61784a145846833237ab",
     "assetCount": 49,
     "remoteAssetCount": 0
   },
   "output": {
     "path": "urashima-4.0.sb3",
-    "size": 35779982,
-    "sha256": "b0e2b697db36dda7f6d137beeebb62e2b3d0881f00c9f39283014c469ff093e5",
+    "size": 35779503,
+    "sha256": "70ef592590d83669ff2679bcff82b1c2257a2649ffd44552385d2e4cf61ae541",
     "archiveEntryCount": 10,
     "targetNames": [
       "Stage",
@@ -41,8 +41,8 @@
   },
   "blocksOutput": {
     "path": "urashima-blocks-4.0.sb3",
-    "size": 35477860,
-    "sha256": "a73d6f3e717321fa1f4758d46d3d3718ba3f467f5c0caeadbe8177dbc40f9c98",
+    "size": 35477859,
+    "sha256": "6fb36aada3ba63259d2fd78241df74e663887eeb118c29b1ce8345b00f30adec",
     "archiveEntryCount": 51,
     "targetNames": [
       "Stage",
