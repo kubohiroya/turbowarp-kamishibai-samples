@@ -14,6 +14,9 @@ import type {ScratchProject} from './scratch.ts';
 
 const prefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const authoring = 'kubohiroyakamishibaiauthoring4_';
+
+// Editor controls update the current page. Callers wait for the resulting editor state.
+export const editorControlClick = {noWaitAfter: true, timeout: 60_000};
 const configuration = new Set(['control', 'asset', 'cover', 'textStyle', 'variable', 'loading', 'recognition']);
 const configurationKeys = new Set(['controls', 'assets', 'cover', 'textStyles', 'variables', 'loading', 'recognition']);
 // Keep trusted fixture sources out of JSON reports, which must not duplicate embedded runtimes.
@@ -154,8 +157,6 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
   const sources = new Map(Object.entries(project.extensionURLs ?? {}).filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
     .map(([id, url]) => [id, createHash('sha256').update(Buffer.from(url.split(',')[1]!, 'base64')).digest('hex')]));
   let count = 0;
-  // Project activation can keep Chromium's navigation wait pending after this click has succeeded.
-  const confirm = {noWaitAfter: true, timeout: 60_000};
   for (;;) {
     await page.waitForFunction((legacyOnly) => document.querySelector('[role=dialog]') ||
       window.vm.runtime.targets.some((target: any) => Object.values(target.blocks?._blocks ?? {}).some((block: any) =>
@@ -173,11 +174,11 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
       const details = await dialog.innerText();
       for (const [id, url] of expected)
         assert(details.includes(id) || details.includes(url), `Unexpected extension permissions for ${id}.`);
-      await bulkChoice.click();
+      await bulkChoice.click(editorControlClick);
       for (const choice of await choices.all())
         if (await choice.getAttribute('name') !== 'execution-all')
           assert(await choice.isChecked(), 'Each verified extension must be selected.');
-      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
     } else if (await rows.count()) {
       await rows.first().waitFor({state: 'visible'});
       for (const row of await rows.all()) {
@@ -187,12 +188,12 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
         if (await row.locator('textarea').count()) assert.equal(createHash('sha256').update(await row.locator('textarea').inputValue()).digest('hex'), sources.get(ids[0]!));
         await row.getByRole('radio', {name: /(?:サンドボックスなし|Without sandbox)$/u}).check();
       }
-      await dialog.getByRole('button', {name: 'OK', exact: true}).click(confirm);
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
     } else {
       const source = await dialog.locator('textarea').inputValue();
       assert([...sources.values()].includes(createHash('sha256').update(source).digest('hex')));
       await dialog.getByLabel('Run without sandbox', {exact: true}).check();
-      await dialog.getByRole('button', {name: 'Allow', exact: true}).click(confirm);
+      await dialog.getByRole('button', {name: 'Allow', exact: true}).click(editorControlClick);
     }
     await dialog.waitFor({state: 'hidden', timeout: 60_000});
   }
@@ -219,9 +220,9 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
     runtime.once('PROJECT_LOADED', state.onLoaded);
   }, token);
   try {
-    await page.getByText(/^(File|ファイル)$/u).first().click();
+    await page.getByText(/^(File|ファイル)$/u).first().click(editorControlClick);
     const chooser = page.waitForEvent('filechooser');
-    await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click();
+    await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click(editorControlClick);
     await (await chooser).setFiles(input);
     const permissions = await approveVerifiedBlockProject(page, permissionProject, legacyOnly);
     await page.waitForFunction((token) => {
@@ -262,15 +263,20 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
   }
 }
 
-/** Inspect the actual native Blockly root before switching to compatibility diagnostics. */
-export async function inspectLoadedEmbeddedYamlRoot(page: Page) {
-  await page.locator('[class*="stage-selector_stage-selector_"]').click();
-  await page.waitForFunction(() => window.vm.editingTarget?.isStage);
+/** Select Stage and wait until its block workspace has replaced the previous target. */
+export async function selectBlockEditorStage(page: Page): Promise<void> {
+  await page.locator('[class*="stage-selector_stage-selector_"]').click(editorControlClick);
   await page.waitForFunction(() => {
     const stage = window.vm.runtime.getTargetForStage();
-    const root = Object.values(stage.blocks._blocks).find((b: any) => b.opcode.endsWith('__embeddedYamlRoot')) as any;
-    return !root || Boolean(window.ScratchBlocks.getMainWorkspace().getBlockById(root.id));
-  }, undefined, {timeout: 30_000, polling: 250});
+    const workspace = window.ScratchBlocks?.getMainWorkspace();
+    return stage && window.vm.editingTarget?.id === stage.id && workspace &&
+      stage.blocks.getScripts().every((id: string) => workspace.getBlockById(id));
+  }, undefined, {timeout: 60_000, polling: 250});
+}
+
+/** Inspect the actual native Blockly root before switching to compatibility diagnostics. */
+export async function inspectLoadedEmbeddedYamlRoot(page: Page) {
+  await selectBlockEditorStage(page);
   const result = await page.evaluate(() => {
     const workspace = window.ScratchBlocks.getMainWorkspace();
     const roots = workspace.getAllBlocks(false).filter((b: any) => b.type.endsWith('__embeddedYamlRoot'));

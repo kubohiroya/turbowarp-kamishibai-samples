@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import type {Page} from 'playwright';
 
+import {editorControlClick} from './block-diagnostic-fixture.ts';
+
 const prefix = 'kubohiroyakamishibaiauthoring4_';
 const assetName = 'SchemaProbeImage';
 const moduleLabel = 'schema-diagnostic-module';
@@ -209,10 +211,10 @@ export async function verifySchemaBlockDiagnostics(
     await page
       .getByRole('tab', {name: /背景|コスチューム/u})
       .first()
-      .click();
+      .click(editorControlClick);
 
     setPhase(`${scenario.name}-diagnose`);
-    await page.locator('[class*="green-flag_green-flag"]').first().click();
+    await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
     const indicator = page.locator('[data-dsl4-runtime-error=true]');
     await indicator.waitFor({state: 'visible'});
     const diagnostic = await page.evaluate(() => {
@@ -254,7 +256,7 @@ export async function verifySchemaBlockDiagnostics(
     await page.screenshot({
       path: path.join(outputDirectory, `${scenario.name}-error.png`),
     });
-    await indicator.locator('[data-dsl4-runtime-error-technical] summary').click();
+    await indicator.locator('[data-dsl4-runtime-error-technical] summary').click(editorControlClick);
     await indicator.locator('[data-dsl4-runtime-error-code]').waitFor({state: 'visible'});
     await indicator.locator('[data-dsl4-runtime-error-code]').scrollIntoViewIfNeeded();
     await page.evaluate(
@@ -268,7 +270,7 @@ export async function verifySchemaBlockDiagnostics(
     });
 
     setPhase(`${scenario.name}-locate`);
-    await indicator.getByRole('button', {name: '該当ブロックを表示', exact: true}).click();
+    await indicator.getByRole('button', {name: '該当ブロックを表示', exact: true}).click(editorControlClick);
     await indicator.waitFor({state: 'hidden'});
     const selection = await page.evaluate(
       ({assetId, hatId}) => {
@@ -338,7 +340,7 @@ export async function verifySchemaBlockDiagnostics(
     {targetId: identity.configTargetId, blockId: config.assetId},
   );
   await selectTarget(page, identity.stageId);
-  await page.locator('[class*="green-flag_green-flag"]').first().click();
+  await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
   await page.locator('[data-dsl4-title-action=close]').waitFor({state: 'visible'});
   assert.equal(await page.locator('[data-dsl4-runtime-error=true]').isVisible(), false);
   const retained = await page.evaluate(

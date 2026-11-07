@@ -131,7 +131,8 @@ async function main(): Promise<void> {
       '--output-dir',
       options.outputDirectory,
     ],
-    {stdio: 'inherit', timeout: 180_000},
+    // The same browser regression can take more than three minutes in CI.
+    {stdio: 'inherit', timeout: 360_000},
   );
   if (result.error) throw result.error;
   assert.equal(
