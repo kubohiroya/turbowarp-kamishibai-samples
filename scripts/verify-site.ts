@@ -560,25 +560,18 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert(tutorialIndex.includes('data-work-carousel="tutorial-earthquake-safety"'));
   assert(tutorialIndex.includes('src="card-scenes/05.webp"'));
   assert(tutorialIndex.includes('href="../../CARD_SCENES.md"'));
-  // カメラを使う作品は、起動リンクの前に確認段を挟む。script はページ側に常駐し、
-  // 注意文と data 属性は Web 版が有効なときだけ描画される。
+  // The catalog and detail pages explain camera use. The player requests the camera.
   for (const capabilityPage of [rootIndex, sampleIndex, myUrashimaIndex, tutorialIndex]) {
     assert(
       capabilityPage.includes("document.querySelectorAll('a[data-capability-launch]')"),
       'capability launch script is missing.',
     );
-    // 段階2: <usermedia> がある環境では起動前に許可を取り、stream は閉じて許可だけを残す。
-    assert(
-      capabilityPage.includes("'HTMLUserMediaElement' in window"),
-      'capability preflight feature detection is missing.',
-    );
-    assert(capabilityPage.includes('setConstraints?.({video: {}})'));
-    for (const handler of ["addEventListener('stream'", "addEventListener('cancel'", "addEventListener('error'"]) {
-      assert(capabilityPage.includes(handler), `capability preflight ${handler} is missing.`);
-    }
-    assert(
-      capabilityPage.includes('track.stop()'),
-      'capability preflight must release the preflight stream.',
+    assert(capabilityPage.includes('Web版を開いた後、ブラウザがカメラの使用許可を求めたら'));
+    assert.match(capabilityPage, /start\.href = link\.href/u);
+    assert.doesNotMatch(
+      capabilityPage,
+      /\busermedia\b|\bgetUserMedia\b/iu,
+      'only the player may request camera access.',
     );
   }
   for (const detailIndex of [sampleIndex, myUrashimaIndex, tutorialIndex]) {
