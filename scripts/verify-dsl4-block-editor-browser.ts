@@ -1,4 +1,11 @@
-import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot, openBlockEditor} from './block-diagnostic-fixture.ts';
+import {
+  createLegacyBlockDiagnosticFixture,
+  editorControlClick,
+  inspectLoadedEmbeddedYamlRoot,
+  loadVerifiedBlockProject,
+  openBlockEditor,
+  selectBlockEditorStage,
+} from './block-diagnostic-fixture.ts';
 import {canonicalDsl4ProjectStory, composeDsl4Source, readExportedDsl4Source} from './simplify-published-dsl4-blocks.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -215,7 +222,7 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
   await beginDocumentSaveAudit(page, selectedDocument.reference);
   let audit, outcome, failure;
   try {
-    await save.click();
+    await save.click(editorControlClick);
     const result = await page.waitForFunction(({filename, original}) => {
       const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
       const error = document.querySelector('.twpe-yaml-error')?.textContent;
@@ -237,6 +244,7 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
   if (failure || saveError) throw Object.assign(failure instanceof Error ? failure : new Error(saveError || 'Document Save failed.'), {documentSaveAudit: audit});
   assert.equal(await page.getByRole('dialog', {name: /形式に変換しますか？$|^Convert to .+\?$/u}).count(), 0,
     'Saving the current block format must not request a different-format conversion.');
+  await dialog.waitFor({state: 'hidden', timeout: 60_000});
   const result = await page.evaluate(({reference, filename}) => {
     const component = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
     return {source: component.sourceDocuments.files[filename].source,
@@ -325,7 +333,6 @@ try {
   report.extensionPermissions = await loadVerifiedBlockProject(page, options.input, inputProject);
   report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);
   await page.screenshot({path: path.join(outputDirectory, 'explicit-document-root.png')});
-  await page.locator('[class*="stage-selector_stage-selector_"]').click();
   await Promise.race([
     page.waitForFunction(() =>
       window.ScratchBlocks.getMainWorkspace()
@@ -429,10 +436,10 @@ try {
 
   phase = 'save-project';
   const saveToComputer = page.getByText('Save to your computer', {exact: true}).first();
-  if (!await saveToComputer.isVisible()) await page.getByText('File', {exact: true}).click();
+  if (!await saveToComputer.isVisible()) await page.getByText('File', {exact: true}).click(editorControlClick);
   const [download] = await Promise.all([
     page.waitForEvent('download', {timeout: 120_000}),
-    saveToComputer.click(),
+    saveToComputer.click(editorControlClick),
   ]);
   const savedPath = path.join(outputDirectory, 'edited.sb3');
   await download.saveAs(savedPath);
@@ -513,12 +520,12 @@ try {
   )?.stage;
   assert.equal(typeof openingBackdrop, 'string', 'The opening scene must declare its backdrop.');
   // Use the editor's visible controls so this covers the same startup path as a reader's click.
-  await page.locator('[class*="green-flag_green-flag"]').first().click();
+  await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
   await Promise.race([
     page.locator('[data-dsl4-title-action=close]').waitFor({state: 'visible', timeout: 120_000}),
     fatal,
   ]);
-  await page.locator('[data-dsl4-title-action=close]').click();
+  await page.locator('[data-dsl4-title-action=close]').click(editorControlClick);
 
   phase = 'render-opening-block-story';
   await Promise.race([
@@ -572,7 +579,7 @@ try {
     if (legacyFixture?.converted) {
       phase = 'load-explicit-legacy-compatibility-fixture';
       await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, true);
-      await page.locator('[class*="stage-selector_stage-selector_"]').click();
+      await selectBlockEditorStage(page);
     }
     phase = 'reject-duplicate-config-names';
     const configurationErrors: {label: string; code: string}[] = [];
@@ -600,7 +607,7 @@ try {
           (block: any) => block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibaiConfig',
         ).length === 2;
       });
-      await page.locator('[class*="green-flag_green-flag"]').first().click();
+      await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
       const indicator = page.locator('[data-dsl4-runtime-error=true]');
       await indicator.waitFor({state: 'visible', timeout: 30_000});
       const text = await indicator.textContent();

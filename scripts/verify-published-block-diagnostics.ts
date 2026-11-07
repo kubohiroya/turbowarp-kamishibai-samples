@@ -1,4 +1,11 @@
-import {createLegacyBlockDiagnosticFixture, loadVerifiedBlockProject, inspectLoadedEmbeddedYamlRoot, openBlockEditor} from './block-diagnostic-fixture.ts';
+import {
+  createLegacyBlockDiagnosticFixture,
+  editorControlClick,
+  inspectLoadedEmbeddedYamlRoot,
+  loadVerifiedBlockProject,
+  openBlockEditor,
+  selectBlockEditorStage,
+} from './block-diagnostic-fixture.ts';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
@@ -140,7 +147,7 @@ try {
         ),
       {...identity, ...created},
     );
-    await page.locator('[class*="stage-selector_stage-selector_"]').click();
+    await selectBlockEditorStage(page);
     await page.waitForFunction(() =>
       window.ScratchBlocks.getMainWorkspace()
         .getAllBlocks(false)
@@ -182,9 +189,9 @@ try {
     await page
       .getByRole('tab', {name: /背景|コスチューム/u})
       .first()
-      .click();
+      .click(editorControlClick);
     phase = `diagnose-${scenario.opcode}`;
-    await page.locator('[class*="green-flag_green-flag"]').first().click();
+    await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
     const indicator = page.locator('[data-dsl4-runtime-error=true]');
     await indicator.waitFor({state: 'visible'});
     await page.waitForFunction(({name, expected}) => {
@@ -217,13 +224,13 @@ try {
     await page.screenshot({
       path: path.join(output, `${scenario.opcode}-error.png`),
     });
-    await technical.locator('summary').click();
+    await technical.locator('summary').click(editorControlClick);
     assert.equal(await indicator.locator('[data-dsl4-runtime-error-code]').innerText(), 'K4-BLOCK-SOURCE-GRAPH-001');
     assert.equal(await indicator.locator('[data-dsl4-runtime-error-blockName]').innerText(), blockName);
     assert.equal(await indicator.locator('[data-dsl4-runtime-error-targetName]').innerText(), targetName);
     await page.screenshot({path: path.join(output, `${scenario.opcode}-details.png`)});
-    await technical.locator('summary').click();
-    await indicator.getByRole('button', {name: '該当ブロックを表示', exact: true}).click();
+    await technical.locator('summary').click(editorControlClick);
+    await indicator.getByRole('button', {name: '該当ブロックを表示', exact: true}).click(editorControlClick);
     await page.waitForFunction(
       ({blockId, spriteId}) =>
         window.vm.editingTarget.id === spriteId && window.ScratchBlocks.selected?.id === blockId,
@@ -268,7 +275,7 @@ try {
       (id) => window.ScratchBlocks.getMainWorkspace().getBlockById(id).dispose(false),
       created.hatId,
     );
-    await page.locator('[class*="stage-selector_stage-selector_"]').click();
+    await selectBlockEditorStage(page);
     await page.waitForFunction(
       (id) => Boolean(window.ScratchBlocks.getMainWorkspace().getBlockById(id)),
       includeId,
@@ -287,7 +294,7 @@ try {
     phase = next;
   });
   phase = 'recover-valid-story';
-  await page.locator('[class*="green-flag_green-flag"]').first().click();
+  await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
   await page
     .locator('[data-dsl4-title-action=close]')
     .waitFor({state: 'visible', timeout: 120_000});
