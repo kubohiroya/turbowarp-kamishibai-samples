@@ -7,8 +7,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
-import {strFromU8, unzipSync} from 'fflate';
+import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {test} from 'vitest';
 import {parse, stringify} from 'yaml';
 
@@ -39,7 +38,7 @@ try {
 }
 
 test('Urashima exposes all scenes and commands as connected editable blocks', () => {
-  verifyStructuredBlockSource(artifactProject, sourceText);
+  verifyStructuredBlockSource(artifactProject, sourceText, archive);
 });
 
 test('tutorial embeds the eight definition forms and scene/pose/say/think forms', async () => {
@@ -154,21 +153,13 @@ test('rejects a scene with its visible command stack disconnected', () => {
 test('an edited wait block exports its new value without changing the remaining story', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'urashima-block-edit-'));
   try {
-    const sourceDirectory = path.join(directory, 'source');
-    await importSb3({
-      inputPath: blocksPath,
-      outputDirectory: sourceDirectory,
-    });
-    const projectPath = path.join(sourceDirectory, 'project.source.json');
-    const edited = JSON.parse(await readFile(projectPath, 'utf8')) as ScratchProject;
+    const edited = structuredClone(artifactProject);
     const wait = Object.values(edited.targets[0]!.blocks).find(
       (block) => block.opcode === 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__wait',
     )!;
     wait.inputs!.SECONDS = [1, [4, 2.75]];
-    await writeFile(projectPath, `${JSON.stringify(edited)}\n`);
-    const rebuilt = await createDeterministicSb3(sourceDirectory);
     const editedPath = path.join(directory, 'edited.sb3');
-    await writeFile(editedPath, rebuilt.archive);
+    await writeFile(editedPath, zipSync({...archive, 'project.json': strToU8(JSON.stringify(edited))}));
     const result = spawnSync(
       process.execPath,
       [

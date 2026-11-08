@@ -5,6 +5,7 @@ import {test} from 'vitest';
 import {strFromU8, unzipSync} from 'fflate';
 
 import {replaceBlockSourceRuntime} from '../scripts/block-authoring-builder.ts';
+import {readBlockProjectExtensions} from '../scripts/block-project-extensions.ts';
 
 const wrapper = (bundle: string) =>
   `(function(Scratch){
@@ -33,12 +34,11 @@ test('every published block project keeps title controls below Player startup an
   ];
   for (const path of paths) {
     const bytes = await readFile(new URL(`../stories/${path}`, import.meta.url));
-    const project = JSON.parse(strFromU8(unzipSync(bytes)['project.json']!));
-    const source = Buffer.from(
-      project.extensionURLs.kubohiroyakamishibai4.split(',')[1],
-      'base64',
-    ).toString();
-    assert.match(source, /\.element\.style\.zIndex="0"/u, path);
+    const archive = unzipSync(bytes);
+    const project = JSON.parse(strFromU8(archive['project.json']!));
+    const runtime = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibai4');
+    assert(runtime, path);
+    assert.match(strFromU8(runtime.bytes), /\.element\.style\.zIndex="0"/u, path);
   }
 });
 
@@ -87,13 +87,14 @@ test('every newly generated block project has an explicit independent root and a
   ];
   for (const path of paths) {
     const bytes = await readFile(new URL(`../stories/${path}`, import.meta.url));
-    const project = JSON.parse(strFromU8(unzipSync(bytes)['project.json']!));
+    const archive = unzipSync(bytes);
+    const project = JSON.parse(strFromU8(archive['project.json']!));
     assertEmbeddedYamlBlockSource(project);
     const component = project.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
     assert(component.sourceDocuments, `${path}: the source graph must retain each named document.`);
     assert.equal(component.sourceDocuments.formatVersion, 1, path);
     assert(Object.keys(component.sourceDocuments.files).length > 0, path);
-    const runtime = Buffer.from(project.extensionURLs.kubohiroyakamishibai4.split(',')[1], 'base64').toString();
-    assert(runtime.includes('embeddedYamlRoot'), path);
+    const runtime = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibai4');
+    assert(runtime && strFromU8(runtime.bytes).includes('embeddedYamlRoot'), path);
   }
 });

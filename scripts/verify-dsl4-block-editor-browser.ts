@@ -195,10 +195,9 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
     const block = window.ScratchBlocks.getMainWorkspace().getBlockById(id);
     return block?.inputList?.[0]?.fieldRow?.[0]?.fieldGroup_?.hasAttribute('data-twpe-yaml-hat-icon');
   }, selectedDocument.id);
-  const menuCapability = await page.evaluate(async () => {
-    const scratch = window.Scratch;
-    if (typeof scratch?.gui?.getBlockly !== 'function') throw new Error('The public Blockly API is unavailable.');
-    const B = await scratch.gui.getBlockly();
+  const menuCapability = await page.evaluate(() => {
+    // The Plus registrar gives extensions a scoped Scratch API, independent of the editor's Blockly.
+    const B = window.ScratchBlocks;
     const port = Reflect.get(window.vm, Symbol.for('@kubohiroya/turbowarp-embedded-yaml/project-patch-workspace/v1'));
     const type = 'kubohiroyakamishibai4_menu_kubohiroyakamishibairuntime4__dsl4TransitionEffect';
     return {type, registered: typeof B.Blocks[type]?.init === 'function',

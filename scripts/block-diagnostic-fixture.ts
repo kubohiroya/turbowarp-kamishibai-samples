@@ -8,6 +8,7 @@ import {pathToFileURL} from 'node:url';
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import type {Page} from 'playwright';
 
+import {readBlockProjectExtensions} from './block-project-extensions.ts';
 import {assertEmbeddedYamlBlockSource} from './migrate-embedded-yaml.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import type {ScratchProject} from './scratch.ts';
@@ -110,6 +111,16 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
   const version = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8')).version;
   assert(runtimeSource.includes(`// ID: kubohiroyakamishibai4\n`) &&
     runtimeSource.includes(`// Version: ${version}\n`));
+  if (project.turboWarpPlus) {
+    // The compatibility fixture uses the standard URL loader in its isolated VM.
+    const extensions = readBlockProjectExtensions(project, archive);
+    project.extensionURLs ??= {};
+    for (const [id, {bytes, path}] of extensions) {
+      project.extensionURLs[id] = 'data:text/javascript;base64,' + Buffer.from(bytes).toString('base64');
+      if (path) delete archive[path];
+    }
+    delete project.turboWarpPlus;
+  }
   const originalRuntimeUrl = project.extensionURLs?.kubohiroyakamishibai4;
   assert(typeof originalRuntimeUrl === 'string' &&
     originalRuntimeUrl.startsWith('data:text/javascript;base64,'));
@@ -153,9 +164,13 @@ export async function openBlockEditor(page: Page, url: string): Promise<void> {
 }
 
 /** Approve only extension IDs/sources present in the verified input, with current and legacy dialogs. */
-export async function approveVerifiedBlockProject(page: Page, project: ScratchProject, legacyOnly = false) {
-  const sources = new Map(Object.entries(project.extensionURLs ?? {}).filter(([, url]) => url.startsWith('data:text/javascript;base64,'))
-    .map(([id, url]) => [id, createHash('sha256').update(Buffer.from(url.split(',')[1]!, 'base64')).digest('hex')]));
+async function approveVerifiedBlockProject(
+  page: Page,
+  project: ScratchProject,
+  archive: Record<string, Uint8Array> | undefined,
+  legacyOnly: boolean,
+) {
+  const sources = readBlockProjectExtensions(project, archive);
   let count = 0;
   for (;;) {
     await page.waitForFunction((legacyOnly) => document.querySelector('[role=dialog]') ||
@@ -167,7 +182,20 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
     assert(count++ < sources.size + 1, 'Unexpected additional extension permission request.');
     const rows = dialog.getByRole('article');
     const bulkChoice = dialog.locator('input[name="execution-all"][value="unsandboxed"]');
-    if (await bulkChoice.count()) {
+    if (project.turboWarpPlus) {
+      const manifestRows = dialog.locator('.twextsec-row');
+      assert.equal(await manifestRows.count(), sources.size);
+      const remaining = new Set(sources.keys());
+      for (const row of await manifestRows.all()) {
+        const id = await row.getAttribute('data-key');
+        assert(id && remaining.delete(id), 'Permission row must identify a unique extension in the verified input.');
+        const digest = await row.locator('.twextsec-digest').textContent();
+        assert.equal(digest?.trim(), `SHA-256 ${sources.get(id)!.sha256}`);
+        const choice = row.locator('input[type="radio"][value="unsandboxed"]');
+        if (!await choice.isChecked()) await choice.check();
+      }
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
+    } else if (await bulkChoice.count()) {
       const expected = Object.entries(project.extensionURLs ?? {}).filter(([id]) => sources.has(id));
       const choices = dialog.locator('input[type="radio"][value="unsandboxed"]');
       assert.equal(await choices.count(), expected.length + 1);
@@ -185,13 +213,13 @@ export async function approveVerifiedBlockProject(page: Page, project: ScratchPr
         const text = await row.innerText();
         const ids = [...sources.keys()].filter((id) => text.includes(id));
         assert.equal(ids.length, 1, 'Permission row must identify an extension in the verified input.');
-        if (await row.locator('textarea').count()) assert.equal(createHash('sha256').update(await row.locator('textarea').inputValue()).digest('hex'), sources.get(ids[0]!));
+        if (await row.locator('textarea').count()) assert.equal(createHash('sha256').update(await row.locator('textarea').inputValue()).digest('hex'), sources.get(ids[0]!)?.sha256);
         await row.getByRole('radio', {name: /(?:サンドボックスなし|Without sandbox)$/u}).check();
       }
       await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
     } else {
       const source = await dialog.locator('textarea').inputValue();
-      assert([...sources.values()].includes(createHash('sha256').update(source).digest('hex')));
+      assert([...sources.values()].some(({sha256}) => sha256 === createHash('sha256').update(source).digest('hex')));
       await dialog.getByLabel('Run without sandbox', {exact: true}).check();
       await dialog.getByRole('button', {name: 'Allow', exact: true}).click(editorControlClick);
     }
@@ -204,6 +232,7 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
   if (fixture) assert.equal(createHash('sha256').update(await readFile(input)).digest('hex'),
     fixture.sha256, 'The verified diagnostic fixture must not change before permission approval.');
   const permissionProject = fixture?.project ?? project;
+  const archive = permissionProject.turboWarpPlus ? unzipSync(await readFile(input)) : undefined;
   if (fixture) {
     // Extension IDs are cached by a VM; isolate the authoring fixture from the playback VM.
     await openBlockEditor(page, page.url());
@@ -224,7 +253,7 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
     const chooser = page.waitForEvent('filechooser');
     await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click(editorControlClick);
     await (await chooser).setFiles(input);
-    const permissions = await approveVerifiedBlockProject(page, permissionProject, legacyOnly);
+    const permissions = await approveVerifiedBlockProject(page, permissionProject, archive, legacyOnly);
     await page.waitForFunction((token) => {
       const state = Reflect.get(window, Symbol.for('samples/verified-project-load'));
       const target = window.vm.editingTarget;

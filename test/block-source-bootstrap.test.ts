@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {test} from 'vitest';
 
+import {readBlockProjectExtensions} from '../scripts/block-project-extensions.ts';
 import {
   assertBlockSourceRuntimeWrapper,
   buildEditableBlockSource,
@@ -25,10 +26,9 @@ async function runtimeSource(story: string): Promise<string> {
   );
   const archive = unzipSync(new Uint8Array(await readFile(file)));
   const project = JSON.parse(strFromU8(archive['project.json']!));
-  return Buffer.from(
-    project.extensionURLs.kubohiroyakamishibai4.split(',')[1],
-    'base64',
-  ).toString();
+  const runtime = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibai4');
+  assert(runtime);
+  return strFromU8(runtime.bytes);
 }
 
 /** Exercise the official bundle scope with the actual per-component extension proxy. */
@@ -116,16 +116,13 @@ for (const story of ['urashima', 'tutorial']) {
     const file = fileURLToPath(
       new URL(`../stories/${story}/${story}-blocks-4.0.sb3`, import.meta.url),
     );
-    const project = JSON.parse(
-      strFromU8(unzipSync(await readFile(file))['project.json']!),
-    );
-    const authoring = Buffer.from(
-      project.extensionURLs.kubohiroyakamishibaiauthoring4.split(',')[1],
-      'base64',
-    ).toString('utf8');
+    const archive = unzipSync(await readFile(file));
+    const project = JSON.parse(strFromU8(archive['project.json']!));
+    const authoring = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibaiauthoring4');
+    assert(authoring);
     const blocks: {opcode: string; hideFromPalette?: boolean}[] = [];
     runInNewContext(
-      authoring,
+      strFromU8(authoring.bytes),
       {
         Scratch: {
           extensions: {

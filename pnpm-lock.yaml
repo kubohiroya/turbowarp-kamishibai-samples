@@ -21,6 +21,9 @@ importers:
       '@kubohiroya/turbowarp-kamishibai-site-navigation':
         specifier: ^0.4.0
         version: 0.4.0
+      '@kubohiroya/turbowarp-sb3-save-format':
+        specifier: 0.4.0-rc.2
+        version: 0.4.0-rc.2
       '@turbowarp/packager':
         specifier: 3.13.0
         version: 3.13.0
@@ -80,9 +83,22 @@ packages:
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     hasBin: true
 
+  '@kubohiroya/turbowarp-extension-loader@0.8.0':
+    resolution: {integrity: sha512-DMeJoSErRDUUfK/JPIOVEV3W82BKHHtVXjNUd0lTMg7TsYI91/hmakuOZUDKBqv/y+T9dmaZRWlf4ab/3JP9sg==}
+    engines: {node: '>=26'}
+
   '@kubohiroya/turbowarp-kamishibai-site-navigation@0.4.0':
     resolution: {integrity: sha512-ATrksLsKzxPAUUs/T6oYAK3Mqqg4TH3XlhH288fK09jpMhsvseOScrd9xslhfF9eYjTLJ5xmBN6sB02c7LWNmg==}
     engines: {node: '>=24'}
+
+  '@kubohiroya/turbowarp-sb3-save-format@0.4.0-rc.2':
+    resolution: {integrity: sha512-5DU6XZPA7+OfKIpN8InPBMJ3p5p0k1V9tTYzniHmwg2VWzt/xS2UhjjPqAqbowMsyXl8OGRycnzQDL8XuPOFYw==}
+    engines: {node: '>=24'}
+    peerDependencies:
+      react: ^16.14.0 || ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@kubohiroya/turbowarp-svg-text@0.2.1':
     resolution: {integrity: sha512-N5Ainmm8l4IfTytfQGlKZWy/gOTkbJ1P3vTsbVmpKVlaIwt8BcFF8pzAQHrJYgtGm+VoBqV8bQrc7631bBG6oA==}
@@ -783,7 +799,13 @@ snapshots:
       '@kubohiroya/turbowarp-svg-text': 0.2.1
       fflate: 0.8.3
 
+  '@kubohiroya/turbowarp-extension-loader@0.8.0': {}
+
   '@kubohiroya/turbowarp-kamishibai-site-navigation@0.4.0': {}
+
+  '@kubohiroya/turbowarp-sb3-save-format@0.4.0-rc.2':
+    dependencies:
+      '@kubohiroya/turbowarp-extension-loader': 0.8.0
 
   '@kubohiroya/turbowarp-svg-text@0.2.1': {}
 
