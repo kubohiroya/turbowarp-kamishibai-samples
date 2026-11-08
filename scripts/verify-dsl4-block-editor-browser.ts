@@ -214,7 +214,8 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
   await page.mouse.click(point.x, point.y);
   const saveButton = {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u};
   const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', saveButton)});
-  await dialog.waitFor();
+  // Rendering the embedded Blockly preview can exceed the page's default timeout on CI.
+  await dialog.waitFor({timeout: 60_000});
   const tab = dialog.getByRole('tab', {name: /^(?:💽.*)?(?:Script blocks|台本ブロック)$/u});
   assert.equal(await tab.getAttribute('aria-selected'), 'true');
   const save = dialog.getByRole('button', saveButton);
@@ -434,12 +435,26 @@ try {
   }
 
   phase = 'save-project';
-  const saveToComputer = page.getByText('Save to your computer', {exact: true}).first();
-  if (!await saveToComputer.isVisible()) await page.getByText('File', {exact: true}).click(editorControlClick);
-  const [download] = await Promise.all([
-    page.waitForEvent('download', {timeout: 120_000}),
-    saveToComputer.click(editorControlClick),
+  const legacySave = page.getByText('Save to your computer', {exact: true}).filter({visible: true});
+  const saveAs = page.getByRole('button', {name: 'Save As…', exact: true});
+  if (!await legacySave.isVisible() && !await saveAs.isVisible()) {
+    await page.getByText('File', {exact: true}).click(editorControlClick);
+  }
+  const openSave = await saveAs.isVisible() ? saveAs : legacySave;
+  const confirmSave = page.locator('form')
+    .filter({hasText: 'SB3 (current storage settings)'})
+    .getByRole('button', {name: 'Save', exact: true});
+  const downloadReady = page.waitForEvent('download', {timeout: 120_000});
+  // The toolbar can retain its old label while opening the new Save As form.
+  const [requiresConfirmation] = await Promise.all([
+    Promise.race([
+      downloadReady.then(() => false),
+      confirmSave.waitFor({state: 'visible', timeout: 120_000}).then(() => true),
+    ]),
+    openSave.click(editorControlClick),
   ]);
+  if (requiresConfirmation) await confirmSave.click(editorControlClick);
+  const download = await downloadReady;
   const savedPath = path.join(outputDirectory, 'edited.sb3');
   await download.saveAs(savedPath);
   assert.equal(await download.failure(), null);

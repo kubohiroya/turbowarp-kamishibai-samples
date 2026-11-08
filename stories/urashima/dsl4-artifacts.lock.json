@@ -41,8 +41,8 @@
   },
   "blocksOutput": {
     "path": "urashima-blocks-4.0.sb3",
-    "size": 34424293,
-    "sha256": "10b6b4b190524599278d0e462e0fb3ab7f37d01036c98d764db7f329ec4a412a",
+    "size": 34424313,
+    "sha256": "371b9a7d76d6e3920397b2d017bf32869e7ca548d5c7cc8c8a186e9d63d565bf",
     "archiveEntryCount": 53,
     "targetNames": [
       "Stage",

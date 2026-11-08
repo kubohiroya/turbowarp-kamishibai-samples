@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
-import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
+import {cleanUpSb3Archive, createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
@@ -72,9 +72,10 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     const first = await createDeterministicSb3(imported);
     const second = await createDeterministicSb3(imported);
     assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
-    const bytes = await migrateEditableBlockSource(first.archive, {
+    const editableBytes = await migrateEditableBlockSource(first.archive, {
       appRoot: options.authoring.root, entryFile: `my-urashima-${poseCount}-poses.k4.yml`,
     });
+    const bytes = Buffer.from(cleanUpSb3Archive(editableBytes).archive);
     const project = JSON.parse(strFromU8(unzipSync(bytes)['project.json']!)) as ScratchProject;
     verifyStructuredBlockSource(project, source);
     const princess = project.targets.find(({name}) => name === 'Princess');

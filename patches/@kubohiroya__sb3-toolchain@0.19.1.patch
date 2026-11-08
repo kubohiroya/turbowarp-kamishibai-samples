@@ -1,0 +1,364 @@
+diff --git a/dist/clean-up-sb3.d.ts b/dist/clean-up-sb3.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..f472560c088f3ad06827c406add85b560fee5a56
+--- /dev/null
++++ b/dist/clean-up-sb3.d.ts
+@@ -0,0 +1,7 @@
++import { TargetCleanUpResult } from './turbowarp-clean-up';
++export interface CleanUpSb3ArchiveResult extends TargetCleanUpResult {
++    archive: Uint8Array;
++    targetCount: number;
++}
++/** Rearranges an SB3 archive without extracting its entries to disk. */
++export declare function cleanUpSb3Archive(original: Uint8Array): CleanUpSb3ArchiveResult;
+diff --git a/dist/clean-up-sb3.js b/dist/clean-up-sb3.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..d0a082524d06da2abbb1025c25fceb230fa918ba
+--- /dev/null
++++ b/dist/clean-up-sb3.js
+@@ -0,0 +1,33 @@
++// SPDX-License-Identifier: MPL-2.0
++import { assert } from "./assert.js";
++import { validateArchiveEntryName } from "./archive.js";
++import { cleanUpTurboWarpBlocks } from "./turbowarp-clean-up.js";
++import { fixedZipTimestamp } from "./source.js";
++import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
++// src/clean-up-sb3.ts
++/** Rearranges an SB3 archive without extracting its entries to disk. */
++function cleanUpSb3Archive(original) {
++	const names = /* @__PURE__ */ new Set();
++	const entries = unzipSync(original, { filter: ({ name }) => {
++		validateArchiveEntryName(name);
++		assert(name !== "__proto__", "Unsupported SB3 archive entry: __proto__");
++		assert(!names.has(name), `Duplicate SB3 archive entry: ${name}`);
++		names.add(name);
++		return true;
++	} });
++	assert(Object.hasOwn(entries, "project.json"), "SB3 archive does not contain project.json.");
++	const { project, ...counts } = cleanUpTurboWarpBlocks(JSON.parse(strFromU8(entries["project.json"])), { compact: true });
++	if (counts.movedScriptCount === 0) return {
++		archive: original,
++		...counts
++	};
++	entries["project.json"] = strToU8(`${JSON.stringify(project)}\n`);
++	return {
++		archive: zipSync(entries, {
++			level: 6,
++			mtime: fixedZipTimestamp
++		}),
++		...counts
++	};
++}
++export { cleanUpSb3Archive };
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index fc91ffca944cc0a2266656e0b5fa15f9afa16a06..01a26c116fa040b857d345bb733995eb92a1bc59 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -32,3 +32,4 @@ export type { ProjectAssetAdditionsSummary } from './project-asset-additions';
+ export type { Sb3ReleaseSnapshotMetadata } from './release-snapshot';
+ export type { DeterministicSb3, InspectedSb3Source } from './source';
+ export type { TurboWarpCleanUpResult } from './turbowarp-clean-up';
++export { cleanUpSb3Archive } from './clean-up-sb3';
+diff --git a/dist/index.js b/dist/index.js
+index 7f664c1a79fb1962f642e4e38b12f6804c67e245..980d3fb88a067882bbe15f706ac2aea4027548ee 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -17,3 +17,4 @@ import { migrateExtensionId, planExtensionIdMigration, validateNewExtensionId }
+ import { defaultExtensionArtifactSizeLimit, extensionStatus, syncExtensions, updateExtensions } from "./extension-sync.js";
+ import { assertSb3ReleaseSnapshotMetadata, computeReleaseSourceIdentity, createSb3ReleaseSnapshot, createSb3ReleaseSnapshotMetadata, freezeSb3ReleaseSnapshot, readSb3ReleaseSnapshotMetadata, recordPublishedSb3ReleaseSnapshot, verifySb3ReleaseSnapshot, writeSb3ReleaseCandidate } from "./release-snapshot.js";
+ export { applyProjectAssetAdditions, assert, assertSb3ReleaseSnapshotMetadata, buildExtensionBundles, buildExtensionBundlesWithModules, buildSb3, bundleExtensions, bundleUnsandboxedRequirement, cleanUpTurboWarpBlocks, compareDirectories, compareExtensionApiManifests, computeReleaseSourceIdentity, createDeterministicSb3, createSb3ReleaseSnapshot, createSb3ReleaseSnapshotMetadata, createStaticExtensionBundle, decodeExtensionDataUrl, defaultExtensionApiManifestSizeLimit, defaultExtensionArtifactSizeLimit, defaultSandboxedNotices, extensionApiManifestEffects, extensionApiManifestFormatVersion, extensionApiManifestFormatVersions, extensionApiManifestIntegrity, extensionApiManifestLocalPath, extensionApiManifestResultTypes, extensionBundleRecoveryMarker, extensionHeaderId, extensionHeaderMetadata, extensionIntegrity, extensionStatus, fixedZipTimestamp, formatExtensionApiCompatibilityChanges, freezeSb3ReleaseSnapshot, importSb3, inspectGitOutputState, migrateExtensionId, packageName, packageVersion, parseExtensionApiManifest, planBundledSb3Unbundle, planExtensionBundle, planExtensionIdMigration, planExtensionUnbundle, projectAssetAdditionsFormatVersion, readSb3ReleaseSnapshotMetadata, recordPublishedSb3ReleaseSnapshot, sourceFormatVersion, syncExtensions, tryParseExtensionApiManifest, turboWarpCleanUpLayout, unbundleExtensions, unbundleSb3, unsandboxedRequirement, unsandboxedRequirements, updateExtensions, validateArchiveEntryName, validateExtensionApiManifestSourceMetadata, validateExtensionBundleConfigurations, validateExtensionSourceMetadata, validateManagedExtensionApiManifest, validateManagedExtensionContents, validateNewExtensionId, validateOutputDirectoryPath, validateSb3Source, verifySb3ReleaseSnapshot, writeSb3ReleaseCandidate };
++export { cleanUpSb3Archive } from "./clean-up-sb3.js";
+diff --git a/dist/turbowarp-clean-up.d.ts b/dist/turbowarp-clean-up.d.ts
+index 399bcfd33a28a5a27b420d10b77fb9e3cf42bb45..75d557806ae56061438e0ef359e22bbdfdf52847 100644
+--- a/dist/turbowarp-clean-up.d.ts
++++ b/dist/turbowarp-clean-up.d.ts
+@@ -15,4 +15,6 @@ export interface TurboWarpCleanUpResult extends TargetCleanUpResult {
+     project: ProjectJson;
+     targetCount: number;
+ }
+-export declare function cleanUpTurboWarpBlocks(project: ProjectJson): TurboWarpCleanUpResult;
++export declare function cleanUpTurboWarpBlocks(project: ProjectJson, { compact }?: {
++    compact?: boolean;
++}): TurboWarpCleanUpResult;
+diff --git a/dist/turbowarp-clean-up.js b/dist/turbowarp-clean-up.js
+index d0040c2e480348a1d4a4f7aba8e4aa7fee0a63d4..957c8f996c207aceb04311f6cc9a940ba966dc95 100644
+--- a/dist/turbowarp-clean-up.js
++++ b/dist/turbowarp-clean-up.js
+@@ -8,6 +8,7 @@ var turboWarpCleanUpLayout = Object.freeze({
+ 	startY: 64
+ });
+ var minimumBlockHeight = 48;
++var compactBlockHeight = 64;
+ var minimumBlockWidth = 160;
+ var nestedStackIndent = 64;
+ var nestedStackPadding = 24;
+@@ -48,16 +49,16 @@ function inputDisplayTextLength(input, blocks) {
+ 	}
+ 	return 0;
+ }
+-function verticalChildIds(block, blocks) {
++function measuredChildIds(block, blocks, compact) {
+ 	const childIds = [];
+ 	if (isObject(block.inputs)) for (const [inputName, input] of Object.entries(block.inputs)) {
+ 		const childId = inputBlockId(input, blocks);
+-		if (childId && /^SUBSTACK/u.test(inputName)) childIds.push(childId);
++		if (childId && (compact || /^SUBSTACK/u.test(inputName))) childIds.push(childId);
+ 	}
+ 	if (typeof block.next === "string" && Object.hasOwn(blocks, block.next)) childIds.push(block.next);
+ 	return childIds;
+ }
+-function measureStack(blockId, blocks) {
++function measureStack(blockId, blocks, compact) {
+ 	const measured = /* @__PURE__ */ new Map();
+ 	const active = /* @__PURE__ */ new Set();
+ 	const work = [{
+@@ -76,7 +77,7 @@ function measureStack(blockId, blocks) {
+ 				blockId: frame.blockId,
+ 				finalize: true
+ 			});
+-			const childIds = verticalChildIds(block, blocks);
++			const childIds = measuredChildIds(block, blocks, compact);
+ 			for (let index = childIds.length - 1; index >= 0; index -= 1) {
+ 				const childId = childIds[index];
+ 				if (!active.has(childId) && !measured.has(childId)) work.push({
+@@ -86,7 +87,7 @@ function measureStack(blockId, blocks) {
+ 			}
+ 			continue;
+ 		}
+-		let height = minimumBlockHeight;
++		let height = compact ? compactBlockHeight : minimumBlockHeight;
+ 		let width = Math.max(minimumBlockWidth, 80 + displayTextLength(block) * 8);
+ 		if (isObject(block.inputs)) for (const [inputName, input] of Object.entries(block.inputs)) {
+ 			const childId = inputBlockId(input, blocks);
+@@ -97,7 +98,11 @@ function measureStack(blockId, blocks) {
+ 				};
+ 				height += nested.height + nestedStackPadding;
+ 				width = Math.max(width, nested.width + nestedStackIndent);
+-			} else width += 24 + inputDisplayTextLength(input, blocks) * 8;
++			} else {
++				const reporter = compact && childId ? measured.get(childId) : void 0;
++				width += 24 + (reporter?.width ?? inputDisplayTextLength(input, blocks) * 8);
++				if (reporter) height = Math.max(height, reporter.height + 16);
++			}
+ 		}
+ 		if (typeof block.next === "string" && Object.hasOwn(blocks, block.next)) {
+ 			const next = measured.get(block.next) ?? {
+@@ -150,6 +155,7 @@ function findTopBlockId(blockId, blocks) {
+ 	while (typeof currentId === "string" && !visited.has(currentId)) {
+ 		visited.add(currentId);
+ 		const block = blocks[currentId];
++		if (isReporterPrimitive(block)) return currentId;
+ 		if (!isObject(block)) return null;
+ 		if (block.topLevel === true || block.parent === null) return currentId;
+ 		currentId = block.parent;
+@@ -184,7 +190,96 @@ function attachedCommentWidths(target, blocks) {
+ 	}
+ 	return widths;
+ }
+-function cleanUpTarget(target, targetIndex) {
++function isReporterPrimitive(value) {
++	return Array.isArray(value) && (value[0] === 12 || value[0] === 13) && value.length >= 5;
++}
++function commentBounds(comment) {
++	if (!isObject(comment) || !isFiniteNumber(comment.x) || !isFiniteNumber(comment.y) || !isFiniteNumber(comment.width) || !isFiniteNumber(comment.height) || comment.width < 0 || comment.height < 0) return void 0;
++	return {
++		x: comment.x,
++		y: comment.y,
++		width: comment.width,
++		height: comment.height
++	};
++}
++function compactPlacements(scripts, target, blocks) {
++	const { columnGap, rowGap, startX, startY } = turboWarpCleanUpLayout;
++	const items = scripts.map((script) => ({
++		script,
++		left: 0,
++		right: script.size.width,
++		top: 0,
++		bottom: script.size.height
++	}));
++	const byId = new Map(items.map((item) => [item.script.blockId, item]));
++	const obstacles = [];
++	if (isObject(target.comments)) for (const comment of Object.values(target.comments)) {
++		const bounds = commentBounds(comment);
++		if (!bounds || !isObject(comment)) continue;
++		const topBlockId = findTopBlockId(comment.blockId, blocks);
++		const item = topBlockId === null ? void 0 : byId.get(topBlockId);
++		if (!item) {
++			obstacles.push(bounds);
++			continue;
++		}
++		const x = bounds.x - item.script.originalX;
++		const y = bounds.y - item.script.originalY;
++		item.left = Math.min(item.left, x);
++		item.right = Math.max(item.right, x + bounds.width);
++		item.top = Math.min(item.top, y);
++		item.bottom = Math.max(item.bottom, y + bounds.height);
++	}
++	obstacles.sort((a, b) => compareNumbers(a.y, b.y));
++	const placements = [];
++	let bestScore = Infinity;
++	let bestRowCount = 1;
++	for (let rows = 1;; rows = Math.min(items.length, rows + Math.ceil(rows / 16))) {
++		let width = 0;
++		let height = 0;
++		for (let first = 0; first < items.length; first += rows) {
++			let left = 0;
++			let right = 0;
++			let columnHeight = 0;
++			for (const item of items.slice(first, first + rows)) {
++				left = Math.min(left, item.left);
++				right = Math.max(right, item.right);
++				columnHeight += item.bottom - item.top + rowGap;
++			}
++			width += right - left + columnGap;
++			height = Math.max(height, columnHeight - rowGap);
++		}
++		const score = Math.max((width - columnGap) / 1.5, height);
++		if (score < bestScore) {
++			bestScore = score;
++			bestRowCount = rows;
++		}
++		if (rows >= items.length) break;
++	}
++	let cursorX = startX;
++	for (let first = 0; first < items.length; first += bestRowCount) {
++		const column = items.slice(first, first + bestRowCount);
++		let left = 0;
++		let right = 0;
++		for (const item of column) {
++			left = Math.min(left, item.left);
++			right = Math.max(right, item.right);
++		}
++		const x = cursorX - Math.floor(left);
++		let cursorY = startY;
++		for (const item of column) {
++			for (const obstacle of obstacles) if (x + item.left < obstacle.x + obstacle.width + columnGap && x + item.right + columnGap > obstacle.x && cursorY < obstacle.y + obstacle.height + rowGap && cursorY + item.bottom - item.top + rowGap > obstacle.y) cursorY = obstacle.y + obstacle.height + rowGap;
++			placements.push({
++				script: item.script,
++				x,
++				y: cursorY - item.top
++			});
++			cursorY += item.bottom - item.top + rowGap;
++		}
++		cursorX = x + Math.ceil(right) + columnGap;
++	}
++	return placements;
++}
++function cleanUpTarget(target, targetIndex, compact) {
+ 	if (target.blocks === void 0) return {
+ 		movedCommentCount: 0,
+ 		movedScriptCount: 0,
+@@ -193,49 +288,66 @@ function cleanUpTarget(target, targetIndex) {
+ 	assert(isObject(target.blocks), `Project target ${targetIndex} blocks must be an object.`);
+ 	const blocks = target.blocks;
+ 	const scripts = [];
+-	let inputOrder = 0;
+ 	for (const [blockId, block] of Object.entries(blocks)) {
+-		if (!isObject(block) || block.topLevel !== true) continue;
+-		assert(isFiniteNumber(block.x) && isFiniteNumber(block.y), `Top-level block ${JSON.stringify(blockId)} in project target ${targetIndex} requires numeric x and y coordinates.`);
++		const primitive = compact && isReporterPrimitive(block);
++		if (!primitive && (!isObject(block) || block.topLevel !== true)) continue;
++		const x = Array.isArray(block) ? block[3] : block.x;
++		const y = Array.isArray(block) ? block[4] : block.y;
++		assert(isFiniteNumber(x) && isFiniteNumber(y), `Top-level block ${JSON.stringify(blockId)} in project target ${targetIndex} requires numeric x and y coordinates.`);
+ 		scripts.push({
+ 			block,
+ 			blockId,
+-			inputOrder,
+-			originalX: block.x,
+-			originalY: block.y,
+-			size: measureStack(blockId, blocks)
++			inputOrder: scripts.length,
++			originalX: x,
++			originalY: y,
++			size: primitive ? {
++				height: minimumBlockHeight,
++				width: Math.max(minimumBlockWidth, 80 + String(block[1]).length * 8)
++			} : measureStack(blockId, blocks, compact)
+ 		});
+-		inputOrder += 1;
+ 	}
++	const columns = groupIntoColumns(scripts);
+ 	const movements = /* @__PURE__ */ new Map();
+-	const commentWidths = attachedCommentWidths(target, blocks);
+-	let cursorX = turboWarpCleanUpLayout.startX;
+-	let movedScriptCount = 0;
+-	for (const column of groupIntoColumns(scripts)) {
+-		let cursorY = turboWarpCleanUpLayout.startY;
+-		let columnWidth = 0;
+-		for (const script of column.scripts) {
+-			const deltaX = cursorX - script.originalX;
+-			const deltaY = cursorY - script.originalY;
+-			script.block.x = cursorX;
+-			script.block.y = cursorY;
+-			movements.set(script.blockId, {
+-				deltaX,
+-				deltaY
+-			});
+-			if (deltaX || deltaY) movedScriptCount += 1;
+-			cursorY += script.size.height + turboWarpCleanUpLayout.rowGap;
+-			columnWidth = Math.max(columnWidth, script.size.width, commentWidths.get(script.blockId) ?? 0);
++	const moveScript = (script, x, y) => {
++		assert(isFiniteNumber(x) && isFiniteNumber(y), "Calculated SB3 layout coordinates must be finite.");
++		if (Array.isArray(script.block)) {
++			script.block[3] = x;
++			script.block[4] = y;
++		} else {
++			script.block.x = x;
++			script.block.y = y;
++		}
++		const deltaX = x - script.originalX;
++		const deltaY = y - script.originalY;
++		if (deltaX || deltaY) movements.set(script.blockId, {
++			deltaX,
++			deltaY
++		});
++	};
++	if (compact) {
++		const placements = compactPlacements(columns.flatMap((column) => column.scripts), target, blocks);
++		for (const { script, x, y } of placements) moveScript(script, x, y);
++	} else {
++		const commentWidths = attachedCommentWidths(target, blocks);
++		let cursorX = turboWarpCleanUpLayout.startX;
++		for (const column of columns) {
++			let cursorY = turboWarpCleanUpLayout.startY;
++			let columnWidth = 0;
++			for (const script of column.scripts) {
++				moveScript(script, cursorX, cursorY);
++				cursorY += script.size.height + turboWarpCleanUpLayout.rowGap;
++				columnWidth = Math.max(columnWidth, script.size.width, commentWidths.get(script.blockId) ?? 0);
++			}
++			cursorX += columnWidth + turboWarpCleanUpLayout.columnGap;
+ 		}
+-		cursorX += columnWidth + turboWarpCleanUpLayout.columnGap;
+ 	}
+ 	return {
+ 		movedCommentCount: moveAttachedComments(target, blocks, movements),
+-		movedScriptCount,
++		movedScriptCount: movements.size,
+ 		scriptCount: scripts.length
+ 	};
+ }
+-function cleanUpTurboWarpBlocks(project) {
++function cleanUpTurboWarpBlocks(project, { compact = false } = {}) {
+ 	assert(isObject(project), "TurboWarp project must be an object.");
+ 	assert(Array.isArray(project.targets), "TurboWarp project targets must be an array.");
+ 	const cleanedProject = structuredClone(project);
+@@ -246,7 +358,7 @@ function cleanUpTurboWarpBlocks(project) {
+ 	let targetCount = 0;
+ 	for (const [targetIndex, target] of targets.entries()) {
+ 		assert(isObject(target), `Project target ${targetIndex} must be an object.`);
+-		const result = cleanUpTarget(target, targetIndex);
++		const result = cleanUpTarget(target, targetIndex, compact);
+ 		if (result.scriptCount > 0) targetCount += 1;
+ 		movedCommentCount += result.movedCommentCount;
+ 		movedScriptCount += result.movedScriptCount;
+@@ -260,7 +372,4 @@ function cleanUpTurboWarpBlocks(project) {
+ 		targetCount
+ 	};
+ }
+-//#endregion
+ export { cleanUpTurboWarpBlocks, turboWarpCleanUpLayout };
+-
+-//# sourceMappingURL=turbowarp-clean-up.js.map
