@@ -20,21 +20,26 @@ const checks = [
   {script: 'scripts/verify-packaged-web-browser.ts', line: 'dsl32'},
   {script: 'scripts/verify-packaged-web-webkit-audio.ts', line: 'dsl32'},
   {script: 'scripts/verify-dsl4-packaged-web-browser.ts', line: 'dsl4'},
-  {script: 'scripts/verify-dsl4-block-editor-browser.ts', line: 'dsl4'},
+  {script: 'scripts/verify-dsl4-block-editor-browser.ts', line: 'editor'},
+  ...(process.env.KAMISHIBAI_BLOCK_DIAGNOSTICS === '1'
+    ? [{
+      script: 'scripts/verify-published-block-diagnostics.ts',
+      line: 'editor',
+      args: ['--input', 'dist/stories/urashima/urashima-blocks-4.0.sb3'],
+    }]
+    : []),
 ] as const;
 
 /**
- * `all` by default, so running this by hand checks everything.
- *
- * The pull-request workflow narrows it to `dsl4` when nothing in the change can reach the DSL 3.2
- * artifacts -- `scripts/web-checks-scope.ts` owns that judgement -- and the scheduled run never
- * narrows it, because the DSL 3.2 Web build is not hermetic and drifts on its own.
+ * Local and published-release runs use the full scope. A PR selects its scope from the
+ * changed files and runs its standalone editor diagnostics alongside the other browser checks.
  */
 const scope = process.env.KAMISHIBAI_WEB_CHECKS ?? 'all';
-if (scope !== 'all' && scope !== 'dsl4') {
-  throw new Error(`KAMISHIBAI_WEB_CHECKS must be all or dsl4, received: ${scope}`);
+if (scope !== 'all' && scope !== 'dsl4' && scope !== 'editor' && scope !== 'none') {
+  throw new Error(`Unknown KAMISHIBAI_WEB_CHECKS scope: ${scope}`);
 }
-const selected = checks.filter((check) => scope === 'all' || check.line === 'dsl4');
+const selected = checks.filter(({line}) => scope === 'all' || scope === line ||
+  (scope === 'dsl4' && line === 'editor'));
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -45,10 +50,10 @@ interface CheckResult {
   readonly ms: number;
 }
 
-function runCheck(script: string): Promise<CheckResult> {
+function runCheck(script: string, args: readonly string[]): Promise<CheckResult> {
   const startedAt = Date.now();
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [script], {
+    const child = spawn(process.execPath, [script, ...args], {
       cwd: projectRoot,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -69,10 +74,10 @@ function runCheck(script: string): Promise<CheckResult> {
 
 if (scope !== 'all') {
   const skipped = checks.filter((check) => !selected.includes(check)).map(({script}) => script);
-  process.stdout.write(`Skipping the DSL 3.2 packaged-web checks: ${skipped.join(', ')}\n`);
-  process.stdout.write('Nothing in this change reaches them; the scheduled run covers drift.\n');
+  process.stdout.write(`Browser scope ${scope} skips: ${skipped.join(', ')}\n`);
 }
-const results = await Promise.all(selected.map(({script}) => runCheck(script)));
+const results = await Promise.all(selected.map((check) =>
+  runCheck(check.script, 'args' in check ? check.args : [])));
 for (const result of results) {
   const seconds = (result.ms / 1000).toFixed(1);
   process.stdout.write(`\n--- ${result.script} (${seconds}s, exit ${result.code})\n`);

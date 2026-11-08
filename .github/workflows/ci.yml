@@ -15,16 +15,14 @@ jobs:
   test:
     # Playwright WebKit 1.61 uses the Ubuntu 24.04 system libraries.
     runs-on: ubuntu-24.04
-    # The run finishes in about four minutes. Anything near this ceiling is hung, and without
-    # it a stuck Playwright holds a runner for the six-hour default.
+    # Keep a ceiling for builds and browser checks that depend on external services.
     timeout-minutes: 40
     env:
       TZ: Asia/Tokyo
       TURBOWARP_KAMISHIBAI_APP_ROOT: ${{ github.workspace }}/.tmp/turbowarp-kamishibai-app
     steps:
       - uses: actions/checkout@v7
-      # Naming the pull request lets the verification skip the two DSL 3.2 browser checks when
-      # nothing in it can reach their artifacts. They cost 85 of the 105 seconds the three take.
+      # Use the committed App pin and select browser checks from the changed files.
       - uses: ./.github/actions/verify
         with:
           pull-request: ${{ github.event.pull_request.number }}

@@ -20,6 +20,8 @@ test('keeps the DSL 3.2 packaged-web checks for anything that can reach their ar
     ['package.json'],
     ['pnpm-lock.yaml'],
     ['.github/workflows/ci.yml'],
+    ['docs/index.html'],
+    ['scripts/new-shared-helper.ts'],
     // One unrelated file alongside one that matters still needs them.
     ['README.md', 'stories/urashima/sample.config.json'],
   ]) {
@@ -27,7 +29,7 @@ test('keeps the DSL 3.2 packaged-web checks for anything that can reach their ar
   }
 });
 
-test('narrows to the DSL 4.0 check when nothing in the change can reach the 3.2 artifacts', () => {
+test('keeps the DSL 4.0 player and editor checks for DSL 4.0 inputs', () => {
   assert.equal(
     webCheckScope([
       'stories/tutorial/story.kamishibai.yaml',
@@ -36,11 +38,28 @@ test('narrows to the DSL 4.0 check when nothing in the change can reach the 3.2 
       'stories/urashima/urashima-4.0.sb3',
       'stories/my-urashima/my-urashima-4.0.sb3',
       'scripts/verify-dsl4-block-editor-browser.ts',
-      'docs/index.html',
       'README.md',
     ]),
     'dsl4',
   );
+});
+
+test('runs only editor checks when the changes belong to the editor browser harness', () => {
+  assert.equal(webCheckScope([
+    'scripts/block-diagnostic-fixture.ts',
+    'scripts/verify-published-block-editor.ts',
+    'scripts/verify-published-block-diagnostics.ts',
+    'test/published-block-editor.test.ts',
+  ]), 'editor');
+});
+
+test('skips browser checks for changes limited to documentation and unit tests', () => {
+  assert.equal(webCheckScope([
+    'README.ja.md',
+    'stories/urashima/README.md',
+    'docs/checking-samples.md',
+    'test/story-config.test.ts',
+  ]), 'none');
 });
 
 test('runs everything when the changed files are unknown', () => {
