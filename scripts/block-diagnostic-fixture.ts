@@ -250,9 +250,14 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
   }, token);
   try {
     await page.getByText(/^(File|ファイル)$/u).first().click(editorControlClick);
-    const chooser = page.waitForEvent('filechooser');
-    await page.getByText(/^(Load from your computer|コンピューターから読み込む)$/u).click(editorControlClick);
-    await (await chooser).setFiles(input);
+    const openSb3 = page
+      .getByText(/^(?:Open SB3 File…|SB3ファイルを開く…|Load from your computer|コンピューターから読み込む)$/u)
+      .filter({visible: true});
+    const [chooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      openSb3.click(editorControlClick),
+    ]);
+    await chooser.setFiles(input);
     const permissions = await approveVerifiedBlockProject(page, permissionProject, archive, legacyOnly);
     await page.waitForFunction((token) => {
       const state = Reflect.get(window, Symbol.for('samples/verified-project-load'));
