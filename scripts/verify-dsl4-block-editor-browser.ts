@@ -214,7 +214,8 @@ async function saveCurrentScriptDocument(page: Page, sceneId: string) {
   await page.mouse.click(point.x, point.y);
   const saveButton = {name: /^(Convert, validate and save the displayed format|表示されている形式に変換して検証・保存)$/u};
   const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', saveButton)});
-  await dialog.waitFor();
+  // Rendering the embedded Blockly preview can exceed the page's default timeout on CI.
+  await dialog.waitFor({timeout: 60_000});
   const tab = dialog.getByRole('tab', {name: /^(?:💽.*)?(?:Script blocks|台本ブロック)$/u});
   assert.equal(await tab.getAttribute('aria-selected'), 'true');
   const save = dialog.getByRole('button', saveButton);
