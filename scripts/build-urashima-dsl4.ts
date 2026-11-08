@@ -11,12 +11,14 @@ import {
   createDeterministicSb3,
   importSb3,
 } from '@kubohiroya/sb3-toolchain';
-import {strFromU8, unzipSync} from 'fflate';
+import {writeSb3ExtensionFormat} from '@kubohiroya/turbowarp-sb3-save-format/writer';
+import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
 import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
+import {extensionSaveCapabilities} from './block-project-extensions.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -139,7 +141,7 @@ function inspectBlockProject(
     );
   }
   assert(project.extensions?.includes('kubohiroyakamishibai4'));
-  verifyStructuredBlockSource(project, sourceText);
+  verifyStructuredBlockSource(project, sourceText, archive);
   const component =
     project.extensionStorage?.kubohiroyakamishibai4?.components?.kubohiroyakamishibairuntime4;
   assert.equal(
@@ -154,6 +156,21 @@ function inspectBlockProject(
     archiveEntryCount: Object.keys(archive).length,
     targetNames: project.targets.map((target) => target.name),
   };
+}
+
+/** The editor uses the Plus Manifest to read verified JS files from the ZIP. */
+async function embedBlockExtensionFiles(input: Uint8Array): Promise<Buffer> {
+  const archive = unzipSync(input);
+  const project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
+  const ids = ['kubohiroyakamishibai4', 'kubohiroyakamishibaiauthoring4'];
+  const {converted} = await writeSb3ExtensionFormat(archive, project, 'embedded-file', {
+    capabilities: extensionSaveCapabilities,
+    // The bundled runtime and the authoring forms use the unsandboxed host APIs.
+    unsandboxed: ids,
+  });
+  assert.deepEqual([...converted].sort(), ids, 'The editor must carry both Kamishibai extensions.');
+  archive['project.json'] = strToU8(JSON.stringify(project));
+  return Buffer.from(zipSync(archive, {level: 6, mtime: new Date(1980, 0, 1)}));
 }
 
 async function canonicalizeSb3(inputPath: string, sourceDirectory: string): Promise<Buffer> {
@@ -272,7 +289,7 @@ export async function buildUrashimaDsl4({
       {cwd: blockAuthoring.root},
     );
     await simplifyPublishedDsl4Blocks(blocksPath, blockAuthoring.root, blockAuthoring.identity.sourceSections ?? false, storyDirectory);
-    const blocksBytes = await buildEditableBlockSource(
+    const migratedBlocks = await buildEditableBlockSource(
       blocksPath,
       path.join(temporaryDirectory, 'editable-block-source'),
       canonicalBytes,
@@ -280,6 +297,7 @@ export async function buildUrashimaDsl4({
       blockAuthoring.root,
       path.basename(sourcePath),
     );
+    const blocksBytes = await embedBlockExtensionFiles(migratedBlocks);
     const composed = await composeDsl4Source(sourceBytes.toString('utf8'), kamishibaiRoot, storyDirectory);
     const blocksProject = inspectBlockProject(blocksBytes, composed);
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);

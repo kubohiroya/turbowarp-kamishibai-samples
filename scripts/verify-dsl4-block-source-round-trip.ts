@@ -88,6 +88,7 @@ export async function verifyDsl4BlockSourceRoundTrip({
           path.dirname(path.join(projectRoot, sourceHref)),
           JSON.parse(strFromU8(yamlArchive['project.json']!)),
         ),
+        archive,
       );
       const exportDirectory = path.join(temporaryDirectory, work.id);
       const cliOutput = commandOutput(

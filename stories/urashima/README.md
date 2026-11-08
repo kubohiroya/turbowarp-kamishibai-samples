@@ -76,6 +76,8 @@ pnpm update:dsl4-artifacts
 
 台本ブロックSB3は、同じ公開AppのCLIの生成結果を`sb3-toolchain`へimportし、編集用ラッパーが`extensions`属性を`configurable: true`として定義することを検証します。完成作品のfile素材bundleを引き継ぎ、公式`migrate-embedded-yaml`で独立root・設定文書・シーンごとの名前付き文書へ移行してから、最終SB3とlockを生成します。素材のバイト列、対象・衣装・音・変数と、場面・命令順を保持していることを検証します。
 
+Plus Editor向けの `urashima-blocks-4.0.sb3` は、最終工程で拡張のJSをZIP内の独立ファイルに格納します。Plus Manifestに `embedded-file` とSHA-256を記録します。標準TurboWarp Packagerに渡す `urashima-4.0.sb3` は、拡張を `project.json` のdata URLとして保持します。
+
 手作業でSB3のZIPや`project.json`を書き換える経路は使いません。通常の`pnpm build`も同じビルダーを呼び出して、空の`dist/`へ`urashima-4.0.sb3`と`web-4.0/index.html`を自動生成し、チェックイン済みロックと一致することを検証します。通常の再生成はすでに取得済みのローカルモデルだけで完了し、完成したSB3の実行時にはモデル配布元へのネットワーク接続を必要としません。カメラを使うポーズ認識にはブラウザのカメラ権限が必要です。
 
 DSL 4.0 Web版だけを一時停止するときは、`sample.config.json`の`dsl4.web.enabled`を`false`にして再ビルドします。Web HTMLは生成されず、作品一覧と詳細画面は「準備中」表示へ戻ります。`dsl4-web-artifacts.lock.json`は保持されるため、`true`へ戻すと同じ成果物を再検証して公開できます。

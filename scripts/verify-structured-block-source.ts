@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import {runInNewContext} from 'node:vm';
 
+import {strFromU8} from 'fflate';
 import {parse} from 'yaml';
 
 import sampleConfig from '../stories/urashima/sample.config.json' with {type: 'json'};
 
+import {readBlockProjectExtensions} from './block-project-extensions.ts';
 import {assertEmbeddedYamlBlockSource} from './migrate-embedded-yaml.ts';
 import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
@@ -40,13 +42,16 @@ const actionArguments = new Map([
 ]);
 
 /** Reject a YAML string masquerading as a block script, including disconnected actions. */
-export function verifyStructuredBlockSource(project: ScratchProject, sourceText: string): void {
+export function verifyStructuredBlockSource(
+  project: ScratchProject,
+  sourceText: string,
+  archive?: Record<string, Uint8Array>,
+): void {
   const stage = project.targets.find((target) => target.isStage);
   assert(stage, 'The block source project must keep its Stage.');
   assert(project.extensions?.includes('kubohiroyakamishibaiauthoring4'));
-  assert(project.extensionURLs?.kubohiroyakamishibaiauthoring4?.startsWith('data:'));
-  const url = project.extensionURLs!.kubohiroyakamishibaiauthoring4!;
-  assert(url.startsWith('data:text/javascript;base64,'));
+  const authoring = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibaiauthoring4');
+  assert(authoring, 'The block source project must carry its authoring extension.');
   const extensionInfo: {
     blocks?: {
       opcode: string;
@@ -58,7 +63,7 @@ export function verifyStructuredBlockSource(project: ScratchProject, sourceText:
   }[] = [];
   const editors: {opcodes: string[]; argument: string; schema: object}[] = [];
   runInNewContext(
-    Buffer.from(url.split(',')[1]!, 'base64').toString('utf8'),
+    strFromU8(authoring.bytes),
     {
       Scratch: {
         extensions: {

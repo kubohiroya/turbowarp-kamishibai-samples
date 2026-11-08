@@ -9,6 +9,7 @@ import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {readBlockProjectExtensions} from './block-project-extensions.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {ensureUrashimaDsl4Inputs} from './update-urashima-dsl4-inputs.ts';
@@ -53,7 +54,8 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   assert.deepEqual(project.extensions, ['kubohiroyakamishibai4']);
   const runtimeUrl = project.extensionURLs?.kubohiroyakamishibai4;
   assert(runtimeUrl, 'The embedded DSL 4.0 runtime extension URL is missing.');
-  assert(runtimeUrl.startsWith('data:text/javascript'));
+  assert(runtimeUrl.startsWith('data:text/javascript;base64,'));
+  assert.equal(project.turboWarpPlus, undefined, 'The Packager input must use the standard carrier.');
   const expectedTargets = [
     'Stage',
     'Urashima',
@@ -66,6 +68,25 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
     project.targets.map((target) => target.name),
     expectedTargets,
   );
+
+  const blocks = artifactLock.blocksOutput;
+  assert(blocks);
+  const blockBytes = await readFile(path.join(storyDirectory, blocks.path));
+  assert.equal(blockBytes.length, blocks.size);
+  assert.equal(sha256(blockBytes), blocks.sha256);
+  const blockArchive = unzipSync(blockBytes);
+  assert.equal(Object.keys(blockArchive).length, blocks.archiveEntryCount);
+  const blockProject = JSON.parse(strFromU8(blockArchive['project.json']!)) as ScratchProject;
+  const blockExtensions = readBlockProjectExtensions(blockProject, blockArchive);
+  assert.deepEqual([...blockExtensions.keys()].sort(), [
+    'kubohiroyakamishibai4',
+    'kubohiroyakamishibaiauthoring4',
+  ]);
+  for (const [id, extension] of blockExtensions) {
+    assert.equal(extension.format, 'embedded-file', id);
+    assert.equal(extension.spec?.execution, 'unsandboxed', id);
+    assert.equal(blockProject.extensionURLs?.[id], undefined, id);
+  }
   const stage = project.targets.find((target) => target.isStage);
   assert.equal(stage?.blocks?.titleFlag?.opcode, 'event_whenflagclicked');
   assert.equal(stage?.blocks?.titleFlag?.next, 'titleFlagShow');
