@@ -1,16 +1,13 @@
 name: Verify the samples site
 description: >-
-  Resolves the published TurboWarp-Kamishibai release, installs both workspaces and runs
-  pnpm run check. Shared by the pull-request workflow and the Pages deployment so the two
-  cannot drift; a composite action keeps dist/ in the caller's workspace for upload.
+  Installs both workspaces and verifies the samples. Pull requests use the committed App
+  pin. Pages and scheduled runs refresh the published App and run the full verification.
 
 inputs:
   pull-request:
     description: >-
-      The pull request being verified. Given one, the two DSL 3.2 packaged-web browser checks are
-      skipped when nothing it touches can reach their artifacts -- scripts/web-checks-scope.ts
-      makes that judgement. Left empty, as on the Pages deployment and the scheduled run,
-      everything runs.
+      The pull request being verified. Its changed files select the browser checks.
+      Leave empty for the full published-release verification.
     required: false
     default: ''
 
@@ -21,6 +18,7 @@ runs:
       with:
         node-version-file: .nvmrc
     - name: Resolve and verify the published app dependency
+      if: inputs.pull-request == ''
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -57,48 +55,63 @@ runs:
       working-directory: .tmp/turbowarp-kamishibai-app
       run: pnpm run build:lib
     - name: Regenerate all DSL 4.0 distribution artifacts
+      if: inputs.pull-request == ''
       shell: bash
       run: pnpm update:dsl4-artifacts
-    # Downloading Chromium and WebKit costs about a minute of every run, and the browsers
-    # only change when Playwright does.
+    - id: scope
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PULL_REQUEST: ${{ inputs.pull-request }}
+      run: |
+        scope=all
+        if [[ -n "$PULL_REQUEST" ]]; then
+          scope=$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)' \
+            | node scripts/web-checks-scope.ts)
+        fi
+        case "$scope" in
+          all) browsers=chromium-webkit ;;
+          dsl4|editor) browsers=chromium ;;
+          none) browsers= ;;
+          *) printf 'Unknown browser check scope: %s\n' "$scope" >&2; exit 1 ;;
+        esac
+        printf 'web-checks=%s\nbrowsers=%s\n' "$scope" "$browsers" >> "$GITHUB_OUTPUT"
+        printf 'Browser checks: %s\n' "$scope"
     - id: playwright-version
+      if: steps.scope.outputs.browsers != ''
       shell: bash
       run: |
         version=$(node -e "process.stdout.write(require('playwright/package.json').version)")
         printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
         printf 'image=%s\n' "$ImageOS" >> "$GITHUB_OUTPUT"
     - id: playwright-cache
+      if: steps.scope.outputs.browsers != ''
       uses: actions/cache@v4
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ steps.playwright-version.outputs.image }}-${{ runner.arch }}-${{ steps.playwright-version.outputs.version }}-chromium-webkit
-    # The OS packages the browsers link against live outside the cached directory, so they
-    # are installed either way; only the browser downloads are skipped on a hit.
-    - if: steps.playwright-cache.outputs.cache-hit == 'true'
-      shell: bash
-      run: pnpm exec playwright install-deps chromium webkit
-    - if: steps.playwright-cache.outputs.cache-hit != 'true'
-      shell: bash
-      run: pnpm exec playwright install --with-deps chromium webkit
-    # Asking GitHub for the changed files is exact and needs no deep fetch. The repository owns the
-    # rule itself, where it can be read and tested, rather than the workflow.
-    - id: scope
-      if: inputs.pull-request != ''
+        key: playwright-${{ steps.playwright-version.outputs.image }}-${{ runner.arch }}-${{ steps.playwright-version.outputs.version }}-${{ steps.scope.outputs.browsers }}
+    # Cached browser binaries still need the system libraries on a fresh runner.
+    - if: steps.scope.outputs.browsers != ''
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
-        PULL_REQUEST: ${{ inputs.pull-request }}
+        BROWSER_SET: ${{ steps.scope.outputs.browsers }}
+        BROWSER_CACHE_HIT: ${{ steps.playwright-cache.outputs.cache-hit }}
       run: |
-        scope=$(gh api --paginate \
-          "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}/files" --jq '.[].filename' \
-          | node scripts/web-checks-scope.ts)
-        printf 'web-checks=%s\n' "$scope" >> "$GITHUB_OUTPUT"
-        printf 'Packaged-web checks: %s\n' "$scope"
+        IFS=- read -r -a browsers <<< "$BROWSER_SET"
+        if [[ "$BROWSER_CACHE_HIT" == true ]]; then
+          pnpm exec playwright install-deps "${browsers[@]}"
+        else
+          pnpm exec playwright install --with-deps "${browsers[@]}"
+        fi
     - shell: bash
       env:
-        KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks || 'all' }}
+        KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks }}
+        KAMISHIBAI_BLOCK_DIAGNOSTICS: ${{ inputs.pull-request != '' && '1' || '0' }}
       run: pnpm run check
     - name: Verify block and Schema diagnostics in TurboWarp-Plus-Editor
+      if: inputs.pull-request == ''
       shell: bash
       run: node scripts/verify-published-block-diagnostics.ts --input dist/stories/urashima/urashima-blocks-4.0.sb3
     - name: Upload block editor regression evidence
