@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@kubohiroya/sb3-toolchain@0.19.1': 326a47667a6848dedf8f1cb858cbd28c56b915202fbb8e592b972e8c62a73cc9
+
 importers:
 
   .:
@@ -17,7 +20,7 @@ importers:
     devDependencies:
       '@kubohiroya/sb3-toolchain':
         specifier: ^0.19.1
-        version: 0.19.1
+        version: 0.19.1(patch_hash=326a47667a6848dedf8f1cb858cbd28c56b915202fbb8e592b972e8c62a73cc9)
       '@kubohiroya/turbowarp-kamishibai-site-navigation':
         specifier: ^0.4.0
         version: 0.4.0
@@ -784,7 +787,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@kubohiroya/sb3-toolchain@0.19.1':
+  '@kubohiroya/sb3-toolchain@0.19.1(patch_hash=326a47667a6848dedf8f1cb858cbd28c56b915202fbb8e592b972e8c62a73cc9)':
     dependencies:
       fflate: 0.8.3
       music-metadata: 11.14.0

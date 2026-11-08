@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
+import {cleanUpSb3Archive, createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse} from 'yaml';
 
@@ -249,9 +249,10 @@ export async function buildMyUrashimaDsl4({
       path.join(temporaryDirectory, 'block-source-canonical'),
       blockAuthoring.refreshRuntime,
     );
-    const blocksBytes = await migrateEditableBlockSource(legacyBlocksBytes, {
+    const editableBytes = await migrateEditableBlockSource(legacyBlocksBytes, {
       appRoot: blockAuthoring.root, entryFile: path.basename(sourcePath),
     });
+    const blocksBytes = Buffer.from(cleanUpSb3Archive(editableBytes).archive);
     const blocksArchive = unzipSync(new Uint8Array(blocksBytes));
     const blocksProject = JSON.parse(strFromU8(blocksArchive['project.json']!)) as ScratchProject;
     verifyStructuredBlockSource(blocksProject, await readFile(sourcePath, 'utf8'));

@@ -7,10 +7,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {
-  createDeterministicSb3,
-  importSb3,
-} from '@kubohiroya/sb3-toolchain';
+import {cleanUpSb3Archive, createDeterministicSb3, importSb3} from '@kubohiroya/sb3-toolchain';
 import {writeSb3ExtensionFormat} from '@kubohiroya/turbowarp-sb3-save-format/writer';
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
@@ -297,7 +294,8 @@ export async function buildUrashimaDsl4({
       blockAuthoring.root,
       path.basename(sourcePath),
     );
-    const blocksBytes = await embedBlockExtensionFiles(migratedBlocks);
+    const embeddedBlocks = await embedBlockExtensionFiles(migratedBlocks);
+    const blocksBytes = Buffer.from(cleanUpSb3Archive(embeddedBlocks).archive);
     const composed = await composeDsl4Source(sourceBytes.toString('utf8'), kamishibaiRoot, storyDirectory);
     const blocksProject = inspectBlockProject(blocksBytes, composed);
     const blocksOutputPath = path.join(storyDirectory, config.blocksOutput as string);

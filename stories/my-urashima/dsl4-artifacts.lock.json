@@ -3,22 +3,22 @@
     {
       "poseCount": 2,
       "path": "my-urashima-2-poses-blocks-4.0.sb3",
-      "size": 17585632,
-      "sha256": "b83260cd4ae59a2ebf00fc6248652e2fca0c3f1c1b5d5b23fb4c1485694bafe7",
+      "size": 17585644,
+      "sha256": "1a7186e38edd869172bb0ecf128502ce93c4449235a27905e56db414015f4601",
       "sourceSha256": "e627cd39e57f7a886a7786b54ebdac5f0880736162258f551ed8c0c0c695a666"
     },
     {
       "poseCount": 3,
       "path": "my-urashima-3-poses-blocks-4.0.sb3",
-      "size": 17585755,
-      "sha256": "7e2e712e46f26ab217291c7da2e2db58e0f658e5c77787a677dd4dd0236cdd77",
+      "size": 17585756,
+      "sha256": "b76f0dcdcb271d9cbfb7c595fccfeb59247a9330f57e3231fbeebca8b807c4b9",
       "sourceSha256": "56cc80e9c35769569af2078ba4292fd376ebefd2d559a204afeb94294013f8f8"
     },
     {
       "poseCount": 4,
       "path": "my-urashima-4-poses-blocks-4.0.sb3",
-      "size": 17585817,
-      "sha256": "01a9b1d8f5b4f6190de370fed090466c876e8f415fcafe28b71e1c95058af18b",
+      "size": 17585835,
+      "sha256": "9e7e9a614d905c59656238969c8a0ef09efc82d4e2c902034caa7537235a709a",
       "sourceSha256": "1ebee14ccc9e87200697e257ddbd4c248ca6734fbb0900b8df8e21b49b0e094b"
     }
   ],
@@ -39,8 +39,8 @@
   },
   "blocksOutput": {
     "path": "my-urashima-blocks-4.0.sb3",
-    "size": 17585136,
-    "sha256": "0173685032c6d8bf7bf71f7abc9ec294720cc66fd5a335112f86ebf504561e60",
+    "size": 17585143,
+    "sha256": "7a55bf397d508de9c7ee48be7e698ffc06c8c41b4f9d0708ca5296f32c940e10",
     "archiveEntryCount": 51,
     "targetNames": [
       "Stage",

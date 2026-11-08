@@ -63,6 +63,7 @@ declare module '@kubohiroya/sb3-toolchain' {
     [key: string]: unknown;
   }
 
+  export function cleanUpSb3Archive(archive: Uint8Array): {archive: Uint8Array};
   export function importSb3(options: ImportSb3Options): Promise<unknown>;
   export function createDeterministicSb3(
     sourceDirectory: string,
