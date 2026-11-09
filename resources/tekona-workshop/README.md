@@ -15,6 +15,8 @@
 | [`tekona-workshop.md`](tekona-workshop.md) | 参加者 | 当日の流れ、求婚者づくりシート、決めポーズの注意、撮影のコツ、本来の言い伝えとまとめ |
 | [`tekona-workshop-staff.md`](tekona-workshop-staff.md) | 進行役・スタッフ | 40分のタイムテーブル、役割、事前準備、作画・学習・台本書き換えの手順、トラブル対応、終了後の写真の破棄 |
 | [`pose-dataset-plan.md`](pose-dataset-plan.md) | スタッフ | 事前に用意するポーズ学習用データ（`stand`／`heart`／`offer`／`wide`）の撮影計画と取り扱い |
+| [`research-worksheet.md`](research-worksheet.md) | 参加者 | 基本設定・歴史考証・手児奈の姿・求婚者の人物像を調べてデザインするワークシート（事前学習・90分版用） |
+| [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、求婚者の候補8案、仮素材への反映 |
 
 作品（台本・立ち絵・ポーズ絵・背景）は[`stories/tekona/`](../../stories/tekona/README.md)にあります。
 
@@ -31,4 +33,5 @@
 * **SB3とWeb版**：ワークショップ用（台本を外部から読み込む版）と公開用（台本を埋め込んだ版）のSB3、Web版、
   生成スクリプトとartifact lock、作品一覧への掲載。モデル完成後に作成します。
 * 教材の図版（画面写真）、PDF化、配布ZIPの生成。
+* 考証メモの〔要確認〕項目（庶民の衣服の形、頭巾の形、井戸の構造、市川周辺の出土品など）の一次資料での確認。
 * 教材本文のライセンス（2026年8月1日回はPDF本文をAll rights reserved、画像等をCC BY-SA 4.0としています）。

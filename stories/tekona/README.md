@@ -25,7 +25,7 @@
 | --- | --- |
 | `tekona.k4.yml` | 台本の正本（DSL 4.0）。ワークショップでの書き換え箇所に「★」を付けています |
 | `project-assets-dsl4.yml` | SB3へ追加するスプライト（Tekona／Suitor／Narration）・背景・コスチュームの宣言 |
-| `assets/*.svg` | 立ち絵・ポーズ絵・背景の仮素材（すべて新規作成のSVG） |
+| `assets/*.svg` | 立ち絵・ポーズ絵・背景の仮素材（すべて新規作成のSVG）。衣装・井戸・継橋は[考証メモ](../../resources/tekona-workshop/research-notes.md)の「5. 仮素材への反映」に合わせています |
 | `LICENSES.md` | ライセンス |
 
 台本は背景とコスチュームを短形式（`costume:Suitor`など）でSB3内の素材として参照します。
