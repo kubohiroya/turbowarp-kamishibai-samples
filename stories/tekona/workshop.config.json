@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "blockWorkshop": {
+    "slots": 20,
+    "sampleModelUrl": "https://teachablemachine.withgoogle.com/models/REPLACE-WITH-SAMPLE-MODEL/",
+    "slotModelUrls": {},
+    "slotCostumes": {
+      "stand": "assets/newcomer-stand.svg",
+      "pose": "assets/newcomer-pose.svg"
+    }
+  }
+}

@@ -1,0 +1,161 @@
+# TurboWarp紙芝居 DSL 4.0「手児奈」のSB3へ追加するスプライトと素材。
+# tekona.k4.yml は、ここで登録した背景・コスチュームを名前（短形式）で参照します。
+# 画像はすべて assets/ のSVG仮素材です（MPL-2.0: LICENSES.md）。
+formatVersion: 1
+sprites:
+  Tekona:
+    layerOrder: 1
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Suitor:
+    layerOrder: 2
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Narration:
+    layerOrder: 3
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+assets:
+  TitleCard:
+    kind: backdrop
+    file: assets/title-card.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  MamaWell:
+    kind: backdrop
+    file: assets/mama-well.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  InletSunset:
+    kind: backdrop
+    file: assets/inlet-sunset.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  Tsugihashi:
+    kind: backdrop
+    file: assets/tsugihashi.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tekona-stand:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  tekona-refuse:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-refuse.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  tekona-resolve:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-resolve.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sato-stand:
+    kind: costume
+    target: Suitor
+    file: assets/sato-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sato-pose:
+    kind: costume
+    target: Suitor
+    file: assets/sato-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  kokufu-stand:
+    kind: costume
+    target: Suitor
+    file: assets/kokufu-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  kokufu-pose:
+    kind: costume
+    target: Suitor
+    file: assets/kokufu-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  miyako-stand:
+    kind: costume
+    target: Suitor
+    file: assets/miyako-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  miyako-pose:
+    kind: costume
+    target: Suitor
+    file: assets/miyako-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  newcomer-stand:
+    kind: costume
+    target: Suitor
+    file: assets/newcomer-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  newcomer-pose:
+    kind: costume
+    target: Suitor
+    file: assets/newcomer-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  TextPlaceholder:
+    kind: costume
+    target: Narration
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"
+  # 音は浦島太郎サンプルの音素材（MPL-2.0）を共用します。生成時に ../urashima/assets を許可します。
+  Medieval1:
+    kind: sound
+    file: ../urashima/assets/sounds/3dc51a6cfa6c4078aeeafb5db54b0290.mp3
+    license: "MPL-2.0: ../urashima/LICENSES.md"
+  Goal Cheer:
+    kind: sound
+    file: ../urashima/assets/sounds/72a029d02f38062e3d3eecc5605b2289.mp3
+    license: "MPL-2.0: ../urashima/LICENSES.md"
+  Crowd Gasp:
+    kind: sound
+    file: ../urashima/assets/sounds/12e6c84f065d6a8b651e8fbb4b246e2a.mp3
+    license: "MPL-2.0: ../urashima/LICENSES.md"
+  Xylo2:
+    kind: sound
+    file: ../urashima/assets/sounds/e4ee886bed15fe374cf8faf73ea423f4.mp3
+    license: "MPL-2.0: ../urashima/LICENSES.md"

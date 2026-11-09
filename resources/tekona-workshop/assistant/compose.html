@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>手児奈 台本組み立て</title>
+<style>
+  :root { --bg: #f7f5ef; --fg: #24221e; --muted: #6b665c; --line: #d8d2c4; --accent: #2f5b9a; --bad: #b3261e; --ok: #2e6b3a; --card: #fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1d1c1a; --fg: #ece8df; --muted: #a8a294; --line: #3b3832; --accent: #8fb0e6; --bad: #f2948d; --ok: #8fd19e; --card: #262421; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.3rem; margin: 0.2em 0 0.4em; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+  h2 { font-size: 1rem; margin: 0 0 6px; }
+  p.note { color: var(--muted); margin: 4px 0; }
+  textarea { width: 100%; min-height: 150px; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+  button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--card); cursor: pointer; }
+  button.secondary { background: transparent; color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  th:nth-child(-n+4), td:nth-child(-n+4) { white-space: nowrap; }
+  .bad { color: var(--bad); }
+  .ok { color: var(--ok); }
+</style>
+</head>
+<body>
+<main>
+  <h1>手児奈 台本組み立て（アシスタント用）</h1>
+  <p class="note">掲示板に提出された本文を貼ると、参加者の場面を席番号順に加えた台本（tekona.k4.yml）を作ります。ネットワークには送信しません。</p>
+
+  <section>
+    <h2>1. 半完成品の台本</h2>
+    <div class="row"><input id="source-file" type="file" accept=".yml,.yaml"> <span id="source-state" class="note">配布資料の tekona.k4.yml を選んでください。</span></div>
+  </section>
+
+  <section>
+    <h2>2. 提出された本文</h2>
+    <p class="note">投稿の本文をそのまま貼ります。複数の人の分は、空行を2つ以上あけるか「----」の行で区切ります。</p>
+    <textarea id="submissions" placeholder="席番号：07&#10;作者の名前（紙芝居に出してよい名前）：…&#10;…&#10;モデルのリンク：https://teachablemachine.withgoogle.com/models/…/"></textarea>
+    <div class="row"><button id="check" class="secondary">確認する</button></div>
+    <div id="table"></div>
+  </section>
+
+  <section>
+    <h2>3. 台本を作る</h2>
+    <p class="note">問題がない人の分だけを加えます。保存した台本は、作業用SB3のメニュー「ファイルを開く」で読み込みます。</p>
+    <div class="row"><button id="compose" disabled>台本を作って保存する</button> <span id="result" class="note"></span></div>
+  </section>
+</main>
+<script>
+// SPDX-License-Identifier: MPL-2.0
+// 手児奈ワークショップ：掲示板の提出文から、参加者の場面を加えた台本YAMLを組み立てる。
+// ブラウザ（compose.html）とNode（検証スクリプト）の両方から使う。依存はない。
+
+const templateStart = '  # suitor-NN:';
+const templateEnd = '  #   （手児奈の心がゆれなかったときは';
+const fields = {
+  席番号: 'nn',
+  '作者の名前（紙芝居に出してよい名前）': 'author',
+  作者の名前: 'author',
+  求婚者の名前: 'name',
+  決めポーズの説明: 'hint',
+  求婚の言葉: 'proposal',
+  手児奈のことわりの言葉: 'refusal',
+  ことわられたときのひとこと: 'after',
+  '手児奈の心はゆれた？（ゆれた／ゆれなかった）': 'moved',
+  '手児奈の心はゆれた？': 'moved',
+  モデルのリンク: 'model',
+};
+const placeholders = {
+  求婚者の名前: 'name',
+  作者の名前: 'author',
+  決めポーズの説明: 'hint',
+  求婚の言葉: 'proposal',
+  手児奈のことわりの言葉: 'refusal',
+  ことわられたときのひとこと: 'after',
+};
+const modelPattern = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/[A-Za-z0-9_-]+\/$/u;
+
+/** Read one board submission written with the template in the participant handout. */
+function parseSubmission(text) {
+  const result = {};
+  for (const line of String(text).split(/\r?\n/u)) {
+    const match = /^\s*([^：:]+?)\s*[：:]\s*(.*?)\s*$/u.exec(line);
+    if (!match) continue;
+    const key = fields[match[1]];
+    if (key && match[2] && !(key in result)) result[key] = match[2];
+  }
+  if (result.nn) result.nn = String(result.nn).replace(/[０-９]/gu, (d) => String(d.charCodeAt(0) - 0xff10)).padStart(2, '0');
+  if (result.model && !result.model.endsWith('/')) result.model += '/';
+  result.moved = result.moved ? !/なかった|いいえ|no|false/iu.test(result.moved) : true;
+  return result;
+}
+
+/** Check a parsed submission; returns a list of Japanese problems for the assistant. */
+function checkSubmission(submission) {
+  const problems = [];
+  if (!/^\d{2}$/u.test(submission.nn ?? '')) problems.push('席番号が2けたの数字ではありません');
+  for (const [label, key] of Object.entries(placeholders))
+    if (!submission[key]) problems.push(`「${label}」がありません`);
+  for (const key of Object.values(placeholders)) {
+    const value = submission[key] ?? '';
+    if (/["\\]|[\u0000-\u001f]/u.test(value)) problems.push(`「${value.slice(0, 10)}…」に使えない記号があります`);
+    if (value.length > 40) problems.push(`「${value.slice(0, 10)}…」が40字をこえています`);
+  }
+  if (!modelPattern.test(submission.model ?? ''))
+    problems.push('モデルのリンクが https://teachablemachine.withgoogle.com/models/…/ の形ではありません');
+  return problems;
+}
+
+function quoted(value) {
+  return JSON.stringify(String(value));
+}
+
+function templateOf(source) {
+  const start = source.indexOf(templateStart);
+  const end = source.indexOf(templateEnd);
+  if (start < 0 || end <= start) throw new Error('台本に参加者の場面の雛形（★参加者）がありません。');
+  return source
+    .slice(start, end)
+    .trimEnd()
+    .split('\n')
+    .map((line) => line.replace(/^ {2}# ?/u, '  ').replace(/^ {2}#$/u, ''))
+    .join('\n');
+}
+
+/** The YAML for one participant: asset declarations and the scene, from the source template. */
+function participantYaml(source, submission, {pose = 'kime'} = {}) {
+  const nn = submission.nn;
+  let scene = templateOf(source)
+    .replaceAll('suitor-NN', `suitor-${nn}`)
+    .replaceAll('PoseNN', `Pose${nn}`)
+    .replaceAll('sNN-stand', `s${nn}-stand`)
+    .replaceAll('sNN-pose', `s${nn}-pose`)
+    .replace('pose: kime', `pose: ${pose}`);
+  // Fill every placeholder of a text, then quote the whole text once, so participant words
+  // never change the YAML structure.
+  scene = scene
+    .split('\n')
+    .map((line) =>
+      line.replace(/\{text: (.*〔.*?), (style|seconds): /u, (_, text, next) => {
+        const filled = text.replace(/〔([^〕]+)〕/gu, (whole, label) =>
+          placeholders[label] ? submission[placeholders[label]] : whole);
+        return `{text: ${quoted(filled)}, ${next}: `;
+      }))
+    .join('\n');
+  if (!submission.moved) scene = scene.split('\n').filter((line) => !line.includes('Tekona.think')).join('\n');
+  if (/〔|NN/u.test(scene)) throw new Error(`席番号${nn}の場面に置き換えていない部分があります。`);
+  const assets = [
+    `  s${nn}-stand: costume:Suitor`,
+    `  s${nn}-pose: costume:Suitor`,
+    `  Pose${nn}:`,
+    '    kind: recognitionModel',
+    '    delivery: remote',
+    '    loading: lazy',
+    '    source:',
+    `      url: ${submission.model}`,
+  ].join('\n');
+  return {assets, scene};
+}
+
+/**
+ * Block-script workshop: pre-register `count` participant slots in seat order. Each slot scene
+ * keeps its whole body inside `if: {condition: false}` and refers to placeholder assets
+ * (`sNN-stand`／`sNN-pose` costumes and model `PoseNN`), so an assistant only replaces values.
+ */
+function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'kime'} = {}) {
+  if (!Number.isInteger(count) || count < 1 || count > 99) throw new Error('枠の数は1〜99です。');
+  if (!modelPattern.test(modelUrl ?? '')) throw new Error('見本モデルのリンクが正しくありません。');
+  for (const [nn, url] of Object.entries(modelUrls)) {
+    if (!/^\d{2}$/u.test(nn) || Number(nn) < 1 || Number(nn) > count) throw new Error(`席番号${nn}の枠はありません。`);
+    if (!modelPattern.test(url)) throw new Error(`席番号${nn}のモデルのリンクが正しくありません。`);
+  }
+  const slots = Array.from({length: count}, (_, index) => {
+    const nn = String(index + 1).padStart(2, '0');
+    // A seat may have its own pre-uploaded model; rc.79 cannot change a remote URL in the editor.
+    const placeholder = {nn, model: modelUrls[nn] ?? modelUrl, moved: true};
+    for (const [label, key] of Object.entries(placeholders)) placeholder[key] = `（${label}）`;
+    const {assets, scene} = participantYaml(source, placeholder, {pose});
+    const lines = scene.split('\n');
+    const actions = lines.indexOf('    actions:');
+    if (actions < 0) throw new Error('雛形の場面に actions がありません。');
+    const body = lines.slice(actions + 1).map((line) => (line ? `      ${line}` : line));
+    return {
+      assets,
+      scene: [
+        ...lines.slice(0, actions + 1),
+        '      - if:',
+        '          condition: false',
+        '          then:',
+        ...body,
+      ].join('\n'),
+    };
+  });
+  return source
+    .replace('\nactors:\n', `\n${slots.map(({assets}) => assets).join('\n')}\nactors:\n`)
+    .replace('\n  quarrel:\n', `\n${slots.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+}
+
+/** Insert every participant, in seat order, into the half-finished source. */
+function composeParticipants(source, submissions, options = {}) {
+  const sorted = [...submissions].sort((left, right) => left.nn.localeCompare(right.nn));
+  const seats = new Set();
+  for (const submission of sorted) {
+    if (seats.has(submission.nn)) throw new Error(`席番号${submission.nn}が重複しています。`);
+    seats.add(submission.nn);
+  }
+  if (source.split('\n  quarrel:\n').length !== 2) throw new Error('台本に quarrel の場面が1つだけある必要があります。');
+  if (source.split('\nactors:\n').length !== 2) throw new Error('台本に actors が1つだけある必要があります。');
+  const parts = sorted.map((submission) => participantYaml(source, submission, options));
+  if (!parts.length) return source;
+  return source
+    .replace('\nactors:\n', `\n${parts.map(({assets}) => assets).join('\n')}\nactors:\n`)
+    .replace('\n  quarrel:\n', `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+}
+</script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let source = '';
+  let accepted = [];
+  $('source-file').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    source = file ? await file.text() : '';
+    const ok = source.includes('  # suitor-NN:');
+    $('source-state').textContent = ok ? `${file.name} を読み込みました。` : '雛形（★参加者）がない台本です。';
+    $('source-state').className = ok ? 'ok' : 'bad';
+    if (!ok) source = '';
+    update();
+  });
+  function split(text) {
+    return text.split(/\n\s*(?:-{4,}\s*\n|\n\s*\n)/u).map((part) => part.trim()).filter(Boolean);
+  }
+  function update() {
+    const parts = split($('submissions').value);
+    const rows = parts.map(parseSubmission);
+    const seats = new Map();
+    for (const row of rows) seats.set(row.nn, (seats.get(row.nn) ?? 0) + 1);
+    accepted = [];
+    const table = document.createElement('table');
+    table.innerHTML = '<tr><th>席</th><th>求婚者</th><th>作者</th><th>心</th><th>確認</th></tr>';
+    for (const row of rows) {
+      const problems = checkSubmission(row);
+      if (seats.get(row.nn) > 1) problems.push('席番号が重複しています');
+      if (!problems.length) accepted.push(row);
+      const tr = table.insertRow();
+      for (const value of [row.nn ?? '?', row.name ?? '', row.author ?? '', row.moved ? 'ゆれた' : 'ゆれなかった'])
+        tr.insertCell().textContent = value;
+      const cell = tr.insertCell();
+      cell.textContent = problems.length ? problems.join('／') : 'OK';
+      cell.className = problems.length ? 'bad' : 'ok';
+    }
+    $('table').replaceChildren(rows.length ? table : '');
+    $('compose').disabled = !source || !accepted.length;
+  }
+  $('check').addEventListener('click', update);
+  $('submissions').addEventListener('input', update);
+  $('compose').addEventListener('click', async () => {
+    try {
+      const text = composeParticipants(source, accepted);
+      const blob = new Blob([text], {type: 'application/yaml'});
+      if (window.showSaveFilePicker) {
+        const handle = await window.showSaveFilePicker({suggestedName: 'tekona.k4.yml',
+          types: [{description: 'Kamishibai DSL 4.0 YAML', accept: {'application/yaml': ['.yml', '.yaml']}}]});
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        const link = Object.assign(document.createElement('a'), {href: URL.createObjectURL(blob), download: 'tekona.k4.yml'});
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+      $('result').textContent = `${accepted.length}人分（席 ${accepted.map((row) => row.nn).sort().join('・')}）を加えました。`;
+      $('result').className = 'ok';
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      $('result').textContent = String(error.message ?? error);
+      $('result').className = 'bad';
+    }
+  });
+</script>
+</body>
+</html>
