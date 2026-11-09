@@ -4,3 +4,5 @@ dist/
 /tmp/
 .DS_Store
 .idea/
+# Teachable Machine seat projects contain photos and an update token (tekona workshop)
+seat-*.tm

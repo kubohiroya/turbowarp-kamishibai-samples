@@ -19,6 +19,11 @@ export function participantYaml(
   submission: Submission,
   options?: {pose?: string},
 ): {assets: string; scene: string};
+export function composeSlots(
+  source: string,
+  count: number,
+  options: {modelUrl: string; modelUrls?: Record<string, string>; pose?: string},
+): string;
 export function composeParticipants(
   source: string,
   submissions: Submission[],

@@ -164,6 +164,44 @@ function participantYaml(source, submission, {pose = 'kime'} = {}) {
   return {assets, scene};
 }
 
+/**
+ * Block-script workshop: pre-register `count` participant slots in seat order. Each slot scene
+ * keeps its whole body inside `if: {condition: false}` and refers to placeholder assets
+ * (`sNN-stand`／`sNN-pose` costumes and model `PoseNN`), so an assistant only replaces values.
+ */
+function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'kime'} = {}) {
+  if (!Number.isInteger(count) || count < 1 || count > 99) throw new Error('枠の数は1〜99です。');
+  if (!modelPattern.test(modelUrl ?? '')) throw new Error('見本モデルのリンクが正しくありません。');
+  for (const [nn, url] of Object.entries(modelUrls)) {
+    if (!/^\d{2}$/u.test(nn) || Number(nn) < 1 || Number(nn) > count) throw new Error(`席番号${nn}の枠はありません。`);
+    if (!modelPattern.test(url)) throw new Error(`席番号${nn}のモデルのリンクが正しくありません。`);
+  }
+  const slots = Array.from({length: count}, (_, index) => {
+    const nn = String(index + 1).padStart(2, '0');
+    // A seat may have its own pre-uploaded model; rc.79 cannot change a remote URL in the editor.
+    const placeholder = {nn, model: modelUrls[nn] ?? modelUrl, moved: true};
+    for (const [label, key] of Object.entries(placeholders)) placeholder[key] = `（${label}）`;
+    const {assets, scene} = participantYaml(source, placeholder, {pose});
+    const lines = scene.split('\n');
+    const actions = lines.indexOf('    actions:');
+    if (actions < 0) throw new Error('雛形の場面に actions がありません。');
+    const body = lines.slice(actions + 1).map((line) => (line ? `      ${line}` : line));
+    return {
+      assets,
+      scene: [
+        ...lines.slice(0, actions + 1),
+        '      - if:',
+        '          condition: false',
+        '          then:',
+        ...body,
+      ].join('\n'),
+    };
+  });
+  return source
+    .replace('\nactors:\n', `\n${slots.map(({assets}) => assets).join('\n')}\nactors:\n`)
+    .replace('\n  quarrel:\n', `\n${slots.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+}
+
 /** Insert every participant, in seat order, into the half-finished source. */
 function composeParticipants(source, submissions, options = {}) {
   const sorted = [...submissions].sort((left, right) => left.nn.localeCompare(right.nn));

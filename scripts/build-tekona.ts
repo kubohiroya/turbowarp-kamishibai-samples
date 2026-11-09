@@ -16,6 +16,7 @@ import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import {
   checkSubmission,
   composeParticipants,
+  composeSlots,
   parseSubmission,
 } from '../resources/tekona-workshop/assistant/compose-participants.js';
 
@@ -42,6 +43,25 @@ export const tekonaWorkshopOutput = 'tekona-workshop-4.0.sb3';
 export const tekonaYamlOutput = 'tekona-4.0.sb3';
 /** The half-finished story as script blocks, for reading and editing the existing scenes. */
 export const tekonaBlocksOutput = 'tekona-blocks-4.0.sb3';
+/** Block-script workshop SB3: participant slots with placeholder assets, replaced in the editor. */
+export const tekonaBlockWorkshopOutput = 'tekona-workshop-blocks-4.0.sb3';
+const workshopConfigName = 'workshop.config.json';
+
+interface WorkshopConfig {
+  formatVersion: 1;
+  blockWorkshop: {
+    slots: number;
+    sampleModelUrl: string;
+    /** Optional pre-uploaded model per seat ("01": URL); other seats use the sample model. */
+    slotModelUrls?: Record<string, string>;
+    slotCostumes: {stand: string; pose: string};
+  };
+}
+
+/** Seat numbers 01…NN of the block-script workshop slots. */
+export function slotSeats(count: number): string[] {
+  return Array.from({length: count}, (_, index) => String(index + 1).padStart(2, '0'));
+}
 
 /** A board submission in the handout format, used to check that the template still composes. */
 export const sampleSubmission = `席番号：01
@@ -149,6 +169,74 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
       'The block scenes must match the half-finished source.',
     );
 
+    // Block-script workshop: pre-registered slots whose placeholder assets are replaced later.
+    const config = JSON.parse(await readFile(path.join(storyRoot, workshopConfigName), 'utf8')) as WorkshopConfig;
+    assert.equal(config.formatVersion, 1);
+    const {slots, sampleModelUrl, slotCostumes} = config.blockWorkshop;
+    const manifest = parse(await readFile(path.join(storyRoot, projectAssetsName), 'utf8'));
+    // The slot manifest is written elsewhere, so resolve every file from the story directory.
+    const fromSlotManifest = (file: string) => path.relative(temporary, path.resolve(storyRoot, file));
+    for (const asset of Object.values(manifest.assets) as {file: string}[])
+      asset.file = fromSlotManifest(asset.file);
+    for (const nn of slotSeats(slots)) {
+      for (const kind of ['stand', 'pose'] as const) {
+        assert(!manifest.assets[`s${nn}-${kind}`], `Slot costume s${nn}-${kind} is already declared.`);
+        manifest.assets[`s${nn}-${kind}`] = {
+          ...manifest.assets[`newcomer-${kind}`],
+          file: fromSlotManifest(slotCostumes[kind]),
+        };
+      }
+    }
+    const slotManifestPath = path.join(temporary, 'slot-project-assets.yml');
+    await writeFile(slotManifestPath, stringify(manifest));
+    const slotBase = await createDeterministicSb3(imported, {
+      allowedAssetRoots: [
+        path.join(storyRoot, 'assets'),
+        path.join(projectRoot, 'stories/urashima/assets'),
+      ],
+      projectAssetsPath: slotManifestPath,
+    });
+    const slotBasePath = path.join(temporary, 'slot-base.sb3');
+    await writeFile(slotBasePath, slotBase.archive);
+    const slotRoot = path.join(temporary, 'slots');
+    await mkdir(slotRoot, {recursive: true});
+    const slotSource = stringify(parse(composeSlots(source, slots, {
+      modelUrl: sampleModelUrl,
+      modelUrls: config.blockWorkshop.slotModelUrls ?? {},
+    })), {lineWidth: 0});
+    await writeFile(path.join(slotRoot, sourceName), slotSource);
+    run(['validate-dsl4', '--input', path.join(slotRoot, sourceName)]);
+    const slotYamlPath = path.join(temporary, 'slot-story.sb3');
+    build(slotRoot, slotBasePath, slotYamlPath);
+    const slotAuthoredPath = path.join(temporary, 'slot-authored.sb3');
+    run([
+      'author-block-dsl',
+      '--base', slotYamlPath,
+      '--input', path.join(slotRoot, sourceName),
+      '--output', slotAuthoredPath,
+      ...builder.authorOptions,
+    ]);
+    await simplifyPublishedDsl4Blocks(
+      slotAuthoredPath, builder.root, builder.identity.sourceSections ?? false, storyRoot,
+    );
+    const blockWorkshopPath = path.join(temporary, tekonaBlockWorkshopOutput);
+    await writeFile(blockWorkshopPath, await buildEditableBlockSource(
+      slotAuthoredPath,
+      path.join(temporary, 'slot-block-source'),
+      await readFile(slotYamlPath),
+      builder.refreshRuntime,
+      builder.root,
+      sourceName,
+    ));
+    const slotExported = path.join(temporary, 'slot-exported');
+    run(['export-block-dsl', '--input', blockWorkshopPath, '--output-dir', slotExported, '--name', 'tekona']);
+    const slotScenes = Object.keys(parse(await readFile(path.join(slotExported, sourceName), 'utf8')).scenes);
+    assert.deepEqual(
+      slotScenes.slice(slotScenes.indexOf('proposals'), slotScenes.indexOf('quarrel') + 1),
+      ['proposals', ...slotSeats(slots).map((nn) => `suitor-${nn}`), 'quarrel'],
+      'The block workshop slots must stay between proposals and quarrel.',
+    );
+
     const lock = {
       formatVersion: 1,
       runtime: appRuntimeIdentity(release),
@@ -161,18 +249,20 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
         ...(await Promise.all([sourceName, projectAssetsName].map((name) => record(storyRoot, name)))),
         await record(projectRoot, composeModule),
         await record(projectRoot, composeTemplate),
+        await record(storyRoot, workshopConfigName),
       ],
       outputs: {
         workshop: await record(temporary, tekonaWorkshopOutput),
         yaml: await record(temporary, tekonaYamlOutput),
         blocks: await record(temporary, tekonaBlocksOutput),
+        blockWorkshop: await record(temporary, tekonaBlockWorkshopOutput),
       },
     };
     const lockPath = path.join(storyRoot, 'dsl4-artifacts.lock.json');
     const page = await renderComposePage();
     if (writeLock) {
       await writeFile(path.join(projectRoot, composePage), page);
-      for (const name of [tekonaWorkshopOutput, tekonaYamlOutput, tekonaBlocksOutput])
+      for (const name of [tekonaWorkshopOutput, tekonaYamlOutput, tekonaBlocksOutput, tekonaBlockWorkshopOutput])
         await copyFile(path.join(temporary, name), path.join(storyRoot, name));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {

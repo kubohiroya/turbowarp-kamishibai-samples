@@ -61,3 +61,24 @@ describe('tekona participant composition', () => {
     expect(() => composeParticipants(source, [submission({}), submission({})])).toThrow('重複');
   });
 });
+
+describe('tekona block workshop slots', () => {
+  it('pre-registers disabled slots in seat order with per-seat model links', async () => {
+    const {composeSlots} = await import('../resources/tekona-workshop/assistant/compose-participants.js');
+    const source = await readFile(sourcePath, 'utf8');
+    const sample = 'https://teachablemachine.withgoogle.com/models/SAMPLE/';
+    const own = 'https://teachablemachine.withgoogle.com/models/SEAT-02/';
+    const story = parse(composeSlots(source, 3, {modelUrl: sample, modelUrls: {'02': own}}));
+    const scenes = Object.keys(story.scenes);
+    expect(scenes.slice(scenes.indexOf('proposals'), scenes.indexOf('quarrel') + 1))
+      .toEqual(['proposals', 'suitor-01', 'suitor-02', 'suitor-03', 'quarrel']);
+    expect(story.assets.Pose01.source.url).toBe(sample);
+    expect(story.assets.Pose02.source.url).toBe(own);
+    const slot = story.scenes['suitor-03'];
+    expect(slot.recognitionModel).toBe('Pose03');
+    expect(slot.actions).toHaveLength(1);
+    expect(slot.actions[0].if.condition).toBe(false);
+    expect(JSON.stringify(slot.actions[0].if.then)).toContain('（求婚の言葉）');
+    expect(() => composeSlots(source, 3, {modelUrl: sample, modelUrls: {'04': own}})).toThrow('枠');
+  });
+});

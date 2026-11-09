@@ -32,6 +32,8 @@
 | `tekona-workshop-4.0.sb3` | **作業用SB3**。スプライト・背景・音だけを持ち、台本はメニューの「開く」で読み込みます。ワークショップではこれに参加者の絵を加えます |
 | `tekona-4.0.sb3` | 半完成品の台本を埋め込んだSB3（そのまま再生できる版） |
 | `tekona-blocks-4.0.sb3` | 半完成品の台本をブロック台本にしたSB3（既存の場面を読む・編集する用） |
+| `tekona-workshop-blocks-4.0.sb3` | **次の版（試作）の作業用ブロック台本SB3**。参加者の枠（場面・コスチューム・モデル）を席番号ぶん登録済みで、差し替えて使います |
+| `workshop.config.json` | ブロック台本版の枠の数、見本モデルのリンク、席ごとのモデルのリンク、仮の絵 |
 | `dsl4-artifacts.lock.json` | 生成元のApp版・commit、入力と出力のサイズ・SHA-256 |
 | `LICENSES.md` | ライセンス |
 
@@ -101,6 +103,20 @@
 
 どちらもApp側（Plus Editorでの素材一覧の更新と、場面の並びの書き戻し）の対応が必要です。
 
+そこで次の版は、**素材と場面の枠をあらかじめ登録しておき、差し替える**方式で進めます。`tekona-workshop-blocks-4.0.sb3`が試作です。
+
+- 生成時に、席番号01〜20の場面`suitor-NN`（中身は`if: {condition: false}`で囲む）、仮のコスチューム`sNN-stand`／`sNN-pose`、
+  モデル`PoseNN`を登録する。場面は最初から`proposals`と`quarrel`の間に並ぶので、順番の問題は起きない。
+- `pnpm verify:tekona-block-workshop-editor`で、Plus Editor上での差し替え（絵のアップロード → 仮の絵の削除と名前の付け替え、
+  セリフの書き換え、条件をtrue、文書への反映）から再生・保存・書き戻しまでを確かめた。組み込んだ枠01は都の貴族のあとに再生され、
+  未記入の枠は何も再生しない。
+- **モデルのリンクは席ごとに事前登録する**：rc.79ではモデル`PoseNN`のリンクを書き換えると、反映が
+  `Remote asset source does not match: PoseNN`で無効になる。そこで運営が席ごとのモデルを事前にアップロードし、
+  `pnpm tekona:seat-models collect 席ファイルのフォルダ --write`でリンクを`workshop.config.json`の`slotModelUrls`へ入れてから
+  `pnpm update:tekona`で作り直す。当日は参加者が席の`seat-NN.tm`で学習し直し、同じリンクのまま更新する
+  （手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。
+  `TEKONA_REPLACE_MODEL_URL=1`を付けてリハーサルすると、App側でリンクの書き換えが直ったかを確かめられる。
+
 ## 生成と検証
 
 公開rc.79のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
@@ -110,6 +126,7 @@ TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.0-rc.79 pnpm update:tekona
 ```
 
 `pnpm verify:tekona`は再生成した成果物がロックと補助ページに一致することを確かめます。
+`pnpm verify:tekona-block-workshop-editor`は、ブロック台本版の枠01への差し替えをリハーサルします。
 `pnpm verify:tekona-workshop-editor`は公開中のTurboWarp Plus Editorを開いて組み込みをリハーサルし、`.tmp/tekona-workshop-editor/`に
 報告と再生中の画面写真を残します（ネットワークが必要です。Teachable Machineへの通信は浦島太郎の既存モデルへ差し替えます）。
 

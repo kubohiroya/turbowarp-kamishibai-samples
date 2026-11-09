@@ -47,7 +47,9 @@
     "update:three-visits": "node scripts/build-three-visits.ts --write-lock",
     "update:tekona": "node scripts/build-tekona.ts --write-lock",
     "verify:tekona": "node scripts/build-tekona.ts",
-    "verify:tekona-workshop-editor": "node scripts/verify-tekona-workshop-editor.ts"
+    "verify:tekona-workshop-editor": "node scripts/verify-tekona-workshop-editor.ts",
+    "verify:tekona-block-workshop-editor": "node scripts/verify-tekona-block-workshop-editor.ts",
+    "tekona:seat-models": "node scripts/tekona-seat-models.ts"
   },
   "engines": {
     "node": ">=24"
