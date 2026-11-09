@@ -17,6 +17,7 @@ import {
   checkSubmission,
   composeParticipants,
   composeSlots,
+  costumeNames,
   parseSubmission,
 } from '../resources/tekona-workshop/assistant/compose-participants.js';
 
@@ -46,6 +47,9 @@ export const tekonaBlocksOutput = 'tekona-blocks-4.0.sb3';
 /** Block-script workshop SB3: participant slots with placeholder assets, replaced in the editor. */
 export const tekonaBlockWorkshopOutput = 'tekona-workshop-blocks-4.0.sb3';
 const workshopConfigName = 'workshop.config.json';
+/** The prepared suitors' scenes, in story order; participants follow the last one. */
+export const preparedScenes = ['sato', 'kokufu', 'miyako'];
+const lastPreparedScene = preparedScenes.at(-1)!;
 
 interface WorkshopConfig {
   formatVersion: 1;
@@ -54,7 +58,7 @@ interface WorkshopConfig {
     sampleModelUrl: string;
     /** Optional pre-uploaded model per seat ("01": URL); other seats use the sample model. */
     slotModelUrls?: Record<string, string>;
-    slotCostumes: {stand: string; pose: string};
+    slotCostumes: {stand: string; kime: string; rejected: string};
   };
 }
 
@@ -68,6 +72,7 @@ export const sampleSubmission = `席番号：01
 作者の名前（紙芝居に出してよい名前）：リハーサル
 求婚者の名前：入江の漁師
 決めポーズの説明：網を投げるように、両うでを斜め上へ！
+ことわられたポーズの説明：網を胸にかかえて、うつむく……。
 求婚の言葉：この入江でいちばんの魚を、毎朝とどけよう！
 手児奈のことわりの言葉：お魚はうれしいけれど、心はさしあげられません。
 ことわられたときのひとこと：……魚は逃げても、またとれるさ。
@@ -112,13 +117,48 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
   try {
     const imported = path.join(temporary, 'base-source');
     await importSb3({inputPath: appBasePath(), outputDirectory: imported});
-    const workshop = await createDeterministicSb3(imported, {
-      allowedAssetRoots: [
-        path.join(storyRoot, 'assets'),
-        path.join(projectRoot, 'stories/urashima/assets'),
-      ],
+    const allowedAssetRoots = [
+      path.join(storyRoot, 'assets'),
+      path.join(projectRoot, 'stories/urashima/assets'),
+    ];
+    // The story without participants: Tekona, the prepared suitors and the narration.
+    const storyBase = await createDeterministicSb3(imported, {
+      allowedAssetRoots,
       projectAssetsPath: path.join(storyRoot, projectAssetsName),
     });
+    const storyBasePath = path.join(temporary, 'story-base.sb3');
+    await writeFile(storyBasePath, storyBase.archive);
+
+    // Workshop base: one sprite SuitorNN per seat, with placeholder costumes stand/kime/rejected.
+    const config = JSON.parse(await readFile(path.join(storyRoot, workshopConfigName), 'utf8')) as WorkshopConfig;
+    assert.equal(config.formatVersion, 1);
+    const {slots, sampleModelUrl, slotCostumes} = config.blockWorkshop;
+    const manifest = parse(await readFile(path.join(storyRoot, projectAssetsName), 'utf8'));
+    // The slot manifest is written elsewhere, so resolve every file from the story directory.
+    const fromSlotManifest = (file: string) => path.relative(temporary, path.resolve(storyRoot, file));
+    for (const asset of Object.values(manifest.assets) as {file: string}[])
+      asset.file = fromSlotManifest(asset.file);
+    const narration = manifest.sprites.Narration;
+    delete manifest.sprites.Narration;
+    let layer = Math.max(...Object.values(manifest.sprites as Record<string, {layerOrder: number}>)
+      .map(({layerOrder}) => layerOrder));
+    for (const nn of slotSeats(slots)) {
+      assert(!manifest.sprites[`Suitor${nn}`], `Slot sprite Suitor${nn} is already declared.`);
+      manifest.sprites[`Suitor${nn}`] = {...manifest.sprites.Sato, layerOrder: ++layer};
+      for (const costume of costumeNames) {
+        assert(!manifest.assets[`s${nn}-${costume}`], `Slot costume s${nn}-${costume} is already declared.`);
+        manifest.assets[`s${nn}-${costume}`] = {
+          ...manifest.assets[`sato-${costume}`],
+          target: `Suitor${nn}`,
+          name: costume,
+          file: fromSlotManifest(slotCostumes[costume as keyof typeof slotCostumes]),
+        };
+      }
+    }
+    manifest.sprites.Narration = {...narration, layerOrder: ++layer};
+    const slotManifestPath = path.join(temporary, 'slot-project-assets.yml');
+    await writeFile(slotManifestPath, stringify(manifest));
+    const workshop = await createDeterministicSb3(imported, {allowedAssetRoots, projectAssetsPath: slotManifestPath});
     const workshopPath = path.join(temporary, tekonaWorkshopOutput);
     await writeFile(workshopPath, workshop.archive);
 
@@ -126,7 +166,7 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
     const source = await readFile(sourcePath, 'utf8');
     run(['validate-dsl4', '--input', sourcePath]);
     const yamlPath = path.join(temporary, tekonaYamlOutput);
-    build(storyRoot, workshopPath, yamlPath);
+    build(storyRoot, storyBasePath, yamlPath);
 
     // The participant template must still compose into a valid story.
     const submission = parseSubmission(sampleSubmission);
@@ -140,7 +180,7 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
     await mkdir(authoringRoot, {recursive: true});
     await writeFile(path.join(authoringRoot, sourceName), stringify(parse(source), {lineWidth: 0}));
     const authoringBasePath = path.join(temporary, 'authoring-base.sb3');
-    build(authoringRoot, workshopPath, authoringBasePath);
+    build(authoringRoot, storyBasePath, authoringBasePath);
     const authoredPath = path.join(temporary, 'authored-blocks.sb3');
     run([
       'author-block-dsl',
@@ -170,34 +210,7 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
     );
 
     // Block-script workshop: pre-registered slots whose placeholder assets are replaced later.
-    const config = JSON.parse(await readFile(path.join(storyRoot, workshopConfigName), 'utf8')) as WorkshopConfig;
-    assert.equal(config.formatVersion, 1);
-    const {slots, sampleModelUrl, slotCostumes} = config.blockWorkshop;
-    const manifest = parse(await readFile(path.join(storyRoot, projectAssetsName), 'utf8'));
-    // The slot manifest is written elsewhere, so resolve every file from the story directory.
-    const fromSlotManifest = (file: string) => path.relative(temporary, path.resolve(storyRoot, file));
-    for (const asset of Object.values(manifest.assets) as {file: string}[])
-      asset.file = fromSlotManifest(asset.file);
-    for (const nn of slotSeats(slots)) {
-      for (const kind of ['stand', 'pose'] as const) {
-        assert(!manifest.assets[`s${nn}-${kind}`], `Slot costume s${nn}-${kind} is already declared.`);
-        manifest.assets[`s${nn}-${kind}`] = {
-          ...manifest.assets[`newcomer-${kind}`],
-          file: fromSlotManifest(slotCostumes[kind]),
-        };
-      }
-    }
-    const slotManifestPath = path.join(temporary, 'slot-project-assets.yml');
-    await writeFile(slotManifestPath, stringify(manifest));
-    const slotBase = await createDeterministicSb3(imported, {
-      allowedAssetRoots: [
-        path.join(storyRoot, 'assets'),
-        path.join(projectRoot, 'stories/urashima/assets'),
-      ],
-      projectAssetsPath: slotManifestPath,
-    });
-    const slotBasePath = path.join(temporary, 'slot-base.sb3');
-    await writeFile(slotBasePath, slotBase.archive);
+    const slotBasePath = workshopPath;
     const slotRoot = path.join(temporary, 'slots');
     await mkdir(slotRoot, {recursive: true});
     const slotSource = stringify(parse(composeSlots(source, slots, {
@@ -232,9 +245,9 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
     run(['export-block-dsl', '--input', blockWorkshopPath, '--output-dir', slotExported, '--name', 'tekona']);
     const slotScenes = Object.keys(parse(await readFile(path.join(slotExported, sourceName), 'utf8')).scenes);
     assert.deepEqual(
-      slotScenes.slice(slotScenes.indexOf('proposals'), slotScenes.indexOf('quarrel') + 1),
-      ['proposals', ...slotSeats(slots).map((nn) => `suitor-${nn}`), 'quarrel'],
-      'The block workshop slots must stay between proposals and quarrel.',
+      slotScenes.slice(slotScenes.indexOf(lastPreparedScene), slotScenes.indexOf('quarrel') + 1),
+      [lastPreparedScene, ...slotSeats(slots).map((nn) => `suitor-${nn}`), 'quarrel'],
+      'The block workshop slots must stay between the prepared suitors and quarrel.',
     );
 
     const lock = {

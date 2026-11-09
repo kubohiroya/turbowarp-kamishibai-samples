@@ -5,6 +5,7 @@ export interface Submission {
   author?: string;
   name?: string;
   hint?: string;
+  rejectedHint?: string;
   proposal?: string;
   refusal?: string;
   after?: string;
@@ -12,13 +13,14 @@ export interface Submission {
   model?: string;
 }
 
+export const costumeNames: string[];
 export function parseSubmission(text: string): Submission;
 export function checkSubmission(submission: Submission): string[];
 export function participantYaml(
   source: string,
   submission: Submission,
   options?: {pose?: string},
-): {assets: string; scene: string};
+): {assets: string; actor: string; scene: string};
 export function composeSlots(
   source: string,
   count: number,

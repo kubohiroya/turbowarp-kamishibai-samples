@@ -17,18 +17,18 @@
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 13794,
-      "sha256": "3b4b64534e38bdb4954a2c87f4e0cee4c8b4175d2ec74ec7966647ae1a61a571"
+      "size": 17339,
+      "sha256": "c8824b793bb52d52c6c2e06e18bee0457fcf3fac56c32478d319463253291ad9"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 4232,
-      "sha256": "85aabe5cbe0e3bb8fc75ed841488899d67d08ea7043e27b654edcb61b24874d3"
+      "size": 5184,
+      "sha256": "47393c02abab0dd56b7f732855a74e066899f85a1a1e985b794ba580721d2c03"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 7995,
-      "sha256": "b8decca130ee11829ecfd9de6c40865e6a11dd568cbafed2df72f267c17e66af"
+      "size": 8363,
+      "sha256": "e3c27c99914ac3cd0d6ba45bc9173cf6b953c56fbd7d24d97c59e44a942188a0"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
@@ -37,30 +37,30 @@
     },
     {
       "path": "workshop.config.json",
-      "size": 305,
-      "sha256": "e254f738762d35ea830f9c3c47f5f5577633468e071bc8ae6a881213eb938772"
+      "size": 355,
+      "sha256": "64c426f373726bcf5954ef4dff857fcab677f681874b7f86e8cb9e43d1400e50"
     }
   ],
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 8744233,
-      "sha256": "4143353e03c99edff3c435bdcdea190f846f47db8e3ae8197d0b1a677e0c4a18"
+      "size": 8747064,
+      "sha256": "2a6399d334fa6274490393d1b9b39303c85ce2cbb271800356483e1504a4d3a6"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 8632353,
-      "sha256": "5c05048102129a84580847f84022bb5e6d40721d66fecc44c5d521140e79d53d"
+      "size": 8639467,
+      "sha256": "7a86a71ff05e35a68a504171b299b79b3a4f7d10e993360a4f49d63a15736bed"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 8656441,
-      "sha256": "6bc6906b88e0cc0831f4539d8a2dec5da651d9a220d9f87fb56ca79ece3a1b01"
+      "size": 8663589,
+      "sha256": "aaed8e286336b11b41b8b5a20a5ac5b0a60d8f6cf1ddee95b732fb25f5db4cac"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 8683010,
-      "sha256": "55c78db73fdbc18400e0a9ca0b84fb1c24e1c9a07d7dd01bd7fb0a9b0c5ad479"
+      "size": 8691731,
+      "sha256": "6992e6a5adc686966d237edd666b254e0ce943037f5e94604611ea462e06201e"
     }
   }
 }

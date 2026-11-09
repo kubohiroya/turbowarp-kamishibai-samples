@@ -13,31 +13,31 @@ function project(labels: string[], name?: string) {
 
 describe('tekona seat models', () => {
   it('reads the model link and labels of an uploaded seat project', () => {
-    const model = seatModel('seat-07.tm', project(['stand', 'kime'], 'Ab_c-1'));
+    const model = seatModel('seat-07.tm', project(['stand', 'kime', 'rejected'], 'Ab_c-1'));
     expect(model).toMatchObject({seat: '07', url: 'https://teachablemachine.withgoogle.com/models/Ab_c-1/'});
     expect(seatProblems([model], 20)).toEqual([]);
   });
 
   it('removes the upload identity for a fresh copy and keeps the samples', () => {
-    const fresh = unzipSync(freshProject(project(['stand', 'kime'], 'Ab_c-1')));
+    const fresh = unzipSync(freshProject(project(['stand', 'kime', 'rejected'], 'Ab_c-1')));
     const manifest = JSON.parse(strFromU8(fresh['manifest.json']!));
     expect(manifest.appdata.publishResults).toBeUndefined();
     expect(manifest.appdata.trainEpochs).toBe(50);
     expect(Object.keys(fresh)).toContain('kime-!-0.jpg');
-    expect(() => freshProject(project(['stand']))).toThrow('kime');
+    expect(() => freshProject(project(['stand', 'kime']))).toThrow('rejected');
   });
 
   it('reports missing uploads, wrong labels, shared links and seats without slots', () => {
     const problems = seatProblems([
-      seatModel('seat-01.tm', project(['stand', 'kime'])),
-      seatModel('seat-02.tm', project(['stand', 'pose1'], 'Same')),
-      seatModel('seat-21.tm', project(['stand', 'kime'], 'Same')),
+      seatModel('seat-01.tm', project(['stand', 'kime', 'rejected'])),
+      seatModel('seat-02.tm', project(['stand', 'pose1', 'rejected'], 'Same')),
+      seatModel('seat-21.tm', project(['stand', 'kime', 'rejected'], 'Same')),
     ], 20);
     expect(problems.join('\n')).toMatch(/seat-01\.tm: not uploaded/u);
     expect(problems.join('\n')).toMatch(/seat-02\.tm: class "kime" has no samples/u);
     expect(problems.join('\n')).toMatch(/unexpected class "pose1"/u);
     expect(problems.join('\n')).toMatch(/seat-21\.tm: seat 21 has no slot/u);
     expect(problems.join('\n')).toMatch(/same model link/u);
-    expect(() => seatModel('project.tm', project(['stand', 'kime']))).toThrow('seat-NN.tm');
+    expect(() => seatModel('project.tm', project(['stand', 'kime', 'rejected']))).toThrow('seat-NN.tm');
   });
 });

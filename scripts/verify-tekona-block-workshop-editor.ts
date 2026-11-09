@@ -1,14 +1,14 @@
 /**
  * Rehearse the assistant's block-script workshop integration in TurboWarp Plus Editor:
- * replace a pre-registered slot's placeholder costumes and model URL, fill its texts, turn its
+ * replace a pre-registered slot sprite's placeholder costumes (stand, kime, rejected), fill its texts, turn its
  * `if` condition to true, reflect the document, play the story, then save and read it back.
  *
- * Teachable Machine is replaced by a routed local four-class model whose labels are rewritten
- * per URL, so the story's pose names stay unchanged and no participant photo is needed.
+ * Teachable Machine is replaced by a routed local model answering with the classes stand, kime and
+ * rejected, so the story's pose names stay unchanged and no participant photo is needed.
  */
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {copyFile, mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
+import {mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -19,6 +19,7 @@ import {strFromU8, unzipSync} from 'fflate';
 import {editorControlClick, loadVerifiedBlockProject, openBlockEditor} from './block-diagnostic-fixture.ts';
 import {sampleSubmission} from './build-tekona.ts';
 import type {ScratchProject} from './scratch.ts';
+import {participantPictures, replaceCostumes, routeSubstituteModels} from './tekona-rehearsal-shared.ts';
 import {parseSubmission} from '../resources/tekona-workshop/assistant/compose-participants.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -27,7 +28,6 @@ const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
 const appRoot = path.resolve(
   process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ?? path.join(projectRoot, '../turbowarp-kamishibai-app'),
 );
-const substituteModel = path.join(projectRoot, 'stories/urashima/pose-models/3and4');
 
 function options() {
   const result = {
@@ -45,36 +45,6 @@ function options() {
     else throw new Error(`Unknown argument: ${args[i]}`);
   }
   return result;
-}
-
-/** Upload the replacement, delete the placeholder, and give the upload the placeholder's name. */
-async function replaceCostumes(page: Page, files: {name: string; file: string}[]) {
-  await page.evaluate(() => {
-    const suitor = window.vm.runtime.targets.find((target: any) => target.getName() === 'Suitor');
-    window.vm.setEditingTarget(suitor.id);
-  });
-  await page.getByRole('tab', {name: /コスチューム|Costumes/u}).click(editorControlClick);
-  for (const {name, file} of files) {
-    const before = await page.evaluate(() => window.vm.editingTarget.getCostumes().length);
-    await page.locator('[aria-label="Choose a Costume"]').first().hover();
-    const upload = page.locator('[aria-label="Upload Costume"]').first();
-    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), upload.click(editorControlClick)]);
-    await chooser.setFiles(file);
-    await page.waitForFunction((before) => window.vm.editingTarget.getCostumes().length === before + 1, before,
-      {timeout: 30_000});
-    // Same as the costume tab's "delete" on the placeholder and typing its name into the upload.
-    await page.evaluate((name) => {
-      const target = window.vm.editingTarget;
-      const names = () => target.getCostumes().map((costume: any) => costume.name);
-      const placeholder = names().indexOf(name);
-      if (placeholder < 0) throw new Error(`Placeholder costume ${name} is missing.`);
-      window.vm.deleteCostume(placeholder);
-      window.vm.renameCostume(target.getCostumes().length - 1, name);
-      if (names().filter((value: string) => value === name).length !== 1)
-        throw new Error(`Costume ${name} must remain unique.`);
-    }, name);
-  }
-  return page.evaluate(() => window.vm.editingTarget.getCostumes().map((costume: any) => costume.name));
 }
 
 /** Fill the slot's text placeholders, model URL and condition through its Blockly inputs. */
@@ -168,15 +138,10 @@ async function main() {
   const outputDirectory = await mkdtemp(path.join(root, 'run-'));
   const submission = parseSubmission(sampleSubmission);
   const nn = submission.nn;
-  const costumes = [];
-  for (const kind of ['stand', 'pose']) {
-    const file = path.join(outputDirectory, `s${nn}-${kind}${images ? '.png' : '.svg'}`);
-    await copyFile(images ? path.join(images, `s${nn}-${kind}.png`)
-      : path.join(projectRoot, `stories/tekona/assets/${kind === 'stand' ? 'kokufu' : 'miyako'}-${kind}.svg`), file);
-    costumes.push({name: `s${nn}-${kind}`, file});
-  }
+  const pictures = await participantPictures(outputDirectory, images);
   const values: Record<string, string> = {
     作者の名前: submission.author!, 求婚者の名前: submission.name!, 決めポーズの説明: submission.hint!,
+    ことわられたポーズの説明: submission.rejectedHint!,
     求婚の言葉: submission.proposal!, 手児奈のことわりの言葉: submission.refusal!, ことわられたときのひとこと: submission.after!,
   };
   const project = JSON.parse(strFromU8(unzipSync(await readFile(input))['project.json']!)) as ScratchProject;
@@ -192,16 +157,7 @@ async function main() {
       delete (window as any).showOpenFilePicker;
       delete (window as any).showSaveFilePicker;
     });
-    const metadata = JSON.parse(await readFile(path.join(substituteModel, 'metadata.json'), 'utf8'));
-    await context.route(/https:\/\/teachablemachine\.withgoogle\.com\/models\/([^/]+)\/(model\.json|metadata\.json|weights\.bin)(\?.*)?$/u,
-      async (route) => {
-        const [, id, name] = /models\/([^/]+)\/([^/?]+)/u.exec(route.request().url())!;
-        const labels = id === 'REPLACE-WITH-YOUR-MODEL' ? ['stand', 'heart', 'offer', 'wide'] : ['stand', 'kime', 'other1', 'other2'];
-        const body = name === 'metadata.json' ? JSON.stringify({...metadata, labels})
-          : await readFile(path.join(substituteModel, name));
-        await route.fulfill({body, contentType: name.endsWith('.bin') ? 'application/octet-stream' : 'application/json',
-          headers: {'access-control-allow-origin': '*'}});
-      });
+    await routeSubstituteModels(context);
     const page = await context.newPage();
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(String(error).slice(0, 500)));
@@ -211,7 +167,7 @@ async function main() {
     await loadVerifiedBlockProject(page, input, project);
 
     let started = Date.now();
-    report.suitorCostumes = await replaceCostumes(page, costumes);
+    report.suitorCostumes = await replaceCostumes(page, `Suitor${nn}`, pictures);
     // rc.79 cannot reflect a changed remote model URL ("Remote asset source does not match"), so the
     // slot keeps its pre-registered URL. TEKONA_REPLACE_MODEL_URL=1 re-checks the replacement.
     const replaceModel = Boolean(process.env.TEKONA_REPLACE_MODEL_URL);
@@ -220,16 +176,11 @@ async function main() {
     const reflected = await reflectDocument(page, outputDirectory);
     report.integrationSeconds = (Date.now() - started) / 1000;
     const scenes = Object.keys(reflected.scenes);
-    report.reflectedOrder = scenes.slice(scenes.indexOf('proposals'), scenes.indexOf('proposals') + 3);
-    assert.deepEqual(report.reflectedOrder, ['proposals', `suitor-${nn}`, 'suitor-02']);
+    report.reflectedOrder = scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('miyako') + 3);
+    assert.deepEqual(report.reflectedOrder, ['miyako', `suitor-${nn}`, 'suitor-02']);
     if (replaceModel) assert.equal(reflected.assets[`Pose${nn}`].source.url, submission.model);
 
     // Play: close the title, skip poses with Space, and keep stage frames as visual evidence.
-    await page.evaluate(() => {
-      const suitor = window.vm.runtime.targets.find((target: any) => target.getName() === 'Suitor');
-      suitor.setVisible(false);
-      suitor.setCostume(0);
-    });
     await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
     const close = page.locator('[data-dsl4-title-action=close]');
     await close.waitFor({state: 'visible', timeout: 60_000});

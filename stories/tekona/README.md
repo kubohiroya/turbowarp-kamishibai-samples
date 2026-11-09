@@ -15,9 +15,9 @@
 - `pnpm update:tekona`で、同じrc.79から次の3つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
 - TurboWarp Plus Editorでのアシスタントの組み込み（作業用SB3に参加者の絵2枚をアップロード → 補助ページで組み立てた台本を
   メニューから読み込む → 再生）を、`pnpm verify:tekona-workshop-editor`で自動リハーサルしました。参加者の場面は
-  `proposals`と`quarrel`の間で再生され、最後の「おしまい」まで実行時エラーはありませんでした
+  用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
   （モデルは浦島太郎の既存モデルで代用し、ポーズはスキップ）。
-- **未完了**: 用意済み3人のポーズ認識モデル（`SuitorPoses`）は未作成で、URLは仮の値です。撮影計画は
+- **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
 - **未完了**: Web版、作品一覧（`site/works.json`）への掲載、`pnpm build`への組み込み。
@@ -38,8 +38,24 @@
 | `LICENSES.md` | ライセンス |
 
 台本は背景・コスチューム・音を短形式（`costume:Suitor`、`sound`など）でSB3内の素材として参照します。
-参加者の絵は、TurboWarp Plus EditorでSuitorスプライトへ`sNN-stand`／`sNN-pose`としてアップロードします。
+参加者の絵は、作業用SB3にある席のスプライト`SuitorNN`の仮のコスチューム`stand`・`kime`・`rejected`と差し替えます。
 音は浦島太郎サンプルの音素材（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を共用し、SB3の生成時に`stories/urashima/assets`を許可します。
+
+## 求婚者の決まり
+
+用意済みの3人も参加者も、次の決まりにそろえます。
+
+| 決まり | 内容 |
+| --- | --- |
+| 構図 | 求婚者は上手（画面の右、`x: 140`）に立ち、下手（画面の左、`x: -150`）の手児奈に求婚する。絵の人物は下手を向く |
+| スプライト | 求婚者1人につき1つ（用意済み：`Sato`・`Kokufu`・`Miyako`、参加者：`Suitor01`〜） |
+| 3つの絵 | コスチューム`stand`（立ち絵）・`kime`（求婚の決めポーズ）・`rejected`（ことわられたポーズ）。参加者は`stand.png`・`kime.png`・`rejected.png`で提出する |
+| 3つのクラス | 求婚者ごとのポーズ認識モデル（Teachable Machine）に、クラス`stand`・`kime`・`rejected` |
+| 流れ | 登場（`stand`）→ `kime`のポーズ認識 → 求婚 → 手児奈がことわる → `rejected`のポーズ認識 → ひとこと |
+
+台本の素材IDは`sato-kime`や`s07-rejected`のように求婚者ごとに分け、名前付き形式（`{kind: costume, target: Sato, name: kime}`）で
+スプライトのコスチューム名`kime`を指します。モデルにないクラスを台本の`pose`に書くと、実行時に
+`K4-POSE-PORT-003: Unknown pose … in model …`で停止します（試作時に確認済み）。
 
 ## 物語の構成
 
@@ -47,44 +63,26 @@
 | --- | --- | --- |
 | `opening` | タイトル | なし |
 | `well` | 真間の井と手児奈。評判が国府・都へ広まる | なし |
-| `proposals` | 用意済みの3人。**forEach**で一覧を順に再生し、各回でポーズ認識 → 求婚 → 手児奈が断る。**if**で心のゆれを分岐 | `SuitorPoses` |
+| `sato`・`kokufu`・`miyako` | 用意済みの3人（里の若者・国府の役人・都の貴族）。参加者と同じ雛形の流れ | `SatoPose`・`KokufuPose`・`MiyakoPose` |
 | `suitor-NN` | **参加者の求婚者**（席番号NNごとに1場面、雛形から追加） | 参加者の`PoseNN` |
 | `quarrel` | 断られた男たちが争いをはじめる | なし |
 | `inlet` | 夕日の入江で、手児奈が「わたしの心は、わたしのもの」と決める | なし |
 | `tsugihashi` | 手児奈が争いをやめるよう告げ、男たちは力をあわせて入江に橋（継橋）をかける | なし |
 | `afterword` | 再話であることと、本来の言い伝え（手児奈が入江に姿を消し、里人がまつった）、手児奈霊堂の紹介 | なし |
 
-ポーズ認識モデルは場面ごとに1つです（`Actor.pose`にはモデルを指定できません）。参加者がそれぞれのPCで作ったモデルを使うため、
-参加者の求婚者は一覧の行ではなく、1人1場面にしています。結末は再話として変更し、原典の結末は`afterword`で紹介します。
+ポーズ認識モデルは場面ごとに1つです（`Actor.pose`にはモデルを指定できません）。そのため、どの求婚者も自分の場面を持ちます。
+結末は再話として変更し、原典の結末は`afterword`で紹介します。
 
-## 用意済みの求婚者（`proposals`の一覧）
-
-| 列 | 型 | 意味 |
-| --- | --- | --- |
-| `name` | 文字列 | 登場時にナレーションへ出す名前 |
-| `stand` | 文字列 | 立ち絵のコスチューム名（Suitorスプライト） |
-| `poseSkin` | 文字列 | ポーズ認識に成功したときのコスチューム名 |
-| `pose` | 文字列 | `SuitorPoses`のクラス名。**モデルのラベルと完全に一致させる** |
-| `poseHint` | 文字列 | ポーズの説明（求婚者のセリフとして出す） |
-| `proposal` | 文字列 | 求婚の言葉 |
-| `moved` | 真偽値 | `true`なら手児奈が断る前に「ちょっとだけ心がゆれた」と思う |
-| `refusal` | 文字列 | 手児奈の断りの言葉 |
-
-| 求婚者 | クラス名 | 決めポーズ |
-| --- | --- | --- |
-| 里の若者 | `heart` | 両うでで頭の上に大きなハート |
-| 国府の役人 | `offer` | 片手を胸に当て、もう片方の手を横へさしだす |
-| 都の貴族 | `wide` | 両うでを横へ大きく広げる |
-
-`pose`に書いたクラスがモデルにない場合、実行時に`K4-POSE-PORT-003: Unknown pose … in model SuitorPoses`で停止します（試作時に確認済み）。
+用意済みの3人の決めポーズは、里の若者が「両うでで頭の上に大きなハート」、国府の役人が「片手を胸に当て、もう片方の手を横へさしだす」、
+都の貴族が「両うでを横へ大きく広げる」、`rejected`は3人とも「肩を落として両手を下に垂らし、うつむく」です。
 
 ## 参加者の場面を加える
 
 この版は外部YAML方式です。1人分で行うことは次の3つです（詳細は[スタッフ向け資料の5章](../../resources/tekona-workshop/tekona-workshop-staff.md)）。
 
-1. 作業用SB3のSuitorスプライトに`sNN-stand.png`／`sNN-pose.png`をアップロードし、コスチューム名を`sNN-stand`／`sNN-pose`にする。
+1. 作業用SB3の席のスプライト`SuitorNN`で、仮のコスチューム`stand`・`kime`・`rejected`を削除し、参加者の`stand.png`・`kime.png`・`rejected.png`をアップロードする（コスチューム名はファイル名のまま）。
 2. 補助ページ[`compose.html`](../../resources/tekona-workshop/assistant/compose.html)に掲示板の提出文を貼り、
-   参加者の場面（`suitor-NN`、モデル`PoseNN`）を加えた`tekona.k4.yml`を作る。場面は席番号順に`quarrel`の前へ入る。
+   参加者の場面（`suitor-NN`、スプライト`SuitorNN`、モデル`PoseNN`）を加えた`tekona.k4.yml`を作る。場面は席番号順に`quarrel`の前へ入る。
 3. 作業用SB3でメニューの「開く」から`tekona.k4.yml`を読み込んで再生する。
 
 補助ページは`resources/tekona-workshop/assistant/compose-participants.js`を埋め込んで`pnpm update:tekona`が生成します。
@@ -105,8 +103,8 @@
 
 そこで次の版は、**素材と場面の枠をあらかじめ登録しておき、差し替える**方式で進めます。`tekona-workshop-blocks-4.0.sb3`が試作です。
 
-- 生成時に、席番号01〜20の場面`suitor-NN`（中身は`if: {condition: false}`で囲む）、仮のコスチューム`sNN-stand`／`sNN-pose`、
-  モデル`PoseNN`を登録する。場面は最初から`proposals`と`quarrel`の間に並ぶので、順番の問題は起きない。
+- 生成時に、席番号01〜20の場面`suitor-NN`（中身は`if: {condition: false}`で囲む）、スプライト`SuitorNN`と仮のコスチューム`stand`・`kime`・`rejected`、
+  モデル`PoseNN`を登録する。場面は最初から用意済みの3人と`quarrel`の間に並ぶので、順番の問題は起きない。
 - `pnpm verify:tekona-block-workshop-editor`で、Plus Editor上での差し替え（絵のアップロード → 仮の絵の削除と名前の付け替え、
   セリフの書き換え、条件をtrue、文書への反映）から再生・保存・書き戻しまでを確かめた。組み込んだ枠01は都の貴族のあとに再生され、
   未記入の枠は何も再生しない。

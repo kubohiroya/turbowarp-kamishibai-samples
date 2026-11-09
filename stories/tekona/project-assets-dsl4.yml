@@ -1,5 +1,7 @@
 # TurboWarp紙芝居 DSL 4.0「手児奈」のSB3へ追加するスプライトと素材。
-# tekona.k4.yml は、ここで登録した背景・コスチュームを名前（短形式）で参照します。
+# tekona.k4.yml は、ここで登録した背景・コスチューム・音を名前で参照します。
+# 求婚者は1人1スプライトで、コスチューム名は stand（立ち絵）・kime（決めポーズ）・rejected（ことわられたポーズ）にそろえます。
+# 参加者の枠のスプライト Suitor01〜 は、scripts/build-tekona.ts が workshop.config.json に従って加えます。
 # 画像はすべて assets/ のSVG仮素材です（MPL-2.0: LICENSES.md）。
 formatVersion: 1
 sprites:
@@ -13,7 +15,7 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
-  Suitor:
+  Sato:
     layerOrder: 2
     visible: false
     x: 0
@@ -23,8 +25,28 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
-  Narration:
+  Kokufu:
     layerOrder: 3
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Miyako:
+    layerOrder: 4
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Narration:
+    layerOrder: 5
     visible: false
     x: 0
     y: 0
@@ -81,57 +103,73 @@ assets:
     license: "MPL-2.0: LICENSES.md"
   sato-stand:
     kind: costume
-    target: Suitor
+    target: Sato
+    name: stand
     file: assets/sato-stand.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
-  sato-pose:
+  sato-kime:
     kind: costume
-    target: Suitor
-    file: assets/sato-pose.svg
+    target: Sato
+    name: kime
+    file: assets/sato-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sato-rejected:
+    kind: costume
+    target: Sato
+    name: rejected
+    file: assets/sato-rejected.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
   kokufu-stand:
     kind: costume
-    target: Suitor
+    target: Kokufu
+    name: stand
     file: assets/kokufu-stand.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
-  kokufu-pose:
+  kokufu-kime:
     kind: costume
-    target: Suitor
-    file: assets/kokufu-pose.svg
+    target: Kokufu
+    name: kime
+    file: assets/kokufu-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  kokufu-rejected:
+    kind: costume
+    target: Kokufu
+    name: rejected
+    file: assets/kokufu-rejected.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
   miyako-stand:
     kind: costume
-    target: Suitor
+    target: Miyako
+    name: stand
     file: assets/miyako-stand.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
-  miyako-pose:
+  miyako-kime:
     kind: costume
-    target: Suitor
-    file: assets/miyako-pose.svg
+    target: Miyako
+    name: kime
+    file: assets/miyako-kime.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"
-  newcomer-stand:
+  miyako-rejected:
     kind: costume
-    target: Suitor
-    file: assets/newcomer-stand.svg
-    rotationCenterX: 120
-    rotationCenterY: 190
-    license: "MPL-2.0: LICENSES.md"
-  newcomer-pose:
-    kind: costume
-    target: Suitor
-    file: assets/newcomer-pose.svg
+    target: Miyako
+    name: rejected
+    file: assets/miyako-rejected.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"

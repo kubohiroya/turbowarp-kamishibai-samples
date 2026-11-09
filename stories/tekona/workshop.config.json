@@ -6,7 +6,8 @@
     "slotModelUrls": {},
     "slotCostumes": {
       "stand": "assets/newcomer-stand.svg",
-      "pose": "assets/newcomer-pose.svg"
+      "kime": "assets/newcomer-kime.svg",
+      "rejected": "assets/newcomer-rejected.svg"
     }
   }
 }
