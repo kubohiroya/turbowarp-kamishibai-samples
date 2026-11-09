@@ -20,7 +20,7 @@ import {editorControlClick, loadVerifiedBlockProject, openBlockEditor} from './b
 import {sampleSubmission} from './build-tekona.ts';
 import type {ScratchProject} from './scratch.ts';
 import {participantPictures, replaceCostumes, routeSubstituteModels} from './tekona-rehearsal-shared.ts';
-import {parseSubmission} from '../resources/tekona-workshop/assistant/compose-participants.js';
+import {blockEdits, parseSubmission, type BlockEdit} from '../resources/tekona-workshop/assistant/compose-participants.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
@@ -47,12 +47,15 @@ function options() {
   return result;
 }
 
-/** Fill the slot's text placeholders, model URL and condition through its Blockly inputs. */
-async function fillSlot(page: Page, nn: string, values: Record<string, string>, modelUrl: string) {
+/**
+ * Apply the assistant's edit sheet (blockEdits) to the slot through its Blockly inputs: replace each
+ * whole text field shown in the sheet, remove the listed blocks, and turn the condition to true.
+ */
+async function fillSlot(page: Page, nn: string, edits: BlockEdit[], modelUrl: string) {
   await page.evaluate(() => window.vm.setEditingTarget(window.vm.runtime.getTargetForStage().id));
   await page.getByRole('tab', {name: /コード|Code/u}).click(editorControlClick);
   await page.waitForFunction(() => window.ScratchBlocks.getMainWorkspace().getTopBlocks(false).length > 0);
-  return page.evaluate(({nn, values, modelUrl}) => {
+  return page.evaluate(({nn, edits, modelUrl}) => {
     const workspace = window.ScratchBlocks.getMainWorkspace();
     const all = workspace.getAllBlocks(false);
     const textOf = (block: any, input: string) => block.getInputTargetBlock(input);
@@ -61,19 +64,29 @@ async function fillSlot(page: Page, nn: string, values: Record<string, string>, 
     if (!scene) throw new Error(`Slot suitor-${nn} is missing.`);
     const changed: string[] = [];
     // Only the slot's own statements: the scene's next blocks are the following scenes.
-    const body = scene.getInputTargetBlock('SUBSTACK');
-    for (const block of body ? body.getDescendants(false) : []) {
-      if (block.type === 'kubohiroyakamishibaiauthoring4_narrativeIf') {
-        textOf(block, 'CONDITION').setFieldValue('true', 'TEXT');
-        changed.push('condition');
+    const body = () => scene.getInputTargetBlock('SUBSTACK')?.getDescendants(false) ?? [];
+    for (const edit of edits) {
+      if (edit.kind === 'enable') {
+        const condition = body().find((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_narrativeIf');
+        textOf(condition, 'CONDITION').setFieldValue(edit.replacement, 'TEXT');
+        changed.push(edit.label);
+        continue;
       }
-      if (block.type !== 'text') continue;
-      const before = String(block.getFieldValue('TEXT'));
-      const after = before.replace(/（([^）]+)）/gu, (whole: string, label: string) => values[label] ?? whole);
-      if (after !== before) {
-        block.setFieldValue(after, 'TEXT');
-        changed.push(before);
+      // The sheet shows each field's whole current text; it must exist exactly once in the slot.
+      const fields = body().filter((block: any) => block.type === 'text' && block.getFieldValue('TEXT') === edit.current);
+      const pending = fields.filter((block: any) => !block.__tekonaEdited);
+      if (!pending.length) throw new Error(`Slot suitor-${nn} has no text "${edit.current}" for ${edit.label}.`);
+      const field = pending[0];
+      field.__tekonaEdited = true;
+      if (edit.kind === 'text') {
+        field.setFieldValue(edit.replacement, 'TEXT');
+      } else {
+        let statement = field;
+        while (statement && !statement.previousConnection) statement = statement.getParent();
+        statement.unplug(true);
+        statement.dispose(false);
       }
+      changed.push(`${edit.label}: ${edit.current}`);
     }
     if (!modelUrl) return changed;
     const model = all.find((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_asset' &&
@@ -84,7 +97,7 @@ async function fillSlot(page: Page, nn: string, values: Record<string, string>, 
     value.setFieldValue(JSON.stringify(declaration), 'TEXT');
     changed.push('model');
     return changed;
-  }, {nn, values, modelUrl});
+  }, {nn, edits, modelUrl});
 }
 
 /** Reflect the edited blocks into the story document: hat icon → "convert, validate and save". */
@@ -136,14 +149,12 @@ async function main() {
   const {input, images, outputDirectory: root} = options();
   await mkdir(root, {recursive: true});
   const outputDirectory = await mkdtemp(path.join(root, 'run-'));
-  const submission = parseSubmission(sampleSubmission);
+  const submission = parseSubmission(sampleSubmission.replace('：揺れた', '：揺れなかった'));
   const nn = submission.nn;
   const pictures = await participantPictures(outputDirectory, images);
-  const values: Record<string, string> = {
-    作者の名前: submission.author!, 求婚者の名前: submission.name!, 決めポーズの説明: submission.hint!,
-    落胆のポーズの説明: submission.rejectedHint!,
-    求婚の言葉: submission.proposal!, 手児奈の断りの言葉: submission.refusal!, 断られたときの一言: submission.after!,
-  };
+  // The rehearsed participant's heart was not moved, so the sheet also removes the Tekona.think block.
+  const edits = blockEdits(await readFile(path.join(projectRoot, 'stories/tekona/tekona.k4.yml'), 'utf8'), submission);
+  assert(edits.some((edit) => edit.kind === 'remove'), 'The rehearsal must remove the Tekona.think block.');
   const project = JSON.parse(strFromU8(unzipSync(await readFile(input))['project.json']!)) as ScratchProject;
   const browser = await chromium.launch({
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
@@ -172,7 +183,7 @@ async function main() {
     // slot keeps its pre-registered URL. TEKONA_REPLACE_MODEL_URL=1 re-checks the replacement.
     const replaceModel = Boolean(process.env.TEKONA_REPLACE_MODEL_URL);
     report.replaceModel = replaceModel;
-    report.changed = await fillSlot(page, nn, values, replaceModel ? submission.model! : '');
+    report.changed = await fillSlot(page, nn, edits, replaceModel ? submission.model! : '');
     const reflected = await reflectDocument(page, outputDirectory);
     report.integrationSeconds = (Date.now() - started) / 1000;
     const scenes = Object.keys(reflected.scenes);
@@ -223,6 +234,9 @@ async function main() {
     const story = parse(await readFile(path.join(exported, 'tekona.k4.yml'), 'utf8'));
     const slot = story.scenes[`suitor-${nn}`];
     assert.equal(slot.actions[0].if.condition, true);
+    const then = JSON.stringify(slot.actions[0].if.then);
+    assert(!then.includes('Tekona.think'), 'The unmoved participant must not keep the Tekona.think block.');
+    for (const edit of edits.filter((edit) => edit.kind === 'text')) assert(then.includes(edit.replacement!), edit.label);
     assert.equal(story.scenes['suitor-02'].actions[0].if.condition, false);
     report.status = 'passed';
     report.pageErrors = errors;

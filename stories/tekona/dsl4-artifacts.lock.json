@@ -27,13 +27,13 @@
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 8312,
-      "sha256": "5ebcd96ccca4eb390304a26f2a9f7593a0af740f669e6a790da7729f04299b4a"
+      "size": 10181,
+      "sha256": "c103d886d1336f6b8dbfdaac9c9f0ce71a4d5feb3c66f39dd7ef041e7b6350e2"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
-      "size": 6403,
-      "sha256": "87424d446866f24f1d9f85807297d658af60c537217a244b1a44cf4ac1cb101d"
+      "size": 10258,
+      "sha256": "2729462d81e63dd0ef4545460564806215e2be25147323c552017445714abba2"
     },
     {
       "path": "workshop.config.json",
