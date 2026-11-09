@@ -1,0 +1,144 @@
+# TurboWarp紙芝居 DSL 4.0「手児奈」のSB3へ追加するスプライトと素材。
+# tekona.k4.yml は、ここで登録した背景・コスチュームを名前（短形式）で参照します。
+# 画像はすべて assets/ のSVG仮素材です（MPL-2.0: LICENSES.md）。
+formatVersion: 1
+sprites:
+  Tekona:
+    layerOrder: 1
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Suitor:
+    layerOrder: 2
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Narration:
+    layerOrder: 3
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+assets:
+  TitleCard:
+    kind: backdrop
+    file: assets/title-card.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  MamaWell:
+    kind: backdrop
+    file: assets/mama-well.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  InletSunset:
+    kind: backdrop
+    file: assets/inlet-sunset.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  Tsugihashi:
+    kind: backdrop
+    file: assets/tsugihashi.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tekona-stand:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  tekona-refuse:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-refuse.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  tekona-resolve:
+    kind: costume
+    target: Tekona
+    file: assets/tekona-resolve.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sato-stand:
+    kind: costume
+    target: Suitor
+    file: assets/sato-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sato-pose:
+    kind: costume
+    target: Suitor
+    file: assets/sato-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  kokufu-stand:
+    kind: costume
+    target: Suitor
+    file: assets/kokufu-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  kokufu-pose:
+    kind: costume
+    target: Suitor
+    file: assets/kokufu-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  miyako-stand:
+    kind: costume
+    target: Suitor
+    file: assets/miyako-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  miyako-pose:
+    kind: costume
+    target: Suitor
+    file: assets/miyako-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  newcomer-stand:
+    kind: costume
+    target: Suitor
+    file: assets/newcomer-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  newcomer-pose:
+    kind: costume
+    target: Suitor
+    file: assets/newcomer-pose.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  TextPlaceholder:
+    kind: costume
+    target: Narration
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"

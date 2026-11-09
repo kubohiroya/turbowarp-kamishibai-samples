@@ -1,0 +1,290 @@
+# 手児奈 ― 真間の井の求婚者たち（参加型紙芝居・ワークショップ用台本）
+#
+# 市川市真間（国府台地域）に伝わる「真間の手児奈」を、参加型紙芝居として再話した創作台本です。
+# 観客はカメラの前で求婚者になりきってポーズをキメます。ポーズ認識AIがポーズを認めると、
+# 求婚者は求婚の言葉を述べ、手児奈に断られます。これを求婚者の人数だけ繰り返します。
+#
+# ワークショップでの書き換え箇所（行頭の # を外す・値を変える）は「★」で示します。
+kamishibai: "4.0"
+controls:
+  keymaps:
+    production:
+      Space: rehearsal.skipPose
+      ArrowRight: rehearsal.skipAction
+      ArrowDown: rehearsal.skipScene
+    rehearsal:
+      Space: rehearsal.skipPose
+      ArrowRight: rehearsal.skipAction
+      ArrowDown: rehearsal.skipScene
+# 画像はSB3に登録済みの背景・コスチュームを名前で参照します（project-assets-dsl4.yml で登録）。
+assets:
+  # 背景
+  TitleCard: backdrop
+  MamaWell: backdrop
+  InletSunset: backdrop
+  Tsugihashi: backdrop
+  # 手児奈
+  tekona-stand: costume:Tekona
+  tekona-refuse: costume:Tekona
+  tekona-resolve: costume:Tekona
+  # 求婚者（立ち絵とポーズ絵）
+  sato-stand: costume:Suitor
+  sato-pose: costume:Suitor
+  kokufu-stand: costume:Suitor
+  kokufu-pose: costume:Suitor
+  miyako-stand: costume:Suitor
+  miyako-pose: costume:Suitor
+  # ★ワークショップで作る4人目の求婚者。TurboWarpでSuitorスプライトの同名コスチュームを
+  #   当日つくった立ち絵・ポーズ絵に差し替えます（名前は変えません）。
+  newcomer-stand: costume:Suitor
+  newcomer-pose: costume:Suitor
+  # ナレーション用の透明な下地
+  TextPlaceholder: costume:Narration
+  # ★ポーズ認識モデル。Teachable Machineで「モデルをアップロード」して得た共有リンクに置き換えます。
+  # クラス名（ラベル）は stand / heart / offer / wide / new です（resources/tekona-workshop/pose-dataset-plan.md）。
+  SuitorPoses:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-YOUR-MODEL/
+actors:
+  Tekona: tekona-stand
+  Suitor: sato-stand
+  Narration: TextPlaceholder
+cover:
+  backdrop: TitleCard
+textStyles:
+  narration:
+    background: "#1d1a2bcc"
+    color: "#ffffff"
+    font: Noto Sans JP
+    size: 110
+    align: center
+  title:
+    background: "#00000000"
+    color: "#f3e3a3"
+    font: Noto Sans JP
+    size: 260
+    align: center
+recognition:
+  navigation:
+    allowSkip: true
+scenes:
+  opening:
+    - stage: TitleCard
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 20, scale: 100}
+    - Narration.setText: {text: 手児奈, style: title}
+    - wait: 2
+    - Narration.setText:
+        text: |-
+          真間の井の
+          求婚者たち
+        style: title
+    - wait: 2.5
+    - Narration.hide: {}
+
+  well:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          むかし、下総の国の真間は
+          山のすぐ下まで入江がせまる土地でした。
+        style: narration
+    - wait: 3
+    - Narration.setText:
+        text: |-
+          井戸の水はしおからいものばかり。
+          でも「真間の井」だけは、きれいな水がわきました。
+        style: narration
+    - wait: 3.5
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - Narration.setText:
+        text: |-
+          水をくみに来る娘たちのなかに、
+          ひときわ美しい手児奈がいました。
+        style: narration
+    - wait: 3
+    - Tekona.say: {text: きょうも、いい水がわいていますね。, seconds: 2.5}
+    - Narration.setText:
+        text: |-
+          うわさは国府にも、遠い都にも広まり、
+          つぎつぎと男たちが求婚にやってきました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+
+  proposals:
+    recognitionModel: SuitorPoses
+    actions:
+      - stage: MamaWell
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - forEach:
+          as: suitor
+          # 求婚者の一覧。1行が1人です。列の意味は README.md を参照してください。
+          items:
+            - name: 里の若者
+              stand: sato-stand
+              poseSkin: sato-pose
+              pose: heart
+              poseHint: 両うでで頭の上に大きなハート！
+              proposal: 毎日、水がめを運ぶのを手伝います！ およめさんになってください！
+              moved: false
+              refusal: ありがとう。でも、水がめは自分で運べます。
+            - name: 国府の役人
+              stand: kokufu-stand
+              poseSkin: kokufu-pose
+              pose: offer
+              poseHint: 片手を胸に、もう片方の手をさしだして！
+              proposal: 国府の役人として、あなたを一生守ってみせましょう。
+              moved: false
+              refusal: お役目、ごくろうさまです。でも、お受けできません。
+            - name: 都の貴族
+              stand: miyako-stand
+              poseSkin: miyako-pose
+              pose: wide
+              poseHint: 両うでを大きく、横にひろげて！
+              proposal: 都の屋敷も、絹の着物も、ぜんぶあなたのものです！
+              moved: true
+              refusal: すてきなお話……。でも、わたしは真間をはなれません。
+            # ★ワークショップで考えた4人目の求婚者。次の8行の行頭の「# 」を外し、値を書き換えます。
+            # - name: 4人目の求婚者
+            #   stand: newcomer-stand
+            #   poseSkin: newcomer-pose
+            #   pose: new
+            #   poseHint: みんなで考えた決めポーズ！
+            #   proposal: みんなで考えた求婚の言葉
+            #   moved: true
+            #   refusal: みんなで考えた手児奈のことわりの言葉
+          do:
+            - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+            - Suitor.show: {skin: {ref: suitor.stand}, x: 140, y: -75, scale: 60}
+            - Narration.setText: {text: {ref: suitor.name}, style: narration}
+            - wait: 1.5
+            - Narration.setText:
+                text: |-
+                  カメラの前で、求婚者になりきって
+                  ポーズをキメよう！
+                style: narration
+            - Suitor.say: {text: {ref: suitor.poseHint}, seconds: 2.5}
+            - Suitor.pose:
+                steps:
+                  - pose: {ref: suitor.pose}
+                    skin: {ref: suitor.poseSkin}
+            - Narration.hide: {}
+            - Suitor.say: {text: {ref: suitor.proposal}, seconds: 3.5}
+            - if:
+                condition: {ref: suitor.moved}
+                then:
+                  - Tekona.think: {text: （……ちょっとだけ、心がゆれました）, seconds: 2.5}
+            - Tekona.setSkin: tekona-refuse
+            - Tekona.say: {text: {ref: suitor.refusal}, seconds: 3.5}
+            - Tekona.setSkin: tekona-stand
+            - Suitor.setSkin: {ref: suitor.stand}
+            - Suitor.say: {text: とほほ……。, seconds: 1.5}
+            - Suitor.hide: {}
+      - Narration.hide: {}
+
+  quarrel:
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          ことわられても、男たちはあきらめません。
+          「手児奈にふさわしいのは、このわたしだ！」
+        style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          男たちは言いあらそいをはじめ、
+          なかよしの兄弟まで、けんかをするようになりました。
+        style: narration
+    - wait: 3.5
+    - Tekona.think: {text: わたしの心はひとつ。からだもひとつ。, seconds: 3}
+    - Tekona.think: {text: わたしのせいで、みんながあらそうなんて……。, seconds: 3}
+    - Narration.hide: {}
+
+  inlet:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: InletSunset
+    - Tekona.show: {skin: tekona-stand, x: 0, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          手児奈は小川にそって歩き、
+          夕日にそまる真間の入江にやってきました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - Tekona.think: {text: だれかを選ばなければ、いけないのかしら。, seconds: 3}
+    - wait: 1
+    - Tekona.setSkin: tekona-resolve
+    - Tekona.say: {text: いいえ。わたしの心は、わたしのもの。, seconds: 3}
+    - Tekona.say: {text: だれかひとりのものには、なりません。, seconds: 3}
+
+  tsugihashi:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Tsugihashi
+    - Tekona.show: {skin: tekona-resolve, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          里にもどった手児奈は、
+          男たちの前で、はっきりと言いました。
+        style: narration
+    - wait: 3
+    - Narration.hide: {}
+    - Tekona.say: {text: あらそうのは、もうやめてください。, seconds: 3}
+    - Tekona.say: {text: その力を、みんなのために使ってほしいのです。, seconds: 3}
+    - Tekona.say: {text: 入江をこえて、だれもが真間の井に来られるように。, seconds: 3.5}
+    - Suitor.show: {skin: sato-stand, x: 150, y: -75, scale: 60}
+    - Suitor.say: {text: ……おれたち、はずかしいことをしていたな。, seconds: 3}
+    - Suitor.hide: {}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          男たちは力をあわせ、入江に板をつないで
+          橋をかけました。
+        style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          そして手児奈は、今日も真間の井で
+          みんなといっしょに水をくんでいます。
+        style: narration
+    - wait: 3.5
+    - Tekona.setSkin: tekona-stand
+    - wait: 1.5
+
+  afterword:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: TitleCard
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 0, scale: 100}
+    - Narration.setText:
+        text: |-
+          この紙芝居は、市川市真間に伝わる
+          「真間の手児奈」をもとにした再話です。
+        style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          言い伝えでは、手児奈は夕日の入江に姿を消し、
+          里の人びとが真間の井のそばにまつったといいます。
+        style: narration
+    - wait: 4.5
+    - Narration.setText:
+        text: |-
+          いまも真間には手児奈霊堂があり、
+          真間の井や継橋のあとも残っています。
+        style: narration
+    - wait: 4
+    - Narration.setText: {text: おしまい, style: title}
+    - wait: 3
