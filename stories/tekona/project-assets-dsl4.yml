@@ -1,6 +1,6 @@
 # TurboWarp紙芝居 DSL 4.0「手児奈」のSB3へ追加するスプライトと素材。
 # tekona.k4.yml は、ここで登録した背景・コスチューム・音を名前で参照します。
-# 求婚者は1人1スプライトで、コスチューム名は stand（立ち絵）・kime（決めポーズ）・rejected（ことわられたポーズ）にそろえます。
+# 求婚者は1人1スプライトで、コスチューム名は stand（立ち絵）・kime（決めポーズ）・rejected（断られたポーズ）にそろえます。
 # 参加者の枠のスプライト Suitor01〜 は、scripts/build-tekona.ts が workshop.config.json に従って加えます。
 # 画像はすべて assets/ のSVG仮素材です（MPL-2.0: LICENSES.md）。
 formatVersion: 1

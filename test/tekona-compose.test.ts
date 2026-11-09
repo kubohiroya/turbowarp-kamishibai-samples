@@ -25,7 +25,21 @@ describe('tekona participant composition', () => {
     expect(parsed).toMatchObject({nn: '01', name: '入江の漁師', moved: true});
     expect(checkSubmission(parsed)).toEqual([]);
     expect(submission({'席番号：01': '席番号：７'}).nn).toBe('07');
-    expect(submission({'：ゆれた': '：ゆれなかった'}).moved).toBe(false);
+    expect(submission({'：揺れた': '：揺れなかった'}).moved).toBe(false);
+  });
+
+  it('reads every field of the board template in the participant handout', async () => {
+    const handout = await readFile(path.join(import.meta.dirname, '../resources/tekona-workshop/tekona-workshop.md'), 'utf8');
+    const template = /```text\n(席番号：NN\n[\s\S]*?)```/u.exec(handout)?.[1];
+    expect(template).toBeDefined();
+    const filled = template!.split('\n').filter(Boolean).map((line, index) =>
+      line.startsWith('席番号') ? '席番号：07'
+        : line.startsWith('モデルのリンク') ? 'モデルのリンク：https://teachablemachine.withgoogle.com/models/abc/'
+          : line.startsWith('手児奈の心') ? `${line}揺れなかった` : `${line}値${index}`);
+    const parsed = parseSubmission(filled.join('\n'));
+    expect(checkSubmission(parsed)).toEqual([]);
+    expect(parsed).toMatchObject({nn: '07', moved: false});
+    expect(parsed.rejectedHint).toBeDefined();
   });
 
   it('reports missing fields and invalid model links', () => {
@@ -38,7 +52,7 @@ describe('tekona participant composition', () => {
   it('inserts participants in seat order before quarrel, with quoted texts', async () => {
     const source = await readFile(sourcePath, 'utf8');
     const composed = composeParticipants(source, [
-      submission({'席番号：01': '席番号：12', '：ゆれた': '：ゆれなかった', '入江の漁師': '歌の名手: 若者'}),
+      submission({'席番号：01': '席番号：12', '：揺れた': '：揺れなかった', '入江の漁師': '歌の名手: 若者'}),
       submission({}),
     ]);
     const story = parse(composed);

@@ -1,12 +1,12 @@
 # 手児奈 ― 真間の井の求婚者たち（参加型紙芝居・ワークショップ用台本）
 #
 # 市川市真間（国府台地域）に伝わる「真間の手児奈」を、参加型紙芝居として再話した創作台本です。
-# 観客はカメラの前で求婚者になりきってポーズをキメます。ポーズ認識AIがポーズを認めると、
+# 観客はカメラの前で求婚者になりきってポーズを決めます。ポーズ認識AIがポーズを認めると、
 # 求婚者は求婚の言葉を述べ、手児奈に断られ、がっかりのポーズをとります。これを求婚者の人数だけ繰り返します。
 #
 # 求婚者の決まり（全員共通）
 #   - 構図：手児奈は下手（画面の左、x: -150）、求婚者は上手（画面の右、x: 140）に立ち、下手の手児奈に求婚する。
-#   - 絵：求婚者ごとのスプライトに、コスチューム stand（立ち絵）・kime（決めポーズ）・rejected（ことわられたポーズ）の3つ。
+#   - 絵：求婚者ごとのスプライトに、コスチューム stand（立ち絵）・kime（決めポーズ）・rejected（断られたポーズ）の3つ。
 #   - ポーズ認識モデル：求婚者ごとに1つ。クラス（ラベル）は stand・kime・rejected の3つ。
 #
 # これはワークショップ用の「半完成品」です。用意済みの求婚者3人（sato・kokufu・miyako）のあとに、
@@ -155,7 +155,7 @@ scenes:
     - wait: 3.5
     - Narration.hide: {}
 
-  # 用意済みの求婚者。どの求婚者も同じ流れ（登場 → kime で求婚 → ことわられる → rejected でがっかり）です。
+  # 用意済みの求婚者。どの求婚者も同じ流れ（登場 → kime で求婚 → 断られる → rejected でがっかり）です。
   sato:
     recognitionModel: SatoPose
     actions:
@@ -165,7 +165,7 @@ scenes:
       - Sato.show: {skin: sato-stand, x: 140, y: -75, scale: 60}
       - Narration.setText: {text: 里の若者, style: narration}
       - wait: 2
-      - Narration.setText: {text: カメラの前で、求婚のポーズをキメよう！, style: narration}
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Sato.say: {text: 両うでで頭の上に大きなハート！, seconds: 2.5}
       - Sato.pose:
           steps:
@@ -178,7 +178,7 @@ scenes:
       - Tekona.say: {text: ありがとう。でも、水がめは自分で運べます。, seconds: 3.5}
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
-      - Narration.setText: {text: ことわられた……。がっかりのポーズ！, style: narration}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Sato.say: {text: 肩を落として、がっくり……。, seconds: 2}
       - Sato.pose:
           steps:
@@ -198,7 +198,7 @@ scenes:
       - Kokufu.show: {skin: kokufu-stand, x: 140, y: -75, scale: 60}
       - Narration.setText: {text: 国府の役人, style: narration}
       - wait: 2
-      - Narration.setText: {text: カメラの前で、求婚のポーズをキメよう！, style: narration}
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Kokufu.say: {text: 片手を胸に、もう片方の手をさしだして！, seconds: 2.5}
       - Kokufu.pose:
           steps:
@@ -211,7 +211,7 @@ scenes:
       - Tekona.say: {text: お役目、ごくろうさまです。でも、お受けできません。, seconds: 3.5}
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
-      - Narration.setText: {text: ことわられた……。がっかりのポーズ！, style: narration}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Kokufu.say: {text: 肩を落として、がっくり……。, seconds: 2}
       - Kokufu.pose:
           steps:
@@ -231,7 +231,7 @@ scenes:
       - Miyako.show: {skin: miyako-stand, x: 140, y: -75, scale: 60}
       - Narration.setText: {text: 都の貴族, style: narration}
       - wait: 2
-      - Narration.setText: {text: カメラの前で、求婚のポーズをキメよう！, style: narration}
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Miyako.say: {text: 両うでを大きく、横にひろげて！, seconds: 2.5}
       - Miyako.pose:
           steps:
@@ -240,12 +240,12 @@ scenes:
               sound: Goal Cheer
       - Narration.hide: {}
       - Miyako.say: {text: 都の屋敷も、絹の着物も、ぜんぶあなたのものです！, seconds: 3.5}
-      - Tekona.think: {text: （……ちょっとだけ、心がゆれました）, seconds: 2.5}
+      - Tekona.think: {text: （……ちょっとだけ、心が揺れました）, seconds: 2.5}
       - Tekona.setSkin: tekona-refuse
       - Tekona.say: {text: すてきなお話……。でも、わたしは真間をはなれません。, seconds: 3.5}
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
-      - Narration.setText: {text: ことわられた……。がっかりのポーズ！, style: narration}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Miyako.say: {text: 肩を落として、がっくり……。, seconds: 2}
       - Miyako.pose:
           steps:
@@ -267,7 +267,7 @@ scenes:
   #     - SuitorNN.show: {skin: sNN-stand, x: 140, y: -75, scale: 65}
   #     - Narration.setText: {text: 〔作者の名前〕さんの求婚者「〔求婚者の名前〕」, style: narration}
   #     - wait: 2
-  #     - Narration.setText: {text: カメラの前で、求婚のポーズをキメよう！, style: narration}
+  #     - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
   #     - SuitorNN.say: {text: 〔決めポーズの説明〕, seconds: 2.5}
   #     - SuitorNN.pose:
   #         steps:
@@ -276,22 +276,22 @@ scenes:
   #             sound: Goal Cheer
   #     - Narration.hide: {}
   #     - SuitorNN.say: {text: 〔求婚の言葉〕, seconds: 3.5}
-  #     - Tekona.think: {text: （……ちょっとだけ、心がゆれました）, seconds: 2.5}
+  #     - Tekona.think: {text: （……ちょっとだけ、心が揺れました）, seconds: 2.5}
   #     - Tekona.setSkin: tekona-refuse
-  #     - Tekona.say: {text: 〔手児奈のことわりの言葉〕, seconds: 3.5}
+  #     - Tekona.say: {text: 〔手児奈の断りの言葉〕, seconds: 3.5}
   #     - Tekona.setSkin: tekona-stand
   #     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
-  #     - Narration.setText: {text: ことわられた……。がっかりのポーズ！, style: narration}
-  #     - SuitorNN.say: {text: 〔ことわられたポーズの説明〕, seconds: 2}
+  #     - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+  #     - SuitorNN.say: {text: 〔落胆のポーズの説明〕, seconds: 2}
   #     - SuitorNN.pose:
   #         steps:
   #           - pose: rejected
   #             skin: sNN-rejected
   #             sound: Crowd Gasp
   #     - Narration.hide: {}
-  #     - SuitorNN.say: {text: 〔ことわられたときのひとこと〕, seconds: 1.5}
+  #     - SuitorNN.say: {text: 〔断られたときの一言〕, seconds: 1.5}
   #     - SuitorNN.hide: {}
-  #   （手児奈の心がゆれなかったときは、Tekona.think の1行を消します）
+  #   （手児奈の心が揺れなかったときは、Tekona.think の1行を消します）
 
   quarrel:
     - stage: MamaWell
@@ -299,7 +299,7 @@ scenes:
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
-          ことわられても、男たちはあきらめません。
+          断られても、男たちはあきらめません。
           「手児奈にふさわしいのは、このわたしだ！」
         style: narration
     - wait: 3.5

@@ -41,7 +41,7 @@
   <section>
     <h2>2. 提出された本文</h2>
     <p class="note">投稿の本文をそのまま貼ります。複数の人の分は、空行を2つ以上あけるか「----」の行で区切ります。</p>
-    <textarea id="submissions" placeholder="席番号：07&#10;作者の名前（紙芝居に出してよい名前）：…&#10;…&#10;モデルのリンク：https://teachablemachine.withgoogle.com/models/…/"></textarea>
+    <textarea id="submissions" placeholder="席番号：07&#10;作者の名前（紙芝居に表示してよい名前）：…&#10;…&#10;モデルのリンク：https://teachablemachine.withgoogle.com/models/…/"></textarea>
     <div class="row"><button id="check" class="secondary">確認する</button></div>
     <div id="table"></div>
   </section>
@@ -58,29 +58,29 @@
 // ブラウザ（compose.html）とNode（検証スクリプト）の両方から使う。依存はない。
 
 const templateStart = '  # suitor-NN:';
-const templateEnd = '  #   （手児奈の心がゆれなかったときは';
+const templateEnd = '  #   （手児奈の心が揺れなかったときは';
 const fields = {
   席番号: 'nn',
-  '作者の名前（紙芝居に出してよい名前）': 'author',
+  '作者の名前（紙芝居に表示してよい名前）': 'author',
   作者の名前: 'author',
   求婚者の名前: 'name',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
-  '手児奈の心はゆれた？（ゆれた／ゆれなかった）': 'moved',
-  '手児奈の心はゆれた？': 'moved',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
+  '手児奈の心は揺れたか（揺れた／揺れなかった）': 'moved',
+  '手児奈の心は揺れたか': 'moved',
   モデルのリンク: 'model',
 };
 const placeholders = {
   求婚者の名前: 'name',
   作者の名前: 'author',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
 };
 /** The costume names of every suitor sprite and the class names of every suitor's pose model. */
 const costumeNames = ['stand', 'kime', 'rejected'];
@@ -254,7 +254,7 @@ function composeParticipants(source, submissions, options = {}) {
       if (seats.get(row.nn) > 1) problems.push('席番号が重複しています');
       if (!problems.length) accepted.push(row);
       const tr = table.insertRow();
-      for (const value of [row.nn ?? '?', row.name ?? '', row.author ?? '', row.moved ? 'ゆれた' : 'ゆれなかった'])
+      for (const value of [row.nn ?? '?', row.name ?? '', row.author ?? '', row.moved ? '揺れた' : '揺れなかった'])
         tr.insertCell().textContent = value;
       const cell = tr.insertCell();
       cell.textContent = problems.length ? problems.join('／') : 'OK';
