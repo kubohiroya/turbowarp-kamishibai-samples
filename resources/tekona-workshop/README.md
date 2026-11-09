@@ -26,28 +26,28 @@ Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習
 | [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、求婚者の候補8案、仮素材への反映 |
 | `copilot/style-reference.png` | 参加者 | Copilotに添付する絵柄の見本（用意済みの求婚者の立ち絵・ポーズ絵） |
 | `copilot/pose-draft.png` | 参加者 | `stand`・`kime`・`rejected`の棒人間を左から並べて描く白紙 |
-| [`assistant/compose.html`](assistant/compose.html) | アシスタント | 掲示板の提出文から、参加者の場面を加えた台本を組み立てるページ（ファイルから直接開ける。通信しない） |
+| [`assistant/compose.html`](assistant/compose.html) | アシスタント | 掲示板の提出文を確認し、ブロック台本版では枠に入れる文の一覧を、外部YAML版では参加者の場面を加えた台本を作るページ（ファイルから直接開ける。通信しない） |
 | `assistant/compose-participants.js`、`assistant/compose.template.html` | 開発 | 上のページの組み立て処理と雛形。`pnpm update:tekona`がページを生成する |
 
 作品（台本・立ち絵・ポーズ絵・背景）は[`stories/tekona/`](../../stories/tekona/README.md)にあります。
 
 ## 用意済みのもの
 
-* 半完成品の台本`stories/tekona/tekona.k4.yml`と、作業用SB3`tekona-workshop-4.0.sb3`（台本はメニューから読み込む、外部YAML版）。
+* 半完成品の台本`stories/tekona/tekona.k4.yml`と、作業用SB3。基本は参加者の枠を登録済みの**ブロック台本版**`tekona-workshop-blocks-4.0.sb3`、
+  予備は台本をメニューから読み込む**外部YAML版**`tekona-workshop-4.0.sb3`です。
   どの求婚者も、上手（画面の右）から下手（画面の左）の手児奈に求婚する共通の構図で、自分のスプライト（コスチューム`stand`・`kime`・`rejected`）と
   自分のモデル（クラス`stand`・`kime`・`rejected`）を持ち、1人1場面で登場します。参加者の場面の雛形を台本に示しています。
 * 手児奈・用意済みの求婚者3人・代わりの「？」の人物・背景4枚のSVG仮素材と、BGM・効果音。
-* アシスタント用の台本組み立てページ。
-* TurboWarp Plus Editorでの組み込みの自動リハーサル（公開App 4.0.0-rc.79。参加者の場面が用意済みの3人のあと、`quarrel`の前で再生されることを確認）。
+* アシスタント用の補助ページ（ブロック台本版：枠に入れる文の一覧、外部YAML版：台本の組み立て）。
+* ブロック台本版の席ごとのモデルを準備・確認するコマンド（`pnpm tekona:seat-models`）。
+* TurboWarp Plus Editorでの組み込みの自動リハーサル（公開App 4.0.0-rc.79。両方の版で、参加者の場面が用意済みの3人のあと、`quarrel`の前で再生されることを確認）。
 
 ## まだ用意していないもの
 
 * **用意済み3人のポーズ学習用データとモデル**：写真の撮影が必要です。[`pose-dataset-plan.md`](pose-dataset-plan.md)に従って事前撮影し、
   モデルの共有リンクを台本の`SatoPose`・`KokufuPose`・`MiyakoPose`へ設定してください。写真を含む`project.tm`はこのリポジトリへコミットしません。
-* **次の版（ブロック台本・差し替え方式）**：枠を登録済みのブロック台本SB3`tekona-workshop-blocks-4.0.sb3`を試作し、
-  絵・セリフ・条件の差し替えと反映・再生を確認済みです。公開rc.79では**モデルのリンクを差し替えられない**ため、
-  席ごとのモデルを事前にアップロードしてリンクを登録する方式にします（`pnpm tekona:seat-models`、撮影計画の「ブロック台本版：席ごとのモデル」、スタッフ向け資料5.4、
-  [`stories/tekona/README.md`](../../stories/tekona/README.md)の「次の版（ブロック台本）の課題」）。
+* **席ごとのモデル（ブロック台本版）**：`seat-NN.tm`の作成・アップロードと、開き直したプロジェクトから同じリンクを更新できることの確認〔要確認〕
+  （[`pose-dataset-plan.md`](pose-dataset-plan.md)の「ブロック台本版：席ごとのモデル」）。
 * 公開用のWeb版、作品一覧への掲載。
 * 掲示板の投稿（半完成品・素材・提出のしかた・発展課題・共有作品）の実物と、会場PCでの通し練習（1人あたりの組み込み時間の実測）。
 * 教材の図版（画面写真）、PDF化、配布ZIPの生成。
