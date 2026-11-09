@@ -10,6 +10,7 @@ const fields = {
   作者の名前: 'author',
   求婚者の名前: 'name',
   決めポーズの説明: 'hint',
+  ことわられたポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
   手児奈のことわりの言葉: 'refusal',
   ことわられたときのひとこと: 'after',
@@ -21,10 +22,13 @@ const placeholders = {
   求婚者の名前: 'name',
   作者の名前: 'author',
   決めポーズの説明: 'hint',
+  ことわられたポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
   手児奈のことわりの言葉: 'refusal',
   ことわられたときのひとこと: 'after',
 };
+/** The costume names of every suitor sprite and the class names of every suitor's pose model. */
+export const costumeNames = ['stand', 'kime', 'rejected'];
 const modelPattern = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/[A-Za-z0-9_-]+\/$/u;
 
 /** Read one board submission written with the template in the participant handout. */
@@ -80,8 +84,8 @@ export function participantYaml(source, submission, {pose = 'kime'} = {}) {
   let scene = templateOf(source)
     .replaceAll('suitor-NN', `suitor-${nn}`)
     .replaceAll('PoseNN', `Pose${nn}`)
-    .replaceAll('sNN-stand', `s${nn}-stand`)
-    .replaceAll('sNN-pose', `s${nn}-pose`)
+    .replaceAll('SuitorNN', `Suitor${nn}`)
+    .replaceAll('sNN-', `s${nn}-`)
     .replace('pose: kime', `pose: ${pose}`);
   // Fill every placeholder of a text, then quote the whole text once, so participant words
   // never change the YAML structure.
@@ -96,9 +100,9 @@ export function participantYaml(source, submission, {pose = 'kime'} = {}) {
     .join('\n');
   if (!submission.moved) scene = scene.split('\n').filter((line) => !line.includes('Tekona.think')).join('\n');
   if (/〔|NN/u.test(scene)) throw new Error(`席番号${nn}の場面に置き換えていない部分があります。`);
+  // Every suitor has its own sprite with the costumes stand, kime and rejected.
   const assets = [
-    `  s${nn}-stand: costume:Suitor`,
-    `  s${nn}-pose: costume:Suitor`,
+    ...costumeNames.map((costume) => `  s${nn}-${costume}: {kind: costume, target: Suitor${nn}, name: ${costume}}`),
     `  Pose${nn}:`,
     '    kind: recognitionModel',
     '    delivery: remote',
@@ -106,7 +110,15 @@ export function participantYaml(source, submission, {pose = 'kime'} = {}) {
     '    source:',
     `      url: ${submission.model}`,
   ].join('\n');
-  return {assets, scene};
+  return {assets, actor: `  Suitor${nn}: s${nn}-stand`, scene};
+}
+
+function insert(source, parts) {
+  if (source.split('\n  quarrel:\n').length !== 2) throw new Error('台本に quarrel の場面が1つだけある必要があります。');
+  if (source.split('\nactors:\n').length !== 2) throw new Error('台本に actors が1つだけある必要があります。');
+  return source
+    .replace('\nactors:\n', `\n${parts.map(({assets}) => assets).join('\n')}\nactors:\n${parts.map(({actor}) => actor).join('\n')}\n`)
+    .replace('\n  quarrel:\n', `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
 }
 
 /**
@@ -126,13 +138,14 @@ export function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'k
     // A seat may have its own pre-uploaded model; rc.79 cannot change a remote URL in the editor.
     const placeholder = {nn, model: modelUrls[nn] ?? modelUrl, moved: true};
     for (const [label, key] of Object.entries(placeholders)) placeholder[key] = `（${label}）`;
-    const {assets, scene} = participantYaml(source, placeholder, {pose});
+    const {assets, actor, scene} = participantYaml(source, placeholder, {pose});
     const lines = scene.split('\n');
     const actions = lines.indexOf('    actions:');
     if (actions < 0) throw new Error('雛形の場面に actions がありません。');
     const body = lines.slice(actions + 1).map((line) => (line ? `      ${line}` : line));
     return {
       assets,
+      actor,
       scene: [
         ...lines.slice(0, actions + 1),
         '      - if:',
@@ -142,9 +155,7 @@ export function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'k
       ].join('\n'),
     };
   });
-  return source
-    .replace('\nactors:\n', `\n${slots.map(({assets}) => assets).join('\n')}\nactors:\n`)
-    .replace('\n  quarrel:\n', `\n${slots.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+  return insert(source, slots);
 }
 
 /** Insert every participant, in seat order, into the half-finished source. */
@@ -155,11 +166,6 @@ export function composeParticipants(source, submissions, options = {}) {
     if (seats.has(submission.nn)) throw new Error(`席番号${submission.nn}が重複しています。`);
     seats.add(submission.nn);
   }
-  if (source.split('\n  quarrel:\n').length !== 2) throw new Error('台本に quarrel の場面が1つだけある必要があります。');
-  if (source.split('\nactors:\n').length !== 2) throw new Error('台本に actors が1つだけある必要があります。');
   const parts = sorted.map((submission) => participantYaml(source, submission, options));
-  if (!parts.length) return source;
-  return source
-    .replace('\nactors:\n', `\n${parts.map(({assets}) => assets).join('\n')}\nactors:\n`)
-    .replace('\n  quarrel:\n', `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+  return parts.length ? insert(source, parts) : source;
 }

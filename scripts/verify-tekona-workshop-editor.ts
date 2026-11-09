@@ -1,10 +1,10 @@
 /**
  * Rehearse the assistant's workshop integration in TurboWarp Plus Editor (external YAML version):
- * open the workshop SB3, upload a participant's two costumes to Suitor, compose the story YAML
+ * open the workshop SB3, replace the seat sprite's three costumes (stand, kime, rejected), compose the story YAML
  * from a board submission, open it from the story menu, and play into the participant scene.
  *
  * Teachable Machine is replaced by a routed local model, so no participant photo or network
- * model is needed. The template pose `kime` is renamed to a class of that substitute model.
+ * model is needed. The substitute model answers with the classes stand, kime and rejected.
  */
 import assert from 'node:assert/strict';
 import {copyFile, mkdir, mkdtemp, readFile, writeFile} from 'node:fs/promises';
@@ -17,6 +17,7 @@ import {strFromU8, unzipSync} from 'fflate';
 import {editorControlClick, openBlockEditor} from './block-diagnostic-fixture.ts';
 import {sampleSubmission} from './build-tekona.ts';
 import type {ScratchProject} from './scratch.ts';
+import {participantPictures, replaceCostumes, routeSubstituteModels} from './tekona-rehearsal-shared.ts';
 import {
   composeParticipants,
   parseSubmission,
@@ -25,8 +26,6 @@ import {
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
   'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1&twPlusStandardLayout=0';
-const substituteModel = path.join(projectRoot, 'stories/urashima/pose-models/3and4');
-const substitutePose = 'dance1';
 
 function options() {
   const result = {
@@ -46,25 +45,6 @@ function options() {
   return result;
 }
 
-/** Use the costume tab's upload control, as the assistant does with files from the board. */
-async function uploadCostumes(page: Page, files: string[]) {
-  await page.evaluate(() => {
-    const suitor = window.vm.runtime.targets.find((target: any) => target.getName() === 'Suitor');
-    window.vm.setEditingTarget(suitor.id);
-  });
-  await page.getByRole('tab', {name: /コスチューム|Costumes/u}).click(editorControlClick);
-  for (const file of files) {
-    const before = await page.evaluate(() => window.vm.editingTarget.getCostumes().length);
-    await page.locator('[aria-label="Choose a Costume"]').first().hover();
-    const upload = page.locator('[aria-label="Upload Costume"]').first();
-    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), upload.click(editorControlClick)]);
-    await chooser.setFiles(file);
-    await page.waitForFunction((before) => window.vm.editingTarget.getCostumes().length === before + 1, before,
-      {timeout: 30_000});
-  }
-  return page.evaluate(() => window.vm.editingTarget.getCostumes().map((costume: any) => costume.name));
-}
-
 /** Open an SB3 from the File menu and allow its embedded extensions without sandbox. */
 async function loadWorkshopProject(page: Page, input: string) {
   await page.evaluate(() => {
@@ -79,7 +59,7 @@ async function loadWorkshopProject(page: Page, input: string) {
   let approvals = 0;
   const deadline = Date.now() + 180_000;
   const loaded = () => page.evaluate(() => (window as any).__tekonaLoaded &&
-    window.vm.runtime.targets.some((target: any) => target.getName() === 'Suitor'));
+    window.vm.runtime.targets.some((target: any) => target.getName() === 'Suitor01'));
   while (!await loaded()) {
     assert(Date.now() < deadline, 'The workshop SB3 did not finish loading.');
     const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', {name: /^(OK|Allow|許可)$/u})});
@@ -102,23 +82,10 @@ async function main() {
   const outputDirectory = await mkdtemp(path.join(root, 'run-'));
   const submission = parseSubmission(sampleSubmission);
   const nn = submission.nn;
-  const costumeFiles = [];
-  for (const kind of ['stand', 'pose']) {
-    const target = path.join(outputDirectory, `s${nn}-${kind}${images ? '.png' : '.svg'}`);
-    await copyFile(
-      images ? path.join(images, `s${nn}-${kind}.png`)
-        : path.join(projectRoot, `stories/tekona/assets/newcomer-${kind}.svg`),
-      target,
-    );
-    costumeFiles.push(target);
-  }
+  const pictures = await participantPictures(outputDirectory, images);
   const storyPath = path.join(outputDirectory, 'tekona.k4.yml');
-  // The substitute model only knows its own classes; rename the prepared suitors' poses too.
-  const half = (await readFile(path.join(projectRoot, 'stories/tekona/tekona.k4.yml'), 'utf8'))
-    .replace('pose: heart', `pose: ${substitutePose}`)
-    .replace('pose: offer', `pose: ${substitutePose}`)
-    .replace('pose: wide', `pose: ${substitutePose}`);
-  await writeFile(storyPath, composeParticipants(half, [submission], {pose: substitutePose}));
+  await writeFile(storyPath, composeParticipants(
+    await readFile(path.join(projectRoot, 'stories/tekona/tekona.k4.yml'), 'utf8'), [submission]));
   const browser = await chromium.launch({
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
   });
@@ -132,14 +99,7 @@ async function main() {
       delete (window as any).showOpenFilePicker;
       delete (window as any).showSaveFilePicker;
     });
-    // Serve the substitute model for every Teachable Machine model URL of the story.
-    await context.route(/https:\/\/teachablemachine\.withgoogle\.com\/models\/[^/]+\/(model\.json|metadata\.json|weights\.bin)(\?.*)?$/u,
-      async (route) => {
-        const name = new URL(route.request().url()).pathname.split('/').pop()!;
-        await route.fulfill({body: await readFile(path.join(substituteModel, name)),
-          contentType: name.endsWith('.bin') ? 'application/octet-stream' : 'application/json',
-          headers: {'access-control-allow-origin': '*'}});
-      });
+    await routeSubstituteModels(context);
     const page = await context.newPage();
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(String(error).slice(0, 500)));
@@ -149,18 +109,9 @@ async function main() {
     report.extensionApprovals = await loadWorkshopProject(page, input);
 
     let started = Date.now();
-    report.suitorCostumes = await uploadCostumes(page, costumeFiles);
-    assert((report.suitorCostumes as string[]).includes(`s${nn}-stand`));
-    assert((report.suitorCostumes as string[]).includes(`s${nn}-pose`));
+    report.suitorCostumes = await replaceCostumes(page, `Suitor${nn}`, pictures);
     report.uploadSeconds = (Date.now() - started) / 1000;
 
-    // Return Suitor to its initial hidden state; the costume tab selected the last upload.
-    await page.evaluate(() => {
-      const suitor = window.vm.runtime.targets.find((target: any) => target.getName() === 'Suitor');
-      suitor.setVisible(false);
-      suitor.setCostume(0);
-      window.vm.setEditingTarget(window.vm.runtime.getTargetForStage().id);
-    });
     // Start, close the title, then open the composed YAML from the story menu.
     await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
     const close = page.locator('[data-dsl4-title-action=close]');
@@ -215,8 +166,8 @@ async function main() {
       return [...new Uint8Array(await blob.arrayBuffer())];
     });
     const saved = JSON.parse(strFromU8(unzipSync(Uint8Array.from(bytes))['project.json']!)) as ScratchProject;
-    const suitor = saved.targets.find((target) => target.name === 'Suitor');
-    assert(suitor?.costumes.some((costume) => costume.name === `s${nn}-pose`),
+    const suitor = saved.targets.find((target) => target.name === `Suitor${nn}`);
+    assert(suitor?.costumes.some((costume) => costume.name === 'rejected'),
       'The saved shared SB3 must keep the participant costumes.');
     await writeFile(path.join(outputDirectory, 'tekona-shared.sb3'), Uint8Array.from(bytes));
     report.pageErrors = errors;

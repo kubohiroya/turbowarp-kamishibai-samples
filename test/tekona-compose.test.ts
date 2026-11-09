@@ -43,8 +43,20 @@ describe('tekona participant composition', () => {
     ]);
     const story = parse(composed);
     const scenes = Object.keys(story.scenes);
-    expect(scenes.slice(scenes.indexOf('proposals'), scenes.indexOf('quarrel') + 1))
-      .toEqual(['proposals', 'suitor-01', 'suitor-12', 'quarrel']);
+    expect(scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('quarrel') + 1))
+      .toEqual(['miyako', 'suitor-01', 'suitor-12', 'quarrel']);
+    // Every suitor: its own sprite, costumes stand/kime/rejected, and poses kime then rejected.
+    expect(story.actors.Suitor12).toBe('s12-stand');
+    for (const costume of ['stand', 'kime', 'rejected'])
+      expect(story.assets[`s12-${costume}`]).toEqual({kind: 'costume', target: 'Suitor12', name: costume});
+    const poses = story.scenes['suitor-12'].actions.filter((action: Record<string, unknown>) => 'Suitor12.pose' in action)
+      .map((action: Record<string, any>) => action['Suitor12.pose'].steps[0]);
+    expect(poses).toEqual([
+      {pose: 'kime', skin: 's12-kime', sound: 'Goal Cheer'},
+      {pose: 'rejected', skin: 's12-rejected', sound: 'Crowd Gasp'},
+    ]);
+    const shows = story.scenes['suitor-12'].actions.filter((action: Record<string, unknown>) => 'Tekona.show' in action || 'Suitor12.show' in action);
+    expect(shows.map((action: Record<string, any>) => (action['Tekona.show'] ?? action['Suitor12.show']).x)).toEqual([-150, 140]);
     expect(story.assets.Pose12.source.url).toBe('https://teachablemachine.withgoogle.com/models/WORKSHOP-REHEARSAL-01/');
     const twelve = story.scenes['suitor-12'];
     expect(twelve.recognitionModel).toBe('Pose12');
@@ -70,8 +82,9 @@ describe('tekona block workshop slots', () => {
     const own = 'https://teachablemachine.withgoogle.com/models/SEAT-02/';
     const story = parse(composeSlots(source, 3, {modelUrl: sample, modelUrls: {'02': own}}));
     const scenes = Object.keys(story.scenes);
-    expect(scenes.slice(scenes.indexOf('proposals'), scenes.indexOf('quarrel') + 1))
-      .toEqual(['proposals', 'suitor-01', 'suitor-02', 'suitor-03', 'quarrel']);
+    expect(scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('quarrel') + 1))
+      .toEqual(['miyako', 'suitor-01', 'suitor-02', 'suitor-03', 'quarrel']);
+    expect(story.actors.Suitor03).toBe('s03-stand');
     expect(story.assets.Pose01.source.url).toBe(sample);
     expect(story.assets.Pose02.source.url).toBe(own);
     const slot = story.scenes['suitor-03'];

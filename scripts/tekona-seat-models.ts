@@ -19,9 +19,12 @@ import {fileURLToPath} from 'node:url';
 
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 
+import {costumeNames} from '../resources/tekona-workshop/assistant/compose-participants.js';
+
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const configPath = path.join(projectRoot, 'stories/tekona/workshop.config.json');
-export const seatLabels = ['stand', 'kime'] as const;
+/** Class names of every seat model; the same names as the suitor's costumes. */
+export const seatLabels: readonly string[] = costumeNames;
 
 interface Manifest {
   type?: string;
@@ -87,7 +90,7 @@ export function seatProblems(models: SeatModel[], slots: number): string[] {
     for (const label of seatLabels)
       if (!model.labels[label]) problems.push(`${model.file}: class "${label}" has no samples.`);
     for (const label of Object.keys(model.labels))
-      if (!(seatLabels as readonly string[]).includes(label))
+      if (!seatLabels.includes(label))
         problems.push(`${model.file}: unexpected class "${label}" (use only ${seatLabels.join(' / ')}).`);
   }
   return problems;
