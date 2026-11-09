@@ -1,0 +1,127 @@
+// SPDX-License-Identifier: MPL-2.0
+// 手児奈ワークショップ：掲示板の提出文から、参加者の場面を加えた台本YAMLを組み立てる。
+// ブラウザ（compose.html）とNode（検証スクリプト）の両方から使う。依存はない。
+
+const templateStart = '  # suitor-NN:';
+const templateEnd = '  #   （手児奈の心がゆれなかったときは';
+const fields = {
+  席番号: 'nn',
+  '作者の名前（紙芝居に出してよい名前）': 'author',
+  作者の名前: 'author',
+  求婚者の名前: 'name',
+  決めポーズの説明: 'hint',
+  求婚の言葉: 'proposal',
+  手児奈のことわりの言葉: 'refusal',
+  ことわられたときのひとこと: 'after',
+  '手児奈の心はゆれた？（ゆれた／ゆれなかった）': 'moved',
+  '手児奈の心はゆれた？': 'moved',
+  モデルのリンク: 'model',
+};
+const placeholders = {
+  求婚者の名前: 'name',
+  作者の名前: 'author',
+  決めポーズの説明: 'hint',
+  求婚の言葉: 'proposal',
+  手児奈のことわりの言葉: 'refusal',
+  ことわられたときのひとこと: 'after',
+};
+const modelPattern = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/[A-Za-z0-9_-]+\/$/u;
+
+/** Read one board submission written with the template in the participant handout. */
+export function parseSubmission(text) {
+  const result = {};
+  for (const line of String(text).split(/\r?\n/u)) {
+    const match = /^\s*([^：:]+?)\s*[：:]\s*(.*?)\s*$/u.exec(line);
+    if (!match) continue;
+    const key = fields[match[1]];
+    if (key && match[2] && !(key in result)) result[key] = match[2];
+  }
+  if (result.nn) result.nn = String(result.nn).replace(/[０-９]/gu, (d) => String(d.charCodeAt(0) - 0xff10)).padStart(2, '0');
+  if (result.model && !result.model.endsWith('/')) result.model += '/';
+  result.moved = result.moved ? !/なかった|いいえ|no|false/iu.test(result.moved) : true;
+  return result;
+}
+
+/** Check a parsed submission; returns a list of Japanese problems for the assistant. */
+export function checkSubmission(submission) {
+  const problems = [];
+  if (!/^\d{2}$/u.test(submission.nn ?? '')) problems.push('席番号が2けたの数字ではありません');
+  for (const [label, key] of Object.entries(placeholders))
+    if (!submission[key]) problems.push(`「${label}」がありません`);
+  for (const key of Object.values(placeholders)) {
+    const value = submission[key] ?? '';
+    if (/["\\]|[\u0000-\u001f]/u.test(value)) problems.push(`「${value.slice(0, 10)}…」に使えない記号があります`);
+    if (value.length > 40) problems.push(`「${value.slice(0, 10)}…」が40字をこえています`);
+  }
+  if (!modelPattern.test(submission.model ?? ''))
+    problems.push('モデルのリンクが https://teachablemachine.withgoogle.com/models/…/ の形ではありません');
+  return problems;
+}
+
+function quoted(value) {
+  return JSON.stringify(String(value));
+}
+
+function templateOf(source) {
+  const start = source.indexOf(templateStart);
+  const end = source.indexOf(templateEnd);
+  if (start < 0 || end <= start) throw new Error('台本に参加者の場面の雛形（★参加者）がありません。');
+  return source
+    .slice(start, end)
+    .trimEnd()
+    .split('\n')
+    .map((line) => line.replace(/^ {2}# ?/u, '  ').replace(/^ {2}#$/u, ''))
+    .join('\n');
+}
+
+/** The YAML for one participant: asset declarations and the scene, from the source template. */
+export function participantYaml(source, submission, {pose = 'kime'} = {}) {
+  const nn = submission.nn;
+  let scene = templateOf(source)
+    .replaceAll('suitor-NN', `suitor-${nn}`)
+    .replaceAll('PoseNN', `Pose${nn}`)
+    .replaceAll('sNN-stand', `s${nn}-stand`)
+    .replaceAll('sNN-pose', `s${nn}-pose`)
+    .replace('pose: kime', `pose: ${pose}`);
+  // Fill every placeholder of a text, then quote the whole text once, so participant words
+  // never change the YAML structure.
+  scene = scene
+    .split('\n')
+    .map((line) =>
+      line.replace(/\{text: (.*〔.*?), (style|seconds): /u, (_, text, next) => {
+        const filled = text.replace(/〔([^〕]+)〕/gu, (whole, label) =>
+          placeholders[label] ? submission[placeholders[label]] : whole);
+        return `{text: ${quoted(filled)}, ${next}: `;
+      }))
+    .join('\n');
+  if (!submission.moved) scene = scene.split('\n').filter((line) => !line.includes('Tekona.think')).join('\n');
+  if (/〔|NN/u.test(scene)) throw new Error(`席番号${nn}の場面に置き換えていない部分があります。`);
+  const assets = [
+    `  s${nn}-stand: costume:Suitor`,
+    `  s${nn}-pose: costume:Suitor`,
+    `  Pose${nn}:`,
+    '    kind: recognitionModel',
+    '    delivery: remote',
+    '    loading: lazy',
+    '    source:',
+    `      url: ${submission.model}`,
+  ].join('\n');
+  return {assets, scene};
+}
+
+/** Insert every participant, in seat order, into the half-finished source. */
+export function composeParticipants(source, submissions, options = {}) {
+  const sorted = [...submissions].sort((left, right) => left.nn.localeCompare(right.nn));
+  const seats = new Set();
+  for (const submission of sorted) {
+    if (seats.has(submission.nn)) throw new Error(`席番号${submission.nn}が重複しています。`);
+    seats.add(submission.nn);
+  }
+  if (source.split('\n  quarrel:\n').length !== 2) throw new Error('台本に quarrel の場面が1つだけある必要があります。');
+  if (source.split('\nactors:\n').length !== 2) throw new Error('台本に actors が1つだけある必要があります。');
+  const parts = sorted.map((submission) => participantYaml(source, submission, options));
+  if (!parts.length) return source;
+  return source
+    .replace('\nactors:\n', `\n${parts.map(({assets}) => assets).join('\n')}\nactors:\n`)
+    .replace('\n  quarrel:\n', `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+}

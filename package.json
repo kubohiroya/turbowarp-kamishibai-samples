@@ -44,7 +44,10 @@
     "typecheck": "tsc --noEmit",
     "test:block-diagnostics": "node scripts/verify-published-block-diagnostics.ts",
     "update:audio-playback": "node scripts/build-audio-playback.ts --write-lock",
-    "update:three-visits": "node scripts/build-three-visits.ts --write-lock"
+    "update:three-visits": "node scripts/build-three-visits.ts --write-lock",
+    "update:tekona": "node scripts/build-tekona.ts --write-lock",
+    "verify:tekona": "node scripts/build-tekona.ts",
+    "verify:tekona-workshop-editor": "node scripts/verify-tekona-workshop-editor.ts"
   },
   "engines": {
     "node": ">=24"

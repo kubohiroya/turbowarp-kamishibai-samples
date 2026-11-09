@@ -9,9 +9,15 @@ Copyright © 2026 Hiroya Kubo.
 - `assets/`配下の立ち絵・ポーズ絵・背景・ナレーション用SVG（すべて新規作成した仮素材）
 - 本ディレクトリの説明
 
-外部の画像・音声素材は含みません。将来SB3とWeb版を生成した場合、埋め込まれるruntimeはそれぞれのpackageのライセンス表示に従います。
+音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある4ファイル（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。
 
-ワークショップ当日に参加者とつくる4人目の求婚者の絵・セリフ、撮影したポーズの写真、Teachable Machineのプロジェクトとモデルは、
+`tekona-workshop-4.0.sb3`、`tekona-4.0.sb3`、`tekona-blocks-4.0.sb3`は、上記の素材に、rootの`app-release.json`が固定する
+TurboWarp-Kamishibaiの公開Release（4.0.0-rc.79）のruntime base（MPL-2.0）を組み合わせた結合物です。
+統合されたJavaScriptの冒頭には、各機能拡張ソースの名称、著作権表示、ライセンス表示を保持しています。
+
+`../../resources/tekona-workshop/assistant/`の補助ページと組み立て処理もMPL-2.0です。
+
+ワークショップ当日に参加者がつくる求婚者の絵・セリフ、撮影したポーズの写真、Teachable Machineのプロジェクトとモデルは、
 このライセンスの対象外です。扱いは[`resources/tekona-workshop/`](../../resources/tekona-workshop/README.md)の資料に従ってください。
 
 ライセンス全文はリポジトリルートの[`LICENSE`](../../LICENSE)を参照してください。

@@ -4,7 +4,9 @@
 # 観客はカメラの前で求婚者になりきってポーズをキメます。ポーズ認識AIがポーズを認めると、
 # 求婚者は求婚の言葉を述べ、手児奈に断られます。これを求婚者の人数だけ繰り返します。
 #
-# ワークショップでの書き換え箇所（行頭の # を外す・値を変える）は「★」で示します。
+# これはワークショップ用の「半完成品」です。用意済みの求婚者3人（proposals）のあとに、
+# 参加者がつくった求婚者の場面を席番号ごとに1つずつ加えて完成させます。
+# 追加する場所と雛形は「★参加者」の箇所に示します。
 kamishibai: "4.0"
 controls:
   keymaps:
@@ -34,20 +36,34 @@ assets:
   kokufu-pose: costume:Suitor
   miyako-stand: costume:Suitor
   miyako-pose: costume:Suitor
-  # ★ワークショップで作る4人目の求婚者。TurboWarpでSuitorスプライトの同名コスチュームを
-  #   当日つくった立ち絵・ポーズ絵に差し替えます（名前は変えません）。
+  # 参加者の絵が間に合わないときの代わりの絵（「？」の人物）
   newcomer-stand: costume:Suitor
   newcomer-pose: costume:Suitor
+  # ★参加者：席番号NNごとに、参加者の立ち絵とポーズ絵をSuitorスプライトへ追加し、ここに2行加えます。
+  # sNN-stand: costume:Suitor
+  # sNN-pose: costume:Suitor
   # ナレーション用の透明な下地
   TextPlaceholder: costume:Narration
-  # ★ポーズ認識モデル。Teachable Machineで「モデルをアップロード」して得た共有リンクに置き換えます。
-  # クラス名（ラベル）は stand / heart / offer / wide / new です（resources/tekona-workshop/pose-dataset-plan.md）。
+  # 音
+  Medieval1: sound
+  Goal Cheer: sound
+  Crowd Gasp: sound
+  Xylo2: sound
+  # 用意済みの求婚者3人のポーズ認識モデル。運営側で事前に撮影・学習した共有リンクに置き換えます。
+  # クラス名（ラベル）は stand / heart / offer / wide です（resources/tekona-workshop/pose-dataset-plan.md）。
   SuitorPoses:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
       url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-YOUR-MODEL/
+  # ★参加者：席番号NNごとに、参加者が自分のPCで作ったモデル（クラス stand / kime）を加えます。
+  # PoseNN:
+  #   kind: recognitionModel
+  #   delivery: remote
+  #   loading: lazy
+  #   source:
+  #     url: 参加者が掲示板に提出した共有リンク
 actors:
   Tekona: tekona-stand
   Suitor: sato-stand
@@ -87,6 +103,7 @@ scenes:
   well:
     - transition: {effect: fadeOut, seconds: 1}
     - stage: MamaWell
+    - bgm: Medieval1
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
@@ -123,9 +140,9 @@ scenes:
       - stage: MamaWell
       - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      # 用意済みの求婚者の一覧。1行が1人です。列の意味は README.md を参照してください。
       - forEach:
           as: suitor
-          # 求婚者の一覧。1行が1人です。列の意味は README.md を参照してください。
           items:
             - name: 里の若者
               stand: sato-stand
@@ -151,15 +168,6 @@ scenes:
               proposal: 都の屋敷も、絹の着物も、ぜんぶあなたのものです！
               moved: true
               refusal: すてきなお話……。でも、わたしは真間をはなれません。
-            # ★ワークショップで考えた4人目の求婚者。次の8行の行頭の「# 」を外し、値を書き換えます。
-            # - name: 4人目の求婚者
-            #   stand: newcomer-stand
-            #   poseSkin: newcomer-pose
-            #   pose: new
-            #   poseHint: みんなで考えた決めポーズ！
-            #   proposal: みんなで考えた求婚の言葉
-            #   moved: true
-            #   refusal: みんなで考えた手児奈のことわりの言葉
           do:
             - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
             - Suitor.show: {skin: {ref: suitor.stand}, x: 140, y: -75, scale: 60}
@@ -175,6 +183,7 @@ scenes:
                 steps:
                   - pose: {ref: suitor.pose}
                     skin: {ref: suitor.poseSkin}
+                    sound: Goal Cheer
             - Narration.hide: {}
             - Suitor.say: {text: {ref: suitor.proposal}, seconds: 3.5}
             - if:
@@ -185,9 +194,40 @@ scenes:
             - Tekona.say: {text: {ref: suitor.refusal}, seconds: 3.5}
             - Tekona.setSkin: tekona-stand
             - Suitor.setSkin: {ref: suitor.stand}
+            - sound: Crowd Gasp
             - Suitor.say: {text: とほほ……。, seconds: 1.5}
             - Suitor.hide: {}
       - Narration.hide: {}
+
+  # ★参加者：席番号NNの求婚者の場面。この雛形を複製して quarrel の前に席番号順に加え、
+  #   〔 〕の部分を掲示板の提出内容に置き換えます。ポーズのクラス名は全員 kime です。
+  # suitor-NN:
+  #   recognitionModel: PoseNN
+  #   actions:
+  #     - stage: MamaWell
+  #     - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+  #     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+  #     - Suitor.show: {skin: sNN-stand, x: 140, y: -75, scale: 65}
+  #     - Narration.setText: {text: 〔作者の名前〕さんの求婚者「〔求婚者の名前〕」, style: narration}
+  #     - wait: 2
+  #     - Narration.setText: {text: カメラの前で、ポーズをキメよう！, style: narration}
+  #     - Suitor.say: {text: 〔決めポーズの説明〕, seconds: 2.5}
+  #     - Suitor.pose:
+  #         steps:
+  #           - pose: kime
+  #             skin: sNN-pose
+  #             sound: Goal Cheer
+  #     - Narration.hide: {}
+  #     - Suitor.say: {text: 〔求婚の言葉〕, seconds: 3.5}
+  #     - Tekona.think: {text: （……ちょっとだけ、心がゆれました）, seconds: 2.5}
+  #     - Tekona.setSkin: tekona-refuse
+  #     - Tekona.say: {text: 〔手児奈のことわりの言葉〕, seconds: 3.5}
+  #     - Tekona.setSkin: tekona-stand
+  #     - Suitor.setSkin: sNN-stand
+  #     - sound: Crowd Gasp
+  #     - Suitor.say: {text: 〔ことわられたときのひとこと〕, seconds: 1.5}
+  #     - Suitor.hide: {}
+  #   （手児奈の心がゆれなかったときは、Tekona.think の1行を消します）
 
   quarrel:
     - stage: MamaWell
@@ -231,6 +271,7 @@ scenes:
   tsugihashi:
     - transition: {effect: fadeOut, seconds: 1}
     - stage: Tsugihashi
+    - bgm: Xylo2
     - Tekona.show: {skin: tekona-resolve, x: -150, y: -75, scale: 60}
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
