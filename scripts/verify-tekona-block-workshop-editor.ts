@@ -141,8 +141,8 @@ async function main() {
   const pictures = await participantPictures(outputDirectory, images);
   const values: Record<string, string> = {
     作者の名前: submission.author!, 求婚者の名前: submission.name!, 決めポーズの説明: submission.hint!,
-    ことわられたポーズの説明: submission.rejectedHint!,
-    求婚の言葉: submission.proposal!, 手児奈のことわりの言葉: submission.refusal!, ことわられたときのひとこと: submission.after!,
+    落胆のポーズの説明: submission.rejectedHint!,
+    求婚の言葉: submission.proposal!, 手児奈の断りの言葉: submission.refusal!, 断られたときの一言: submission.after!,
   };
   const project = JSON.parse(strFromU8(unzipSync(await readFile(input))['project.json']!)) as ScratchProject;
   const browser = await chromium.launch({

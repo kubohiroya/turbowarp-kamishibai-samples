@@ -49,9 +49,9 @@
 | --- | --- |
 | 構図 | 求婚者は上手（画面の右、`x: 140`）に立ち、下手（画面の左、`x: -150`）の手児奈に求婚する。絵の人物は下手を向く |
 | スプライト | 求婚者1人につき1つ（用意済み：`Sato`・`Kokufu`・`Miyako`、参加者：`Suitor01`〜） |
-| 3つの絵 | コスチューム`stand`（立ち絵）・`kime`（求婚の決めポーズ）・`rejected`（ことわられたポーズ）。参加者は`stand.png`・`kime.png`・`rejected.png`で提出する |
+| 3つの絵 | コスチューム`stand`（立ち絵）・`kime`（求婚の決めポーズ）・`rejected`（断られたポーズ）。参加者は`stand.png`・`kime.png`・`rejected.png`で提出する |
 | 3つのクラス | 求婚者ごとのポーズ認識モデル（Teachable Machine）に、クラス`stand`・`kime`・`rejected` |
-| 流れ | 登場（`stand`）→ `kime`のポーズ認識 → 求婚 → 手児奈がことわる → `rejected`のポーズ認識 → ひとこと |
+| 流れ | 登場（`stand`）→ `kime`のポーズ認識 → 求婚 → 手児奈が断る → `rejected`のポーズ認識 → 一言 |
 
 台本の素材IDは`sato-kime`や`s07-rejected`のように求婚者ごとに分け、名前付き形式（`{kind: costume, target: Sato, name: kime}`）で
 スプライトのコスチューム名`kime`を指します。モデルにないクラスを台本の`pose`に書くと、実行時に

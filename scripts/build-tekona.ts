@@ -69,14 +69,14 @@ export function slotSeats(count: number): string[] {
 
 /** A board submission in the handout format, used to check that the template still composes. */
 export const sampleSubmission = `席番号：01
-作者の名前（紙芝居に出してよい名前）：リハーサル
+作者の名前（紙芝居に表示してよい名前）：リハーサル
 求婚者の名前：入江の漁師
 決めポーズの説明：網を投げるように、両うでを斜め上へ！
-ことわられたポーズの説明：網を胸にかかえて、うつむく……。
+落胆のポーズの説明：網を胸にかかえて、うつむく……。
 求婚の言葉：この入江でいちばんの魚を、毎朝とどけよう！
-手児奈のことわりの言葉：お魚はうれしいけれど、心はさしあげられません。
-ことわられたときのひとこと：……魚は逃げても、またとれるさ。
-手児奈の心はゆれた？（ゆれた／ゆれなかった）：ゆれた
+手児奈の断りの言葉：お魚はうれしいけれど、心はさしあげられません。
+断られたときの一言：……魚は逃げても、またとれるさ。
+手児奈の心は揺れたか（揺れた／揺れなかった）：揺れた
 モデルのリンク：https://teachablemachine.withgoogle.com/models/WORKSHOP-REHEARSAL-01/`;
 
 async function record(root: string, filename: string) {

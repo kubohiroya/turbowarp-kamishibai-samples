@@ -3,29 +3,29 @@
 // ブラウザ（compose.html）とNode（検証スクリプト）の両方から使う。依存はない。
 
 const templateStart = '  # suitor-NN:';
-const templateEnd = '  #   （手児奈の心がゆれなかったときは';
+const templateEnd = '  #   （手児奈の心が揺れなかったときは';
 const fields = {
   席番号: 'nn',
-  '作者の名前（紙芝居に出してよい名前）': 'author',
+  '作者の名前（紙芝居に表示してよい名前）': 'author',
   作者の名前: 'author',
   求婚者の名前: 'name',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
-  '手児奈の心はゆれた？（ゆれた／ゆれなかった）': 'moved',
-  '手児奈の心はゆれた？': 'moved',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
+  '手児奈の心は揺れたか（揺れた／揺れなかった）': 'moved',
+  '手児奈の心は揺れたか': 'moved',
   モデルのリンク: 'model',
 };
 const placeholders = {
   求婚者の名前: 'name',
   作者の名前: 'author',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
 };
 /** The costume names of every suitor sprite and the class names of every suitor's pose model. */
 export const costumeNames = ['stand', 'kime', 'rejected'];

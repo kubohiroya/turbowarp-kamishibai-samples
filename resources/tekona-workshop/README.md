@@ -1,7 +1,7 @@
 # 手児奈ワークショップ（40分）の素案
 
 国府台地域（市川市真間）に伝わる「真間の手児奈」を、AIを使った参加型紙芝居として再話する40分ワークショップの教材素案です。
-参加者はUSBカメラの前で手児奈に求婚する男たちになりきってポーズをキメ、AI紙芝居の手児奈に断られます。
+参加者はUSBカメラの前で手児奈に求婚する男たちになりきってポーズを決め、AI紙芝居の手児奈に断られます。
 メインは、参加者1人1人が時代を調べて求婚者（キャラクター・決めポーズ・セリフ）をデザインし、
 Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習させて、全員の求婚者を1つの作品へ加える部分です。
 
@@ -21,11 +21,11 @@ Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習
 | --- | --- | --- |
 | [`tekona-workshop.md`](tekona-workshop.md) | 参加者 | 1人1台での当日の流れ。求婚者カード、Copilotへの依頼文、Teachable Machineの手順、掲示板への提出、本来の言い伝えとまとめ |
 | [`tekona-workshop-staff.md`](tekona-workshop-staff.md) | 進行役・アシスタント | 前提と作品の構成、40分のタイムテーブル、役割と人数、事前準備、掲示板の運用、組み込みの手順、Copilotの枚数への対策、トラブル対応、終了後の処理 |
-| [`pose-dataset-plan.md`](pose-dataset-plan.md) | スタッフ | 事前に用意するポーズ学習用データ（`stand`／`heart`／`offer`／`wide`）の撮影計画と取り扱い |
+| [`pose-dataset-plan.md`](pose-dataset-plan.md) | スタッフ | 事前に用意するポーズ学習用データ（各求婚者の`stand`／`kime`／`rejected`）の撮影計画と取り扱い |
 | [`research-worksheet.md`](research-worksheet.md) | 参加者 | 基本設定・歴史考証・手児奈の姿・求婚者の人物像を調べてデザインするワークシート（事前学習・90分版用） |
 | [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、求婚者の候補8案、仮素材への反映 |
 | `copilot/style-reference.png` | 参加者 | Copilotに添付する絵柄の見本（用意済みの求婚者の立ち絵・ポーズ絵） |
-| `copilot/kime-draft.png` | 参加者 | 決めポーズの棒人間をペイントでかく白紙 |
+| `copilot/pose-draft.png` | 参加者 | `stand`・`kime`・`rejected`の棒人間を左から並べて描く白紙 |
 | [`assistant/compose.html`](assistant/compose.html) | アシスタント | 掲示板の提出文から、参加者の場面を加えた台本を組み立てるページ（ファイルから直接開ける。通信しない） |
 | `assistant/compose-participants.js`、`assistant/compose.template.html` | 開発 | 上のページの組み立て処理と雛形。`pnpm update:tekona`がページを生成する |
 
