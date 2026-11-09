@@ -3,29 +3,30 @@
 // ブラウザ（compose.html）とNode（検証スクリプト）の両方から使う。依存はない。
 
 const templateStart = '  # suitor-NN:';
-const templateEnd = '  #   （手児奈の心がゆれなかったときは';
+const templateEnd = '  #   （手児奈の心が揺れなかったときは';
 const fields = {
   席番号: 'nn',
-  '作者の名前（紙芝居に出してよい名前）': 'author',
+  '作者の名前（紙芝居に表示してよい名前）': 'author',
   作者の名前: 'author',
   求婚者の名前: 'name',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
-  '手児奈の心はゆれた？（ゆれた／ゆれなかった）': 'moved',
-  '手児奈の心はゆれた？': 'moved',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
+  '手児奈の心は揺れたか（揺れた／揺れなかった）': 'moved',
+  '手児奈の心は揺れたか': 'moved',
+  'モデルのリンク（外部YAML版のときだけ）': 'model',
   モデルのリンク: 'model',
 };
 const placeholders = {
   求婚者の名前: 'name',
   作者の名前: 'author',
   決めポーズの説明: 'hint',
-  ことわられたポーズの説明: 'rejectedHint',
+  落胆のポーズの説明: 'rejectedHint',
   求婚の言葉: 'proposal',
-  手児奈のことわりの言葉: 'refusal',
-  ことわられたときのひとこと: 'after',
+  手児奈の断りの言葉: 'refusal',
+  断られたときの一言: 'after',
 };
 /** The costume names of every suitor sprite and the class names of every suitor's pose model. */
 export const costumeNames = ['stand', 'kime', 'rejected'];
@@ -46,8 +47,11 @@ export function parseSubmission(text) {
   return result;
 }
 
-/** Check a parsed submission; returns a list of Japanese problems for the assistant. */
-export function checkSubmission(submission) {
+/**
+ * Check a parsed submission; returns a list of Japanese problems for the assistant.
+ * The block-script version pre-registers every seat's model, so it passes `requireModel: false`.
+ */
+export function checkSubmission(submission, {requireModel = true} = {}) {
   const problems = [];
   if (!/^\d{2}$/u.test(submission.nn ?? '')) problems.push('席番号が2けたの数字ではありません');
   for (const [label, key] of Object.entries(placeholders))
@@ -57,7 +61,7 @@ export function checkSubmission(submission) {
     if (/["\\]|[\u0000-\u001f]/u.test(value)) problems.push(`「${value.slice(0, 10)}…」に使えない記号があります`);
     if (value.length > 40) problems.push(`「${value.slice(0, 10)}…」が40字をこえています`);
   }
-  if (!modelPattern.test(submission.model ?? ''))
+  if ((requireModel || submission.model) && !modelPattern.test(submission.model ?? ''))
     problems.push('モデルのリンクが https://teachablemachine.withgoogle.com/models/…/ の形ではありません');
   return problems;
 }
@@ -156,6 +160,39 @@ export function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'k
     };
   });
   return insert(source, slots);
+}
+
+/** Who speaks or shows each kind of text in a participant scene, as the assistant sees it. */
+function blockLabel(actor, action, nn) {
+  const who = actor === 'Narration' ? 'ナレーション' : actor === 'Tekona' ? '手児奈' : `求婚者 Suitor${nn}`;
+  const what = {setText: 'の文', say: 'が言う', think: 'が考える'}[action] ?? `（${action}）`;
+  return `${who}${what}`;
+}
+
+/**
+ * Block-script workshop: the edits for one submission in its pre-registered slot, in the order
+ * of the scene. Each text edit shows the slot's current text and the full replacement, so an
+ * assistant replaces whole fields instead of editing inside them.
+ */
+export function blockEdits(source, submission) {
+  const nn = submission.nn;
+  const edits = [];
+  for (const line of templateOf(source).split('\n')) {
+    const think = /- Tekona\.think: \{text: (.*?), seconds: /u.exec(line);
+    if (think && !submission.moved) edits.push({kind: 'remove', label: '手児奈が考える', current: think[1]});
+    const match = /- (\w+?)(?:NN)?\.(\w+): \{text: (.*〔.*?), (?:style|seconds): /u.exec(line);
+    if (!match) continue;
+    const [, actor, action, text] = match;
+    edits.push({
+      kind: 'text',
+      label: blockLabel(actor, action, nn),
+      current: text.replace(/〔([^〕]+)〕/gu, '（$1）'),
+      replacement: text.replace(/〔([^〕]+)〕/gu, (whole, label) =>
+        placeholders[label] ? submission[placeholders[label]] ?? whole : whole),
+    });
+  }
+  edits.push({kind: 'enable', label: `場面 suitor-${nn} のいちばん外側の「もし」`, current: 'false', replacement: 'true'});
+  return edits;
 }
 
 /** Insert every participant, in seat order, into the half-finished source. */

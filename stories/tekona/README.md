@@ -12,11 +12,12 @@
 
 - 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.0-rc.79**の`validate-dsl4`で`valid`です。
   見本の提出から参加者の場面を加えた台本も、生成のたびに`valid`であることを確かめます。
-- `pnpm update:tekona`で、同じrc.79から次の3つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
-- TurboWarp Plus Editorでのアシスタントの組み込み（作業用SB3に参加者の絵2枚をアップロード → 補助ページで組み立てた台本を
-  メニューから読み込む → 再生）を、`pnpm verify:tekona-workshop-editor`で自動リハーサルしました。参加者の場面は
-  用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
+- `pnpm update:tekona`で、同じrc.79から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
+- ワークショップの組み込みは**ブロック台本版**（基本）と**外部YAML版**（予備）の2通りで、どちらもTurboWarp Plus Editorでの
+  アシスタントの作業を自動リハーサルしました（`pnpm verify:tekona-block-workshop-editor`、`pnpm verify:tekona-workshop-editor`）。
+  参加者の場面は用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
   （モデルは浦島太郎の既存モデルで代用し、ポーズはスキップ）。
+- **未確認**: ブロック台本版の席ごとのモデルを、開き直した`seat-NN.tm`から同じリンクのまま更新できること（実際のアップロードでの確認が必要）。
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
@@ -29,10 +30,10 @@
 | `tekona.k4.yml` | 台本の正本（DSL 4.0）。参加者の場面の雛形を「★参加者」の箇所に示しています |
 | `project-assets-dsl4.yml` | SB3へ追加するスプライト（Tekona／Suitor／Narration）・背景・コスチューム・音の宣言 |
 | `assets/*.svg` | 立ち絵・ポーズ絵・背景の仮素材（すべて新規作成のSVG）。衣装・井戸・継橋は[考証メモ](../../resources/tekona-workshop/research-notes.md)の「5. 仮素材への反映」に合わせています |
-| `tekona-workshop-4.0.sb3` | **作業用SB3**。スプライト・背景・音だけを持ち、台本はメニューの「開く」で読み込みます。ワークショップではこれに参加者の絵を加えます |
+| `tekona-workshop-blocks-4.0.sb3` | **作業用ブロック台本SB3（基本）**。参加者の枠（場面・スプライトとコスチューム・モデル）を席番号ぶん登録済みで、差し替えて使います |
+| `tekona-workshop-4.0.sb3` | 作業用SB3（外部YAML版・予備）。スプライト・背景・音だけを持ち、台本はメニューの「開く」で読み込みます |
 | `tekona-4.0.sb3` | 半完成品の台本を埋め込んだSB3（そのまま再生できる版） |
 | `tekona-blocks-4.0.sb3` | 半完成品の台本をブロック台本にしたSB3（既存の場面を読む・編集する用） |
-| `tekona-workshop-blocks-4.0.sb3` | **次の版（試作）の作業用ブロック台本SB3**。参加者の枠（場面・コスチューム・モデル）を席番号ぶん登録済みで、差し替えて使います |
 | `workshop.config.json` | ブロック台本版の枠の数、見本モデルのリンク、席ごとのモデルのリンク、仮の絵 |
 | `dsl4-artifacts.lock.json` | 生成元のApp版・commit、入力と出力のサイズ・SHA-256 |
 | `LICENSES.md` | ライセンス |
@@ -49,9 +50,9 @@
 | --- | --- |
 | 構図 | 求婚者は上手（画面の右、`x: 140`）に立ち、下手（画面の左、`x: -150`）の手児奈に求婚する。絵の人物は下手を向く |
 | スプライト | 求婚者1人につき1つ（用意済み：`Sato`・`Kokufu`・`Miyako`、参加者：`Suitor01`〜） |
-| 3つの絵 | コスチューム`stand`（立ち絵）・`kime`（求婚の決めポーズ）・`rejected`（ことわられたポーズ）。参加者は`stand.png`・`kime.png`・`rejected.png`で提出する |
+| 3つの絵 | コスチューム`stand`（立ち絵）・`kime`（求婚の決めポーズ）・`rejected`（断られたポーズ）。参加者は`stand.png`・`kime.png`・`rejected.png`で提出する |
 | 3つのクラス | 求婚者ごとのポーズ認識モデル（Teachable Machine）に、クラス`stand`・`kime`・`rejected` |
-| 流れ | 登場（`stand`）→ `kime`のポーズ認識 → 求婚 → 手児奈がことわる → `rejected`のポーズ認識 → ひとこと |
+| 流れ | 登場（`stand`）→ `kime`のポーズ認識 → 求婚 → 手児奈が断る → `rejected`のポーズ認識 → 一言 |
 
 台本の素材IDは`sato-kime`や`s07-rejected`のように求婚者ごとに分け、名前付き形式（`{kind: costume, target: Sato, name: kime}`）で
 スプライトのコスチューム名`kime`を指します。モデルにないクラスを台本の`pose`に書くと、実行時に
@@ -78,42 +79,47 @@
 
 ## 参加者の場面を加える
 
-この版は外部YAML方式です。1人分で行うことは次の3つです（詳細は[スタッフ向け資料の5章](../../resources/tekona-workshop/tekona-workshop-staff.md)）。
+詳細な手順は[スタッフ向け資料の5章](../../resources/tekona-workshop/tekona-workshop-staff.md)にあります。
 
-1. 作業用SB3の席のスプライト`SuitorNN`で、仮のコスチューム`stand`・`kime`・`rejected`を削除し、参加者の`stand.png`・`kime.png`・`rejected.png`をアップロードする（コスチューム名はファイル名のまま）。
-2. 補助ページ[`compose.html`](../../resources/tekona-workshop/assistant/compose.html)に掲示板の提出文を貼り、
-   参加者の場面（`suitor-NN`、スプライト`SuitorNN`、モデル`PoseNN`）を加えた`tekona.k4.yml`を作る。場面は席番号順に`quarrel`の前へ入る。
+### ブロック台本版（基本）
+
+`tekona-workshop-blocks-4.0.sb3`は、生成時に席番号01〜20（`workshop.config.json`の`slots`）の枠を登録しています。
+
+- 場面`suitor-NN`：用意済みの3人と`quarrel`の間に席番号順。中身は`if: {condition: false}`で囲まれ、組み込むまで何も再生しない。
+- スプライト`SuitorNN`と仮のコスチューム`stand`・`kime`・`rejected`（「？」の人物）。
+- モデル`PoseNN`：`slotModelUrls`の席ごとのリンク、なければ`sampleModelUrl`。
+
+アシスタントの1人分の作業は、絵3枚の差し替え、枠の文の書き換え（補助ページ[`compose.html`](../../resources/tekona-workshop/assistant/compose.html)が
+提出文から「いまの文 → 入れる文」の一覧を作る）、条件を`true`にすること、台本への反映です。
+`pnpm verify:tekona-block-workshop-editor`は、この一覧（`blockEdits`）どおりに枠01を書き換え（手児奈の心が揺れなかった場合のブロック削除を含む）、
+反映・再生・保存・書き戻しまでを公開Plus Editorで確かめます。
+
+**席ごとのモデル**：運営が席ごとのモデルを事前にアップロードし、`pnpm tekona:seat-models collect 席ファイルのフォルダ --write`で
+リンクを`slotModelUrls`へ入れてから`pnpm update:tekona`で作り直します。当日は参加者が席の`seat-NN.tm`で学習し直し、
+同じリンクのまま「クラウドモデルを更新」します（手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。
+
+### 外部YAML版（予備）
+
+1. 作業用SB3`tekona-workshop-4.0.sb3`の席のスプライト`SuitorNN`で、仮のコスチュームを参加者の`stand.png`・`kime.png`・`rejected.png`に差し替える。
+2. 補助ページを「外部YAML版」にして掲示板の提出文を貼り、参加者の場面（`suitor-NN`、スプライト`SuitorNN`、モデル`PoseNN`）を加えた
+   `tekona.k4.yml`を作る。場面は席番号順に`quarrel`の前へ入る。
 3. 作業用SB3でメニューの「開く」から`tekona.k4.yml`を読み込んで再生する。
 
 補助ページは`resources/tekona-workshop/assistant/compose-participants.js`を埋め込んで`pnpm update:tekona`が生成します。
 同じ処理を`test/tekona-compose.test.ts`で検査しています。
 
-### 次の版（ブロック台本）の課題
+### ブロック台本版の制約
 
-次の版では、参加者の場面をブロック台本で加える予定です。公開rc.79で次の方式を試しましたが、2点のため採用していません。
+公開rc.79のTurboWarp Plus Editorでは、ブロック台本に次の変更を加えると台本への反映ができません。このため枠を事前に登録しています。
 
-- 試した方式：雛形の場面（モデル宣言＋`suitor-NN`）を、台本のハットにつながっていないブロックの塊としてワークスペースに置き、
-  アシスタントが複製・書き換えて`quarrel`の前につなぐ。つながっていない塊は台本として読まれないので、半完成品の再生には影響しない。
-- 課題1：素材の宣言ブロック（参加者のコスチュームでもモデルでも）を加えると、文書ハットのアイコンからの反映
+- 素材の宣言ブロック（参加者のコスチュームでもモデルでも）を加えると、文書ハットのアイコンからの反映
   （「表示されている形式に変換して検証・保存」）が`Asset bundle must contain every StoryDocument asset`で無効になる。
   反映しないまま再生すると`K4-SOURCE-VIEW-UNAPPLIED`で止まる。
-- 課題2：新しい素材を使わない場面だけなら反映できたが、`quarrel`の前につないだ場面が、反映後の台本では最後（`afterword`の後）に置かれた。
-
-どちらもApp側（Plus Editorでの素材一覧の更新と、場面の並びの書き戻し）の対応が必要です。
-
-そこで次の版は、**素材と場面の枠をあらかじめ登録しておき、差し替える**方式で進めます。`tekona-workshop-blocks-4.0.sb3`が試作です。
-
-- 生成時に、席番号01〜20の場面`suitor-NN`（中身は`if: {condition: false}`で囲む）、スプライト`SuitorNN`と仮のコスチューム`stand`・`kime`・`rejected`、
-  モデル`PoseNN`を登録する。場面は最初から用意済みの3人と`quarrel`の間に並ぶので、順番の問題は起きない。
-- `pnpm verify:tekona-block-workshop-editor`で、Plus Editor上での差し替え（絵のアップロード → 仮の絵の削除と名前の付け替え、
-  セリフの書き換え、条件をtrue、文書への反映）から再生・保存・書き戻しまでを確かめた。組み込んだ枠01は都の貴族のあとに再生され、
-  未記入の枠は何も再生しない。
-- **モデルのリンクは席ごとに事前登録する**：rc.79ではモデル`PoseNN`のリンクを書き換えると、反映が
-  `Remote asset source does not match: PoseNN`で無効になる。そこで運営が席ごとのモデルを事前にアップロードし、
-  `pnpm tekona:seat-models collect 席ファイルのフォルダ --write`でリンクを`workshop.config.json`の`slotModelUrls`へ入れてから
-  `pnpm update:tekona`で作り直す。当日は参加者が席の`seat-NN.tm`で学習し直し、同じリンクのまま更新する
-  （手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。
+- 新しい場面を`quarrel`の前につなぐと、反映後の台本では最後（`afterword`の後）に置かれる。
+- モデル`PoseNN`のリンクを書き換えると、反映が`Remote asset source does not match: PoseNN`で無効になる。
   `TEKONA_REPLACE_MODEL_URL=1`を付けてリハーサルすると、App側でリンクの書き換えが直ったかを確かめられる。
+
+どれもApp側（Plus Editorでの素材一覧の更新、場面の並びの書き戻し、リモート素材の書き換え）の対応で解消できる見込みです。
 
 ## 生成と検証
 

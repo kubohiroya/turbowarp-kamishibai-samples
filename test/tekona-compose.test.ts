@@ -25,7 +25,21 @@ describe('tekona participant composition', () => {
     expect(parsed).toMatchObject({nn: '01', name: '入江の漁師', moved: true});
     expect(checkSubmission(parsed)).toEqual([]);
     expect(submission({'席番号：01': '席番号：７'}).nn).toBe('07');
-    expect(submission({'：ゆれた': '：ゆれなかった'}).moved).toBe(false);
+    expect(submission({'：揺れた': '：揺れなかった'}).moved).toBe(false);
+  });
+
+  it('reads every field of the board template in the participant handout', async () => {
+    const handout = await readFile(path.join(import.meta.dirname, '../resources/tekona-workshop/tekona-workshop.md'), 'utf8');
+    const template = /```text\n(席番号：NN\n[\s\S]*?)```/u.exec(handout)?.[1];
+    expect(template).toBeDefined();
+    const filled = template!.split('\n').filter(Boolean).map((line, index) =>
+      line.startsWith('席番号') ? '席番号：07'
+        : line.startsWith('モデルのリンク') ? line.replace(/：.*$/u, '：https://teachablemachine.withgoogle.com/models/abc/')
+          : line.startsWith('手児奈の心') ? `${line}揺れなかった` : `${line}値${index}`);
+    const parsed = parseSubmission(filled.join('\n'));
+    expect(checkSubmission(parsed)).toEqual([]);
+    expect(parsed).toMatchObject({nn: '07', moved: false, model: 'https://teachablemachine.withgoogle.com/models/abc/'});
+    expect(parsed.rejectedHint).toBeDefined();
   });
 
   it('reports missing fields and invalid model links', () => {
@@ -38,7 +52,7 @@ describe('tekona participant composition', () => {
   it('inserts participants in seat order before quarrel, with quoted texts', async () => {
     const source = await readFile(sourcePath, 'utf8');
     const composed = composeParticipants(source, [
-      submission({'席番号：01': '席番号：12', '：ゆれた': '：ゆれなかった', '入江の漁師': '歌の名手: 若者'}),
+      submission({'席番号：01': '席番号：12', '：揺れた': '：揺れなかった', '入江の漁師': '歌の名手: 若者'}),
       submission({}),
     ]);
     const story = parse(composed);
@@ -75,6 +89,29 @@ describe('tekona participant composition', () => {
 });
 
 describe('tekona block workshop slots', () => {
+  it('lists the edits of a slot with the texts the slot shows', async () => {
+    const {blockEdits, composeSlots} = await import('../resources/tekona-workshop/assistant/compose-participants.js');
+    const source = await readFile(sourcePath, 'utf8');
+    const unmoved = submission({'席番号：01': '席番号：03', '：揺れた': '：揺れなかった'});
+    const edits = blockEdits(source, unmoved);
+    expect(edits.map((edit) => edit.kind)).toEqual(['text', 'text', 'text', 'remove', 'text', 'text', 'text', 'enable']);
+    expect(edits[0]).toMatchObject({label: 'ナレーションの文', current: '（作者の名前）さんの求婚者「（求婚者の名前）」',
+      replacement: 'リハーサルさんの求婚者「入江の漁師」'});
+    expect(edits.at(-1)).toMatchObject({label: '場面 suitor-03 のいちばん外側の「もし」', current: 'false', replacement: 'true'});
+    // Every "current" text is exactly a text of the generated slot, so the assistant can find it.
+    const slot = JSON.stringify(parse(composeSlots(source, 3, {modelUrl: 'https://teachablemachine.withgoogle.com/models/SAMPLE/'}))
+      .scenes['suitor-03']);
+    for (const edit of edits.filter((edit) => edit.kind !== 'enable')) expect(slot).toContain(`"${edit.current}"`);
+    expect(blockEdits(source, submission({})).some((edit) => edit.kind === 'remove')).toBe(false);
+  });
+
+  it('does not require a model link in the block-script version', () => {
+    const withoutModel = parseSubmission(sampleSubmission.replace(/^モデルのリンク：.*$/mu, ''));
+    expect(checkSubmission(withoutModel)).not.toEqual([]);
+    expect(checkSubmission(withoutModel, {requireModel: false})).toEqual([]);
+    expect(checkSubmission({...withoutModel, model: 'http://example.com/'}, {requireModel: false})).not.toEqual([]);
+  });
+
   it('pre-registers disabled slots in seat order with per-seat model links', async () => {
     const {composeSlots} = await import('../resources/tekona-workshop/assistant/compose-participants.js');
     const source = await readFile(sourcePath, 'utf8');

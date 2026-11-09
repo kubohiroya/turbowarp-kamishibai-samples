@@ -15,7 +15,19 @@ export interface Submission {
 
 export const costumeNames: string[];
 export function parseSubmission(text: string): Submission;
-export function checkSubmission(submission: Submission): string[];
+export function checkSubmission(submission: Submission, options?: {requireModel?: boolean}): string[];
+
+/** One edit of a pre-registered slot in the block-script version, as the assistant sheet shows it. */
+export interface BlockEdit {
+  kind: 'text' | 'remove' | 'enable';
+  /** The block, as the assistant finds it ("求婚者 Suitor07が言う"). */
+  label: string;
+  /** The whole text the field shows now. */
+  current: string;
+  /** The whole text to put in the field; absent for a block to remove. */
+  replacement?: string;
+}
+export function blockEdits(source: string, submission: Submission): BlockEdit[];
 export function participantYaml(
   source: string,
   submission: Submission,

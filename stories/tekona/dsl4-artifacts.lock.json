@@ -17,23 +17,23 @@
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 17339,
-      "sha256": "c8824b793bb52d52c6c2e06e18bee0457fcf3fac56c32478d319463253291ad9"
+      "size": 17270,
+      "sha256": "6b1cf2e716fe6cb0f685cb59ec9e1bcfcec6f9e97081b1677cee7a269cf91c42"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 5184,
-      "sha256": "47393c02abab0dd56b7f732855a74e066899f85a1a1e985b794ba580721d2c03"
+      "size": 5178,
+      "sha256": "204f2091858195b6ae72cfa489acd4d056d045a9872e044515d52836341c91db"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 8363,
-      "sha256": "e3c27c99914ac3cd0d6ba45bc9173cf6b953c56fbd7d24d97c59e44a942188a0"
+      "size": 10181,
+      "sha256": "c103d886d1336f6b8dbfdaac9c9f0ce71a4d5feb3c66f39dd7ef041e7b6350e2"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
-      "size": 6400,
-      "sha256": "1ebe5a6640e7037e8e1f8fe0dfbd23a4df94e11c213a387b47324d45f78d159c"
+      "size": 10258,
+      "sha256": "2729462d81e63dd0ef4545460564806215e2be25147323c552017445714abba2"
     },
     {
       "path": "workshop.config.json",
@@ -49,18 +49,18 @@
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 8639467,
-      "sha256": "7a86a71ff05e35a68a504171b299b79b3a4f7d10e993360a4f49d63a15736bed"
+      "size": 8639493,
+      "sha256": "ecc43912c0878c788f0adb6bf061f26c4815b1e361394f71a595dddf1d189213"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 8663589,
-      "sha256": "aaed8e286336b11b41b8b5a20a5ac5b0a60d8f6cf1ddee95b732fb25f5db4cac"
+      "size": 8663622,
+      "sha256": "6e447005d34dd20177267576d7320bc7be457f49ffe4ae910806f49ed5c21dd9"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 8691731,
-      "sha256": "6992e6a5adc686966d237edd666b254e0ce943037f5e94604611ea462e06201e"
+      "size": 8691841,
+      "sha256": "4279433a0c01afbb76b6774ed6a2635851258244c9b1237f2d2751c170b37b7f"
     }
   }
 }
