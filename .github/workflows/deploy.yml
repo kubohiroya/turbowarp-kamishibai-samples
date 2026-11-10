@@ -27,7 +27,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     # Playwright WebKit 1.61 uses the Ubuntu 24.04 system libraries.
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       # Builds dist/ as a side effect of pnpm run check, which the upload step publishes.
@@ -36,9 +36,21 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+      # deploy-pages caps its timeout at 10 min, and GitHub Pages file sync
+      # (syncing_files) has been exceeding that. Retry once with the same artifact.
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deployment_first
+        continue-on-error: true
         uses: actions/deploy-pages@v5
+      - name: Retry deploy to GitHub Pages
+        id: deployment_retry
+        if: steps.deployment_first.outcome == 'failure'
+        uses: actions/deploy-pages@v5
+      - name: Resolve published Pages URL
+        id: deployment
+        env:
+          PAGE_URL: ${{ steps.deployment_first.outputs.page_url || steps.deployment_retry.outputs.page_url }}
+        run: echo "page_url=$PAGE_URL" >> "$GITHUB_OUTPUT"
       - name: Verify published block script in TurboWarp
         env:
           PAGES_URL: ${{ steps.deployment.outputs.page_url }}
