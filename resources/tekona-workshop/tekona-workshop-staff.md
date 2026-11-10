@@ -175,7 +175,7 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
 | スプライト`SuitorNN`とコスチューム`stand`・`kime`・`rejected` | 「？」の人物の仮の絵 |
 | モデル`PoseNN` | その席の`seat-NN.tm`でアップロードしたリンク（`slotModelUrls`）。未登録の席は見本モデル（`sampleModelUrl`） |
 
-1人分で行うことは次の5つです。公開App 4.0.0-rc.79とTurboWarp Plus Editorでの自動リハーサル（`pnpm verify:tekona-block-workshop-editor`）で、
+1人分で行うことは次の5つです。公開App 4.0.0-rc.89とTurboWarp Plus Editorでの自動リハーサル（`pnpm verify:tekona-block-workshop-editor`）で、
 補助ページの一覧どおりに枠01を書き換え（手児奈の心が揺れなかった場合の削除を含む）、反映・再生・保存までを確かめました。
 組み込んだ枠は都の貴族のあとに再生され、未記入の枠は何も再生せずに通過します。
 
@@ -201,13 +201,13 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
    多くは文の中の`"`や`\`（使えない記号）、ブロックの外し方の誤り。直せない場合は、その枠の「もし」を`false`に戻して反映する。
 5. **確かめる**：緑の旗 → タイトルの×で閉じる → ↓キーで場面をとばして、参加者の場面に絵とセリフが出ることを確かめる。ポーズはSpaceキーでとばせる。
 
-**モデルのブロックは触りません。** rc.79では、モデル`PoseNN`のリンクを書き換えると反映が
+**モデルのブロックは触りません。** rc.89でも、モデル`PoseNN`のリンクを書き換えると反映が
 「Remote asset source does not match: PoseNN」で無効になるためです。リンクは席ごとに決まっていて、参加者がその席の`seat-NN.tm`で
 「クラウドモデルを更新」すると、同じリンクのモデルが参加者のポーズに置き換わります（[`pose-dataset-plan.md`](pose-dataset-plan.md)）。
 
 ## 5.3 共有作品への組み込み（外部YAML版・予備）
 
-1人分で行うことは次の3つです。この流れは、公開App 4.0.0-rc.79とTurboWarp Plus Editorで自動リハーサル
+1人分で行うことは次の3つです。この流れは、公開App 4.0.0-rc.89とTurboWarp Plus Editorで自動リハーサル
 （`pnpm verify:tekona-workshop-editor`）により、参加者の場面が用意済みの3人のあと、`quarrel`の前で再生されるところまで確認済みです。
 
 1. **絵をアップロードする**：5.2節の2.と同じ（作業用SB3は`tekona-workshop-4.0.sb3`）。

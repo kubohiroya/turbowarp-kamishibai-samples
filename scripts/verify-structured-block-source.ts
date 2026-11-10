@@ -295,6 +295,33 @@ export function verifyStructuredBlockSource(
                   commandBlock.inputs?.TARGET?.[1]?.[1],
                   command.slice(0, -(suffix.length + 1)),
                 );
+              } else if (
+                suffix === 'pose' &&
+                commandBlock.opcode === authoringPrefix + 'poseSteps'
+              ) {
+                assert.equal(
+                  commandBlock.inputs?.TARGET?.[1]?.[1],
+                  command.slice(0, -(suffix.length + 1)),
+                );
+                const {steps} = sourceAction[command] as {
+                  steps: {pose: string; skin?: string; sound?: string}[];
+                };
+                let stepParent = commandId;
+                let stepId = commandBlock.inputs?.SUBSTACK?.[1] as string | undefined;
+                for (const step of steps) {
+                  assert(stepId, `Pose steps in scene ${sceneId} must contain every step.`);
+                  const stepBlock = connected(stepId, stepParent);
+                  assert.equal(stepBlock.opcode, authoringPrefix + 'poseStep');
+                  assert.deepEqual(
+                    ['POSE', 'SKIN', 'SOUND'].map((name) => stepBlock.inputs?.[name]?.[1]?.[1]),
+                    [step.pose, step.skin ?? '', step.sound ?? ''],
+                    `Pose steps in scene ${sceneId} must keep their pose, skin and sound.`,
+                  );
+                  inspectInputs(stepBlock, stepId);
+                  stepParent = stepId;
+                  stepId = stepBlock.next ?? undefined;
+                }
+                assert.equal(stepId, undefined, `Pose steps in scene ${sceneId} must not gain steps.`);
               } else {
                 assert.equal(
                   commandBlock.opcode,

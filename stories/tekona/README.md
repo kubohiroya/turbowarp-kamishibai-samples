@@ -10,9 +10,9 @@
 
 ## 状態
 
-- 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.0-rc.79**の`validate-dsl4`で`valid`です。
+- 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.0-rc.89**の`validate-dsl4`で`valid`です。
   見本の提出から参加者の場面を加えた台本も、生成のたびに`valid`であることを確かめます。
-- `pnpm update:tekona`で、同じrc.79から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
+- `pnpm update:tekona`で、同じrc.89から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
 - ワークショップの組み込みは**ブロック台本版**（基本）と**外部YAML版**（予備）の2通りで、どちらもTurboWarp Plus Editorでの
   アシスタントの作業を自動リハーサルしました（`pnpm verify:tekona-block-workshop-editor`、`pnpm verify:tekona-workshop-editor`）。
   参加者の場面は用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
@@ -123,10 +123,10 @@
 
 ## 生成と検証
 
-公開rc.79のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
+公開rc.89のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
 
 ```bash
-TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.0-rc.79 pnpm update:tekona
+TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.0-rc.89 pnpm update:tekona
 ```
 
 `pnpm verify:tekona`は再生成した成果物がロックと補助ページに一致することを確かめます。
