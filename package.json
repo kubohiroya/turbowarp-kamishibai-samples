@@ -16,7 +16,7 @@
     "build": "node scripts/build-site.ts",
     "update:app-release": "node scripts/app-release.ts",
     "build-workshop-20260801": "node scripts/build-workshop-20260801.ts",
-    "check": "pnpm typecheck && pnpm test && pnpm build && pnpm test:web && pnpm verify && pnpm run repo:check",
+    "check": "node scripts/run-check.ts",
     "compact:urashima-actors": "node scripts/compact-urashima-actor-assets.ts",
     "deploy": "gh workflow run deploy.yml --ref main",
     "test": "vitest run",

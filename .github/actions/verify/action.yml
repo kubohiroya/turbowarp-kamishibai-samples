@@ -86,13 +86,25 @@ runs:
         version=$(node -e "process.stdout.write(require('playwright/package.json').version)")
         printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
         printf 'image=%s\n' "$ImageOS" >> "$GITHUB_OUTPUT"
+        printf 'image-version=%s\n' "$ImageVersion" >> "$GITHUB_OUTPUT"
     - id: playwright-cache
       if: steps.scope.outputs.browsers != ''
       uses: actions/cache@v4
       with:
         path: ~/.cache/ms-playwright
         key: playwright-${{ steps.playwright-version.outputs.image }}-${{ runner.arch }}-${{ steps.playwright-version.outputs.version }}-${{ steps.scope.outputs.browsers }}
-    # Cached browser binaries still need the system libraries on a fresh runner.
+    # Cached browser binaries still need the system libraries on a fresh runner. WebKit pulls
+    # about 114 MB of .deb packages from the Ubuntu mirror: usually seconds, but over 11 min on a
+    # day the mirror ran at 166 kB/s. Keep the downloaded packages in the Actions cache so apt
+    # only fetches what changed. A runner image update still restores the previous set.
+    - id: playwright-apt-cache
+      if: steps.scope.outputs.browsers != ''
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/playwright-apt
+        key: playwright-apt-${{ steps.playwright-version.outputs.image }}-${{ steps.playwright-version.outputs.image-version }}-${{ runner.arch }}-${{ steps.playwright-version.outputs.version }}-${{ steps.scope.outputs.browsers }}
+        restore-keys: |
+          playwright-apt-${{ steps.playwright-version.outputs.image }}-
     - if: steps.scope.outputs.browsers != ''
       shell: bash
       env:
@@ -100,10 +112,26 @@ runs:
         BROWSER_CACHE_HIT: ${{ steps.playwright-cache.outputs.cache-hit }}
       run: |
         IFS=- read -r -a browsers <<< "$BROWSER_SET"
+        apt_cache=~/.cache/playwright-apt
+        shopt -s nullglob
+        cached=("$apt_cache"/*.deb)
+        printf 'Restoring %d cached apt packages\n' "${#cached[@]}"
+        if (( ${#cached[@]} > 0 )); then
+          sudo cp "${cached[@]}" /var/cache/apt/archives/
+        fi
         if [[ "$BROWSER_CACHE_HIT" == true ]]; then
           pnpm exec playwright install-deps "${browsers[@]}"
         else
           pnpm exec playwright install --with-deps "${browsers[@]}"
+        fi
+        # Drop package versions the mirror no longer offers, then keep the rest for next time.
+        sudo apt-get autoclean -qq
+        rm -rf "$apt_cache"
+        mkdir -p "$apt_cache"
+        downloaded=(/var/cache/apt/archives/*.deb)
+        printf 'Caching %d apt packages\n' "${#downloaded[@]}"
+        if (( ${#downloaded[@]} > 0 )); then
+          cp "${downloaded[@]}" "$apt_cache"/
         fi
     - shell: bash
       env:
