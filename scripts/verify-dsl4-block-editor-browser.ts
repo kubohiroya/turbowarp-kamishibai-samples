@@ -63,7 +63,9 @@ function builderOutput(arguments_: string[]): string {
   const result = spawnSync(
     process.execPath,
     [path.join(builderRoot, 'bin/turbowarp-kamishibai.mjs'), ...arguments_],
-    {encoding: 'utf8', timeout: 30_000},
+    // Exporting the saved Urashima block SB3 takes about 18 s locally and exceeds 30 s on
+    // GitHub-hosted runners, so allow the CLI enough time before treating it as hung.
+    {encoding: 'utf8', timeout: 180_000},
   );
   if (result.error) throw result.error;
   assert.equal(result.status, 0, conciseFailure(result.stdout + result.stderr));
