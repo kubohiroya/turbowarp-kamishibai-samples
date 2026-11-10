@@ -344,7 +344,7 @@ try {
 
   phase = 'display-scenes';
   const visibleScenes: SceneEvidence[] = await page.evaluate(
-    ({authoringScene, actionPrefix}) => {
+    ({authoringScene, actionPrefix, poseStepsBlock}) => {
       const workspace = window.ScratchBlocks.getMainWorkspace();
       workspace.setScale(0.85);
       const blocks = workspace.getAllBlocks(false);
@@ -358,10 +358,18 @@ try {
           commands: block
             .getInputTargetBlock('SUBSTACK')
             .getDescendants(false)
-            .filter((child: any) => child.type.startsWith(actionPrefix)).length,
+            .filter(
+              (child: any) =>
+                child.type.startsWith(actionPrefix) || child.type === poseStepsBlock,
+            ).length,
         }));
     },
-    {authoringScene, actionPrefix},
+    {
+      authoringScene,
+      actionPrefix,
+      // One pose action becomes a C-block of step blocks; the C-block is the command.
+      poseStepsBlock: 'kubohiroyakamishibaiauthoring4_poseSteps',
+    },
   );
   assert.equal(visibleScenes.length, expectedScenes.length);
   const scenes = expectedScenes.map(({name}) => {
