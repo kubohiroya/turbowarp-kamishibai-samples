@@ -123,12 +123,52 @@ test('rejects builder/version mismatch and transport failures', async () => {
     {version: '4.0.0-rc.25'},
   );
   await assert.rejects(resolveAppRelease(fixture), /Builder version differs/u);
+  const waits: number[] = [];
   await assert.rejects(
     resolveAppRelease({
       fetchImplementation: async () => new Response('', {status: 503}),
+      wait: async (ms) => {
+        waits.push(ms);
+      },
     }),
     /HTTP 503/u,
   );
+  assert.deepEqual(waits, [2_000, 5_000, 10_000], 'A persistent outage fails after bounded retries.');
+});
+
+test('retries transient release download failures but not missing files', async () => {
+  const fixture = upstream();
+  const failures = new Map<string, Array<number | Error>>([
+    [fixture.artifact.url, [504, new TypeError('fetch failed')]],
+    [`https://api.github.com/repos/${repo}/commits/${fixture.release.tag_name}`, [429]],
+  ]);
+  const waits: number[] = [];
+  const {lock} = await resolveAppRelease({
+    fetchImplementation: async (url, options) => {
+      const failure = failures.get(url)?.shift();
+      if (failure instanceof Error) throw failure;
+      if (failure !== undefined) return new Response('', {status: failure});
+      return fixture.fetchImplementation(url, options);
+    },
+    wait: async (ms) => {
+      waits.push(ms);
+    },
+  });
+  assert.equal(lock.version, fixture.release.tag_name.slice(1));
+  assert.deepEqual(waits, [2_000, 2_000, 5_000]);
+
+  let calls = 0;
+  await assert.rejects(
+    resolveAppRelease({
+      fetchImplementation: async () => {
+        calls += 1;
+        return new Response('', {status: 404});
+      },
+      wait: async () => assert.fail('A 404 is not retried.'),
+    }),
+    /HTTP 404/u,
+  );
+  assert.equal(calls, 1);
 });
 
 test('updates only the shared manifest and base, preserving story settings deterministically', async () => {

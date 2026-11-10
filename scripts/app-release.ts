@@ -51,9 +51,22 @@ export function selectAppRelease(releases: GithubRelease[]): GithubRelease {
   return eligible[0];
 }
 
+/**
+ * Seconds to wait before each retry of a transient failure. GitHub release downloads and the
+ * API occasionally answer 502/503/504 for a moment (the 2026-11-09 scheduled run failed on one
+ * 504 for the release SB3), so a short backoff rides it out; a persistent outage still fails.
+ */
+const retryDelaysMs = [2_000, 5_000, 10_000] as const;
+const isTransientStatus = (status: number) => status === 429 || status >= 500;
+
 export async function resolveAppRelease({
   fetchImplementation = fetch as FetchLike,
   token = process.env.GH_TOKEN,
+  wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+}: {
+  fetchImplementation?: FetchLike;
+  token?: string;
+  wait?: (ms: number) => Promise<void>;
 } = {}): Promise<{lock: AppRelease; bytes: Buffer}> {
   async function request(url: string) {
     const headers: Record<string, string> = url.startsWith(
@@ -64,15 +77,33 @@ export async function resolveAppRelease({
           ...(token ? {Authorization: `Bearer ${token}`} : {}),
         }
       : {};
-    const response = await fetchImplementation(url, {
-      headers,
-      signal: AbortSignal.timeout(60000),
-    });
-    assert(
-      response.ok,
-      `Cannot read app release input: ${url} (HTTP ${response.status}).`,
-    );
-    return response;
+    for (let attempt = 0; ; attempt += 1) {
+      const retryDelay = retryDelaysMs[attempt];
+      let response: Response;
+      try {
+        response = await fetchImplementation(url, {
+          headers,
+          signal: AbortSignal.timeout(60000),
+        });
+      } catch (error) {
+        // Network errors and the 60 s timeout are transient by nature.
+        if (retryDelay === undefined) throw error;
+        console.warn(`App release input unavailable (${String(error)}); retrying: ${url}`);
+        await wait(retryDelay);
+        continue;
+      }
+      if (!response.ok && isTransientStatus(response.status) && retryDelay !== undefined) {
+        console.warn(`App release input answered HTTP ${response.status}; retrying: ${url}`);
+        await response.body?.cancel();
+        await wait(retryDelay);
+        continue;
+      }
+      assert(
+        response.ok,
+        `Cannot read app release input: ${url} (HTTP ${response.status}).`,
+      );
+      return response;
+    }
   }
   const releases: GithubRelease[] = [];
   for (let page = 1; ; page += 1) {
@@ -185,6 +216,7 @@ export async function syncAppRelease({
   root?: string;
   fetchImplementation?: FetchLike;
   token?: string;
+  wait?: (ms: number) => Promise<void>;
 } = {}) {
   const {lock, bytes} = await resolveAppRelease(options);
   const files = new Map<string, string | Buffer>([
