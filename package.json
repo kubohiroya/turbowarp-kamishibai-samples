@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@kubohiroya/turbowarp-kamishibai-site-navigation": "^0.4.0",
-    "@kubohiroya/sb3-toolchain": "^0.19.1",
+    "@kubohiroya/sb3-toolchain": "^0.22.0",
     "@kubohiroya/turbowarp-sb3-save-format": "0.4.0-rc.2",
     "@turbowarp/packager": "3.13.0",
     "@types/node": "26.4.1",
