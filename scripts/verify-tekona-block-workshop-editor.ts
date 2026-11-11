@@ -179,7 +179,7 @@ async function main() {
 
     let started = Date.now();
     report.suitorCostumes = await replaceCostumes(page, `Suitor${nn}`, pictures);
-    // rc.79 through rc.89 cannot reflect a changed remote model URL ("Remote asset source does not match"), so the
+    // rc.79 through rc.90 cannot reflect a changed remote model URL ("Remote asset source does not match"), so the
     // slot keeps its pre-registered URL. TEKONA_REPLACE_MODEL_URL=1 re-checks the replacement.
     const replaceModel = Boolean(process.env.TEKONA_REPLACE_MODEL_URL);
     report.replaceModel = replaceModel;

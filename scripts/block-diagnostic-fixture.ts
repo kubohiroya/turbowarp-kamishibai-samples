@@ -207,6 +207,23 @@ async function approveVerifiedBlockProject(
         if (await choice.getAttribute('name') !== 'execution-all')
           assert(await choice.isChecked(), 'Each verified extension must be selected.');
       await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
+    } else if (await dialog.locator('.twextsec-row').count()) {
+      // Since App rc.90 both data: URL extensions declare "Unsandboxed: required", so the review
+      // lists one row per extension keyed by its data: URL, with no bulk choice and no source.
+      // The URL is the verified payload itself, so matching it identifies the approved bytes.
+      const ids = new Map(Object.entries(project.extensionURLs ?? {})
+        .filter(([id]) => sources.has(id)).map(([id, url]) => [url, id]));
+      const reviewRows = dialog.locator('.twextsec-row');
+      assert.equal(await reviewRows.count(), sources.size);
+      const remaining = new Set(sources.keys());
+      for (const row of await reviewRows.all()) {
+        const id = ids.get(await row.getAttribute('data-key') ?? '');
+        assert(id && remaining.delete(id), 'Permission row must carry a unique extension URL from the verified input.');
+        assert.equal((await row.locator('.twextsec-id').textContent())?.trim(), id);
+        const choice = row.locator('input[type="radio"][value="unsandboxed"]');
+        if (!await choice.isChecked()) await choice.check();
+      }
+      await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
     } else if (await rows.count()) {
       await rows.first().waitFor({state: 'visible'});
       for (const row of await rows.all()) {

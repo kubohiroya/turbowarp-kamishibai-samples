@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.89",
-    "commit": "74512179c4a880f2b9b877f246a365bc369c22d4",
+    "version": "4.0.0-rc.90",
+    "commit": "ef45022c847fc905f0faa5093bd54663c414ade4",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:d4497cd9dc3b6e93e354f730eb7b1d1f54950d6b9ce8a62b2dbd42873d2676af",
-    "baseSize": 7812817,
-    "baseSha256": "a149e4c7902f45efbc4306f1f5c77f420c1baf012d56ab62ab913c43a1949f4c"
+    "baseSourceIdentity": "sha256:02660e24db89b25949e928e86c4a82da1aee7e6e2514b977ec21fa26605f5e70",
+    "baseSize": 7813360,
+    "baseSha256": "5d7855da38175c16255bf82ee93d55686a51e37f1d3140d57b3b6dd18726b698"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.0-rc.89",
-    "commit": "74512179c4a880f2b9b877f246a365bc369c22d4"
+    "version": "4.0.0-rc.90",
+    "commit": "ef45022c847fc905f0faa5093bd54663c414ade4"
   },
   "sources": [
     {
@@ -44,23 +44,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 8239824,
-      "sha256": "c7bbf971e72c5c44c1f22ec466357609ad2658eb0f9456e629372b6732adaf66"
+      "size": 8240341,
+      "sha256": "59ace5e534487652e6439817054dc006c085f07aa3c956e3200ad0e3239107a5"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 8122563,
-      "sha256": "7bc4fe2c4775f03114273dc4abc771d2c7ad63fcbe692e7fc477b9be34f24297"
+      "size": 8122693,
+      "sha256": "7ec701edebf82d25a9639d0e2890b0026837b6498f082eb6ce179e174cd48c11"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 8144937,
-      "sha256": "e6eaeece72d23de6675dc54372a53fba3cb849087c0035c1c29d9a80b045f274"
+      "size": 8144561,
+      "sha256": "74ba59779c87f0b9c7dbbfb324725fa0efe2b32fec98c69d0c6b9facf1a70e6f"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 8173874,
-      "sha256": "101b436376e0360d8c47b9b24dd05951340cf60c3d5be19c38d9d2aa6331b7de"
+      "size": 8174866,
+      "sha256": "e2096e6ba2f7da8fd64294f57c68201a39b10548931e04950b035b72f0b3a9aa"
     }
   }
 }
