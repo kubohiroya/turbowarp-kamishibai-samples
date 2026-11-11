@@ -12,7 +12,7 @@ Copyright © 2026 Hiroya Kubo.
 音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある4ファイル（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。
 
 `tekona-workshop-4.0.sb3`、`tekona-4.0.sb3`、`tekona-blocks-4.0.sb3`は、上記の素材に、rootの`app-release.json`が固定する
-TurboWarp-Kamishibaiの公開Release（4.0.0-rc.89）のruntime base（MPL-2.0）を組み合わせた結合物です。
+TurboWarp-Kamishibaiの公開Release（4.0.0-rc.91）のruntime base（MPL-2.0）を組み合わせた結合物です。
 統合されたJavaScriptの冒頭には、各機能拡張ソースの名称、著作権表示、ライセンス表示を保持しています。
 
 `../../resources/tekona-workshop/assistant/`の補助ページと組み立て処理もMPL-2.0です。

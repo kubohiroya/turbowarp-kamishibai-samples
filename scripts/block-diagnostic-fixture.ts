@@ -195,14 +195,16 @@ async function approveVerifiedBlockProject(
         if (!await choice.isChecked()) await choice.check();
       }
       await dialog.getByRole('button', {name: 'OK', exact: true}).click(editorControlClick);
-    } else if (await bulkChoice.count()) {
+    } else if (await bulkChoice.count() || await dialog.locator('.twextsec-row').count()) {
+      // When every extension requires running without the sandbox, the dialog preselects it and omits the bulk choice.
+      const hasBulk = await bulkChoice.count() > 0;
       const expected = Object.entries(project.extensionURLs ?? {}).filter(([id]) => sources.has(id));
       const choices = dialog.locator('input[type="radio"][value="unsandboxed"]');
-      assert.equal(await choices.count(), expected.length + 1);
+      assert.equal(await choices.count(), expected.length + (hasBulk ? 1 : 0));
       const details = await dialog.innerText();
       for (const [id, url] of expected)
         assert(details.includes(id) || details.includes(url), `Unexpected extension permissions for ${id}.`);
-      await bulkChoice.click(editorControlClick);
+      if (hasBulk) await bulkChoice.click(editorControlClick);
       for (const choice of await choices.all())
         if (await choice.getAttribute('name') !== 'execution-all')
           assert(await choice.isChecked(), 'Each verified extension must be selected.');
