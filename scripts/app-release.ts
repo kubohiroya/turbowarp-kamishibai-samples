@@ -1,17 +1,17 @@
-import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
-import {appendFile, mkdir, readFile, writeFile} from 'node:fs/promises';
-import path from 'node:path';
-import {fileURLToPath, pathToFileURL} from 'node:url';
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-import {appBasePath} from './app-dependency.ts';
+import { appBasePath } from "./app-dependency.ts";
 
-const repository = 'kubohiroya/turbowarp-kamishibai-app';
+const repository = "kubohiroya/turbowarp-kamishibai-app";
 const repositoryUrl = `https://github.com/${repository}`;
 const api = `https://api.github.com/repos/${repository}`;
-const projectRoot = fileURLToPath(new URL('../', import.meta.url));
+const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const sha256 = (bytes: Uint8Array | string) =>
-  createHash('sha256').update(bytes).digest('hex');
+  createHash("sha256").update(bytes).digest("hex");
 type FetchLike = (url: string, options?: RequestInit) => Promise<Response>;
 
 interface GithubRelease {
@@ -19,7 +19,7 @@ interface GithubRelease {
   draft: boolean;
   prerelease: boolean;
   published_at: string | null;
-  assets: {name: string; size: number; digest?: string}[];
+  assets: { name: string; size: number; digest?: string }[];
 }
 
 export interface AppRelease {
@@ -30,24 +30,25 @@ export interface AppRelease {
   commit: string;
   publishedAt: string;
   sourceIdentity: string;
-  artifact: {filename: string; url: string; size: number; sha256: string};
+  artifact: { filename: string; url: string; size: number; sha256: string };
 }
 
 function releaseVersion(release: GithubRelease) {
   const match = /^v4\.0\.(\d+)(?:-rc\.(\d+))?$/u.exec(release.tag_name);
   if (!match || release.draft || !release.published_at) return null;
-  return {patch: Number(match[1]), rc: Number(match[2] ?? Infinity)};
+  return { patch: Number(match[1]), rc: Number(match[2] ?? Infinity) };
 }
 
-/** RCs are eligible; the GitHub latest-release endpoint does not include them. */
+/** Prefer published stable releases; RCs support snapshots before the first stable release. */
 export function selectAppRelease(releases: GithubRelease[]): GithubRelease {
   const eligible = releases.filter((release) => releaseVersion(release));
   eligible.sort((a, b) => {
     const av = releaseVersion(a)!;
     const bv = releaseVersion(b)!;
-    return bv.patch - av.patch || bv.rc - av.rc;
+    const stableOrder = Number(bv.rc === Infinity) - Number(av.rc === Infinity);
+    return stableOrder || bv.patch - av.patch || bv.rc - av.rc;
   });
-  assert(eligible[0], 'No published DSL 4.0 release is available.');
+  assert(eligible[0], "No published DSL 4.0 release is available.");
   return eligible[0];
 }
 
@@ -62,19 +63,20 @@ const isTransientStatus = (status: number) => status === 429 || status >= 500;
 export async function resolveAppRelease({
   fetchImplementation = fetch as FetchLike,
   token = process.env.GH_TOKEN,
-  wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  wait = (ms: number) =>
+    new Promise<void>((resolve) => setTimeout(resolve, ms)),
 }: {
   fetchImplementation?: FetchLike;
   token?: string;
   wait?: (ms: number) => Promise<void>;
-} = {}): Promise<{lock: AppRelease; bytes: Buffer}> {
+} = {}): Promise<{ lock: AppRelease; bytes: Buffer }> {
   async function request(url: string) {
     const headers: Record<string, string> = url.startsWith(
-      'https://api.github.com/',
+      "https://api.github.com/",
     )
       ? {
-          Accept: 'application/vnd.github+json',
-          ...(token ? {Authorization: `Bearer ${token}`} : {}),
+          Accept: "application/vnd.github+json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         }
       : {};
     for (let attempt = 0; ; attempt += 1) {
@@ -88,12 +90,20 @@ export async function resolveAppRelease({
       } catch (error) {
         // Network errors and the 60 s timeout are transient by nature.
         if (retryDelay === undefined) throw error;
-        console.warn(`App release input unavailable (${String(error)}); retrying: ${url}`);
+        console.warn(
+          `App release input unavailable (${String(error)}); retrying: ${url}`,
+        );
         await wait(retryDelay);
         continue;
       }
-      if (!response.ok && isTransientStatus(response.status) && retryDelay !== undefined) {
-        console.warn(`App release input answered HTTP ${response.status}; retrying: ${url}`);
+      if (
+        !response.ok &&
+        isTransientStatus(response.status) &&
+        retryDelay !== undefined
+      ) {
+        console.warn(
+          `App release input answered HTTP ${response.status}; retrying: ${url}`,
+        );
         await response.body?.cancel();
         await wait(retryDelay);
         continue;
@@ -107,11 +117,11 @@ export async function resolveAppRelease({
   }
   const releases: GithubRelease[] = [];
   for (let page = 1; ; page += 1) {
-    assert(page <= 100, 'Release pagination exceeded its limit.');
+    assert(page <= 100, "Release pagination exceeded its limit.");
     const batch = (await (
       await request(`${api}/releases?per_page=100&page=${page}`)
     ).json()) as GithubRelease[];
-    assert(Array.isArray(batch), 'Release list must be an array.');
+    assert(Array.isArray(batch), "Release list must be an array.");
     releases.push(...batch);
     if (batch.length < 100) break;
   }
@@ -119,7 +129,7 @@ export async function resolveAppRelease({
   const version = release.tag_name.slice(1);
   const commit = (await (
     await request(`${api}/commits/${encodeURIComponent(release.tag_name)}`)
-  ).json()) as {sha: string};
+  ).json()) as { sha: string };
   assert.match(commit.sha, /^[a-f0-9]{40}$/u);
   const raw = `https://raw.githubusercontent.com/${repository}/${commit.sha}`;
   const metadata = (await (
@@ -127,8 +137,8 @@ export async function resolveAppRelease({
   ).json()) as {
     version: string;
     sourceIdentity: string;
-    artifact: AppRelease['artifact'];
-    publication: {github: {tag: string}};
+    artifact: AppRelease["artifact"];
+    publication: { github: { tag: string } };
   };
   const packageJson = (await (await request(`${raw}/package.json`)).json()) as {
     version: string;
@@ -136,12 +146,12 @@ export async function resolveAppRelease({
   assert.equal(
     metadata.version,
     version,
-    'Release metadata differs from its tag.',
+    "Release metadata differs from its tag.",
   );
   assert.equal(
     packageJson.version,
     version,
-    'Builder version differs from its release.',
+    "Builder version differs from its release.",
   );
   assert.equal(metadata.publication.github.tag, release.tag_name);
   assert.match(metadata.sourceIdentity, /^sha256:[a-f0-9]{64}$/u);
@@ -153,27 +163,27 @@ export async function resolveAppRelease({
   );
   assert.match(artifact.sha256, /^[a-f0-9]{64}$/u);
   assert(Number.isSafeInteger(artifact.size) && artifact.size > 0);
-  const asset = release.assets.find(({name}) => name === artifact.filename);
+  const asset = release.assets.find(({ name }) => name === artifact.filename);
   assert(
     asset,
-    'The newest release has no Standard SB3; refusing to use an older release.',
+    "The newest release has no Standard SB3; refusing to use an older release.",
   );
   assert.equal(
     asset.size,
     artifact.size,
-    'Release asset size differs from metadata.',
+    "Release asset size differs from metadata.",
   );
   if (asset.digest) assert.equal(asset.digest, `sha256:${artifact.sha256}`);
   const bytes = Buffer.from(await (await request(artifact.url)).arrayBuffer());
   assert.equal(
     bytes.length,
     artifact.size,
-    'Downloaded base SB3 size differs.',
+    "Downloaded base SB3 size differs.",
   );
   assert.equal(
     sha256(bytes),
     artifact.sha256,
-    'Downloaded base SB3 hash differs.',
+    "Downloaded base SB3 hash differs.",
   );
   return {
     bytes,
@@ -196,8 +206,8 @@ export async function publishedAppReleaseDiffers(
   fetchImplementation: FetchLike = fetch,
 ) {
   const response = await fetchImplementation(
-    'https://kubohiroya.github.io/turbowarp-kamishibai-samples/app-release.json',
-    {signal: AbortSignal.timeout(60000), cache: 'no-store'},
+    "https://kubohiroya.github.io/turbowarp-kamishibai-samples/app-release.json",
+    { signal: AbortSignal.timeout(60000), cache: "no-store" },
   );
   assert(
     response.ok || response.status === 404,
@@ -218,9 +228,9 @@ export async function syncAppRelease({
   token?: string;
   wait?: (ms: number) => Promise<void>;
 } = {}) {
-  const {lock, bytes} = await resolveAppRelease(options);
+  const { lock, bytes } = await resolveAppRelease(options);
   const files = new Map<string, string | Buffer>([
-    [path.join(root, 'app-release.json'), `${JSON.stringify(lock, null, 2)}\n`],
+    [path.join(root, "app-release.json"), `${JSON.stringify(lock, null, 2)}\n`],
     [appBasePath(root), bytes],
   ]);
   let changed = false;
@@ -228,20 +238,20 @@ export async function syncAppRelease({
     const next = Buffer.from(contents);
     const previous = await readFile(filename).catch(
       (error: NodeJS.ErrnoException) => {
-        if (error.code === 'ENOENT') return Buffer.alloc(0);
+        if (error.code === "ENOENT") return Buffer.alloc(0);
         throw error;
       },
     );
     if (!previous.equals(next)) {
-      await mkdir(path.dirname(filename), {recursive: true});
+      await mkdir(path.dirname(filename), { recursive: true });
       await writeFile(filename, next);
       changed = true;
     }
   }
   console.log(
-    `App release ${lock.tag}: ${changed ? 'updated' : 'unchanged'} (${lock.commit}).`,
+    `App release ${lock.tag}: ${changed ? "updated" : "unchanged"} (${lock.commit}).`,
   );
-  return {lock, changed};
+  return { lock, changed };
 }
 
 /** Record a successful dependency check without implying a deployment succeeded. */
@@ -258,8 +268,8 @@ export function appReleaseCheckSummary(
   },
 ) {
   const comparison = comparedWithPublished
-    ? '公開済みmanifest'
-    : 'checkoutのsnapshot';
+    ? "公開済みmanifest"
+    : "checkoutのsnapshot";
   return `## App公開版の確認
 
 - 確認時刻: ${checkedAt}
@@ -267,7 +277,7 @@ export function appReleaseCheckSummary(
 - source commit: \`${lock.commit}\`
 - SB3 SHA-256: \`${lock.artifact.sha256}\`
 - 比較先: ${comparison}
-- 比較結果: ${changed ? '差分あり' : '差分なし'}
+- 比較結果: ${changed ? "差分あり" : "差分なし"}
 
 これは依存の取得・照合結果です。公開完了はdeploy jobと公開URLで確認してください。
 
@@ -278,10 +288,10 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  assert.equal(process.argv.length, 2, 'Usage: node scripts/app-release.ts');
-  const {lock, changed} = await syncAppRelease();
+  assert.equal(process.argv.length, 2, "Usage: node scripts/app-release.ts");
+  const { lock, changed } = await syncAppRelease();
   const comparedWithPublished =
-    process.env.COMPARE_PUBLISHED_APP_RELEASE === 'true';
+    process.env.COMPARE_PUBLISHED_APP_RELEASE === "true";
   const publish = comparedWithPublished
     ? await publishedAppReleaseDiffers(lock)
     : changed;

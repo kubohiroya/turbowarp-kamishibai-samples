@@ -313,26 +313,32 @@ try {
     rejectFatal = reject;
   });
   void fatal.catch(() => {});
-  page.on('pageerror', (error) => {
-    const message = conciseFailure(error.message);
-    consoleErrors.push(message);
-    fatalErrors.push(message);
-    rejectFatal(new Error(message));
-  });
-  page.on('console', (message) => {
-    if (message.type() !== 'error') return;
-    const text = conciseFailure(message.text());
-    if (consoleErrors.length < 50) consoleErrors.push(text);
-    if (/extension-bootstrap failed|read-only and non-configurable/u.test(text)) {
-      fatalErrors.push(text);
-      rejectFatal(new Error(text));
-    }
-  });
+  const observeEditorPage = (observed: Page) => {
+    observed.on('pageerror', (error) => {
+      const message = conciseFailure(error.message);
+      consoleErrors.push(message);
+      fatalErrors.push(message);
+      rejectFatal(new Error(message));
+    });
+    observed.on('console', (message) => {
+      if (message.type() !== 'error') return;
+      const text = conciseFailure(message.text());
+      if (consoleErrors.length < 50) consoleErrors.push(text);
+      if (/extension-bootstrap failed|read-only and non-configurable/u.test(text)) {
+        fatalErrors.push(text);
+        rejectFatal(new Error(text));
+      }
+    });
+  };
+  observeEditorPage(page);
+  context.on('page', observeEditorPage);
+  context.setDefaultTimeout(15_000);
+  context.setDefaultNavigationTimeout(60_000);
   await Promise.race([openBlockEditor(page, editorUrl), fatal]);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
 
   phase = 'open-project';
-  report.extensionPermissions = await loadVerifiedBlockProject(page, options.input, inputProject);
+  report.extensionPermissions = await loadVerifiedBlockProject(page, options.input, inputProject, {onPage: (next) => { page = next; }});
   report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);
   await page.screenshot({path: path.join(outputDirectory, 'explicit-document-root.png')});
   await Promise.race([
@@ -515,7 +521,7 @@ try {
   phase = 'reload-saved-document';
   await openBlockEditor(page, editorUrl);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
-  await loadVerifiedBlockProject(page, savedPath, savedProject);
+  await loadVerifiedBlockProject(page, savedPath, savedProject, {onPage: (next) => { page = next; }});
   report.savedDocumentRoot = await inspectLoadedEmbeddedYamlRoot(page);
   if (!documentSave.legacy) {
     const documents = await page.evaluate(() => {
@@ -602,7 +608,7 @@ try {
   if (!options.skipLegacyDiagnostics) {
     if (legacyFixture?.converted) {
       phase = 'load-explicit-legacy-compatibility-fixture';
-      await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, true);
+      await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, {legacyOnly: true, onPage: (next) => { page = next; }});
       await selectBlockEditorStage(page);
     }
     phase = 'reject-duplicate-config-names';

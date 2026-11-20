@@ -73,7 +73,7 @@ This editor regression test connects to the published [TurboWarp-Plus-Editor](ht
 
 The acceptance criteria are that loading, displaying 10 scenes, editing on screen and the semantic comparison of the saved script all succeed. The per-scene images, the post-edit image, the interaction trace, the saved SB3 and the YAML written back are stored under `.tmp/block-editor-browser/run-*/`. On failure the last screen, the failing phase and the error log are stored too, and the shared action used by CI, Pages and the scheduled verification keeps them as the `block-editor-regression` artifact for 7 days. To roll back, restore the editor-check registration in `run-web-checks.ts` and the artifact-storing step of the shared action to their state before this change.
 
-CI and Pages fetch the app's latest published DSL 4.0 release automatically, release candidates included. They verify the commit, the release metadata and the SB3 size and SHA-256 of the same tag, line the base SB3 itself up with the player and editor builders on that one release, and then regenerate and verify every DSL 4 distribution. The whole base is updated, title and menu images included; there is no practice of swapping only the extension.
+CI and Pages prefer the app's latest published stable DSL 4.0 release. Release candidates are used only in historical snapshots before a stable release exists. They verify the commit, the release metadata and the SB3 size and SHA-256 of the same tag, line the base SB3 itself up with the player and editor builders on that one release, and then regenerate and verify every DSL 4 distribution. The whole base is updated, title and menu images included; there is no practice of swapping only the extension.
 
 The provenance is recorded in `app-release.json` and in each artifact lock, and `app-release.json` is placed on the published site as well.
 
@@ -172,11 +172,11 @@ Per-work output names, size limits and the flags for web and teaching publicatio
 
 Rolling this migration back means reverting, as a whole, the pull request that carries the settings, the shared reader and the CI changes. It does not change artifacts of the same published app version.
 
-## Audio operations (Standard in the 4.0 RCs)
+## Audio operations (Standard in 4.0)
 
 The [audio playback sample](stories/audio-playback/README.md) exercises fadeIn, volume and fadeOut during playback, fadeOut on stop, and per-ID control. It uses the same published App, CLI and base SB3 as the other 4.0 works; the verified release is recorded in `app-release.json`.
 
-## Repetition and branching in a story (Standard in the 4.0 RCs)
+## Repetition and branching in a story (Standard in 4.0)
 
 [Three Visits](stories/three-visits/README.md) is a published sample for the Standard available from App 4.0.0-rc.44 onwards. The visit the three share is written once, and the endings are compared through each round's list and its conditions. No extra experimental flag is needed. The YAML build, the block build and both web builds are generated from the official base SB3 and a CLI at the same release commit, and the table can be edited in TurboWarp-Plus-Editor. Reproducible sample generation uses the CLI from the published release tag recorded in `app-release.json`. The samples for the stable 3.2 series are kept as they are.
 
