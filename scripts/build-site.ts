@@ -548,17 +548,20 @@ export function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], featur
     const editable = blocks || row.script.format === 'dsl32-txt' || row.script.mode === 'embedded';
     const editor = editable && available ? renderEditorButton(new URL(row.sb3, publicUrl).href) : '';
     const webAction = row.web ? work.actions.find(({href}) => href === row.web)! : undefined;
-    const web = webAction
-      ? renderWorkAction({...webAction, href: resolveHref(webAction.href!), label: 'Web版でプレイ'}, features, work.capabilities)
+    const web = webAction && !webAction.disabled && (!webAction.requires || features[webAction.requires] === true)
+      ? `<a class="delivery-play" href="${escapeHtml(resolveHref(webAction.href!))}" title="Web版でプレイ" aria-label="Web版でプレイ"${webAction.external ? ' target="_blank" rel="noopener external"' : ''}${work.capabilities?.camera ? ' data-capability-launch="camera"' : ''}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></a>`
+      : '';
+    const webStatus = webAction && !web
+      ? '<p class="delivery-web-status">Web版でプレイ（準備中）</p>'
       : '';
     const source = row.source
       ? `<a class="work-download" href="${escapeHtml(resolveHref(row.source))}" download>${scriptFormatLabels[row.script.format]}をダウンロード</a>`
       : '';
     return `<section class="delivery-option" data-delivery-id="${row.id}" data-script-format="${row.script.format}" data-script-mode="${row.script.mode}">
-      <div class="delivery-option__heading"><h5>${scriptFormatLabels[row.script.format]}</h5><p class="delivery-script-mode">台本の持ち方：${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</p></div>
+      <div class="delivery-option__heading"><div class="delivery-option__title"><h5>${scriptFormatLabels[row.script.format]}</h5>${web}</div><p class="delivery-script-mode">台本の持ち方：${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</p></div>
       <div class="delivery-assets"><p class="delivery-assets__label">アセットの持ち方</p><dl>${row.assets.map((asset) => `<div><dt>${escapeHtml(asset.scope)}</dt><dd>${assetModeLabels[asset.mode]}</dd></div>`).join('')}</dl></div>
       ${row.note ? `<p class="delivery-note">${escapeHtml(row.note)}</p>` : ''}
-      <div class="delivery-actions"><div class="delivery-launch-actions">${web}${editor}</div><div class="delivery-downloads">${project}${source}</div></div>
+      <div class="delivery-actions">${webStatus}<div class="delivery-launch-actions">${editor}</div><div class="delivery-downloads">${project}${source}</div></div>
     </section>`;
   };
   const group = (title: string, variants: WorkDelivery[]): string => variants.length
