@@ -169,13 +169,15 @@ async function main() {
       delete (window as any).showSaveFilePicker;
     });
     await routeSubstituteModels(context);
-    const page = await context.newPage();
+    let page = await context.newPage();
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(String(error).slice(0, 500)));
+    const observeEditorPage = (observed: Page) => observed.on('pageerror', (error) => errors.push(String(error).slice(0, 500)));
+    observeEditorPage(page);
+    context.on('page', observeEditorPage);
     await openBlockEditor(page, editorUrl);
     await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()), undefined,
       {timeout: 120_000});
-    await loadVerifiedBlockProject(page, input, project);
+    await loadVerifiedBlockProject(page, input, project, {onPage: (next) => { page = next; }});
 
     let started = Date.now();
     report.suitorCostumes = await replaceCostumes(page, `Suitor${nn}`, pictures);

@@ -1,3 +1,4 @@
+import type {Page} from 'playwright';
 import {
   createLegacyBlockDiagnosticFixture,
   editorControlClick,
@@ -63,22 +64,24 @@ await context.addInitScript(() => {
   delete window.showOpenFilePicker;
 });
 await context.tracing.start({screenshots: true, snapshots: false});
-const page = await context.newPage();
-page.setDefaultTimeout(30_000);
+let page = await context.newPage();
+context.setDefaultTimeout(30_000);
 const errors: string[] = [];
-page.on('pageerror', (error) =>
+const observeEditorPage = (observed: Page) => observed.on('pageerror', (error) =>
   errors.push(error.message.replace(/data:[^\s)]+/gu, 'data:<embedded>').slice(0, 1000)),
 );
+observeEditorPage(page);
+context.on('page', observeEditorPage);
 let phase = 'load-turbowarp-plus-editor';
 try {
   await openBlockEditor(page, editorUrl);
   await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
-  report.extensionPermissions = await loadVerifiedBlockProject(page, input, inputProject);
+  report.extensionPermissions = await loadVerifiedBlockProject(page, input, inputProject, {onPage: (next) => { page = next; }});
   report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);
   await page.screenshot({path: path.join(output, 'explicit-document-root.png')});
   if (legacyFixture.converted) {
     phase = 'load-explicit-legacy-compatibility-fixture';
-    await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, true);
+    await loadVerifiedBlockProject(page, legacyFixture.input, inputProject, {legacyOnly: true, onPage: (next) => { page = next; }});
   }
   const cases = [
     {opcode: 'control_if', name: 'もし', expected: 'なら'},

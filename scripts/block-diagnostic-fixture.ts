@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {createHash, randomUUID} from 'node:crypto';
+import {createHash} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -16,7 +16,7 @@ import type {ScratchProject} from './scratch.ts';
 const prefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const authoring = 'kubohiroyakamishibaiauthoring4_';
 
-// Editor controls update the current page. Callers wait for the resulting editor state.
+// Callers follow any opened tab and wait for the resulting editor state.
 export const editorControlClick = {noWaitAfter: true, timeout: 60_000};
 const configuration = new Set(['control', 'asset', 'cover', 'textStyle', 'variable', 'loading', 'recognition']);
 const configurationKeys = new Set(['controls', 'assets', 'cover', 'textStyles', 'variables', 'loading', 'recognition']);
@@ -182,7 +182,44 @@ async function approveVerifiedBlockProject(
     assert(count++ < sources.size + 1, 'Unexpected additional extension permission request.');
     const rows = dialog.getByRole('article');
     const bulkChoice = dialog.locator('input[name="execution-all"][value="unsandboxed"]');
-    if (project.turboWarpPlus) {
+    const review = dialog.locator('[data-testid="twextsec-individual"]');
+    if (await review.count()) {
+      const manifestRows = dialog.locator('.twextsec-row');
+      assert.equal(await manifestRows.count(), sources.size);
+      const remaining = new Set(sources.keys());
+      for (const row of await manifestRows.all()) {
+        const key = await row.getAttribute('data-key');
+        const labels = await row.locator('.twextsec-id, strong').allTextContents();
+        const ids = [...sources.keys()].filter((id) => key === id || labels.some((label) => label.includes(id)));
+        assert.equal(ids.length, 1, 'Permission row must identify a verified extension.');
+        const id = ids[0]!;
+        assert(remaining.delete(id), 'Each verified extension must be reviewed once.');
+        const digest = row.locator('.twextsec-digest');
+        if (await digest.count()) {
+          assert.equal((await digest.textContent())?.trim(), `SHA-256 ${sources.get(id)!.sha256}`);
+        } else {
+          // Legacy inline sources have no digest label; their row key is the complete source URL.
+          const url = project.extensionURLs?.[id];
+          assert(url?.startsWith('data:text/javascript;base64,') && key === url,
+            'A legacy permission row must bind the exact verified inline source.');
+          assert.equal(createHash('sha256').update(Buffer.from(url.split(',')[1]!, 'base64'))
+            .digest('hex'), sources.get(id)!.sha256);
+        }
+      }
+      if (await review.isEnabled()) {
+        await review.click(editorControlClick);
+        await dialog.locator('[data-testid="twextsec-complete"]').waitFor({state: 'visible'});
+        continue;
+      }
+      for (const row of await manifestRows.all()) {
+        const choice = row.locator('button[data-execution="unsandboxed"]');
+        assert(await choice.isEnabled(), 'The verified extension must allow unsandboxed execution.');
+        if (await choice.getAttribute('aria-pressed') !== 'true') await choice.click(editorControlClick);
+      }
+      await page.waitForFunction(() => [...document.querySelectorAll('.twextsec-row button[data-execution="unsandboxed"]')]
+        .every((button) => button.getAttribute('aria-pressed') === 'true'));
+      await dialog.locator('[data-testid="twextsec-complete"]').click(editorControlClick);
+    } else if (project.turboWarpPlus) {
       const manifestRows = dialog.locator('.twextsec-row');
       assert.equal(await manifestRows.count(), sources.size);
       const remaining = new Set(sources.keys());
@@ -229,27 +266,29 @@ async function approveVerifiedBlockProject(
   }
 }
 
-export async function loadVerifiedBlockProject(page: Page, input: string, project: ScratchProject, legacyOnly = false) {
+export async function loadVerifiedBlockProject(
+  previousPage: Page,
+  input: string,
+  project: ScratchProject,
+  {legacyOnly = false, onPage}: {legacyOnly?: boolean; onPage: (page: Page) => void},
+) {
   const fixture = verifiedDiagnosticFixtures.get(path.resolve(input));
   if (fixture) assert.equal(createHash('sha256').update(await readFile(input)).digest('hex'),
     fixture.sha256, 'The verified diagnostic fixture must not change before permission approval.');
   const permissionProject = fixture?.project ?? project;
   const archive = permissionProject.turboWarpPlus ? unzipSync(await readFile(input)) : undefined;
-  if (fixture) {
-    // Extension IDs are cached by a VM; isolate the authoring fixture from the playback VM.
-    await openBlockEditor(page, page.url());
-    await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()));
-  }
-  const token = randomUUID();
-  // A visible old project or permission dialog does not mean the selected file has loaded.
-  await page.evaluate((token) => {
-    const key = Symbol.for('samples/verified-project-load');
-    if (Reflect.has(window, key)) throw new Error('A verified project load is already pending.');
-    const runtime = window.vm.runtime;
-    const state = {token, runtime, loaded: false, onLoaded: () => { state.loaded = true; }};
-    Reflect.set(window, key, state);
-    runtime.once('PROJECT_LOADED', state.onLoaded);
-  }, token);
+  const editorUrl = new URL(previousPage.url());
+  editorUrl.searchParams.delete('twPlusOpenTab');
+  // A fresh VM cannot confuse an old project's blocks with the selected file.
+  const openingPage = await previousPage.context().newPage();
+  let page = openingPage;
+  onPage(page);
+  await openBlockEditor(page, editorUrl.href);
+  await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()),
+    undefined, {timeout: 120_000});
+  let resolvePopup: (page: Page) => void = () => {};
+  const popup = new Promise<Page>((resolve) => { resolvePopup = resolve; });
+  openingPage.on('popup', resolvePopup);
   try {
     await page.getByText(/^(File|ファイル)$/u).first().click(editorControlClick);
     const openSb3 = page
@@ -259,17 +298,29 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
       page.waitForEvent('filechooser'),
       openSb3.click(editorControlClick),
     ]);
+    const inline = page.waitForFunction((legacyOnly) => document.querySelector('[role=dialog]') ||
+      window.vm.runtime.targets.some((target: any) => Object.values(target.blocks?._blocks ?? {}).some((block: any) =>
+        block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai' || (!legacyOnly && block.opcode.endsWith('__embeddedYaml')))),
+    legacyOnly, {timeout: 120_000, polling: 250}).then(() => openingPage);
     await chooser.setFiles(input);
+    page = await Promise.race([popup, inline]);
+    if (page !== openingPage) {
+      await page.waitForURL((url) => url.origin === editorUrl.origin && url.pathname === editorUrl.pathname &&
+        url.searchParams.has('twPlusOpenTab'), {timeout: 120_000});
+    }
+    onPage(page);
+    await page.waitForFunction(() => Boolean(window.vm && window.ScratchBlocks?.getMainWorkspace()),
+      undefined, {timeout: 120_000});
     const permissions = await approveVerifiedBlockProject(page, permissionProject, archive, legacyOnly);
-    await page.waitForFunction((token) => {
-      const state = Reflect.get(window, Symbol.for('samples/verified-project-load'));
+    await page.waitForFunction((legacyOnly) => {
       const target = window.vm.editingTarget;
       const workspace = window.ScratchBlocks?.getMainWorkspace();
-      return state?.token === token && state.loaded && target && workspace &&
-        window.vm.runtime.targets.includes(target) &&
+      const loaded = window.vm.runtime.targets.some((entry: any) => Object.values(entry.blocks?._blocks ?? {}).some((block: any) =>
+        block.opcode === 'kubohiroyakamishibaiauthoring4_kamishibai' || (!legacyOnly && block.opcode.endsWith('__embeddedYaml'))));
+      return loaded && target && workspace && window.vm.runtime.targets.includes(target) &&
         target.blocks.getScripts().every((id: string) => workspace.getBlockById(id)) &&
         workspace.getTopBlocks(false).every((block: any) => target.blocks.getBlock(block.id));
-    }, token, {timeout: 120_000, polling: 250});
+    }, legacyOnly, {timeout: 120_000, polling: 250});
     if (fixture) {
       fixture.sourceVerification.loadedSourceHashes = await page.evaluate(async (expected) => {
         const urls = window.vm.extensionManager.getExtensionURLs();
@@ -287,15 +338,11 @@ export async function loadVerifiedBlockProject(page: Page, input: string, projec
         return actual;
       }, fixture.sourceVerification.expectedSourceHashes);
     }
+    if (openingPage !== page) await openingPage.close();
+    await previousPage.close();
     return permissions;
   } finally {
-    await page.evaluate((token) => {
-      const key = Symbol.for('samples/verified-project-load');
-      const state = Reflect.get(window, key);
-      if (state?.token !== token) return;
-      state.runtime.removeListener('PROJECT_LOADED', state.onLoaded);
-      Reflect.deleteProperty(window, key);
-    }, token).catch(() => {});
+    openingPage.off('popup', resolvePopup);
   }
 }
 
