@@ -151,7 +151,7 @@ function detailRelativeHref(work: WorkEntry, href: string): string {
 
 function renderDetailMediaStyles() {
   return `
-    .work-media { margin: 32px 0; padding: 22px; border: 1px solid var(--line, #dbc9bb); border-radius: 14px; background: var(--paper, #fffdf8); box-shadow: 0 8px 24px rgb(89 61 43 / 8%); }
+    .work-media { margin: 32px 0; padding: 22px; border: 1px solid var(--line, #d8e0e8); border-radius: 14px; background: var(--paper, #ffffff); box-shadow: 0 8px 24px rgb(89 61 43 / 8%); }
     .work-media h2 { margin: 0; }
     .work-media__intro { margin: .45rem 0 1.25rem; color: var(--muted); line-height: 1.7; }
     .work-media__grid { display: grid; grid-template-columns: minmax(210px, .58fr) minmax(0, 1.42fr); gap: 20px; align-items: start; }
@@ -385,8 +385,12 @@ function renderCapabilityLaunchStyles(): string {
     .work-formats__note { display: block; opacity: .8; }
     .work-formats__unavailable { opacity: .8; }
     .capability-note { margin: .5rem 0; font-size: .9rem; }
-    .capability-gate { margin: .5rem 0; padding: .75rem; border: 1px solid currentColor; border-radius: .4rem; }
-    .capability-gate p { margin: 0 0 .5rem; }
+    .capability-gate { width: min(440px, calc(100vw - 48px)); padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper, white); color: var(--ink); box-sizing: border-box; }
+    .capability-gate::backdrop { background: rgb(15 23 42 / 45%); }
+    .capability-gate h2 { margin: 0 0 12px; font-size: 1.15rem; }
+    .capability-gate p { margin: 0 0 20px; line-height: 1.7; }
+    .capability-gate__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .capability-gate .button { min-height: 44px; box-sizing: border-box; font: inherit; font-weight: 700; cursor: pointer; }
 `;
 }
 
@@ -399,16 +403,14 @@ function renderCapabilityLaunchScript(): string {
   (() => {
     for (const link of document.querySelectorAll('a[data-capability-launch]')) {
       link.addEventListener('click', (event) => {
+        const gate = document.createElement('dialog');
+        if (typeof gate.showModal !== 'function') return;
         event.preventDefault();
-        const existing = link.parentElement?.querySelector('.capability-gate');
-        if (existing) {
-          existing.querySelector('a')?.focus();
-          return;
-        }
-        const gate = document.createElement('div');
         gate.className = 'capability-gate';
-        gate.setAttribute('role', 'group');
-        gate.setAttribute('aria-label', 'カメラの使用確認');
+        gate.setAttribute('aria-labelledby', 'capability-gate-title');
+        const title = document.createElement('h2');
+        title.id = 'capability-gate-title';
+        title.textContent = 'カメラを使う作品です';
         const message = document.createElement('p');
         message.textContent = 'Web版を開いた後、ブラウザがカメラの使用許可を求めたら、許可してください。';
         const start = document.createElement('a');
@@ -419,12 +421,17 @@ function renderCapabilityLaunchScript(): string {
         cancel.className = 'button secondary';
         cancel.type = 'button';
         cancel.textContent = 'やめる';
-        cancel.addEventListener('click', () => {
+        cancel.addEventListener('click', () => gate.close());
+        gate.addEventListener('close', () => {
           gate.remove();
           link.focus();
         });
-        gate.append(message, start, cancel);
-        link.insertAdjacentElement('afterend', gate);
+        const actions = document.createElement('div');
+        actions.className = 'capability-gate__actions';
+        actions.append(start, cancel);
+        gate.append(title, message, actions);
+        document.body.append(gate);
+        gate.showModal();
         start.focus();
       });
     }
@@ -530,7 +537,7 @@ ${actions.join('\n')}
         </div>`;
 }
 
-function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], features: SiteFeatures, resolveHref: (href: string) => string = (href) => href): string {
+export function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], features: SiteFeatures, resolveHref: (href: string) => string = (href) => href): string {
   const renderRow = (row: WorkDelivery): string => {
     const blocks = row.script.format === 'dsl4-blocks';
     const blockFormat = work.artifacts?.['sb3-blocks'];
@@ -538,7 +545,7 @@ function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], features: Sit
     const project = available
       ? `<a class="work-download" href="${escapeHtml(resolveHref(row.sb3))}" download>${blocks ? 'ブロック台本SB3をダウンロード' : 'SB3をダウンロード'}</a>`
       : '<span class="work-download" aria-disabled="true">ブロック台本SB3（準備中）</span>';
-    const editable = blocks || (row.script.format === 'dsl4-yaml' && row.script.mode === 'embedded');
+    const editable = blocks || row.script.format === 'dsl32-txt' || row.script.mode === 'embedded';
     const editor = editable && available ? renderEditorButton(new URL(row.sb3, publicUrl).href) : '';
     const webAction = row.web ? work.actions.find(({href}) => href === row.web)! : undefined;
     const web = webAction
@@ -547,19 +554,20 @@ function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], features: Sit
     const source = row.source
       ? `<a class="work-download" href="${escapeHtml(resolveHref(row.source))}" download>${scriptFormatLabels[row.script.format]}をダウンロード</a>`
       : '';
-    return `<tr data-delivery-id="${row.id}" data-script-format="${row.script.format}" data-script-mode="${row.script.mode}">
-      <td data-column="アセットの持ち方">${row.assets.map((asset) => `<p class="delivery-asset"><span>${escapeHtml(asset.scope)}</span><strong>${assetModeLabels[asset.mode]}</strong></p>`).join('')}</td>
-      <td data-column="台本の持ち方"><span class="delivery-script-mode">${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</span><strong>${scriptFormatLabels[row.script.format]}</strong></td>
-      <td data-column="操作"><div class="delivery-actions">${web}${editable ? `<div class="block-editor-actions">${project}${editor}</div>` : project}${source}</div>${row.note ? `<p class="delivery-note">${escapeHtml(row.note)}</p>` : ''}</td>
-    </tr>`;
+    return `<section class="delivery-option" data-delivery-id="${row.id}" data-script-format="${row.script.format}" data-script-mode="${row.script.mode}">
+      <div class="delivery-option__heading"><h5>${scriptFormatLabels[row.script.format]}</h5><p class="delivery-script-mode">台本の持ち方：${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</p></div>
+      <div class="delivery-assets"><p class="delivery-assets__label">アセットの持ち方</p><dl>${row.assets.map((asset) => `<div><dt>${escapeHtml(asset.scope)}</dt><dd>${assetModeLabels[asset.mode]}</dd></div>`).join('')}</dl></div>
+      ${row.note ? `<p class="delivery-note">${escapeHtml(row.note)}</p>` : ''}
+      <div class="delivery-actions"><div class="delivery-launch-actions">${web}${editor}</div><div class="delivery-downloads">${project}${source}</div></div>
+    </section>`;
   };
-  const table = (title: string, variants: WorkDelivery[]): string => variants.length
-    ? `<section class="delivery-group"><h4>${title}</h4><table class="delivery-table"><thead><tr><th scope="col">アセットの持ち方</th><th scope="col">台本の持ち方</th><th scope="col">操作</th></tr></thead><tbody>${variants.map(renderRow).join('')}</tbody></table></section>`
+  const group = (title: string, variants: WorkDelivery[]): string => variants.length
+    ? `<section class="delivery-group"><h4>${title}</h4><div class="delivery-options">${variants.map(renderRow).join('')}</div></section>`
     : '';
   const learningLinks = work.id === 'tutorial-earthquake-safety'
     ? `<p class="delivery-learning">作り方の教材：<a href="${resolveHref('stories/tutorial/tutorial-story-starter-4.0.zip')}" download>スターター</a> ／ <a href="${resolveHref('stories/tutorial/tutorial-story-addition-kit-4.0.zip')}" download>addition kit</a></p>`
     : '';
-  return `${table('DSL4.0', rows.filter(({script}) => script.format !== 'dsl32-txt'))}${table('DSL3.2 TXT台本', rows.filter(({script}) => script.format === 'dsl32-txt'))}${learningLinks}`;
+  return `<div class="delivery-groups">${group('DSL4.0', rows.filter(({script}) => script.format !== 'dsl32-txt'))}${group('DSL3.2 TXT台本', rows.filter(({script}) => script.format === 'dsl32-txt'))}</div>${learningLinks}`;
 }
 
 function renderWorkCard(work: WorkEntry, features: SiteFeatures): string {
@@ -643,7 +651,7 @@ export function renderRootIndex(
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="stylesheet" href="site-shell.css">
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --paper: #fffdf8; --canvas: #fff8ee; --accent: #963f2f; --line: #dbc9bb; }
+    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #243247; --muted: #526176; --paper: #ffffff; --canvas: #f5f7fa; --accent: #963f2f; --line: #d8e0e8; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
     main { max-width: 1320px; margin: auto; padding: 48px 24px 72px; }
@@ -892,13 +900,13 @@ export function renderSampleIndex(manifest: SiteManifest, work: WorkEntry): stri
   <link rel="icon" href="../../favicon.png" type="image/png">
   <link rel="stylesheet" href="../../site-shell.css">
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --canvas: #fff8ee; --accent: #963f2f; }
+    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #243247; --muted: #526176; --canvas: #f5f7fa; --accent: #963f2f; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
     main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
     .local-nav { margin-bottom: 32px; }
     a { color: var(--accent); }
     .artifact-groups { display: grid; gap: 18px; margin: 28px 0; }
-    .artifact-group { padding: 20px; border: 1px solid #dbc9bb; border-radius: 12px; background: #fffdf8; }
+    .artifact-group { padding: 20px; border: 1px solid #d8e0e8; border-radius: 12px; background: #ffffff; }
     .artifact-group h2 { margin-top: 0; }
     .artifact-group p { line-height: 1.7; }
     .artifact-sizes { margin: 16px 0; padding-left: 1.4rem; color: var(--muted); }
@@ -1025,7 +1033,7 @@ export function renderMyUrashimaIndex(
   <link rel="icon" href="../../favicon.png" type="image/png">
   <link rel="stylesheet" href="../../site-shell.css">
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --canvas: #fff8ee; --paper: #fffdf8; --accent: #963f2f; --line: #dbc9bb; }
+    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #243247; --muted: #526176; --canvas: #f5f7fa; --paper: #ffffff; --accent: #963f2f; --line: #d8e0e8; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
     main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
@@ -1101,7 +1109,7 @@ export function renderTutorialIndex(
   <link rel="icon" href="../../favicon.png">
   <link rel="stylesheet" href="../../site-shell.css">
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --paper: #fffdf8; --canvas: #fff8ee; --accent: #963f2f; --line: #dbc9bb; }
+    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #243247; --muted: #526176; --paper: #ffffff; --canvas: #f5f7fa; --accent: #963f2f; --line: #d8e0e8; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
     main { max-width: 1320px; margin: auto; padding: 40px 24px 72px; }
@@ -1161,7 +1169,7 @@ export function renderRightsIndex() {
   <link rel="icon" href="../favicon.png" type="image/png">
   <link rel="stylesheet" href="../site-shell.css">
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #3f302b; --muted: #756960; --paper: #fffdf8; --canvas: #fff8ee; --accent: #963f2f; --line: #dbc9bb; }
+    :root { color-scheme: light; font-family: system-ui, sans-serif; --ink: #243247; --muted: #526176; --paper: #ffffff; --canvas: #f5f7fa; --accent: #963f2f; --line: #d8e0e8; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); }
     main { max-width: 880px; margin: auto; padding: 48px 24px 72px; }
@@ -1263,7 +1271,7 @@ export function renderAudioPlaybackIndex(audioWork: WorkEntry, version: string):
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>音声再生サンプル | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
-<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fff8ee;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#f5f7fa;color:#243247}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
 ${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/audio-playback/')}
 <main><h1>音声再生サンプル</h1><p>DSL 4.0 / ${version}。タイトルを閉じると合成音の再生を開始し、全10操作と音量・フェードを順に実行します。</p>
 ${renderArtifactFormats(audioWork, () => true, '', (href) => href.replace('stories/audio-playback/', ''))}
@@ -1279,7 +1287,7 @@ export function renderThreeVisitsIndex(narrativeWork: WorkEntry, version: string
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>三人の訪問 | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
-<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fbf1dd;color:#3f302b}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#fbf1dd;color:#243247}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
 ${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/three-visits/')}
 <main><h1>三人の訪問 — 同じ展開、ちがう結末</h1><p>DSL 4.0 / ${version}。Standardの物語制御で、共通の訪問を一度だけ書き、各人の親切さから結末を選びます。追加の実験flagは不要です。</p>
 <img src="card-scenes.gif" alt="三人の訪問と各人の結末" width="640" style="max-width:100%;height:auto">
