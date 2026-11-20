@@ -692,7 +692,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.equal(
     dsl4WebEnabled
       ? rootDsl40Actions.includes('href="stories/urashima/web-4.0/"')
-      : rootDsl40Actions.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>') &&
+      : rootDsl40Actions.includes('<p class="delivery-web-status">Web版でプレイ（準備中）</p>') &&
           !rootDsl40Actions.includes('href="stories/urashima/web-4.0/"'),
     true,
   );
@@ -735,7 +735,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     myDsl4WebEnabled
       ? myUrashimaDsl40Actions.includes('href="stories/my-urashima/web-4.0/"')
       : myUrashimaDsl40Actions.includes(
-          'disabled aria-disabled="true">Web版でプレイ（準備中）</button>',
+          '<p class="delivery-web-status">Web版でプレイ（準備中）</p>',
         ) && !myUrashimaDsl40Actions.includes('href="stories/my-urashima/web-4.0/"'),
     true,
   );
@@ -776,7 +776,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.equal(
     dsl4WebEnabled
       ? sampleDsl40Actions.includes('href="web-4.0/"')
-      : sampleDsl40Actions.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>') &&
+      : sampleDsl40Actions.includes('<p class="delivery-web-status">Web版でプレイ（準備中）</p>') &&
           !sampleDsl40Actions.includes('href="web-4.0/"'),
     true,
   );

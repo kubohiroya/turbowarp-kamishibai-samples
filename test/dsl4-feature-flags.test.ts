@@ -69,11 +69,8 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   assert(rootIndex.includes('href="stories/urashima/web/"'));
   assert(!rootIndex.includes('href="stories/urashima/web-4.0/"'));
   assert(!rootIndex.includes('href="stories/my-urashima/web-4.0/"'));
-  assert.equal(
-    (rootIndex.match(/disabled aria-disabled="true">Web版でプレイ（準備中）<\/button>/gu) ?? [])
-      .length,
-    2,
-  );
+  assert.equal((rootIndex.match(/class="delivery-web-status"/gu) ?? []).length, 2);
+  assert.equal((rootIndex.match(/class="delivery-play"/gu) ?? []).length, 1);
 
   const urashima = worksCatalog.works.find(({id}) => id === 'urashima');
   assert.ok(urashima, 'urashima must exist in the works catalog');
@@ -81,7 +78,7 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   assert(sampleIndex.includes('15 MB（14,951,564 bytes）'));
   assert(sampleIndex.includes('8.7 KB（8,729 bytes）'));
   assert(!sampleIndex.includes('href="web-4.0/"'));
-  assert(sampleIndex.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>'));
+  assert(sampleIndex.includes('<p class="delivery-web-status">Web版でプレイ（準備中）</p>'));
   assert(!sampleIndex.includes('preserved-enabled-lock'));
   assert(sampleIndex.includes('src="card-scenes.gif"'));
   assert(sampleIndex.includes('data-work-carousel="urashima"'));
@@ -95,7 +92,7 @@ test('keeps disabled DSL 4.0 Web locks reusable without publishing active links'
   );
   assert(myIndex.includes('9.8 MB（9,806,584 bytes）'));
   assert(!myIndex.includes('href="web-4.0/"'));
-  assert(myIndex.includes('disabled aria-disabled="true">Web版でプレイ（準備中）</button>'));
+  assert(myIndex.includes('<p class="delivery-web-status">Web版でプレイ（準備中）</p>'));
   assert(!myIndex.includes('preserved-enabled-lock'));
 });
 

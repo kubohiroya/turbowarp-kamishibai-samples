@@ -5,7 +5,7 @@ import {readWorksCatalog} from '../scripts/works-catalog.ts';
 import {validateWorkDelivery, workDelivery} from '../scripts/work-delivery.ts';
 import {renderDeliveryRows} from '../scripts/build-site.ts';
 
-test('opens each TXT project in the editor using the same SB3 as its download on home and detail pages', async () => {
+test('keeps heading play links and editor links matched to the delivered formats on home and detail pages', async () => {
   const catalog = await readWorksCatalog('site/works.json');
   const features = {urashimaWeb: true, urashimaDsl4Web: true, myUrashimaDsl4Web: true};
   for (const id of ['urashima', 'my-urashima']) {
@@ -17,6 +17,14 @@ test('opens each TXT project in the editor using the same SB3 as its download on
       assert.equal(cards.length, rows.length);
       for (const [index, row] of rows.entries()) {
         const card = cards[index]!;
+        const heading = card.slice(0, card.indexOf('<div class="delivery-assets">'));
+        const play = heading.match(/<a class="delivery-play" href="([^"]+)" title="Web版でプレイ" aria-label="Web版でプレイ"/u);
+        assert.equal(Boolean(play), Boolean(row.web));
+        if (row.web) {
+          assert.equal(play![1], detail ? row.web.replace(`stories/${id}/`, '') : row.web);
+          assert(heading.includes('data-capability-launch="camera"'));
+        }
+        assert(!card.includes('class="button"'));
         const editorLink = card.match(/class="twpe-edit-button" href="([^"]+)"/u);
         if (row.script.format === 'dsl4-yaml' && row.script.mode === 'external') {
           assert(!editorLink, 'External YAML must keep its separate script workflow.');
