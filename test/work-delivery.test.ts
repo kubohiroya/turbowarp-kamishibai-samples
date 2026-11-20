@@ -3,6 +3,36 @@ import {readFile} from 'node:fs/promises';
 import {test} from 'vitest';
 import {readWorksCatalog} from '../scripts/works-catalog.ts';
 import {validateWorkDelivery, workDelivery} from '../scripts/work-delivery.ts';
+import {renderDeliveryRows} from '../scripts/build-site.ts';
+
+test('opens each TXT project in the editor using the same SB3 as its download on home and detail pages', async () => {
+  const catalog = await readWorksCatalog('site/works.json');
+  const features = {urashimaWeb: true, urashimaDsl4Web: true, myUrashimaDsl4Web: true};
+  for (const id of ['urashima', 'my-urashima']) {
+    const work = catalog.works.find((entry) => entry.id === id)!;
+    const rows = workDelivery(work)!;
+    for (const detail of [false, true]) {
+      const html = renderDeliveryRows(work, rows, features, (href) => detail ? href.replace(`stories/${id}/`, '') : href);
+      const cards = [...html.matchAll(/<section class="delivery-option"[\s\S]*?<\/section>/gu)].map(([card]) => card);
+      assert.equal(cards.length, rows.length);
+      for (const [index, row] of rows.entries()) {
+        const card = cards[index]!;
+        const editorLink = card.match(/class="twpe-edit-button" href="([^"]+)"/u);
+        if (row.script.format === 'dsl4-yaml' && row.script.mode === 'external') {
+          assert(!editorLink, 'External YAML must keep its separate script workflow.');
+          continue;
+        }
+        assert(editorLink, `${id}/${row.id} must have an editor button.`);
+        const editor = new URL(editorLink[1]!.replaceAll('&amp;', '&'));
+        assert.equal(editor.searchParams.get('project_url'), `https://kubohiroya.github.io/turbowarp-kamishibai-samples/${row.sb3}`);
+        assert.equal(editor.searchParams.get('lang'), 'ja');
+        assert.equal(editor.searchParams.get('twPlusYamlEditor'), '1');
+        const download = detail ? row.sb3.replace(`stories/${id}/`, '') : row.sb3;
+        assert(card.includes(`href="${download}" download`));
+      }
+    }
+  }
+});
 
 test('keeps external workshop YAML distinct from the embedded story Web build', async () => {
   const catalog = await readWorksCatalog('site/works.json');
