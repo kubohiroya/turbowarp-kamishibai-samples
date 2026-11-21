@@ -464,23 +464,24 @@ try {
     }));
     assert.deepEqual(cameraPermissionStep, {supported: false, drawn: false});
 
-    // Packaged HTML uses the shared Dock; camera settings have one entry point.
+    // Packaged HTML keeps the shared Dock's camera control as the one camera entry point.
+    // Since 4.0.1 the Player hides the Dock; the playback settings (Esc while playing) open it.
     const dock = tutorial.page.locator('[data-runtime-controls-dock=true]');
     const cameraButton = dock.locator('[data-runtime-dock-control=camera]');
     const cameraPanel = tutorial.page.locator('[data-camera-source-panel=standalone]');
+    const playbackSettings = tutorial.page.locator('[data-dsl4-playback-settings=true]');
     await cameraButton.waitFor({state: 'attached'});
     assert.equal(await dock.count(), 1);
-    assert.equal(await dock.getAttribute('data-edge'), 'bottom');
-    assert.equal(await dock.getAttribute('data-auto-hide'), 'true');
+    assert.equal(await dock.evaluate((element) => getComputedStyle(element).display), 'none');
     assert.equal(await cameraButton.count(), 1);
     assert.ok((await cameraButton.getAttribute('aria-label'))?.trim());
     assert.ok((await cameraButton.locator('[data-runtime-dock-icon]').textContent())?.trim());
     assert.equal(await cameraButton.getAttribute('aria-expanded'), 'false');
     assert.equal(await cameraPanel.isVisible(), false);
-    if (!(await cameraButton.isVisible())) {
-      await dock.locator('[data-runtime-dock-handle]').click();
-    }
-    await cameraButton.click();
+    await tutorial.page.keyboard.press('Escape');
+    await playbackSettings.waitFor({state: 'visible'});
+    assert.equal(await playbackSettings.getAttribute('data-dsl4-settings-context'), 'playback');
+    await playbackSettings.locator('[data-dsl4-settings-open=camera]').click();
     await cameraPanel.waitFor({state: 'visible'});
     assert.equal(await cameraButton.getAttribute('aria-expanded'), 'true');
     assert.equal(await cameraPanel.getAttribute('data-camera-mode'), 'settings');
@@ -510,6 +511,9 @@ try {
     await cameraPanel.getByRole('button', {name: /^(閉じる|Close)$/u}).click();
     assert.equal(await cameraPanel.isVisible(), false);
     assert.equal(await cameraButton.getAttribute('aria-expanded'), 'false');
+    // Closing the settings resumes the story from the action where it paused.
+    await playbackSettings.locator('[data-dsl4-settings-close]').click();
+    await playbackSettings.waitFor({state: 'hidden'});
     try {
       await tutorial.page.waitForFunction(
         () => {
