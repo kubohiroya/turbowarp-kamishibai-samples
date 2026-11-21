@@ -545,8 +545,7 @@ export function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], featur
     const project = available
       ? `<a class="work-download" href="${escapeHtml(resolveHref(row.sb3))}" download>${blocks ? 'ブロック台本SB3をダウンロード' : 'SB3をダウンロード'}</a>`
       : '<span class="work-download" aria-disabled="true">ブロック台本SB3（準備中）</span>';
-    const editable = blocks || row.script.format === 'dsl32-txt' || row.script.mode === 'embedded';
-    const editor = editable && available ? renderEditorButton(new URL(row.sb3, publicUrl).href) : '';
+    const editor = available ? renderEditorButton(new URL(row.sb3, publicUrl).href) : '';
     const webAction = row.web ? work.actions.find(({href}) => href === row.web)! : undefined;
     const web = webAction && !webAction.disabled && (!webAction.requires || features[webAction.requires] === true)
       ? `<a class="delivery-play" href="${escapeHtml(resolveHref(webAction.href!))}" title="Web版でプレイ" aria-label="Web版でプレイ"${webAction.external ? ' target="_blank" rel="noopener external"' : ''}${work.capabilities?.camera ? ' data-capability-launch="camera"' : ''}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></a>`

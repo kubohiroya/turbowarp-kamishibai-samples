@@ -26,10 +26,6 @@ test('keeps heading play links and editor links matched to the delivered formats
         }
         assert(!card.includes('class="button"'));
         const editorLink = card.match(/class="twpe-edit-button" href="([^"]+)"/u);
-        if (row.script.format === 'dsl4-yaml' && row.script.mode === 'external') {
-          assert(!editorLink, 'External YAML must keep its separate script workflow.');
-          continue;
-        }
         assert(editorLink, `${id}/${row.id} must have an editor button.`);
         const editor = new URL(editorLink[1]!.replaceAll('&amp;', '&'));
         assert.equal(editor.searchParams.get('project_url'), `https://kubohiroya.github.io/turbowarp-kamishibai-samples/${row.sb3}`);
