@@ -556,7 +556,7 @@ export function renderDeliveryRows(work: WorkEntry, rows: WorkDelivery[], featur
       : '';
     const source = row.source
       ? `<a class="work-download" href="${escapeHtml(resolveHref(row.source))}" download>${scriptFormatLabels[row.script.format]}をダウンロード</a>`
-      : '';
+      : blocks ? '<span class="delivery-source-note">（台本はSB3にブロックとして埋め込まれています）</span>' : '';
     return `<section class="delivery-option" data-delivery-id="${row.id}" data-script-format="${row.script.format}" data-script-mode="${row.script.mode}">
       <div class="delivery-option__heading"><div class="delivery-option__title"><h5>${scriptFormatLabels[row.script.format]}</h5>${web}</div><p class="delivery-script-mode">台本の持ち方：${row.script.mode === 'external' ? '外部から読み込み' : '組み込み'}</p></div>
       <div class="delivery-assets"><p class="delivery-assets__label">アセットの持ち方</p><dl>${row.assets.map((asset) => `<div><dt>${escapeHtml(asset.scope)}</dt><dd>${assetModeLabels[asset.mode]}</dd></div>`).join('')}</dl></div>
