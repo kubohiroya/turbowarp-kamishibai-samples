@@ -626,10 +626,10 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   // Direct editor links use the standard host and load the absolute published SB3 URL.
   const editorSb3Base = 'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/';
   for (const [page, expectedProjects] of [
-    [rootIndex, ['urashima/urashima-4.0.sb3', 'urashima/urashima-blocks-4.0.sb3', 'urashima/urashima.sb3', 'tutorial/tutorial-4.0.sb3', 'tutorial/tutorial-blocks-4.0.sb3', 'my-urashima/my-urashima-blocks-4.0.sb3', 'my-urashima/my-urashima.sb3']],
+    [rootIndex, ['urashima/urashima-4.0.sb3', 'urashima/urashima-blocks-4.0.sb3', 'urashima/urashima.sb3', 'tutorial/tutorial-4.0.sb3', 'tutorial/tutorial-blocks-4.0.sb3', 'my-urashima/my-urashima-4.0.sb3', 'my-urashima/my-urashima-blocks-4.0.sb3', 'my-urashima/my-urashima.sb3']],
     [sampleIndex, ['urashima/urashima-4.0.sb3', 'urashima/urashima-blocks-4.0.sb3', 'urashima/urashima.sb3']],
     [tutorialIndex, ['tutorial/tutorial-4.0.sb3', 'tutorial/tutorial-blocks-4.0.sb3']],
-    [myUrashimaIndex, ['my-urashima/my-urashima-blocks-4.0.sb3', 'my-urashima/my-urashima.sb3', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses-blocks-4.0.sb3`)]],
+    [myUrashimaIndex, ['my-urashima/my-urashima-4.0.sb3', 'my-urashima/my-urashima-blocks-4.0.sb3', 'my-urashima/my-urashima.sb3', ...[2, 3, 4].map((n) => `my-urashima/my-urashima-${n}-poses-blocks-4.0.sb3`)]],
   ] as const) {
     const links = [...page.matchAll(/href="([^"]*turbowarp-plus-editor[^"]*)"/gu)]
       .map((match) => new URL(match[1]!.replaceAll('&amp;', '&')));
