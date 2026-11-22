@@ -37,7 +37,7 @@
 - `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: DSL 4.0外部台本をファイル選択またはドラッグ＆ドロップで開くワークショップ版
 - `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: 同じappリリースで再現・検証して公開するDSL 4.0チュートリアル成果物
 
-先頭の `_` は物語作成者による内部的使用を示します。`player` は編集禁止を意味する「再生専用」ではなく「再生用」です。GitHub Pagesのビルド時には空の`dist/`へすべての成果物をロック済み入力から生成します。DSL 4.0のチェックイン済みSB3は配布元かつ再現性検証対象であり、Web版HTMLはリポジトリへコミットせず自動生成します。
+先頭の `_` は物語作成者による内部的使用を示します。`player` は編集禁止を意味する「再生専用」ではなく「再生用」です。GitHub Pagesのビルド時には空の`dist/`へすべての成果物をロック済み入力から生成します。DSL 4.0のSB3（`sb3-assets.json`に記録したReleaseのアセット）は配布元かつ再現性検証対象であり、Web版HTMLはリポジトリへコミットせず自動生成します。
 
 ## ライセンス
 
@@ -47,10 +47,19 @@
 
 ## ビルドと検証
 
+### SB3ファイルの置き場所
+
+`stories/`以下のSB3はgitに入れていません。各ファイルはこのrepoのGitHub Release（`sb3-<日付>-<ハッシュ>`）のアセットで、置き場所・サイズ・SHA-256を`sb3-assets.json`に記録しています。appのDSL 4.0ベース（`base/kamishibai-4.0.sb3`）は`app-release.json`が示すappのReleaseから取ります。配布URLは従来どおりPagesのURLで、Releaseは作業用の保管場所です。
+
+- `pnpm sb3:fetch`: 足りないSB3を取得し、サイズとSHA-256を照合します。`pnpm check`とCIは最初にこれを実行します。手元で再生成して記録と異なるファイルは上書きせずに報告します（`--force`で記録の版に戻します）。
+- `pnpm sb3:status`: 記録と異なるSB3、記録にないSB3、記録にあって手元にないSB3を表示します。
+- `pnpm sb3:publish`: 記録と異なるSB3と新しいSB3を新しいReleaseとして上げ、`sb3-assets.json`を書き換えます。作ったReleaseは後から変えないので、記録したURLの中身は変わりません。Releaseの作成はpushと同じ外部操作なので、承認を得てから実行し、書き換えた`sb3-assets.json`をPRに含めます。作品をやめたときは`node scripts/sb3-assets.ts forget <パス>`で記録から外します。
+
 ```bash
 npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
+pnpm sb3:fetch
 pnpm exec playwright install chromium
 pnpm typecheck
 pnpm test
@@ -69,7 +78,7 @@ pnpm run release:check
 
 `pnpm test:web`には、ブロック台本を実際のTurboWarpエディターで開く回帰テストも含まれます。CIで生成した`dist/stories/urashima/urashima-blocks-4.0.sb3`をファイルメニューから読み込み、埋め込み拡張を「サンドボックスなしで実行する」で許可します。10場面・174命令と未定義ブロックの不在を確認し、各場面の見出しを画面内へ移して撮影します。冒頭の待機時間を数値入力から`2`→`2.75`へ編集し、文書ダイアログの「表示されている形式に変換して検証・保存」で作品へ反映します。その後、ファイルメニューから保存したSB3を公式CLIでYAMLへ戻し、変更した待機時間以外の意味が維持されることまで検証します。ファイル操作は、OS固有のピッカーを使わない標準のファイル入力・ダウンロード経路を使います。
 
-このエディター回帰テストは、公開中の[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1)へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせずチェックイン済みSB3を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
+このエディター回帰テストは、公開中の[TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1)へ接続するオンライン検査です。公開中の作品には依存せず、今回生成したSB3を検証しますが、エディターの配信障害やUI変更でも失敗する場合があります。DSL 3.2検証を省略するPRでもこの検査は実行します。単独では`pnpm test:block-editor`、ビルドせず記録済みのSB3（`pnpm sb3:fetch`で取得）を確認する場合は`pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`で実行できます。YAML照合にはほかのDSL 4.0検証と同じ固定ビルダーを使います。
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 

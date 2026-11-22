@@ -16,6 +16,9 @@ import {fileURLToPath} from 'node:url';
  *
  * The browser checks, the site verification and the repository policy check need dist/ and stay
  * after the build, in that order.
+ *
+ * The SB3 files are not committed (see scripts/sb3-assets.ts), so missing ones are downloaded
+ * first. Files regenerated before the check differ from the record and are kept as they are.
  */
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
@@ -60,6 +63,12 @@ function report(result: StageResult): void {
   const seconds = (result.ms / 1000).toFixed(1);
   process.stdout.write(`\n--- ${result.name} (${seconds}s, exit ${result.code})\n`);
   if (result.output) process.stdout.write(result.output.endsWith('\n') ? result.output : `${result.output}\n`);
+}
+
+const fetched = await stage('sb3:fetch', ['sb3:fetch'], false);
+if (fetched.code !== 0) {
+  report(fetched);
+  process.exit(fetched.code);
 }
 
 const [unit, build] = await Promise.all([

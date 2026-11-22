@@ -37,7 +37,7 @@ The official Urashima Tarō runtime artifact uses DSL 3.2 SVG Text, and demonstr
 - `my-urashima-4.0.sb3` / `my-urashima/web-4.0/index.html`: the workshop build, which opens an external DSL 4.0 script through a file picker or drag and drop
 - `tutorial-4.0.sb3` / starter ZIP / addition kit ZIP / `web-4.0/index.html`: the DSL 4.0 tutorial artifacts, reproduced, verified and published from the same app release
 
-A leading `_` marks a file for a story author's own use. `player` means "for playback", not "playback only" in the sense of forbidding edits. When Pages builds, every artifact is generated into an empty `dist/` from pinned inputs. The checked-in DSL 4.0 SB3 files are both the distribution source and the subject of reproducibility checks; the web HTML builds are generated rather than committed.
+A leading `_` marks a file for a story author's own use. `player` means "for playback", not "playback only" in the sense of forbidding edits. When Pages builds, every artifact is generated into an empty `dist/` from pinned inputs. The DSL 4.0 SB3 files (release assets recorded in `sb3-assets.json`) are both the distribution source and the subject of reproducibility checks; the web HTML builds are generated rather than committed.
 
 ## License
 
@@ -47,10 +47,19 @@ The images and the Teachable Machine project under `resources/20260801/` are lic
 
 ## Build and verification
 
+### Where the SB3 files are
+
+The SB3 files under `stories/` are not in git. Each is an asset of a GitHub Release of this repository (`sb3-<date>-<hash>`), and `sb3-assets.json` records where it is and its size and SHA-256. The app's DSL 4.0 base (`base/kamishibai-4.0.sb3`) comes from the app release that `app-release.json` names. The download URLs for the works are still the Pages URLs; the releases are only where the files are kept.
+
+- `pnpm sb3:fetch` downloads the missing SB3 files and checks their size and SHA-256. `pnpm check` and CI run it first. A file regenerated locally that differs from the record is reported, not overwritten (`--force` restores the recorded one).
+- `pnpm sb3:status` lists the SB3 files that differ from the record, the ones not recorded, and the recorded ones missing locally.
+- `pnpm sb3:publish` uploads the changed and new SB3 files as a new release and rewrites `sb3-assets.json`. A release is never changed afterwards, so a recorded URL keeps its bytes. Creating a release is an external operation like a push: get approval first, and include the rewritten `sb3-assets.json` in the pull request. When a work is removed, `node scripts/sb3-assets.ts forget <path>` drops its record.
+
 ```bash
 npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
+pnpm sb3:fetch
 pnpm exec playwright install chromium
 pnpm typecheck
 pnpm test
@@ -69,7 +78,7 @@ The site header, navigation contract and `site-shell.css` come from the shared p
 
 `pnpm test:web` also includes a regression test that opens the block script in the real TurboWarp editor. It loads `dist/stories/urashima/urashima-blocks-4.0.sb3`, generated in CI, from the file menu, and allows the embedded extension with "run extension without sandbox". It confirms 10 scenes and 174 instructions and the absence of undefined blocks, and moves each scene's heading into view to photograph it. It then edits the opening wait from `2` to `2.75` in a number input and applies it to the project with the document dialog’s "Convert, validate and save the displayed format" action. It saves the SB3 from the file menu, converts it back to YAML with the official CLI, and verifies that nothing but the changed wait has changed in meaning. File operations use the standard file-input and download paths rather than an OS-specific picker.
 
-This editor regression test connects to the published [TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1). It does not depend on a published work — it verifies the SB3 generated in that run — but it can also fail because of an editor outage or a UI change. It runs even on pull requests that skip the DSL 3.2 verification. On its own it is `pnpm test:block-editor`, and to check a checked-in SB3 without building, `pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`. The YAML comparison uses the same pinned builder as the other DSL 4.0 checks.
+This editor regression test connects to the published [TurboWarp-Plus-Editor](https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1). It does not depend on a published work — it verifies the SB3 generated in that run — but it can also fail because of an editor outage or a UI change. It runs even on pull requests that skip the DSL 3.2 verification. On its own it is `pnpm test:block-editor`, and to check a recorded SB3 (after `pnpm sb3:fetch`) without building, `pnpm test:block-editor --input stories/urashima/urashima-blocks-4.0.sb3`. The YAML comparison uses the same pinned builder as the other DSL 4.0 checks.
 
 The acceptance criteria are that loading, displaying 10 scenes, editing on screen and the semantic comparison of the saved script all succeed. The per-scene images, the post-edit image, the interaction trace, the saved SB3 and the YAML written back are stored under `.tmp/block-editor-browser/run-*/`. On failure the last screen, the failing phase and the error log are stored too, and the shared action used by CI, Pages and the scheduled verification keeps them as the `block-editor-regression` artifact for 7 days. To roll back, restore the editor-check registration in `run-web-checks.ts` and the artifact-storing step of the shared action to their state before this change.
 
