@@ -19,6 +19,21 @@ function neckHead(base, ang, len, {billDown = 0, bend = 0} = {}) {
   s += `<ellipse cx="3" cy="-1.5" rx="3.6" ry="3" fill="${C.red}"/><circle cx="3.4" cy="-1.6" r="1.6" fill="${C.eye}"/><circle cx="3.6" cy="-1.6" r=".8" fill="#1a1a1a"/>`;
   return s + `</g>`;
 }
+// 首を胴体の中から生やす：胴体の前寄り（中心 c、傾き tilt）の点から、もとの首の先（頭）までを結ぶ。
+// 付け根は太く、頭へ向かって細くする。胴体より先に描き、付け根を胴体で隠す
+function neckFromBody(c, tilt, base, ang, len, opts = {}) {
+  const t = tilt * Math.PI / 180, lx = -20, ly = -6;
+  const root = [c[0] + lx * Math.cos(t) - ly * Math.sin(t), c[1] + lx * Math.sin(t) + ly * Math.cos(t)];
+  const a = ang * Math.PI / 180, head = [base[0] + Math.cos(a) * len, base[1] + Math.sin(a) * len];
+  const na = Math.atan2(head[1] - root[1], head[0] - root[0]) * 180 / Math.PI, nl = Math.hypot(head[0] - root[0], head[1] - root[1]);
+  // 付け根（太さ18）から首の中ほど（太さ11）へ、なめらかに細くなる形
+  const ux = (head[0] - root[0]) / nl, uy = (head[1] - root[1]) / nl, nx = -uy, ny = ux;
+  const end = [root[0] + ux * nl * .6, root[1] + uy * nl * .6];
+  const q = (p, w) => `${r1(p[0] + nx * w)} ${r1(p[1] + ny * w)}`;
+  return `<path d="M${q(root, 9)} Q${q([root[0] + ux * nl * .3, root[1] + uy * nl * .3], 6.2)} ${q(end, 5.5)} L${q(end, -5.5)} Q${q([root[0] + ux * nl * .3, root[1] + uy * nl * .3], -6.2)} ${q(root, -9)} Z" fill="${C.white}"/>` +
+    `<circle cx="${r1(root[0])}" cy="${r1(root[1])}" r="9" fill="${C.white}"/>` +
+    neckHead(root, na, nl, opts);
+}
 // 胴体：中心 c、傾き tilt（度）。尾は黒い風切羽が少し見える
 const body = (c, tilt) =>
   `<g transform="translate(${c[0]} ${c[1]}) rotate(${tilt})">` +
@@ -56,8 +71,8 @@ function frame1() {
   let s = ripple(118, 171, 44, .7) + ripple(118, 171, 26, .9);
   s += leg([124, 122], [138, 144], [122, 168], -1) + leg([112, 122], [124, 146], [104, 168], -1);
   s += wing([132, 96], -150, 70, {spread: .8, far: true});
+  s += neckFromBody([120, 112], -12, [94, 104], 200, 30, {billDown: 28, bend: -4});
   s += body([120, 112], -12);
-  s += neckHead([94, 104], 200, 30, {billDown: 28, bend: -4});
   s += wing([126, 100], -132, 76, {spread: .9});
   return s;
 }
@@ -67,8 +82,8 @@ function frame2() {
   s += drops([[86, 150, 2.4], [96, 140, 2], [140, 146, 2.6], [150, 156, 2], [118, 134, 1.8]]);
   s += leg([126, 104], [140, 130], [128, 162], -1) + leg([114, 104], [128, 132], [114, 166], -1);
   s += wing([128, 74], -112, 84, {spread: .85, far: true});
+  s += neckFromBody([118, 92], -24, [92, 78], 205, 34, {billDown: 8});
   s += body([118, 92], -24);
-  s += neckHead([92, 78], 205, 34, {billDown: 8});
   s += wing([122, 80], -96, 92, {spread: 1});
   return s;
 }
@@ -78,8 +93,8 @@ function frame3() {
   s += drops([[120, 120, 2], [134, 138, 2.2], [146, 154, 1.8]]);
   s += `<path d="M142 72 L196 82 M138 74 L194 90" stroke="${C.red}" stroke-width="3.2" stroke-linecap="round"/><path d="M196 82 l7 -2 M194 90 l7 1" stroke="${C.red}" stroke-width="2" stroke-linecap="round"/>`;
   s += wing([124, 62], -200, 86, {spread: .85, far: true});
+  s += neckFromBody([120, 70], -4, [92, 64], 188, 36);
   s += body([120, 70], -4);
-  s += neckHead([92, 64], 188, 36);
   s += wing([118, 66], 150, 96, {spread: 1});
   return s;
 }
