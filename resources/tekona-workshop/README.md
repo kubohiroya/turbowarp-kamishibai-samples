@@ -26,7 +26,7 @@ Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習
 | [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、求婚者の候補8案、仮素材への反映 |
 | `copilot/style-reference.png` | 参加者 | Copilotに添付する絵柄の見本（用意済みの求婚者の立ち絵・ポーズ絵） |
 | `copilot/pose-draft.png` | 参加者 | `stand`・`kime`・`rejected`の棒人間を左から並べて描く白紙 |
-| [`art-versions/`](art-versions/README.md) | 開発 | 仮素材の絵柄の3つの版（シンプル版・考証を描き込んだ版・アニメ調）の保存。SVG・一覧画像・絵柄の見本・生成スクリプト |
+| [`art-versions/`](art-versions/README.md) | 開発 | 仮素材の絵柄の版（シンプル版・考証を描き込んだ版・アニメ調・人体と芝居を見直した版）の保存。SVG・一覧画像・絵柄の見本・生成スクリプト |
 | [`assistant/compose.html`](assistant/compose.html) | アシスタント | 掲示板の提出文を確認し、ブロック台本版では枠に入れる文の一覧を、外部YAML版では参加者の場面を加えた台本を作るページ（ファイルから直接開ける。通信しない） |
 | `assistant/compose-participants.js`、`assistant/compose.template.html` | 開発 | 上のページの組み立て処理と雛形。`pnpm update:tekona`がページを生成する |
 
