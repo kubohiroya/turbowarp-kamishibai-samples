@@ -56,47 +56,68 @@ function foot(a, f, skin, {lift = 0, shoe = null, size = 1} = {}) {
 
 // ---------------- 顔（右向きの3/4で描き、左向きは左右反転） ----------------
 // kind: male | female。mood: stand | eager | serious | proud | pained | smile | gentle | resolve
+const MALE_FACES = {
+  // 里の若者：丸みのある広い顔、丸い目、太くまっすぐな眉、だんご鼻、大きな口
+  sato: {chin: 28, contour: 'M-20 -6 Q-21 12 -12 21 Q-4 28 5 28 Q13 27 17 20 Q21 12 21 0 Q22 -18 10 -25 Q0 -29 -10 -26 Q-20 -20 -20 -6 Z', ear: 5,
+    eyeW: 5, eyeH: 2.6, iris: 2.6, lid: 1.6, browY: -11, browArch: 0, browW: 3.6, mouthW: 1.25, mouthY: 17,
+    nose: '<path d="M5 -3 Q6 3 9 7 Q10 10 6 11 Q3 11 3 9" fill="none" stroke="SD" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="6" cy="9" rx="4.6" ry="2.6" fill="SD" opacity=".45"/>'},
+  // 国府の役人：面長で細いあご、切れ長の細い目、細く上がった眉、細く長い鼻、小さく薄い口
+  kokufu: {chin: 33, contour: 'M-17 -8 Q-18 12 -10 24 Q-3 32 4 33 Q10 32 14 25 L17 14 Q19 4 19 -4 Q20 -20 10 -26 Q0 -30 -9 -27 Q-17 -22 -17 -8 Z', ear: 4,
+    eyeW: 6.4, eyeH: 1.5, iris: 2, lid: 2, browY: -10, browArch: 1.5, browW: 2.2, mouthW: .8, mouthY: 20,
+    nose: '<path d="M4 -6 Q5 4 8 11 Q6 12.5 3.6 12 Q5 11 5.4 10 Q4 2 4 -6 Z" fill="SD" opacity=".85"/><path d="M3 12.5 q2 1 4.6 -.2" stroke="SD" stroke-width="1.3" fill="none" stroke-linecap="round"/>'},
+  // 都の貴族：ふくよかなほおと二重あご、重いまぶたと涙袋、弧を描く眉、鼻筋の通った大きな鼻、厚い唇
+  miyako: {chin: 30, jowl: true, contour: 'M-19 -6 Q-21 12 -13 22 Q-6 29 4 30 Q12 30 17 24 Q22 16 21 6 Q22 -16 11 -24 Q1 -29 -10 -26 Q-19 -20 -19 -6 Z', ear: 5,
+    eyeW: 5.6, eyeH: 2.2, iris: 2.4, lid: 1.8, heavyLid: true, bags: true, browY: -12, browArch: 2.6, browW: 2.6, mouthW: 1, mouthY: 18, lip: true,
+    nose: '<path d="M4 -4 Q8 1 9 6 Q11 9 8 11 Q5 12 3 10" fill="none" stroke="SD" stroke-width="1.8" stroke-linecap="round"/><path d="M4 -4 Q7 1 8 7 Q5 6 4.4 2 Z" fill="SD" opacity=".5"/>'},
+};
 function face(o) {
   const {kind, mood, skin, skinDark, brow = '#2b2118', eye = '#2a1d16', beard = false, mustache = false, stubble = false} = o;
   let s = '';
   if (kind === 'male') {
-    // あごの張った輪郭、ほお骨、太い首につながる下あご
-    s += `<path d="M-19 -6 Q-20 10 -12 20 Q-6 26 4 29 Q11 29 15 24 L18 15 Q21 13 20 9 L21 0 Q23 -16 12 -24 Q2 -29 -10 -26 Q-19 -20 -19 -6 Z" fill="${skin}"/>`;
-    s += `<path d="M-12 20 Q-6 26 4 29 Q11 29 15 24 Q6 26 -2 22 Q-8 19 -12 14 Z" fill="${skinDark}" opacity=".55"/>`;
-    s += `<ellipse cx="-14" cy="3" rx="4.5" ry="7.5" fill="${skin}"/><path d="M-15 0 q-2 4 0 7" stroke="${skinDark}" stroke-width="1.6" fill="none"/>`;
-    // 鼻：両目のあいだ（3/4なので奥の目に寄る）。鼻筋の影と小鼻
-    s += `<path d="M4 -4 Q6 3 9 8 Q7 10.5 4 10 Q6 9 6.5 7.5 Q4.5 2 4 -4 Z" fill="${skinDark}" opacity=".8"/>`;
-    s += `<path d="M3 10.5 q2.5 1.4 6 -.4" stroke="${skinDark}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-    if (stubble) s += `<path d="M-6 20 Q4 30 15 23 L16 18 Q6 24 -4 16 Z" fill="#3a2a20" opacity=".16"/>`;
-    // 目（小さめ・切れ長）
+    // 人物ごとの顔立ち：輪郭・目・眉・鼻・口を変える
+    const F = MALE_FACES[o.type];
+    const cy = F.chin;
+    s += `<path d="${F.contour}" fill="${skin}"/>`;
+    s += `<path d="M-12 ${cy - 9} Q-4 ${cy - 2} 4 ${cy} Q11 ${cy} 15 ${cy - 5} Q6 ${cy - 3} -2 ${cy - 7} Q-8 ${cy - 9} -12 ${cy - 14} Z" fill="${skinDark}" opacity=".5"/>`;
+    if (F.jowl) s += `<path d="M-10 ${cy - 6} Q-2 ${cy + 1} 8 ${cy}" stroke="${skinDark}" stroke-width="1.4" fill="none" opacity=".8"/>`;
+    s += `<ellipse cx="-14" cy="3" rx="${F.ear}" ry="7.5" fill="${skin}"/><path d="M-15 0 q-2 4 0 7" stroke="${skinDark}" stroke-width="1.6" fill="none"/>`;
+    // 鼻：両目のあいだ（3/4なので奥の目に寄る）
+    s += F.nose.replace(/SD/g, skinDark);
+    if (stubble) s += `<path d="M-8 ${cy - 8} Q4 ${cy + 2} 16 ${cy - 6} L17 ${cy - 11} Q6 ${cy - 4} -6 ${cy - 12} Z" fill="#3a2a20" opacity=".16"/>`;
+    // 目
     const eyeAt = (x, near) => {
-      const w = near ? 6 : 4.6;
+      const w = F.eyeW * (near ? 1 : .78), h = F.eyeH;
       if (mood === 'pained') return `<path d="M${x - w} -1 q${w} 3 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M${x - w} -4 l${w * 2} 2" stroke="${eye}" stroke-width="1.2" opacity=".6"/>`;
       if (mood === 'proud') return `<path d="M${x - w} 0 q${w} -4 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-      return `<path d="M${x - w} 0 Q${x} -4 ${x + w} -1 Q${x} 2.5 ${x - w} 0 Z" fill="#fbf6ee"/><ellipse cx="${x + (near ? 1.4 : 0.8)}" cy="-.6" rx="2.4" ry="2.6" fill="${eye}"/>` +
-        `<path d="M${x - w - .5} -.4 Q${x} -4.6 ${x + w + .5} -1.6" stroke="${eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+      let e = `<path d="M${x - w} 0 Q${x} ${-h * 2} ${x + w} -1 Q${x} ${h} ${x - w} 0 Z" fill="#fbf6ee"/>` +
+        `<ellipse cx="${r1(x + (near ? 1.2 : .7))}" cy="${r1(-h * .25)}" rx="${F.iris}" ry="${r1(Math.min(F.iris * 1.1, h * 1.3))}" fill="${eye}"/>`;
+      if (F.heavyLid) e += `<path d="M${x - w - .5} -.3 Q${x} ${-h * 1.9} ${x + w + .5} -1.4 L${x + w} ${-h * .6} Q${x} ${-h * 1.1} ${x - w} -.6 Z" fill="${skinDark}"/>`;
+      e += `<path d="M${x - w - .5} -.4 Q${x} ${-h * 2.1} ${x + w + .5} -1.6" stroke="${eye}" stroke-width="${F.lid}" fill="none" stroke-linecap="round"/>`;
+      if (F.bags) e += `<path d="M${x - w * .7} ${h + 1.6} q${w * .7} 1.6 ${w * 1.4} 0" stroke="${skinDark}" stroke-width="1.1" fill="none"/>`;
+      return e;
     };
     s += eyeAt(-6, true) + eyeAt(13, false);
-    // 太い眉
-    const browPath = {
-      stand: ['M-13 -10 L0 -11', 'M8 -11 L18 -10'], eager: ['M-13 -12 L0 -13', 'M8 -13 L18 -13'],
-      serious: ['M-13 -12 L0 -9', 'M8 -9 L18 -12'], proud: ['M-13 -13 Q-6 -16 0 -13', 'M8 -13 Q13 -16 18 -13'],
-      pained: ['M-13 -9 L0 -13', 'M8 -13 L18 -8'],
-    }[mood] || ['M-13 -10 L0 -11', 'M8 -11 L18 -10'];
-    s += browPath.map(d => `<path d="${d}" stroke="${brow}" stroke-width="3" stroke-linecap="round"/>`).join('');
-    if (mood === 'pained') s += `<path d="M2 -15 q2 -2 4 0" stroke="${skinDark}" stroke-width="1.2" fill="none"/>`;
+    // 眉
+    const t = {stand: 0, eager: -2, serious: 0, proud: -3, pained: 0}[mood] || 0;
+    const tilt = {serious: 3, pained: -4}[mood] || 0;
+    const browN = `M-13 ${F.browY + t + (tilt < 0 ? 0 : 0)} Q-6 ${F.browY + t - F.browArch} 0 ${F.browY + t + tilt}`;
+    const browF = `M8 ${F.browY + t + tilt} Q13 ${F.browY + t - F.browArch} 18 ${F.browY + t}`;
+    s += [browN, browF].map(d => `<path d="${d}" stroke="${brow}" stroke-width="${F.browW}" fill="none" stroke-linecap="round"/>`).join('');
+    if (mood === 'pained') s += `<path d="M2 ${F.browY - 4} q2 -2 4 0" stroke="${skinDark}" stroke-width="1.2" fill="none"/>`;
     // 口
+    const mx = 6, hw = 5 * F.mouthW, my = F.mouthY;
     const mouth = {
-      stand: `<path d="M1 17 Q6 18 11 16" stroke="#8a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
-      eager: `<path d="M0 15 Q6 15 12 14 Q10 22 5 22 Q0 21 0 15 Z" fill="#7a2e28"/><path d="M1 15.5 L11 14.6 L10.6 16.6 L1.4 17 Z" fill="#fff"/>`,
-      serious: `<path d="M1 17 L11 16" stroke="#8a4a3a" stroke-width="2.2" stroke-linecap="round"/>`,
-      proud: `<path d="M-1 14 Q6 15 13 13 Q11 23 5 23 Q-1 21 -1 14 Z" fill="#7a2e28"/><path d="M0 14.4 L12 13.4 L11.4 16 L.4 16.6 Z" fill="#fff"/>`,
-      pained: `<path d="M0 19 Q3 15 6 18 Q9 15 12 19 Q8 21 4 21 Z" fill="#7a2e28"/>`,
+      stand: `<path d="M${mx - hw} ${my} Q${mx} ${my + 1.4} ${mx + hw} ${my - 1}" stroke="#8a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      eager: `<path d="M${mx - hw - 1} ${my - 2} Q${mx} ${my - 2} ${mx + hw} ${my - 3} Q${mx + hw - 2} ${my + 5} ${mx - 1} ${my + 5} Q${mx - hw - 1} ${my + 4} ${mx - hw - 1} ${my - 2} Z" fill="#7a2e28"/><path d="M${mx - hw} ${my - 1.5} L${mx + hw - 1} ${my - 2.4} L${mx + hw - 1.4} ${my - .4} L${mx - hw + .4} ${my} Z" fill="#fff"/>`,
+      serious: `<path d="M${mx - hw} ${my} L${mx + hw} ${my - 1}" stroke="#8a4a3a" stroke-width="2.2" stroke-linecap="round"/>`,
+      proud: `<path d="M${mx - hw - 2} ${my - 3} Q${mx} ${my - 2} ${mx + hw + 1} ${my - 4} Q${mx + hw - 1} ${my + 6} ${mx - 1} ${my + 6} Q${mx - hw - 2} ${my + 4} ${mx - hw - 2} ${my - 3} Z" fill="#7a2e28"/><path d="M${mx - hw - 1} ${my - 2.6} L${mx + hw} ${my - 3.6} L${mx + hw - .6} ${my - 1} L${mx - hw - .6} ${my - .4} Z" fill="#fff"/>`,
+      pained: `<path d="M${mx - hw} ${my + 2} Q${mx - hw / 2} ${my - 2} ${mx} ${my + 1} Q${mx + hw / 2} ${my - 2} ${mx + hw} ${my + 2} Q${mx} ${my + 4} ${mx - hw} ${my + 2} Z" fill="#7a2e28"/>`,
     }[mood];
     s += mouth || '';
-    if (mustache) s += `<path d="M-2 13 Q3 9 6 11 Q10 9 14 12 Q10 13 6 13 Q2 14 -2 13 Z" fill="${brow}"/>`;
-    if (beard) s += `<path d="M3 26 Q7 35 11 27 Q8 29 6 28.5 Z" fill="${brow}"/>`;
-    if (o.lines) s += `<path d="M0 9 Q-3 13 -2 17" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+    if (F.lip && (mood === 'stand' || mood === 'serious')) s += `<path d="M${mx - hw * .6} ${my + 2.6} Q${mx} ${my + 4} ${mx + hw * .6} ${my + 2}" stroke="${skinDark}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+    if (mustache) s += `<path d="M${mx - 8} ${my - 4} Q${mx - 3} ${my - 8} ${mx} ${my - 6} Q${mx + 4} ${my - 8} ${mx + 8} ${my - 5} Q${mx + 4} ${my - 4} ${mx} ${my - 4} Q${mx - 4} ${my - 3} ${mx - 8} ${my - 4} Z" fill="${brow}"/>`;
+    if (beard) s += `<path d="M${mx - 3} ${cy - 3} Q${mx + 1} ${cy + 7} ${mx + 5} ${cy - 2} Q${mx + 2} ${cy} ${mx} ${cy - .5} Z" fill="${brow}"/>`;
+    if (o.lines) s += `<path d="M0 9 Q-3 13 -2 ${my + 1}" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
   } else {
     // 女性：やわらかい輪郭、満月のような丸い顔
     s += `<path d="M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z" fill="${skin}"/>`;
@@ -175,7 +196,7 @@ function satoFigure(k, mood, extra = '') {
   // 頭：短い髪と、頭の上でまとめた髻
   const hair = `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${c.hair}"/>` +
     `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${c.hair}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`;
-  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
+  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
   // 腕（筒袖）と手
   const arm = (a, sh, side) => limb(sh, a.mid, 17, 15, c.cloth) + limb(a.mid, a.end, 15, 12, c.cloth) +
     hand(a.end, ang(a.mid, a.end), c.skin, {kind: k.handKind || 'relaxed', size: 1.05, side});
@@ -220,7 +241,7 @@ function officialFigure(k, o, mood) {
     `<path d="M-21 2 Q-23 -27 0 -30 Q20 -30 22 -10 Q18 -12 14 -14 Q6 -19 -4 -18 Q-12 -15 -14 4 Z" fill="#1d1a1a"/>` +
     `<path d="M-12 -24 Q-12 -44 2 -44 Q14 -42 10 -26 Z" fill="#1d1a1a"/><path d="M-6 -38 q6 -4 10 0" stroke="#4a4646" stroke-width="2" fill="none"/>` +
     `<path d="M-14 4 L-12 -6 L-10 6 Z" fill="#2a1e18"/>`;
-  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', mood, skin: o.skin, skinDark: o.skinDark, brow: '#1d1612', mustache: o.mustache, beard: o.beard, lines: o.lines}) + zukin);
+  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: o.type, mood, skin: o.skin, skinDark: o.skinDark, brow: '#1d1612', mustache: o.mustache, beard: o.beard, lines: o.lines}) + zukin);
   // 腕（広めの袖）と手、笏
   const arm = (a, sh, side, kind) => limb(sh, a.mid, 20, 19, o.robe) + limb(a.mid, a.end, 19, 17, o.robe) +
     hand(a.end, ang(a.mid, a.end), o.skin, {kind, size: 1.05, side});
@@ -260,8 +281,8 @@ function sato(pose) {
   return satoFigure(k, 'pained', gloom(add(k.head, [0, -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 14)));
 }
 
-const KOKUFU = {robe: '#2f6644', robeDark: '#1f4a30', fitting: '#9a8a62', skin: '#efc7a2', skinDark: '#d6a27a'};
-const MIYAKO = {robe: '#e8836a', robeDark: '#c0583f', fitting: '#e0bb4f', skin: '#f6dcc0', skinDark: '#dcb28e', sword: true, mustache: true, beard: true, lines: true};
+const KOKUFU = {type: 'kokufu', robe: '#2f6644', robeDark: '#1f4a30', fitting: '#9a8a62', skin: '#efc7a2', skinDark: '#d6a27a'};
+const MIYAKO = {type: 'miyako', robe: '#e8836a', robeDark: '#c0583f', fitting: '#e0bb4f', skin: '#f6dcc0', skinDark: '#dcb28e', sword: true, mustache: true, beard: true, lines: true};
 function kokufu(pose) {
   if (pose === 'stand') {
     // 笏を両手で胸の前に持つ。少し緊張して背筋をのばす
