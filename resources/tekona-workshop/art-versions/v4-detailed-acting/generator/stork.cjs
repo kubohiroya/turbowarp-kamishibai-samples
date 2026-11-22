@@ -16,7 +16,7 @@ function neckHead(base, ang, len, {billDown = 0, bend = 0} = {}) {
   s += `<g transform="translate(${r1(head[0])} ${r1(head[1])}) rotate(${r1(ba)})">`;
   s += `<ellipse cx="0" cy="0" rx="9" ry="7.5" fill="${C.white}"/>`;
   s += `<path d="M5 -3 L40 1 L5 3 Z" fill="${C.bill}"/><path d="M8 0 L38 1" stroke="#55545c" stroke-width=".8"/>`;
-  s += `<ellipse cx="3" cy="-1.5" rx="3.6" ry="3" fill="${C.red}"/><circle cx="3.4" cy="-1.6" r="1.6" fill="${C.eye}"/><circle cx="3.6" cy="-1.6" r=".8" fill="#1a1a1a"/>`;
+  s += `<ellipse cx="2.6" cy="-3.4" rx="3.4" ry="2.8" fill="${C.red}"/><circle cx="3" cy="-3.5" r="1.5" fill="${C.eye}"/><circle cx="3.2" cy="-3.5" r=".8" fill="#1a1a1a"/>`;
   return s + `</g>`;
 }
 // 首を胴体の中から生やす：胴体の前寄り（中心 c、傾き tilt）の点から、もとの首の先（頭）までを結ぶ。
@@ -40,6 +40,19 @@ const body = (c, tilt) =>
   `<path d="M28 -2 L46 -6 L44 4 L26 6 Z" fill="${C.black}"/>` +
   `<ellipse cx="0" cy="0" rx="32" ry="15" fill="${C.white}"/><path d="M-26 6 Q0 18 28 6 Q0 12 -26 6 Z" fill="${C.shade}"/>` +
   `</g>`;
+// 胴体の座標（中心 c・傾き tilt の胴体の上での位置 lx, ly）を画面の座標へ
+const bodyPt = (c, tilt, lx, ly) => { const t = tilt * Math.PI / 180; return [r1(c[0] + lx * Math.cos(t) - ly * Math.sin(t)), r1(c[1] + lx * Math.sin(t) + ly * Math.cos(t))]; };
+// 斜めの楕円（a から b の向きに長い）
+const oval = (a, b, ry, fill, t = .5) => {
+  const cx = a[0] + (b[0] - a[0]) * t, cy = a[1] + (b[1] - a[1]) * t, ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+  return `<ellipse cx="${r1(cx)}" cy="${r1(cy)}" rx="${r1(Math.hypot(b[0] - a[0], b[1] - a[1]) / 2)}" ry="${ry}" transform="rotate(${r1(ang)} ${r1(cx)} ${r1(cy)})" fill="${fill}"/>`;
+};
+// 肩から上腕：翼の付け根（肩）から、翼の向きへのびる白い楕円。翼の白い雨覆につながる
+const upperArm = (shoulder, ang, len, far = false) => {
+  const a = ang * Math.PI / 180, end = [shoulder[0] + Math.cos(a) * len * .4, shoulder[1] + Math.sin(a) * len * .4];
+  const start = [shoulder[0] - Math.cos(a) * 6, shoulder[1] - Math.sin(a) * 6];
+  return oval(start, end, 8.5, far ? C.shade : C.white);
+};
 // 翼：付け根 root から、角度 ang（度）の方向に長さ len で広げる。前半（腕）は白、後半の風切羽は黒
 function wing(root, ang, len, {spread = 1, far = false} = {}) {
   const a = ang * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
@@ -58,44 +71,69 @@ function wing(root, ang, len, {spread = 1, far = false} = {}) {
   s += `<path d="M${pt(P(0, -2))} L${pt(elbow)} Q${pt(P(.7, 2))} ${pt(P(.78, w * .35))} Q${pt(P(.45, w * .55))} ${pt(P(.1, w * .5))} Z" fill="${cov}"/>`;
   return s;
 }
-// 脚：赤く細長い。ひざ（実際はかかと）が後ろへ曲がる
-const leg = (hip, knee, foot, toeDir = -1) =>
-  `<path d="M${hip[0]} ${hip[1]} L${knee[0]} ${knee[1]} L${foot[0]} ${foot[1]}" stroke="${C.red}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
-  `<path d="M${foot[0]} ${foot[1]} l${toeDir * 9} 1 M${foot[0]} ${foot[1]} l${toeDir * 5} 3 M${foot[0]} ${foot[1]} l${-toeDir * 5} 1" stroke="${C.red}" stroke-width="2.2" stroke-linecap="round"/>`;
+// 足：前の3本の指と、その付け根をつなぐ水かき、後ろの短い指。dir は指先の向き（度）
+function foot(p, dir, {far = false} = {}) {
+  const red = far ? '#b83a32' : C.red, web = far ? '#d9837a' : '#f4ada4';
+  const toe = (d, l) => [p[0] + Math.cos(d * Math.PI / 180) * l, p[1] + Math.sin(d * Math.PI / 180) * l];
+  const t1 = toe(dir - 24, 13), t2 = toe(dir, 15), t3 = toe(dir + 24, 12), hind = toe(dir + 160, 5);
+  const m = (t, k) => [p[0] + (t[0] - p[0]) * k, p[1] + (t[1] - p[1]) * k];
+  let s = `<path d="M${p.map(r1).join(' ')} L${m(t1, .7).map(r1).join(' ')} Q${m(t2, .42).map(r1).join(' ')} ${m(t2, .72).map(r1).join(' ')} Q${m(t2, .42).map(r1).join(' ')} ${m(t3, .7).map(r1).join(' ')} Z" fill="${web}"/>`;
+  for (const t of [t1, t2, t3, hind]) s += `<path d="M${p.map(r1).join(' ')} L${t.map(r1).join(' ')}" stroke="${red}" stroke-width="1.5" stroke-linecap="round"/>`;
+  for (const t of [t1, t2, t3]) s += `<circle cx="${r1(t[0])}" cy="${r1(t[1])}" r=".9" fill="#3a2a28"/>`;
+  return s;
+}
+// 脚：赤く細長い。曲がって後ろへ出る関節（かかと）、指と水かき
+const leg = (hip, knee, ft, toeDir = 180, far = false) =>
+  `<path d="M${hip[0]} ${hip[1]} L${knee[0]} ${knee[1]} L${ft[0]} ${ft[1]}" stroke="${far ? '#b83a32' : C.red}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+  foot(ft, toeDir, {far});
+// 脚の付け根の羽毛：すねの上をおおう斜めの白い楕円（胴体の後に描く）
+const thigh = (hip, knee, far = false) => oval([hip[0] + (hip[0] - knee[0]) * .25, hip[1] + (hip[1] - knee[1]) * .25], [hip[0] + (knee[0] - hip[0]) * .42, hip[1] + (knee[1] - hip[1]) * .42], 5.5, far ? C.shade : C.white);
 const ripple = (cx, cy, rx, op = .8) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${r1(rx * .18)}" fill="none" stroke="${C.water}" stroke-width="2" opacity="${op}"/>`;
 const drops = pts => pts.map(([x, y, r]) => `<path d="M${x} ${y - r * 1.6} Q${x + r} ${y} ${x} ${y + r} Q${x - r} ${y} ${x} ${y - r * 1.6} Z" fill="#bfe6f6"/>`).join('');
 const splash = (cx, cy, w) => `<path d="M${cx - w} ${cy} Q${cx - w * .7} ${cy - w * .6} ${cx - w * .4} ${cy - 2} Q${cx - w * .2} ${cy - w * .9} ${cx} ${cy - 2} Q${cx + w * .25} ${cy - w * .8} ${cx + w * .45} ${cy - 2} Q${cx + w * .75} ${cy - w * .5} ${cx + w} ${cy} Z" fill="#d6f0fa" opacity=".9"/>`;
 
 // 1枚目：身をかがめ、翼を半分ひらいて飛び立つ構え
 function frame1() {
+  const c = [120, 112], tilt = -12;
+  const legs = [[[124, 120], [138, 144], [122, 168], true], [[112, 120], [124, 146], [104, 168], false]];
   let s = ripple(118, 171, 44, .7) + ripple(118, 171, 26, .9);
-  s += leg([124, 122], [138, 144], [122, 168], -1) + leg([112, 122], [124, 146], [104, 168], -1);
-  s += wing([132, 96], -150, 70, {spread: .8, far: true});
-  s += neckFromBody([120, 112], -12, [94, 104], 200, 30, {billDown: 28, bend: -4});
-  s += body([120, 112], -12);
-  s += wing([126, 100], -132, 76, {spread: .9});
+  for (const [h, k, f, far] of legs) s += leg(h, k, f, 184, far) + (far ? thigh(h, k, true) : '');
+  const sf = bodyPt(c, tilt, -4, -11), sn = bodyPt(c, tilt, -10, -8);
+  s += wing(sf, -140, 74, {spread: .8, far: true}) + upperArm(sf, -140, 74, true);
+  s += neckFromBody(c, tilt, [94, 104], 200, 30, {billDown: 28, bend: -4});
+  s += body(c, tilt);
+  for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
+  s += wing(sn, -124, 80, {spread: .9}) + upperArm(sn, -124, 80);
   return s;
 }
 // 2枚目：脚で水をけり、翼を高く振り上げる
 function frame2() {
+  const c = [118, 92], tilt = -24;
+  const legs = [[[126, 102], [140, 130], [128, 162], true], [[114, 102], [128, 132], [114, 166], false]];
   let s = splash(116, 170, 34) + ripple(116, 172, 52, .6);
   s += drops([[86, 150, 2.4], [96, 140, 2], [140, 146, 2.6], [150, 156, 2], [118, 134, 1.8]]);
-  s += leg([126, 104], [140, 130], [128, 162], -1) + leg([114, 104], [128, 132], [114, 166], -1);
-  s += wing([128, 74], -112, 84, {spread: .85, far: true});
-  s += neckFromBody([118, 92], -24, [92, 78], 205, 34, {billDown: 8});
-  s += body([118, 92], -24);
-  s += wing([122, 80], -96, 92, {spread: 1});
+  for (const [h, k, f, far] of legs) s += leg(h, k, f, 196, far) + (far ? thigh(h, k, true) : '');
+  const sf = bodyPt(c, tilt, -4, -11), sn = bodyPt(c, tilt, -10, -8);
+  s += wing(sf, -106, 86, {spread: .85, far: true}) + upperArm(sf, -106, 86, true);
+  s += neckFromBody(c, tilt, [92, 78], 205, 34, {billDown: 8});
+  s += body(c, tilt);
+  for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
+  s += wing(sn, -92, 94, {spread: 1}) + upperArm(sn, -92, 94);
   return s;
 }
-// 3枚目：首をのばし、翼を打ちおろして宙に浮く。脚は後ろへのばす
+// 3枚目：首をのばし、翼を打ちおろして宙に浮く。脚は後ろへのばし、指をそろえる
 function frame3() {
+  const c = [120, 70], tilt = -4;
+  const legs = [[[138, 76], [168, 82], [194, 88], true], [[134, 80], [164, 88], [192, 96], false]];
   let s = ripple(130, 172, 60, .45) + ripple(130, 172, 36, .6);
   s += drops([[120, 120, 2], [134, 138, 2.2], [146, 154, 1.8]]);
-  s += `<path d="M142 72 L196 82 M138 74 L194 90" stroke="${C.red}" stroke-width="3.2" stroke-linecap="round"/><path d="M196 82 l7 -2 M194 90 l7 1" stroke="${C.red}" stroke-width="2" stroke-linecap="round"/>`;
-  s += wing([124, 62], -200, 86, {spread: .85, far: true});
-  s += neckFromBody([120, 70], -4, [92, 64], 188, 36);
-  s += body([120, 70], -4);
-  s += wing([118, 66], 150, 96, {spread: 1});
+  for (const [h, k, f, far] of legs) s += leg(h, k, f, 12, far) + (far ? thigh(h, k, true) : '');
+  const sf = bodyPt(c, tilt, -6, -10), sn = bodyPt(c, tilt, -12, -6);
+  s += wing(sf, -196, 86, {spread: .85, far: true}) + upperArm(sf, -196, 86, true);
+  s += neckFromBody(c, tilt, [92, 64], 188, 36);
+  s += body(c, tilt);
+  for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
+  s += wing(sn, 146, 96, {spread: 1}) + upperArm(sn, 146, 96);
   return s;
 }
 
