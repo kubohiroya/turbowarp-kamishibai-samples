@@ -34,10 +34,11 @@ function neckFromBody(c, tilt, base, ang, len, opts = {}) {
     `<circle cx="${r1(root[0])}" cy="${r1(root[1])}" r="9" fill="${C.white}"/>` +
     neckHead(root, na, nl, opts);
 }
-// 胴体：中心 c、傾き tilt（度）。尾は黒い風切羽が少し見える
+// 胴体：中心 c、傾き tilt（度）。尾の先から黒い風切羽が少し見える。
+// 尾は先を下へ向ける（胴体が前に傾いても、画面の上で下向きになるよう角度を足す）
 const body = (c, tilt) =>
   `<g transform="translate(${c[0]} ${c[1]}) rotate(${tilt})">` +
-  `<path d="M28 -2 L46 -6 L44 4 L26 6 Z" fill="${C.black}"/>` +
+  `<g transform="rotate(${r1(24 - tilt * .5)} 26 1)"><path d="M24 -5 L44 -3 Q47 1 44 5 L24 7 Z" fill="${C.black}"/><path d="M24 -4 L38 -3 L38 5 L24 6 Z" fill="${C.white}"/></g>` +
   `<ellipse cx="0" cy="0" rx="32" ry="15" fill="${C.white}"/><path d="M-26 6 Q0 18 28 6 Q0 12 -26 6 Z" fill="${C.shade}"/>` +
   `</g>`;
 // 胴体の座標（中心 c・傾き tilt の胴体の上での位置 lx, ly）を画面の座標へ
