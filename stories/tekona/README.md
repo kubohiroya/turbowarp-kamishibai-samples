@@ -21,7 +21,7 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-- **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・背景4枚）は、まだSB3へ反映していません。
+- **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・参加者の枠の仮の人物・背景4枚。[絵柄の版の記録](../../resources/tekona-workshop/art-versions/README.md)の版4）は、まだSB3へ反映していません。
   公開4.0.1のAppで`pnpm update:tekona`を実行し、生成したSB3を照合・公開するまで、配布中のSB3は描き直し前の絵です。
 - **未完了**: Web版、作品一覧（`site/works.json`）への掲載、`pnpm build`への組み込み。
 

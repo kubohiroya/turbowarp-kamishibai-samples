@@ -101,19 +101,23 @@ function face(o) {
     // 女性：やわらかい輪郭、満月のような丸い顔
     s += `<path d="M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z" fill="${skin}"/>`;
     s += `<path d="M17 4 L21 8 Q19 11 16 10 Z" fill="${skin}"/>`;
+    // 目：手前（near）は大きく、奥は横に縮めて小さく描く（3/4の向きの遠近）
     const eyeAt = (x, near) => {
-      const w = near ? 5.4 : 4.2;
-      if (mood === 'gentle') return `<path d="M${x - w} 1 q${w} -5 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-      return `<path d="M${x - w} 0 Q${x} -6 ${x + w} -1 Q${x} 4 ${x - w} 0 Z" fill="#fbf6ee"/><ellipse cx="${x + 1}" cy="-.5" rx="3.2" ry="3.8" fill="${eye}"/><circle cx="${x}" cy="-2" r="1.2" fill="#fff"/>` +
-        `<path d="M${x - w - .6} .2 Q${x} -6.2 ${x + w + .4} -1.2" stroke="${eye}" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+      const sx = near ? 1 : .74, sy = near ? 1 : .9;
+      let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
+      if (mood === 'gentle') e += `<path d="M-5.4 1 q5.4 -5 10.8 0" stroke="${eye}" stroke-width="${r1(2.4 / sx)}" fill="none" stroke-linecap="round"/>`;
+      else e += `<path d="M-5.4 0 Q0 -6 5.4 -1 Q0 4 -5.4 0 Z" fill="#fbf6ee"/><ellipse cx="1" cy="-.5" rx="3.2" ry="3.8" fill="${eye}"/><circle cx="0" cy="-2" r="1.2" fill="#fff"/>` +
+        `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(1.7 / sx)}" fill="none" stroke-linecap="round"/>`;
+      return e + `</g>`;
     };
-    s += eyeAt(-3, false) + eyeAt(11, true);
-    const b = mood === 'resolve' ? ['M-8 -12 L1 -11', 'M7 -11 L16 -12'] : mood === 'gentle' ? ['M-8 -10 Q-3 -13 1 -11', 'M7 -11 Q12 -13 16 -10'] : ['M-8 -11 Q-3 -13 1 -11', 'M7 -11 Q12 -13 16 -11'];
+    s += eyeAt(-2, false) + eyeAt(10, true);
+    const b = mood === 'resolve' ? ['M-6 -12 L1 -11', 'M6 -11 L15 -12'] : mood === 'gentle' ? ['M-6 -10 Q-2.5 -12.5 1 -11', 'M6 -11 Q11 -13 15 -10'] : ['M-6 -11 Q-2.5 -13 1 -11', 'M6 -11 Q11 -13 15 -11'];
     s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('');
-    s += {smile: `<path d="M6 14 Q10 17 14 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
-      gentle: `<path d="M7 14 Q10 16 13 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
-      resolve: `<path d="M7 14.5 L13 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`}[mood];
-    s += `<ellipse cx="-3" cy="9" rx="4.5" ry="2.5" fill="#f29c9c" opacity=".5"/><ellipse cx="14" cy="9" rx="3.6" ry="2.4" fill="#f29c9c" opacity=".5"/>`;
+    // 口：両目のあいだの下、やや手前寄り
+    s += {smile: `<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+      gentle: `<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
+      resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`}[mood];
+    s += `<ellipse cx="-4" cy="9" rx="3.4" ry="2.3" fill="#f29c9c" opacity=".5"/><ellipse cx="12" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/>`;
   }
   return s;
 }
