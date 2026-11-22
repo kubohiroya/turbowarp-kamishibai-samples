@@ -1,9 +1,9 @@
 {
   "formatVersion": 2,
   "builder": {
-    "package": "@kubohiroya/tmpose-kamishibai",
-    "version": "3.2.3",
-    "commit": "28015ac9ff5221f371e8bd0357a7750ce40bbf7c"
+    "package": "@kubohiroya/turbowarp-kamishibai-app",
+    "version": "3.2.4",
+    "commit": "a458dbc4a16378a5b04561170eaa6907102438c1"
   },
   "storyDate": {
     "value": "2026-08-16",
@@ -13,29 +13,29 @@
     "editor": {
       "outputName": "_urashima",
       "sb3": {
-        "size": 9743242,
-        "sha256": "28b314e6beb8c3d4e736a4e83f3e0582893e88f158cdbbe03cfa5630dc2189d6"
+        "size": 9809921,
+        "sha256": "f4014164465b5b2d31a2910b99e14283c5526050c5d2843e8c80b36607c0889a"
       },
       "script": {
         "size": 8729,
         "sha256": "584b84fc5550c401839002aed0f6fe2d0cc2ac41971926f36ed2589a8132f93a"
       },
       "manifest": {
-        "sha256": "ab6b41e2f07464910e8bdabca9c75c1307360f352432d6455659363e6381717f"
+        "sha256": "62baec037ebd5199216a2fe393bc881b564905433a4f6c78dc87972963b0fcc0"
       }
     },
     "player": {
       "outputName": "urashima",
       "sb3": {
-        "size": 9745552,
-        "sha256": "44ab3466d29a32bb01f3157036e6afdbf984734b334f75d1173d9256b905b12a"
+        "size": 9812366,
+        "sha256": "57b575f2057a3b0f31a07641a710496a8617c339de44b04a833d012104b66b4d"
       },
       "script": {
         "size": 8729,
         "sha256": "584b84fc5550c401839002aed0f6fe2d0cc2ac41971926f36ed2589a8132f93a"
       },
       "manifest": {
-        "sha256": "aba2b96665ecf91607819688f71f9694365e5c4ad9fa3bb76d34b2865b3767fd"
+        "sha256": "2509697981b8f08cbe52a94ed0a3db2510c7a5be654339cbd7b21e45684a83e7"
       }
     }
   },
@@ -47,14 +47,14 @@
     "input": {
       "profile": "player",
       "path": "urashima.sb3",
-      "size": 9745552,
-      "sha256": "44ab3466d29a32bb01f3157036e6afdbf984734b334f75d1173d9256b905b12a"
+      "size": 9812366,
+      "sha256": "57b575f2057a3b0f31a07641a710496a8617c339de44b04a833d012104b66b4d"
     },
     "output": {
       "path": "web/index.html",
       "contentType": "text/html",
-      "size": 15141493,
-      "sha256": "7c944bbaa5c79d6adc4aab79289ba1db3ca968e76eef4a7f6f0c28b0aee1917a"
+      "size": 15824094,
+      "sha256": "98186d3b541c8e84a61fe625315910275400ca90f0b9ac450a85235d8ad63001"
     }
   }
 }

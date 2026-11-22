@@ -5,7 +5,7 @@ import path from 'node:path';
 import {test} from 'vitest';
 import {fileURLToPath} from 'node:url';
 
-import {buildSb3Bundle} from '@kubohiroya/tmpose-kamishibai/builder';
+import {buildSb3Bundle} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 import {strFromU8, unzipSync} from 'fflate';
 
 import type {ScratchProject} from '../scripts/scratch.ts';

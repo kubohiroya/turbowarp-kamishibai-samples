@@ -7,7 +7,7 @@ import {test} from 'vitest';
 import {fileURLToPath} from 'node:url';
 import {runInNewContext} from 'node:vm';
 
-import {validateAssetManifest} from '@kubohiroya/tmpose-kamishibai/builder';
+import {validateAssetManifest} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 import {strFromU8, unzipSync} from 'fflate';
 import {parse as parseYaml} from 'yaml';
 
@@ -109,7 +109,7 @@ function assertLoadingSkinPosition(project: ScratchProject, description: string)
 }
 
 test('licenses the repository, runtime, Urashima content, and Packager notices', async () => {
-  const runtimePackagePath = require.resolve('@kubohiroya/tmpose-kamishibai/package.json');
+  const runtimePackagePath = require.resolve('@kubohiroya/turbowarp-kamishibai-app/package.json');
   const runtimePackageLicensePath = path.join(path.dirname(runtimePackagePath), 'LICENSE');
   const [
     packageJson,
@@ -139,7 +139,7 @@ test('licenses the repository, runtime, Urashima content, and Packager notices',
   assert(licenseSummary.includes('CC BY-SA 2.0'));
   assert(licenseSummary.includes('7bd800cb66d6fb18886a4c5cea1b76a6'));
   assert(licenseSummary.includes('tm-kamishibai-MPL-2.0.txt'));
-  assert(licenseSummary.includes('28015ac9ff5221f371e8bd0357a7750ce40bbf7c'));
+  assert(licenseSummary.includes('a458dbc4a16378a5b04561170eaa6907102438c1'));
   assert(runtimeLicense.startsWith('Mozilla Public License Version 2.0'));
   assert.equal(runtimeLicense, runtimePackageLicense);
   assert.equal(runtimeLicense, license);
@@ -246,19 +246,19 @@ test('pins the generic, editor, and player profile contract', async () => {
     readFile(path.join(sampleDirectory, 'base/kamishibai.sb3')),
   ]);
   assert.equal(
-    packageJson.dependencies['@kubohiroya/tmpose-kamishibai'],
-    '3.2.3',
+    packageJson.dependencies['@kubohiroya/turbowarp-kamishibai-app'],
+    '3.2.4',
   );
-  assert.equal(config.builder.version, '3.2.3');
-  assert.equal(config.builder.commit, '28015ac9ff5221f371e8bd0357a7750ce40bbf7c');
+  assert.equal(config.builder.version, '3.2.4');
+  assert.equal(config.builder.commit, 'a458dbc4a16378a5b04561170eaa6907102438c1');
   assert.equal(config.baseSb3.profile, 'generic');
   assert.equal(
     config.baseSb3.source,
-    'github:kubohiroya/tm-kamishibai#2b5005d293a9b63c8ba5da396fd86815d093f975',
+    'github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.4/kamishibai-3.2.sb3',
   );
   assert.equal(
     config.baseSb3.commit,
-    '2b5005d293a9b63c8ba5da396fd86815d093f975',
+    'a458dbc4a16378a5b04561170eaa6907102438c1',
   );
   assert.equal(config.baseSb3.size, baseSb3.length);
   assert.equal(config.baseSb3.sha256, sha256(baseSb3));
@@ -266,19 +266,23 @@ test('pins the generic, editor, and player profile contract', async () => {
   const baseProject = JSON.parse(
     strFromU8(baseArchive['project.json'] as Uint8Array),
   ) as ScratchProject;
-  assert(baseProject.extensions?.includes('tmposebundle'));
-  const tmposeBundleUrl = baseProject.extensionURLs?.tmposebundle;
-  assert.ok(tmposeBundleUrl, 'generic base: tmposebundle extension URL is missing');
-  const tmposeBundleSource = Buffer.from(
-    tmposeBundleUrl.split(',')[1] as string,
+  // 3.2.4 replaced the TMPose Bundle with separate successors that the catalog lists.
+  assert.equal(baseProject.extensions?.includes('tmposebundle'), false);
+  for (const id of ['kubohiroyaassetcache', 'kubohiroyasvgtext', 'kubohiroyabubble', 'kubohiroyatm']) {
+    assert(baseProject.extensions?.includes(id), `generic base: ${id} is missing`);
+  }
+  assert.equal(baseProject.extensionURLs?.text, 'https://extensions.turbowarp.org/lab/text.js');
+  const assetCacheUrl = baseProject.extensionURLs?.kubohiroyaassetcache;
+  assert.ok(assetCacheUrl, 'generic base: Asset Cache extension URL is missing');
+  const assetCacheSource = Buffer.from(
+    assetCacheUrl.split(',')[1] as string,
     'base64',
   ).toString('utf8');
-  assert(tmposeBundleSource.includes('const EXTENSION_VERSION = "0.4.1"'));
-  assert(tmposeBundleSource.includes('ID: kubohiroyasvgtext'));
-  assert(tmposeBundleSource.includes('this.actorNameOf(target2) === actor'));
-  assert(tmposeBundleSource.includes('target.isOriginal'));
-  assert(tmposeBundleSource.includes('this.displayedAssets.delete(target.id)'));
-  assert(tmposeBundleSource.includes('findProjectTargetByName(runtime, name)'));
+  assert(assetCacheSource.includes('// ID: kubohiroyaassetcache'));
+  assert(assetCacheSource.includes('this.actorNameOf(target) === actor'));
+  assert(assetCacheSource.includes('target.isOriginal'));
+  assert(assetCacheSource.includes('this.displayedAssets.delete(target.id)'));
+  assert(assetCacheSource.includes('findProjectTargetByName(runtime, name)'));
   assertPromptPosition(baseProject, 'generic base');
   assertLoadingSkinPosition(baseProject, 'generic base');
   const baseStage = baseProject.targets.find((target) => target.isStage);
@@ -367,7 +371,7 @@ test('pins the generic, editor, and player profile contract', async () => {
   );
   assert.match(
     strFromU8(titleArchive[titleCostume.md5ext as string] as Uint8Array),
-    /Version 3\.2\.2 \(2026\/08\/05\)/,
+    /Version 3\.2\.4 \(2026\/11\/23\)/,
     'Urashima base: Title has an unexpected fallback version label',
   );
   assert.doesNotMatch(

@@ -27,7 +27,7 @@
 
 正式な浦島太郎の実行用成果物はDSL 3.2のSVG Textを使い、名前付きstyle、相対font size、複数行のNarration actorを実演します。作品ライブラリでは、公式CLIで変換・検証したDSL4.0 YAML台本、作品ファイル（SB3）、単一HTML Web版も併せて配布します。deprecatedな旧Text Assetは正式台本から分離したテストfixtureで互換性を確認します。
 
-`pnpm build` は、完全固定したTurboWarp-Kamishibai 3.2 npmビルダー、本体コミット`2b5005d`から生成してハッシュ固定したclone-only UIの3.2汎用ベース、commitとハッシュを固定した4.0汎用ベースおよび4.0ビルダー、`@turbowarp/packager` `3.13.0` を使い、次の成果物を生成します。
+`pnpm build` は、完全固定したTurboWarp-Kamishibai 3.2 npmビルダー、本体のv3.2.4リリース（コミット`a458dbc`）で公開しハッシュ固定した3.2汎用ベース、commitとハッシュを固定した4.0汎用ベースおよび4.0ビルダー、`@turbowarp/packager` `3.13.0` を使い、次の成果物を生成します。
 
 - `_urashima.sb3` (`editor`): 台本非埋め込み・アセット埋め込み。物語作成者の編集用
 - `urashima.sb3` (`player`): 台本・アセット埋め込み。配布・再生用

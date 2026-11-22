@@ -4,7 +4,7 @@ import {access, readFile, readdir, stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
-import {validateBundle} from '@kubohiroya/tmpose-kamishibai/builder';
+import {validateBundle} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 import {
   NAVIGATION_CONTRACT,
   SITE_SHELL_CSS_URL,
@@ -122,8 +122,8 @@ async function verifyProfile(
   assert.equal(builderManifest.profile, profile);
   assert.equal(builderManifest.outputName, record.outputName);
   assert.equal(builderManifest.assets.length, 44);
-  assert.equal(builderManifest.builder.package, '@kubohiroya/tmpose-kamishibai');
-  assert.equal(builderManifest.builder.version, '3.2.3');
+  assert.equal(builderManifest.builder.package, '@kubohiroya/turbowarp-kamishibai-app');
+  assert.equal(builderManifest.builder.version, '3.2.4');
   validateBundle({sb3Bytes: sb3Contents, scriptBytes: scriptContents, manifest: builderManifest});
   assert.equal(/^(?:asset=.*,(?:file|https?):)/mu.test(scriptContents.toString('utf8')), false);
   return {builderManifest, sb3Contents, scriptContents};
@@ -319,7 +319,7 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
     'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/',
   );
   assert.equal(manifest.license, 'MPL-2.0');
-  assert.equal(manifest.builder.version, '3.2.3');
+  assert.equal(manifest.builder.version, '3.2.4');
   assert.equal(packageJson.devDependencies['@turbowarp/packager'], '3.13.0');
   assert.equal(manifest.baseSb3.profile, 'generic');
   assert.equal(manifest.baseSb3.published, true);
@@ -404,11 +404,21 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
       primesOutput: true,
     },
   });
-  assert.equal(manifest.web.packager.projectExtensions.length, 12);
-  assert(
-    manifest.web.packager.projectExtensions.some(({id}) => id === 'tmposebundle'),
-    'TM extension bundle is missing from the Packager manifest.',
-  );
+  // 3.2.4 replaced the TMPose Bundle with separate successors that the catalog lists.
+  assert.equal(manifest.web.packager.projectExtensions.length, 16);
+  const projectExtensionIds = manifest.web.packager.projectExtensions.map(({id}) => id);
+  for (const id of [
+    'kubohiroyatm',
+    'kubohiroyaassetcache',
+    'kubohiroyakamishibairuntime',
+    'kubohiroyasvgtext',
+    'kubohiroyabubble',
+    'text',
+    'truefantomnetwork',
+  ]) {
+    assert(projectExtensionIds.includes(id), `${id} is missing from the Packager manifest.`);
+  }
+  assert(!projectExtensionIds.includes('tmposebundle'), 'The retired TMPose Bundle remains.');
   assert.equal(manifest.web.scriptMode, 'embedded');
   assert.equal(manifest.web.assets, 'embedded');
   assert.deepEqual(manifest.web.reproducibility, {runs: 2, identical: true});
@@ -428,8 +438,8 @@ export async function verifyPublishedSite(options: VerifyPublishedSiteOptions = 
   assert.deepEqual(
     manifest.web.allowedOnlineDependencies.map(({urlPrefix}) => urlPrefix),
     [
-      'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/',
-      'https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8.3/',
+      'https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-teachable-machine@4.4.0/',
+      'https://storage.googleapis.com/tfjs-models/savedmodel/posenet/mobilenet/',
       'https://sqs.prof.cuc.ac.jp/kamishibai/20260630/',
     ],
   );

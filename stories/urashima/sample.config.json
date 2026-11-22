@@ -2,18 +2,18 @@
   "formatVersion": 1,
   "sample": "urashima",
   "builder": {
-    "package": "@kubohiroya/tmpose-kamishibai",
-    "version": "3.2.3",
-    "source": "npm:@kubohiroya/tmpose-kamishibai@3.2.3",
-    "commit": "28015ac9ff5221f371e8bd0357a7750ce40bbf7c"
+    "package": "@kubohiroya/turbowarp-kamishibai-app",
+    "version": "3.2.4",
+    "source": "npm:@kubohiroya/turbowarp-kamishibai-app@3.2.4",
+    "commit": "a458dbc4a16378a5b04561170eaa6907102438c1"
   },
   "baseSb3": {
     "path": "base/kamishibai.sb3",
     "profile": "generic",
-    "source": "github:kubohiroya/tm-kamishibai#2b5005d293a9b63c8ba5da396fd86815d093f975",
-    "commit": "2b5005d293a9b63c8ba5da396fd86815d093f975",
-    "size": 849321,
-    "sha256": "ed0f86bc2a975faf68c0250fe1981029fd0e0ab6efcb835046809bcc5d3833b1"
+    "source": "github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.4/kamishibai-3.2.sb3",
+    "commit": "a458dbc4a16378a5b04561170eaa6907102438c1",
+    "size": 915913,
+    "sha256": "eac87c83f46c1326115e2456cfc98aa1d7f106393da14a0c515bc4d8f1615431"
   },
   "sourceScript": "source.txt",
   "assetManifest": "assets.lock.json",
@@ -57,12 +57,12 @@
     },
     "allowedOnlineDependencies": [
       {
-        "urlPrefix": "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/",
-        "purpose": "TurboWarp TMのTensorFlow.jsランタイム"
+        "urlPrefix": "https://cdn.jsdelivr.net/npm/@kubohiroya/turbowarp-teachable-machine@4.4.0/",
+        "purpose": "TurboWarp TMの認識ランタイム（TensorFlow.jsとTeachable Machine Poseを含む）"
       },
       {
-        "urlPrefix": "https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8.3/",
-        "purpose": "TurboWarp TMのTeachable Machine Poseランタイム"
+        "urlPrefix": "https://storage.googleapis.com/tfjs-models/savedmodel/posenet/mobilenet/",
+        "purpose": "Teachable Machine Poseが読み込むPoseNetモデル"
       },
       {
         "urlPrefix": "https://sqs.prof.cuc.ac.jp/kamishibai/20260630/",

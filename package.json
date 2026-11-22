@@ -58,7 +58,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@kubohiroya/tmpose-kamishibai": "3.2.3",
+    "@kubohiroya/turbowarp-kamishibai-app": "3.2.4",
     "fflate": "0.8.3"
   },
   "devDependencies": {

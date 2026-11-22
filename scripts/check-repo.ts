@@ -141,8 +141,8 @@ async function assertStoryContracts(policy: RepoPolicy): Promise<void> {
   assert.deepEqual(
     sampleConfig.web.allowedOnlineDependencies.map(({ purpose }) => purpose),
     [
-      "TurboWarp TMのTensorFlow.jsランタイム",
-      "TurboWarp TMのTeachable Machine Poseランタイム",
+      "TurboWarp TMの認識ランタイム（TensorFlow.jsとTeachable Machine Poseを含む）",
+      "Teachable Machine Poseが読み込むPoseNetモデル",
       "台本で指定するTeachable Machine Poseモデル",
     ],
   );
