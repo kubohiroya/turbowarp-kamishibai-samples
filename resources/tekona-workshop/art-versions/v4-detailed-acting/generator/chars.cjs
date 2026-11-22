@@ -76,7 +76,7 @@ function face(o) {
       return `<path d="M${x - w} 0 Q${x} -4 ${x + w} -1 Q${x} 2.5 ${x - w} 0 Z" fill="#fbf6ee"/><ellipse cx="${x + (near ? 1.4 : 0.8)}" cy="-.6" rx="2.4" ry="2.6" fill="${eye}"/>` +
         `<path d="M${x - w - .5} -.4 Q${x} -4.6 ${x + w + .5} -1.6" stroke="${eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
     };
-    s += eyeAt(-1, false) + eyeAt(12, true);
+    s += eyeAt(-1, true) + eyeAt(12, false);
     // 太い眉
     const browPath = {
       stand: ['M-8 -10 L4 -11', 'M7 -11 L18 -10'], eager: ['M-8 -12 L4 -13', 'M7 -13 L18 -13'],
@@ -100,8 +100,7 @@ function face(o) {
   } else {
     // 女性：やわらかい輪郭、満月のような丸い顔
     s += `<path d="M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z" fill="${skin}"/>`;
-    s += `<path d="M17 4 L21 8 Q19 11 16 10 Z" fill="${skin}"/>`;
-    // 目：手前（near）は大きく、奥は横に縮めて小さく描く（3/4の向きの遠近）
+    // 目：3/4で右を向く顔では、画面の左が手前の目、輪郭に近い右が奥の目。奥の目は横に縮めて小さく描く
     const eyeAt = (x, near) => {
       const sx = near ? 1 : .74, sy = near ? 1 : .9;
       let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
@@ -110,14 +109,14 @@ function face(o) {
         `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(1.7 / sx)}" fill="none" stroke-linecap="round"/>`;
       return e + `</g>`;
     };
-    s += eyeAt(-2, false) + eyeAt(10, true);
-    const b = mood === 'resolve' ? ['M-6 -12 L1 -11', 'M6 -11 L15 -12'] : mood === 'gentle' ? ['M-6 -10 Q-2.5 -12.5 1 -11', 'M6 -11 Q11 -13 15 -10'] : ['M-6 -11 Q-2.5 -13 1 -11', 'M6 -11 Q11 -13 15 -11'];
+    s += eyeAt(-3, true) + eyeAt(10, false);
+    const b = mood === 'resolve' ? ['M-9 -12 L1 -11', 'M6 -11 L13 -12'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M6 -11 Q9.5 -12.5 13 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M6 -11 Q9.5 -12.5 13 -11'];
     s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('');
     // 口：両目のあいだの下、やや手前寄り
     s += {smile: `<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
       gentle: `<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
       resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`}[mood];
-    s += `<ellipse cx="-4" cy="9" rx="3.4" ry="2.3" fill="#f29c9c" opacity=".5"/><ellipse cx="12" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/>`;
+    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/><ellipse cx="12" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity=".5"/>`;
   }
   return s;
 }
