@@ -44,6 +44,20 @@
       "size": 22138,
       "sha256": "27445caffa959c3086b2980c6b25bdba7dcb6e05a2465076c102cbd05229940f",
       "license": "MIT AND MPL-2.0"
+    },
+    {
+      "url": "https://extensions.turbowarp.org/lab/text.js",
+      "path": "extensions.turbowarp.org/lab/text.js",
+      "size": 77199,
+      "sha256": "baa093e7fab2ac4d2ee03de2758098968fd81b651a7e0a6b403b639acbf6d01b",
+      "license": "MIT AND LGPL-3.0"
+    },
+    {
+      "url": "https://extensions.turbowarp.org/true-fantom/network.js",
+      "path": "extensions.turbowarp.org/true-fantom/network.js",
+      "size": 30914,
+      "sha256": "3cbb9b673922c05848e2da26e15cab947411f72861fd72db65646d6553c2e5e2",
+      "license": "MIT"
     }
   ]
 }

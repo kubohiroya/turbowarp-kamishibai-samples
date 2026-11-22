@@ -90,9 +90,9 @@ DSL 4.0 Web版だけを一時停止するときは、`sample.config.json`の`dsl
 
 `Clock Ticking`と`Sewing Machine`はMP3音声アセットとして組み込み、`setPoseRecognitionSound=Clock Ticking,Sewing Machine`で、前者を各ポーズの認識開始から終了まで、後者をポーズ条件の成立時に再生します。
 
-scene 3の魚アニメーションでは、`Fish`クローンを乙姫と同じ中心座標に置き、背面レイヤーで`Fish1`と`Fish2`をloop再生します。固定済み汎用ベースのAsset Managerは`actorName`変数からクローンを解決し、クローンの表示サイズを保持します。
+scene 3の魚アニメーションでは、`Fish`クローンを乙姫と同じ中心座標に置き、背面レイヤーで`Fish1`と`Fish2`をloop再生します。固定済み汎用ベースのAsset Cache（3.2.3まではAsset Manager）は`actorName`変数からクローンを解決し、クローンの表示サイズを保持します。
 
-scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの明るさを`+100`へ上げたまま保持してから背景をSmokeへ切り替え、`fadeFromWhite`で`0`へ戻して煙を見せます。通常の`fadeOut`（`-100`で保持）と`fadeUp`（`0`へ復帰）は変更しません。本体のAsset Managerにはproject asset検証、clone削除時の表示状態解放、`actorName`クローン解決、cloneサイズ保持が含まれます。samples側ではSB3内のランタイムコードを変更しません。
+scene 7では、本体3.2系列の標準コマンド`fadeToWhite`でステージの明るさを`+100`へ上げたまま保持してから背景をSmokeへ切り替え、`fadeFromWhite`で`0`へ戻して煙を見せます。通常の`fadeOut`（`-100`で保持）と`fadeUp`（`0`へ復帰）は変更しません。本体のAsset Managerにはproject asset検証、clone削除時の表示状態解放、`actorName`クローン解決、cloneサイズ保持が含まれます。samples側ではSB3内のランタイムコードを変更しません。
 
 3.2 Web版は`player`の`urashima.sb3`、4.0 Web版は`dsl4-offline`の`urashima-4.0.sb3`をTurboWarp Packager 3.13.0へ渡して生成します。音声はブラウザ互換性を考慮してMP3（44.1kHz、モノラル、128kbps）へ統一しています。3.2の`web.audioUnlock.enabled`を有効にすると、WebKitがユーザー操作として扱うタイトル画面のタップ完了をキャプチャしてWeb Audioを再開し、音声クロックの進行まで確認します。バックグラウンドからの復帰時にも再確認するため、iPadOSでもタイトル自動表示と本編開始1タップを維持できます。Packagerは外部URLのScratch拡張も単一HTMLへ取り込みます。3.2版が実行時にオンライン取得するものはmanifestで許可したTensorFlow.js、Teachable Machine Pose、モデルに限定します。4.0版の台本固有画像・音声・台本・ポーズモデルはすべてSB3に組み込み、検証では外部ネットワークを遮断して再生開始を確認します。
 
@@ -106,8 +106,8 @@ scene 7では、本体3.2.3の標準コマンド`fadeToWhite`でステージの�
 
 - 移設元: [`kubohiroya/turbowarp-kamishibai-app`](https://github.com/kubohiroya/turbowarp-kamishibai-app) PR #44
 - 移設元コミット: `9526c9d6391622ee261b8d7c0778b1fbbd2e6745`
-- ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `3.2.3` / `28015ac9ff5221f371e8bd0357a7750ce40bbf7c`
-- 汎用ベース: TurboWarp-Kamishibai / `2b5005d293a9b63c8ba5da396fd86815d093f975`
+- ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `@kubohiroya/turbowarp-kamishibai-app@3.2.4` / `a458dbc4a16378a5b04561170eaa6907102438c1`
+- 汎用ベース: TurboWarp-Kamishibai v3.2.4 のGitHub Release asset `kamishibai-3.2.sb3` / `a458dbc4a16378a5b04561170eaa6907102438c1`
 - DSL 4.0汎用ベース・再生用・編集用ビルダー: ルートの`app-release.json`に記録した同じ公開Release。サイズ・SHA-256・commitをCIで自動更新・照合します。
 
 依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体rc.23／rc.25のrelease artifactは差し替えません。

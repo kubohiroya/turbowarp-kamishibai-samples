@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
-import {buildSb3Bundle, type Sb3BundleResult} from '@kubohiroya/tmpose-kamishibai/builder';
+import {buildSb3Bundle, type Sb3BundleResult} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 
 import type {
   ArtifactsLock,
@@ -21,7 +21,7 @@ const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sampleDirectory = path.join(projectRoot, 'stories/urashima');
 const require = createRequire(import.meta.url);
 const installedPackage = JSON.parse(
-  await readFile(require.resolve('@kubohiroya/tmpose-kamishibai/package.json'), 'utf8'),
+  await readFile(require.resolve('@kubohiroya/turbowarp-kamishibai-app/package.json'), 'utf8'),
 ) as {version: string};
 
 export interface BuildUrashimaResult {
@@ -67,7 +67,7 @@ async function verifyLockedFile(
 function verifyConfiguration(config: StoryConfig): void {
   assert.equal(config.formatVersion, 1);
   assert.equal(config.sample, 'urashima');
-  assert.equal(config.builder.package, '@kubohiroya/tmpose-kamishibai');
+  assert.equal(config.builder.package, '@kubohiroya/turbowarp-kamishibai-app');
   assert.equal(config.builder.version, installedPackage.version);
   assert.deepEqual(Object.keys(config.profiles).sort(), ['editor', 'player']);
   assert.equal(config.baseSb3.profile, 'generic');

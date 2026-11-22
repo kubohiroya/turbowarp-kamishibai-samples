@@ -1,7 +1,7 @@
 // 依存パッケージ 3 つは型定義を同梱していないため、このリポジトリで使う API 面だけを宣言する。
 // 実際のシグネチャは各パッケージの src/ を参照。値の中身は動的な JSON なので unknown 相当に留める。
 
-declare module '@kubohiroya/tmpose-kamishibai/builder' {
+declare module '@kubohiroya/turbowarp-kamishibai-app/builder' {
   export interface BuildSb3BundleOptions {
     baseSb3: string;
     sourceScript: string;

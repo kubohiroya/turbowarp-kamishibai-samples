@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {buildSb3Bundle, type Sb3BundleResult} from '@kubohiroya/tmpose-kamishibai/builder';
+import {buildSb3Bundle, type Sb3BundleResult} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 import {
   createDeterministicSb3,
   importSb3,

@@ -39,7 +39,7 @@ import {
   type WorkEntry,
   type WorksCatalog,
 } from './works-catalog.ts';
-import type {Sb3BundleResult} from '@kubohiroya/tmpose-kamishibai/builder';
+import type {Sb3BundleResult} from '@kubohiroya/turbowarp-kamishibai-app/builder';
 import type {
   ArtifactSizeEntry,
   AssetRecord,
