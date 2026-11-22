@@ -1,5 +1,9 @@
 // コウノトリが水辺から飛び立つ3枚の絵（版4の絵柄：輪郭線なしの平面イラスト）。
-// 240x240, viewBox 0 -40 240 240。3枚とも足もとの水面を y=170 にそろえる。回転中心は画像の左上から (120, 210)（水面の中央）。
+// 320x240, viewBox -80 -40 320 240。3枚とも水面を y=170 にそろえ、飛び立つ場所（波紋の中心 x=118）を動かさない。
+// 回転中心は画像の左上から (198, 210)（飛び立つ場所の水面）。鳥は3枚のあいだに前（画面の左）へ進むので、
+// 波紋は鳥から見て後ろへ残る。
+// 動き：かがんで翼をひらく → 斜め前へ身を乗り出し、脚で後ろへけり出して、重心をいったん下げながら飛び出す
+//       → 翼で風をとらえ、前へ進みながら上がる（真上には跳ばない）。
 // コウノトリ：白い体、黒い風切羽、黒く長いくちばし、目のまわりと脚は赤。画面の左へ向かって飛び立つ。
 const fs = require('fs');
 const path = require('path');
@@ -127,31 +131,31 @@ function frame1() {
   s += wing(sn, -124, 80, {spread: .9}) + upperArm(sn, -124, 80);
   return s;
 }
-// 2枚目：脚で水をけり、翼を高く振り上げる
+// 2枚目：斜め前へ身を乗り出し、脚で水を後ろへけり出す。胴体は前に傾き、重心は1枚目より低い
 function frame2() {
-  const c = [118, 92], tilt = -24;
-  const legs = [[[126, 102], [140, 130], [128, 162], true], [[114, 102], [128, 132], [114, 166], false]];
-  let s = splash(116, 170, 34) + ripple(116, 172, 52, .6);
-  s += drops([[86, 150, 2.4], [96, 140, 2], [140, 146, 2.6], [150, 156, 2], [118, 134, 1.8]]);
-  for (const [h, k, f, far] of legs) s += leg(h, k, f, 196, far) + (far ? thigh(h, k, true) : '');
+  const c = [94, 120], tilt = -20;
+  const legs = [[bodyPt(c, tilt, 12, 7), [128, 142], [152, 160], true], [bodyPt(c, tilt, 6, 10), [122, 148], [146, 168], false]];
+  let s = ripple(118, 171, 46, .6) + ripple(118, 171, 28, .8);
+  s += splash(150, 170, 22) + drops([[160, 150, 2.4], [170, 158, 2], [140, 148, 2], [176, 166, 1.8], [154, 140, 1.6]]);
+  for (const [h, k, f, far] of legs) s += leg(h, k, f, 34, far) + (far ? thigh(h, k, true) : '');
   const sf = bodyPt(c, tilt, -4, -11), sn = bodyPt(c, tilt, -10, -8);
-  s += wing(sf, -106, 86, {spread: .85, far: true}) + upperArm(sf, -106, 86, true);
-  s += neckFromBody(c, tilt, [92, 78], 205, 34, {billDown: 8});
+  s += wing(sf, -118, 86, {spread: .85, far: true}) + upperArm(sf, -118, 86, true);
+  s += neckFromBody(c, tilt, [70, 114], 186, 34, {billDown: 4});
   s += body(c, tilt);
   for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
-  s += wing(sn, -92, 94, {spread: 1}) + upperArm(sn, -92, 94);
+  s += wing(sn, -102, 94, {spread: 1}) + upperArm(sn, -102, 94);
   return s;
 }
-// 3枚目：首をのばし、翼を打ちおろして宙に浮く。脚は後ろへのばし、指をそろえる
+// 3枚目：翼を打ちおろして風をとらえ、前へ進みながら上がる。首をのばし、脚は後ろへのばす。波紋は後ろに残る
 function frame3() {
-  const c = [120, 70], tilt = -4;
-  const legs = [[[138, 76], [168, 82], [194, 88], true], [[134, 80], [164, 88], [192, 96], false]];
-  let s = ripple(130, 172, 60, .45) + ripple(130, 172, 36, .6);
-  s += drops([[120, 120, 2], [134, 138, 2.2], [146, 154, 1.8]]);
+  const c = [62, 84], tilt = -6;
+  const legs = [[bodyPt(c, tilt, 16, 5), [106, 92], [132, 100], true], [bodyPt(c, tilt, 12, 9), [104, 100], [130, 108], false]];
+  let s = ripple(118, 171, 64, .4) + ripple(118, 171, 40, .55) + ripple(146, 171, 20, .6);
+  s += drops([[132, 124, 2], [140, 140, 2.2], [146, 156, 1.8], [124, 146, 1.6]]);
   for (const [h, k, f, far] of legs) s += leg(h, k, f, 12, far) + (far ? thigh(h, k, true) : '');
   const sf = bodyPt(c, tilt, -6, -10), sn = bodyPt(c, tilt, -12, -6);
   s += wing(sf, -196, 86, {spread: .85, far: true}) + upperArm(sf, -196, 86, true);
-  s += neckFromBody(c, tilt, [92, 64], 188, 36);
+  s += neckFromBody(c, tilt, [36, 76], 188, 32);
   s += body(c, tilt);
   for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
   s += wing(sn, 146, 96, {spread: 1}) + upperArm(sn, 146, 96);
@@ -159,7 +163,7 @@ function frame3() {
 }
 
 const out = process.argv[2];
-const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 -40 240 240"><title>${name}</title>${b}</svg>\n`;
+const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="-80 -40 320 240"><title>${name}</title>${b}</svg>\n`;
 const files = {'stork-1': frame1(), 'stork-2': frame2(), 'stork-3': frame3()};
 for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
 console.log('3 files');
