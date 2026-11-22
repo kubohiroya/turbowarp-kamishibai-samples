@@ -6,3 +6,6 @@ dist/
 .idea/
 # Teachable Machine seat projects contain photos and an update token (tekona workshop)
 seat-*.tm
+
+# SB3 files are GitHub Release assets recorded in sb3-assets.json; pnpm sb3:fetch downloads them.
+/stories/**/*.sb3

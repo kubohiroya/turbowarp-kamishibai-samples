@@ -14,6 +14,9 @@
   "packageManager": "pnpm@11.28.8",
   "scripts": {
     "build": "node scripts/build-site.ts",
+    "sb3:fetch": "node scripts/sb3-assets.ts fetch",
+    "sb3:status": "node scripts/sb3-assets.ts status",
+    "sb3:publish": "node scripts/sb3-assets.ts publish",
     "update:app-release": "node scripts/app-release.ts",
     "build-workshop-20260801": "node scripts/build-workshop-20260801.ts",
     "check": "node scripts/run-check.ts",

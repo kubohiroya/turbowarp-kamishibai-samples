@@ -46,6 +46,10 @@ runs:
           .tmp/turbowarp-kamishibai-app/pnpm-lock.yaml
     - shell: bash
       run: pnpm install --frozen-lockfile
+    # The SB3 files are GitHub Release assets recorded in sb3-assets.json, not committed.
+    # Fetch them before the regeneration below, which reads some of them.
+    - shell: bash
+      run: pnpm sb3:fetch
     - shell: bash
       working-directory: .tmp/turbowarp-kamishibai-app
       run: pnpm install --frozen-lockfile
