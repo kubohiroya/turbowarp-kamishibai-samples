@@ -12,8 +12,9 @@ function neckHead(base, ang, len, {billDown = 0, bend = 0} = {}) {
   const a = ang * Math.PI / 180, mid = [base[0] + Math.cos(a) * len * .5 + bend, base[1] + Math.sin(a) * len * .5 - Math.abs(bend) * .4];
   const head = [base[0] + Math.cos(a) * len, base[1] + Math.sin(a) * len];
   let s = `<path d="M${base[0]} ${base[1]} Q${r1(mid[0])} ${r1(mid[1])} ${r1(head[0])} ${r1(head[1])}" stroke="${C.white}" stroke-width="11" stroke-linecap="round" fill="none"/>`;
-  const dir = Math.cos(a) < 0 ? -1 : 1, ba = (dir < 0 ? 180 : 0) + billDown * dir;
-  s += `<g transform="translate(${r1(head[0])} ${r1(head[1])}) rotate(${r1(ba)})">`;
+  // 左向きは左右反転で描く（180度回すと上下も逆さになり、目が頭の下側へ行ってしまうため）
+  const dir = Math.cos(a) < 0 ? -1 : 1;
+  s += `<g transform="translate(${r1(head[0])} ${r1(head[1])}) rotate(${r1(billDown * dir)}) scale(${dir} 1)">`;
   s += `<ellipse cx="0" cy="0" rx="9" ry="7.5" fill="${C.white}"/>`;
   s += `<path d="M5 -3 L40 1 L5 3 Z" fill="${C.bill}"/><path d="M8 0 L38 1" stroke="#55545c" stroke-width=".8"/>`;
   s += `<ellipse cx="2.6" cy="-3.4" rx="3.4" ry="2.8" fill="${C.red}"/><circle cx="3" cy="-3.5" r="1.5" fill="${C.eye}"/><circle cx="3.2" cy="-3.5" r=".8" fill="#1a1a1a"/>`;
@@ -34,11 +35,30 @@ function neckFromBody(c, tilt, base, ang, len, opts = {}) {
     `<circle cx="${r1(root[0])}" cy="${r1(root[1])}" r="9" fill="${C.white}"/>` +
     neckHead(root, na, nl, opts);
 }
+// 尾羽：後ろへ行くほど細くなる三角。白い毛の筆に墨を不均一につけたように、
+// 毛の流れにそって濃さ・長さ・太さの違う墨の筋を入れる（先へ行くほど墨が多い）
+function tail() {
+  const outline = 'M20 -8 Q44 -5 61 2 Q62 3.4 60 4.4 Q44 9 20 10 Z';
+  let s = `<defs><clipPath id="tail"><path d="${outline}"/></clipPath></defs><path d="${outline}" fill="${C.white}"/><g clip-path="url(#tail)">`;
+  // [付け根側の y, 筋の始まり x, 太さ, 濃さ]：筋は先（61, 3）まで。始まりと濃さをばらつかせ、白い地を残す
+  const hairs = [[-7, 46, 1.6, .7], [-5, 52, .9, .4], [-3.4, 42, 1.8, .8], [-1.6, 54, .8, .35], [.2, 48, 1.3, .6],
+    [2, 51, 1, .45], [3.8, 44, 1.7, .75], [5.6, 55, .8, .35], [7.4, 47, 1.4, .6], [9, 52, 1, .4]];
+  const tipX = 61, tipY = 3;
+  for (const [y, x0, w, op] of hairs) {
+    const yy = x => y + (tipY - y) * ((x - 20) / (tipX - 20)) ** 1.3;
+    const xm = (x0 + tipX) / 2;
+    s += `<path d="M${x0} ${r1(yy(x0))} Q${r1(xm)} ${r1(yy(xm) + (w > 1.5 ? .4 : -.3))} ${tipX} ${tipY}" stroke="${C.black}" stroke-width="${w}" stroke-linecap="round" fill="none" opacity="${op}"/>`;
+  }
+  // 先のほうに墨がたまる
+  s += `<path d="M${tipX + 1} ${tipY} Q56 0 54 1 Q55 3 54 5.6 Q57 5 ${tipX + 1} ${tipY + .6} Z" fill="${C.black}" opacity=".85"/>`;
+  s += `</g>`;
+  return s;
+}
 // 胴体：中心 c、傾き tilt（度）。尾の先から黒い風切羽が少し見える。
 // 尾は先を下へ向ける（胴体が前に傾いても、画面の上で下向きになるよう角度を足す）
 const body = (c, tilt) =>
   `<g transform="translate(${c[0]} ${c[1]}) rotate(${tilt})">` +
-  `<g transform="rotate(${r1(24 - tilt * .5)} 26 1)"><path d="M24 -5 L44 -3 Q47 1 44 5 L24 7 Z" fill="${C.black}"/><path d="M24 -4 L38 -3 L38 5 L24 6 Z" fill="${C.white}"/></g>` +
+  `<g transform="rotate(${r1(20 - tilt * .5)} 24 1)">${tail()}</g>` +
   `<ellipse cx="0" cy="0" rx="32" ry="15" fill="${C.white}"/><path d="M-26 6 Q0 18 28 6 Q0 12 -26 6 Z" fill="${C.shade}"/>` +
   `</g>`;
 // 胴体の座標（中心 c・傾き tilt の胴体の上での位置 lx, ly）を画面の座標へ
