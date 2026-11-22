@@ -64,9 +64,9 @@ function face(o) {
     s += `<path d="M-19 -6 Q-20 10 -12 20 Q-6 26 4 29 Q11 29 15 24 L18 15 Q21 13 20 9 L21 0 Q23 -16 12 -24 Q2 -29 -10 -26 Q-19 -20 -19 -6 Z" fill="${skin}"/>`;
     s += `<path d="M-12 20 Q-6 26 4 29 Q11 29 15 24 Q6 26 -2 22 Q-8 19 -12 14 Z" fill="${skinDark}" opacity=".55"/>`;
     s += `<ellipse cx="-14" cy="3" rx="4.5" ry="7.5" fill="${skin}"/><path d="M-15 0 q-2 4 0 7" stroke="${skinDark}" stroke-width="1.6" fill="none"/>`;
-    // 鼻（輪郭から少し出る）
-    s += `<path d="M18 -3 L24 9 Q22 12 17 11 Z" fill="${skin}"/><path d="M17 11 q2 -1 4 0" stroke="${skinDark}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-    s += `<path d="M14 -4 Q15 4 15 8" stroke="${skinDark}" stroke-width="1.4" fill="none" opacity=".7"/>`;
+    // 鼻：両目のあいだ（3/4なので奥の目に寄る）。鼻筋の影と小鼻
+    s += `<path d="M4 -4 Q6 3 9 8 Q7 10.5 4 10 Q6 9 6.5 7.5 Q4.5 2 4 -4 Z" fill="${skinDark}" opacity=".8"/>`;
+    s += `<path d="M3 10.5 q2.5 1.4 6 -.4" stroke="${skinDark}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
     if (stubble) s += `<path d="M-6 20 Q4 30 15 23 L16 18 Q6 24 -4 16 Z" fill="#3a2a20" opacity=".16"/>`;
     // 目（小さめ・切れ長）
     const eyeAt = (x, near) => {
@@ -76,27 +76,27 @@ function face(o) {
       return `<path d="M${x - w} 0 Q${x} -4 ${x + w} -1 Q${x} 2.5 ${x - w} 0 Z" fill="#fbf6ee"/><ellipse cx="${x + (near ? 1.4 : 0.8)}" cy="-.6" rx="2.4" ry="2.6" fill="${eye}"/>` +
         `<path d="M${x - w - .5} -.4 Q${x} -4.6 ${x + w + .5} -1.6" stroke="${eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
     };
-    s += eyeAt(-1, true) + eyeAt(12, false);
+    s += eyeAt(-6, true) + eyeAt(13, false);
     // 太い眉
     const browPath = {
-      stand: ['M-8 -10 L4 -11', 'M7 -11 L18 -10'], eager: ['M-8 -12 L4 -13', 'M7 -13 L18 -13'],
-      serious: ['M-8 -12 L4 -9', 'M7 -9 L18 -12'], proud: ['M-8 -13 Q-2 -16 4 -13', 'M7 -13 Q12 -16 18 -13'],
-      pained: ['M-8 -9 L4 -13', 'M7 -13 L18 -8'],
-    }[mood] || ['M-8 -10 L4 -11', 'M7 -11 L18 -10'];
+      stand: ['M-13 -10 L0 -11', 'M8 -11 L18 -10'], eager: ['M-13 -12 L0 -13', 'M8 -13 L18 -13'],
+      serious: ['M-13 -12 L0 -9', 'M8 -9 L18 -12'], proud: ['M-13 -13 Q-6 -16 0 -13', 'M8 -13 Q13 -16 18 -13'],
+      pained: ['M-13 -9 L0 -13', 'M8 -13 L18 -8'],
+    }[mood] || ['M-13 -10 L0 -11', 'M8 -11 L18 -10'];
     s += browPath.map(d => `<path d="${d}" stroke="${brow}" stroke-width="3" stroke-linecap="round"/>`).join('');
-    if (mood === 'pained') s += `<path d="M3 -15 q2 -2 4 0" stroke="${skinDark}" stroke-width="1.2" fill="none"/>`;
+    if (mood === 'pained') s += `<path d="M2 -15 q2 -2 4 0" stroke="${skinDark}" stroke-width="1.2" fill="none"/>`;
     // 口
     const mouth = {
-      stand: `<path d="M6 17 Q11 18 15 16" stroke="#8a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
-      eager: `<path d="M5 15 Q11 15 16 14 Q14 22 9 22 Q5 21 5 15 Z" fill="#7a2e28"/><path d="M6 15.5 L15 14.6 L14.6 16.6 L6.4 17 Z" fill="#fff"/>`,
-      serious: `<path d="M6 17 L15 16" stroke="#8a4a3a" stroke-width="2.2" stroke-linecap="round"/>`,
-      proud: `<path d="M4 14 Q11 15 17 13 Q15 23 9 23 Q4 21 4 14 Z" fill="#7a2e28"/><path d="M5 14.4 L16 13.4 L15.4 16 L5.4 16.6 Z" fill="#fff"/>`,
-      pained: `<path d="M5 19 Q8 15 11 18 Q14 15 16 19 Q12 21 8 21 Z" fill="#7a2e28"/>`,
+      stand: `<path d="M1 17 Q6 18 11 16" stroke="#8a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      eager: `<path d="M0 15 Q6 15 12 14 Q10 22 5 22 Q0 21 0 15 Z" fill="#7a2e28"/><path d="M1 15.5 L11 14.6 L10.6 16.6 L1.4 17 Z" fill="#fff"/>`,
+      serious: `<path d="M1 17 L11 16" stroke="#8a4a3a" stroke-width="2.2" stroke-linecap="round"/>`,
+      proud: `<path d="M-1 14 Q6 15 13 13 Q11 23 5 23 Q-1 21 -1 14 Z" fill="#7a2e28"/><path d="M0 14.4 L12 13.4 L11.4 16 L.4 16.6 Z" fill="#fff"/>`,
+      pained: `<path d="M0 19 Q3 15 6 18 Q9 15 12 19 Q8 21 4 21 Z" fill="#7a2e28"/>`,
     }[mood];
     s += mouth || '';
-    if (mustache) s += `<path d="M3 13 Q8 9 11 11 Q15 9 19 12 Q15 13 11 13 Q7 14 3 13 Z" fill="${brow}"/>`;
-    if (beard) s += `<path d="M5 25 Q10 34 14 26 Q11 29 9 28 Z" fill="${brow}"/>`;
-    if (o.lines) s += `<path d="M15 8 Q12 13 13 17" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+    if (mustache) s += `<path d="M-2 13 Q3 9 6 11 Q10 9 14 12 Q10 13 6 13 Q2 14 -2 13 Z" fill="${brow}"/>`;
+    if (beard) s += `<path d="M3 26 Q7 35 11 27 Q8 29 6 28.5 Z" fill="${brow}"/>`;
+    if (o.lines) s += `<path d="M0 9 Q-3 13 -2 17" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
   } else {
     // 女性：やわらかい輪郭、満月のような丸い顔
     s += `<path d="M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z" fill="${skin}"/>`;
@@ -109,14 +109,14 @@ function face(o) {
         `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(1.7 / sx)}" fill="none" stroke-linecap="round"/>`;
       return e + `</g>`;
     };
-    s += eyeAt(-3, true) + eyeAt(10, false);
-    const b = mood === 'resolve' ? ['M-9 -12 L1 -11', 'M6 -11 L13 -12'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M6 -11 Q9.5 -12.5 13 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M6 -11 Q9.5 -12.5 13 -11'];
+    s += eyeAt(-3, true) + eyeAt(12.5, false);
+    const b = mood === 'resolve' ? ['M-9 -12 L1 -11', 'M8.5 -11 L15.5 -12'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -11'];
     s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('');
     // 口：両目のあいだの下、やや手前寄り
     s += {smile: `<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
       gentle: `<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
       resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`}[mood];
-    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/><ellipse cx="12" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity=".5"/>`;
+    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/><ellipse cx="14" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity=".5"/>`;
   }
   return s;
 }
