@@ -38,9 +38,24 @@ const fuseya = (x, y, w, roof, roofDark, door) =>
 const grebe = (x, y, s = 1, c = '#5a4632', d = '#8a5a3a') =>
   `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-12 0 q2 -10 14 -9 q6 -9 13 -4 q2 3 -1 5 l5 1 l-5 2 q-1 6 -10 6 h-14 q-4 0 -2 -1 z" fill="${c}"/><circle cx="12" cy="-9" r="1.5" fill="#f5e6a8"/><path d="M4 -7 q4 3 7 -1" stroke="${d}" stroke-width="2.5" fill="none"/><path d="M-16 4 h34" stroke="#ffffff" stroke-width="1.5" opacity=".6"/></g>`;
 // 玉藻（入江の藻）
+// 玉藻（入江の藻）：水面から出た茎と葉を、本数・間隔・高さ・傾き・揺れ方をばらつかせて不規則に生やす
 const tamamo = (x, y, c, n = 3) => {
+  const rnd = rnd0(Math.round(x * 7 + y * 13));
+  const light = '#5f9a6e';
   let s = '';
-  for (let i = 0; i < n; i++) s += `<path d="M${x + i * 7} ${y} q-5 -8 0 -14 q5 -6 0 -14" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  const count = n + 1 + Math.floor(rnd() * 3);
+  let px = x - 6;
+  for (let i = 0; i < count; i++) {
+    px += 3 + rnd() * 9;
+    const by = y + (rnd() - .5) * 6, h = 10 + rnd() * 18, lean = (rnd() - .5) * 10, sway = (rnd() > .5 ? 1 : -1) * (2 + rnd() * 4);
+    const tx = px + lean, ty = by - h, w = (1.6 + rnd() * 1.6).toFixed(1);
+    s += `<path d="M${px.toFixed(1)} ${by.toFixed(1)} Q${(px + sway + lean * .3).toFixed(1)} ${(by - h * .5).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}" stroke="${rnd() > .6 ? light : c}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+    // ところどころに細長い葉
+    if (rnd() > .45) { const ly = by - h * (.35 + rnd() * .35), lx = px + sway * .6 + lean * .3, d = rnd() > .5 ? 1 : -1;
+      s += `<path d="M${lx.toFixed(1)} ${ly.toFixed(1)} q${(d * 4).toFixed(1)} -2 ${(d * 7).toFixed(1)} -6 q${(-d * 4).toFixed(1)} 4 ${(-d * 7).toFixed(1)} 6 z" fill="${c}" opacity=".9"/>`; }
+  }
+  // 水面の小さな輪
+  s += `<path d="M${(x - 8).toFixed(1)} ${(y + 2).toFixed(1)} q${((px - x) / 2 + 8).toFixed(1)} 4 ${(px - x + 16).toFixed(1)} 0" stroke="#ffffff" stroke-width="1.2" fill="none" opacity=".5"/>`;
   return s;
 };
 
@@ -134,7 +149,7 @@ function mamaWell() {
   s += `<path d="M236 ${H + 4} H480 V318 Q430 290 372 284 Q318 276 290 252 Q268 224 236 ${H + 4} Z" fill="${grad([[0, '#8ac6e0'], [.6, '#72b4d6'], [1, '#62a8cc']])}"/>`;
   s += `<path d="M290 252 Q318 276 372 284 Q430 290 480 318 V306 Q430 280 374 274 Q322 268 298 248 Z" fill="#a8d8ec" opacity=".6"/>`;
   s += ripples([[300, 218, 30], [372, 230, 40], [430, 214, 34], [340, 256, 26], [420, 262, 40]], '#ffffff', .5);
-  s += tamamo(332, 272, '#3f7f5a') + tamamo(452, 250, '#3f7f5a', 2);
+  s += tamamo(300, 232, '#3f7f5a') + tamamo(452, 252, '#3f7f5a', 2);
   // 里の地面
   s += `<path d="M0 ${H} H236 Q268 224 290 252 Q318 276 372 284 Q430 290 480 318 V360 H0 Z" fill="${grad([[0, '#e6d3a2'], [.5, '#dcc492'], [1, '#cdb07a']])}"/>`;
   s += `<path d="M284 248 Q318 274 372 282 Q430 288 480 316 L480 324 Q430 296 372 290 Q314 282 280 254 Z" fill="#c4a670" opacity=".55"/>`;
