@@ -48,6 +48,16 @@ assets:
   # sNN-stand: {kind: costume, target: SuitorNN, name: stand}
   # sNN-kime: {kind: costume, target: SuitorNN, name: kime}
   # sNN-rejected: {kind: costume, target: SuitorNN, name: rejected}
+  # アバンタイトルのコウノトリ（9枚のコスチュームを順に切り替えて動かす）
+  stork-1: costume:Stork
+  stork-2: costume:Stork
+  stork-3: costume:Stork
+  stork-4: costume:Stork
+  stork-5: costume:Stork
+  stork-6: costume:Stork
+  stork-7: costume:Stork
+  stork-8: costume:Stork
+  stork-9: costume:Stork
   # ナレーション用の透明な下地
   TextPlaceholder: costume:Narration
   # 音
@@ -88,6 +98,7 @@ actors:
   Miyako: miyako-stand
   # ★参加者：席番号NNごとに1行加えます。
   # SuitorNN: sNN-stand
+  Stork: stork-1
   Narration: TextPlaceholder
 cover:
   backdrop: TitleCard
@@ -108,8 +119,36 @@ recognition:
   navigation:
     allowSkip: true
 scenes:
+  # アバンタイトル：再生直後、真間の入江の水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる
+  avant:
+    - transition: {effect: fadeOut, seconds: 0.5}
+    - stage: Tsugihashi
+    - transition: {effect: fadeUp, seconds: 1}
+    - Stork.show: {skin: stork-1, x: 110, y: -120, scale: 100}
+    - wait: 1.6
+    - Stork.setSkin: {skin: stork-2}
+    - wait: 0.6
+    - Stork.setSkin: {skin: stork-3}
+    - wait: 0.3
+    - Stork.setSkin: {skin: stork-4}
+    - wait: 0.4
+    - Stork.setSkin: {skin: stork-5}
+    - wait: 0.6
+    - Stork.setSkin: {skin: stork-6}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-7}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-8}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-9}
+    - wait: 0.9
+    - Stork.hide: {}
+    - wait: 0.4
+    - transition: {effect: fadeOut, seconds: 1}
+
   opening:
     - stage: TitleCard
+    - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 20, scale: 100}
     - Narration.setText: {text: 手児奈, style: title}
     - wait: 2

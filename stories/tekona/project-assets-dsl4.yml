@@ -45,8 +45,19 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
-  Narration:
+  # アバンタイトルで水辺から飛び立つコウノトリ（コスチューム stork-1〜stork-9 を切り替える）
+  Stork:
     layerOrder: 5
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Narration:
+    layerOrder: 6
     visible: false
     x: 0
     y: 0
@@ -172,6 +183,70 @@ assets:
     file: assets/miyako-rejected.svg
     rotationCenterX: 120
     rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # コウノトリが飛び立つ9枚。回転の中心は3枚目までの足もとの水面（画像の左上から198, 210）
+  stork-1:
+    kind: costume
+    target: Stork
+    file: assets/stork-1.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-2:
+    kind: costume
+    target: Stork
+    file: assets/stork-2.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-3:
+    kind: costume
+    target: Stork
+    file: assets/stork-3.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-4:
+    kind: costume
+    target: Stork
+    file: assets/stork-4.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-5:
+    kind: costume
+    target: Stork
+    file: assets/stork-5.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-6:
+    kind: costume
+    target: Stork
+    file: assets/stork-6.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-7:
+    kind: costume
+    target: Stork
+    file: assets/stork-7.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-8:
+    kind: costume
+    target: Stork
+    file: assets/stork-8.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  stork-9:
+    kind: costume
+    target: Stork
+    file: assets/stork-9.svg
+    rotationCenterX: 198
+    rotationCenterY: 210
     license: "MPL-2.0: LICENSES.md"
   TextPlaceholder:
     kind: costume

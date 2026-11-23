@@ -21,6 +21,9 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
+- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
+  `pnpm update:tekona`はまだ実行していません（この作業環境にAppがないため）。`dsl4-artifacts.lock.json`の台本・素材の宣言のハッシュは古いままなので、
+  `pnpm verify:tekona`は作り直すまで一致しません。
 - **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・参加者の枠の仮の人物・背景4枚。[絵柄の版の記録](../../resources/tekona-workshop/art-versions/README.md)の版4）は、まだSB3へ反映していません。
   公開4.0.1のAppで`pnpm update:tekona`を実行し、生成したSB3を照合・公開するまで、配布中のSB3は描き直し前の絵です。
 - **未完了**: Web版、作品一覧（`site/works.json`）への掲載、`pnpm build`への組み込み。
@@ -30,7 +33,7 @@
 | ファイル | 内容 |
 | --- | --- |
 | `tekona.k4.yml` | 台本の正本（DSL 4.0）。参加者の場面の雛形を「★参加者」の箇所に示しています |
-| `project-assets-dsl4.yml` | SB3へ追加するスプライト（Tekona／Suitor／Narration）・背景・コスチューム・音の宣言 |
+| `project-assets-dsl4.yml` | SB3へ追加するスプライト（Tekona／Suitor／Stork／Narration）・背景・コスチューム・音の宣言 |
 | `assets/*.svg` | 立ち絵・ポーズ絵・背景の仮素材（すべて新規作成のSVG）。衣装・井戸・継橋は[考証メモ](../../resources/tekona-workshop/research-notes.md)の「5. 仮素材への反映」に合わせています |
 | `tekona-workshop-blocks-4.0.sb3` | **作業用ブロック台本SB3（基本）**。参加者の枠（場面・スプライトとコスチューム・モデル）を席番号ぶん登録済みで、差し替えて使います |
 | `tekona-workshop-4.0.sb3` | 作業用SB3（外部YAML版・予備）。スプライト・背景・音だけを持ち、台本はメニューの「開く」で読み込みます |
@@ -64,6 +67,7 @@
 
 | scene | 内容 | ポーズ認識モデル |
 | --- | --- | --- |
+| `avant` | アバンタイトル。継橋の入江の水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる（スプライト`Stork`のコスチューム`stork-1`〜`stork-9`を順に切り替える） | なし |
 | `opening` | タイトル | なし |
 | `well` | 真間の井と手児奈。評判が国府・都へ広まる | なし |
 | `sato`・`kokufu`・`miyako` | 用意済みの3人（里の若者・国府の役人・都の貴族）。参加者と同じ雛形の流れ | `SatoPose`・`KokufuPose`・`MiyakoPose` |
