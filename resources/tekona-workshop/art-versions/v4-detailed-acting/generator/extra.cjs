@@ -136,7 +136,11 @@ function kokuga() {
   for (let i = 0; i < 3; i++) s += `<rect x="${336 + i * 4}" y="${252 - i * 9}" width="140" height="9" rx="4.5" fill="${i % 2 ? '#a0703c' : '#b07c46'}"/>`;
   // 手前の左：太い丹塗りの柱と、その下の礎石（画面の左に寄せ、上は画面の外へ）
   s += `<path d="M18 300 Q20 284 70 282 Q122 284 124 300 Q120 316 70 318 Q22 316 18 300 Z" fill="#9a9488"/><path d="M28 296 Q70 286 114 296" stroke="#b9b3a6" stroke-width="3" fill="none"/>`;
-  s += `<rect x="42" y="-10" width="56" height="300" fill="#b8553a"/><rect x="42" y="-10" width="16" height="300" fill="#d07858" opacity=".6"/><rect x="86" y="-10" width="12" height="300" fill="#8a3e2a" opacity=".5"/>`;
+  // 柱の下端は、礎石に据わる丸い柱らしく、下へふくらむゆるい曲線にする（明るい面・暗い面も同じ形で切る）
+  const pillar = 'M42 -10 H98 V286 Q70 298 42 286 Z';
+  defs.push(`<clipPath id="pillar"><path d="${pillar}"/></clipPath>`);
+  s += `<path d="${pillar}" fill="#b8553a"/><g clip-path="url(#pillar)"><rect x="42" y="-10" width="16" height="320" fill="#d07858" opacity=".6"/><rect x="86" y="-10" width="12" height="320" fill="#8a3e2a" opacity=".5"/></g>`;
+  s += `<path d="M44 287 Q70 297 96 287" stroke="#7a3424" stroke-width="1.6" fill="none" opacity=".7"/>`;
   s += `<path d="M42 200 h56 M42 120 h56" stroke="#8a3e2a" stroke-width="1.4" opacity=".5"/>`;
   // 人物：画面の中心より右に寄せた3人
   const M = (svg, x, y, sc, f = 1) => place(svg, x, y, sc, f);
