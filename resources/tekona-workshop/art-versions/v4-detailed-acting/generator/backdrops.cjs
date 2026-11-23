@@ -276,6 +276,8 @@ function titleCard() {
   return s;
 }
 
+module.exports = {reeds, pine, grove, fuseya, grebe, tamamo, rnd0, pineTree, pineRow, marukibune, kago, net, grass, ripples, soften, HORIZON};
+if (require.main === module) {
 const out = process.argv[2];
 for (const [n, f] of Object.entries({'mama-well': mamaWell, 'inlet-sunset': inletSunset, tsugihashi, 'title-card': titleCard})) {
   defs = []; gid = 0;
@@ -283,3 +285,4 @@ for (const [n, f] of Object.entries({'mama-well': mamaWell, 'inlet-sunset': inle
   fs.writeFileSync(path.join(out, `${n}.svg`), `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360"><title>${n}</title>${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${body}</svg>\n`);
 }
 console.log('4 files');
+}

@@ -38,6 +38,14 @@ assets:
   Hama: backdrop
   IdoBata: backdrop
   AvantBlank: backdrop
+  # 点景（考証メモ 2.6・6章）：人物の出ない短いカット
+  Yoake: backdrop
+  IdoMizu: backdrop
+  Yugure: backdrop
+  Haru: backdrop
+  Natsu: backdrop
+  Aki: backdrop
+  Arashi: backdrop
   # 手児奈
   tekona-stand: costume:Tekona
   tekona-refuse: costume:Tekona
@@ -66,6 +74,14 @@ assets:
   stork-7: costume:Stork
   stork-8: costume:Stork
   stork-9: costume:Stork
+  # 点景のアクター：夕げの煙、にほ鳥（浮かぶ・潜る・水の輪）、雁の列
+  kemuri-1: costume:Kemuri
+  kemuri-2: costume:Kemuri
+  nio-1: costume:Nio
+  nio-2: costume:Nio
+  nio-3: costume:Nio
+  kari-1: costume:Kari
+  kari-2: costume:Kari
   # ナレーション用の透明な下地
   TextPlaceholder: costume:Narration
   # 音
@@ -107,6 +123,9 @@ actors:
   # ★参加者：席番号NNごとに1行加えます。
   # SuitorNN: sNN-stand
   Stork: stork-1
+  Kemuri: kemuri-1
+  Nio: nio-1
+  Kari: kari-1
   Narration: TextPlaceholder
 cover:
   backdrop: TitleCard
@@ -168,19 +187,32 @@ scenes:
     - wait: 2.5
     - Narration.hide: {}
 
-  # 里の暮らし：入江の沖の網漁、遠浅の浜の貝・海藻とり、水辺で甲羅干しをする亀、真間の井の井戸端
+  # 里の暮らし：夜明けの入江の大きな景色から、入江の沖の網漁、遠浅の浜の貝・海藻とり、水辺で甲羅干しをする亀、
+  # 真間の井の井戸端を経て、夕げの煙で終わる「里の一日」
   kurashi:
     - transition: {effect: fadeOut, seconds: 1}
-    - stage: Ryo
+    - stage: Yoake
     - bgm: Medieval1
-    - transition: {effect: fadeUp, seconds: 1}
+    - transition: {effect: fadeUp, seconds: 1.5}
+    - wait: 1
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
           むかし、下総の国の真間は
           山のすぐ下まで入江がせまる土地でした。
         style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          朝もやが晴れると、
+          入江のほとりの里の一日がはじまります。
+        style: narration
     - wait: 3
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Ryo
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
           入江の沖では、男たちが丸木舟に乗り、
@@ -221,10 +253,32 @@ scenes:
         style: narration
     - wait: 3.5
     - Narration.hide: {}
+    # 夕げの煙：伏屋の煙出し（背景の座標 280,190）から煙を立ちのぼらせる
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Yugure
+    - transition: {effect: fadeUp, seconds: 1}
+    - Kemuri.show: {skin: kemuri-1, x: 40, y: -10, scale: 100}
+    - Kemuri.loop:
+        steps:
+          - skin: kemuri-1
+            seconds: 0.7
+          - skin: kemuri-2
+            seconds: 0.7
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          日がかたむくと、伏屋からは
+          夕げのけむりが立ちのぼりました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - wait: 1
+    - Kemuri.hide: {}
 
+  # 真間の井：井戸の寄り（空を映す清水とつるべ）から、真間の井の全景と手児奈へ
   well:
     - transition: {effect: fadeOut, seconds: 1}
-    - stage: MamaWell
+    - stage: IdoMizu
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
@@ -233,6 +287,11 @@ scenes:
           でも「真間の井」だけは、きれいな水がわきました。
         style: narration
     - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 0.6}
+    - stage: MamaWell
+    - transition: {effect: fadeUp, seconds: 0.6}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
     - Narration.setText:
         text: |-
@@ -248,6 +307,25 @@ scenes:
         style: narration
     - wait: 3.5
     - Narration.hide: {}
+
+  # 季節のカット：求婚者のあいだに春・夏・秋・冬を挟み、言葉なしで「何年も求婚が続いた」ことを見せる（考証メモ 6章）
+  haru:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Haru
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          春。田に水がはられ、
+          入江の葦が芽ぶくころのことです。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
 
   # 用意済みの求婚者。どの求婚者も同じ流れ（登場 → kime で求婚 → 断られる → rejected でがっかり）です。
   sato:
@@ -282,6 +360,31 @@ scenes:
       - Narration.hide: {}
       - Sato.say: {text: とほほ……。, seconds: 1.5}
       - Sato.hide: {}
+
+  # 季節のカット（夏）：にほ鳥が入江の中ほどで潜っては浮かびながら、ゆっくり右へ進む
+  natsu:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Natsu
+    - transition: {effect: fadeUp, seconds: 1}
+    - Nio.show: {skin: nio-1, x: -30, y: -72, scale: 100}
+    - Nio.loop:
+        steps:
+          - skin: nio-1
+            seconds: 1.6
+          - skin: nio-2
+            seconds: 0.35
+          - skin: nio-3
+            seconds: 1.2
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          夏。玉藻のなびく入江で、
+          にほ鳥がもぐっては浮かんでいます。
+        style: narration
+    - Nio.moveTo: {x: 30, y: -76, seconds: 4.5}
+    - Narration.hide: {}
+    - Nio.hide: {}
 
   # 国府の工事場：国府の役人の求婚の前に、手児奈のうわさが国府にも届いていたことを見せる
   kokuga:
@@ -340,6 +443,29 @@ scenes:
       - Narration.hide: {}
       - Kokufu.say: {text: ……役目にもどります。, seconds: 1.5}
       - Kokufu.hide: {}
+
+  # 季節のカット（秋）：雁の列が空を左から右へ渡る。字幕は空をあけて画面の下に出す
+  aki:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Aki
+    - transition: {effect: fadeUp, seconds: 1}
+    - Kari.show: {skin: kari-1, x: -260, y: 70, scale: 90}
+    - Kari.loop:
+        steps:
+          - skin: kari-1
+            seconds: 0.3
+          - skin: kari-2
+            seconds: 0.3
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: -120, scale: 100}
+    - Narration.setText:
+        text: |-
+          秋。葛飾早稲が実り、
+          北から雁がわたってきました。
+        style: narration
+    - Kari.moveTo: {x: 270, y: 92, seconds: 5}
+    - Narration.hide: {}
+    - Kari.hide: {}
 
   # 都からの旅：都の貴族の求婚の前に、従者に馬を引かせて入江の板橋をわたり、真間へやって来るところを見せる
   # （継橋は物語の終わりに男たちがかけるので、ここでは「継橋」と呼ばない）
@@ -438,13 +564,17 @@ scenes:
   #     - SuitorNN.hide: {}
   #   （手児奈の心が揺れなかったときは、Tekona.think の1行を消します）
 
+  # 争い（冬の嵐の夜）：「真間のおすひに波もとどろに」（巻14・3385）、「波の音の騒く」（巻9・1807）を下敷きに、
+  # 波のとどろく夜の入江で争いの重さを見せ、手児奈を岸に立たせて伝承の結末を暗示する
   quarrel:
-    - stage: MamaWell
-    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Arashi
+    - transition: {effect: fadeUp, seconds: 1.5}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
-          断られても、男たちはあきらめません。
+          冬。断られても、男たちはあきらめません。
           「手児奈にふさわしいのは、このわたしだ！」
         style: narration
     - wait: 3.5
@@ -454,6 +584,13 @@ scenes:
           なかよしの兄弟まで、けんかをするようになりました。
         style: narration
     - wait: 3.5
+    - Narration.setText:
+        text: |-
+          そのさわぎは、真間の磯辺の波が
+          とどろくほどだったといいます。
+        style: narration
+    - wait: 3.5
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
     - Tekona.think: {text: わたしの心はひとつ。からだもひとつ。, seconds: 3}
     - Tekona.think: {text: わたしのせいで、みんながあらそうなんて……。, seconds: 3}
     - Narration.hide: {}
@@ -466,7 +603,7 @@ scenes:
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
-          手児奈は小川にそって歩き、
+          嵐がすぎたあと、手児奈は小川にそって歩き、
           夕日にそまる真間の入江にやってきました。
         style: narration
     - wait: 3.5
