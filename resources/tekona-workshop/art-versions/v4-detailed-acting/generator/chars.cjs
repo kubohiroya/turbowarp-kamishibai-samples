@@ -260,10 +260,12 @@ function officialFigure(k, o, mood) {
   // 腕（広めの袖）と手、笏
   const arm = (a, sh, side, kind) => limb(sh, a.mid, 20, 19, o.robe) + limb(a.mid, a.end, 19, 17, o.robe) +
     hand(a.end, ang(a.mid, a.end), o.skin, {kind, size: 1.05, side});
+  // underFirst：持ち物を両腕より先に描く（体の手前で抱えた束を、両腕で支える形）
+  if (k.under && k.underFirst) s += k.under;
   s += arm(k.armR, k.sr, -1, k.handR || 'relaxed');
   if (k.shaku) s += shaku(k.shaku.at, k.shaku.angle);
   // 体と手前の腕のあいだに抱える持ち物（小脇に抱えた巻物など）
-  if (k.under) s += k.under;
+  if (k.under && !k.underFirst) s += k.under;
   s += arm(k.armL, k.sl, 1, k.handL || 'relaxed');
   if (k.shakuFront) s += shaku(k.shakuFront.at, k.shakuFront.angle);
   return s;
