@@ -56,8 +56,41 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
-  Narration:
+  # 点景：夕げの煙（コスチューム kemuri-1・kemuri-2 を交互に切り替えて揺らす）
+  Kemuri:
     layerOrder: 6
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  # 点景：入江のにほ鳥（カイツブリ）。nio-1 浮かぶ・nio-2 潜る・nio-3 水の輪
+  Nio:
+    layerOrder: 7
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  # 点景：秋に渡ってくる雁の列（kari-1・kari-2 で羽ばたく）
+  Kari:
+    layerOrder: 8
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Narration:
+    layerOrder: 9
     visible: false
     x: 0
     y: 0
@@ -144,6 +177,56 @@ assets:
   AvantBlank:
     kind: backdrop
     file: assets/avant-blank.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 点景（考証メモ 2.6・6章）：人物の出ない短いカットの背景
+  # 夜明けの入江：国府台の上から、朝もやの入江・砂州・里を見下ろす
+  Yoake:
+    kind: backdrop
+    file: assets/yoake.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 真間の井の寄り：井の字の木の枠と、空を映す清水、曲物のつるべ
+  IdoMizu:
+    kind: backdrop
+    file: assets/ido-mizu.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 夕げの煙：日暮れの里の伏屋
+  Yugure:
+    kind: backdrop
+    file: assets/yugure.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 春：水を張った田と苗、入江の若い葦
+  Haru:
+    kind: backdrop
+    file: assets/haru.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 夏：入道雲と玉藻のなびく入江
+  Natsu:
+    kind: backdrop
+    file: assets/natsu.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 秋：実った葛飾早稲の田と稲束、すすき
+  Aki:
+    kind: backdrop
+    file: assets/aki.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 冬の嵐の夜：波のとどろく入江。左手前の岸に手児奈が立つ
+  Arashi:
+    kind: backdrop
+    file: assets/arashi.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
@@ -303,6 +386,55 @@ assets:
     file: assets/stork-9.svg
     rotationCenterX: 198
     rotationCenterY: 210
+    license: "MPL-2.0: LICENSES.md"
+  kemuri-1:
+    kind: costume
+    target: Kemuri
+    file: assets/kemuri-1.svg
+    rotationCenterX: 60
+    rotationCenterY: 156
+    license: "MPL-2.0: LICENSES.md"
+  kemuri-2:
+    kind: costume
+    target: Kemuri
+    file: assets/kemuri-2.svg
+    rotationCenterX: 60
+    rotationCenterY: 156
+    license: "MPL-2.0: LICENSES.md"
+  nio-1:
+    kind: costume
+    target: Nio
+    file: assets/nio-1.svg
+    rotationCenterX: 50
+    rotationCenterY: 46
+    license: "MPL-2.0: LICENSES.md"
+  nio-2:
+    kind: costume
+    target: Nio
+    file: assets/nio-2.svg
+    rotationCenterX: 50
+    rotationCenterY: 46
+    license: "MPL-2.0: LICENSES.md"
+  nio-3:
+    kind: costume
+    target: Nio
+    file: assets/nio-3.svg
+    rotationCenterX: 50
+    rotationCenterY: 46
+    license: "MPL-2.0: LICENSES.md"
+  kari-1:
+    kind: costume
+    target: Kari
+    file: assets/kari-1.svg
+    rotationCenterX: 80
+    rotationCenterY: 45
+    license: "MPL-2.0: LICENSES.md"
+  kari-2:
+    kind: costume
+    target: Kari
+    file: assets/kari-2.svg
+    rotationCenterX: 80
+    rotationCenterY: 45
     license: "MPL-2.0: LICENSES.md"
   TextPlaceholder:
     kind: costume

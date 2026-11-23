@@ -23,7 +23,7 @@ Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習
 | [`tekona-workshop-staff.md`](tekona-workshop-staff.md) | 進行役・アシスタント | 前提と作品の構成、40分のタイムテーブル、役割と人数、事前準備、掲示板の運用、組み込みの手順、Copilotの枚数への対策、トラブル対応、終了後の処理 |
 | [`pose-dataset-plan.md`](pose-dataset-plan.md) | スタッフ | 事前に用意するポーズ学習用データ（各求婚者の`stand`／`kime`／`rejected`）の撮影計画と取り扱い |
 | [`research-worksheet.md`](research-worksheet.md) | 参加者 | 基本設定・歴史考証・手児奈の姿・求婚者の人物像を調べてデザインするワークシート（事前学習・90分版用） |
-| [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、求婚者の候補8案、仮素材への反映 |
+| [`research-notes.md`](research-notes.md) | 進行役 | ワークシートの各問いの下調べ（考証メモ）。出典と確度、時代・自然の点景、求婚者の候補8案、仮素材への反映、点景の組み込み案 |
 | `copilot/style-reference.png` | 参加者 | Copilotに添付する絵柄の見本（用意済みの求婚者の立ち絵・ポーズ絵） |
 | `copilot/pose-draft.png` | 参加者 | `stand`・`kime`・`rejected`の棒人間を左から並べて描く白紙 |
 | [`art-versions/`](art-versions/README.md) | 開発 | 仮素材の絵柄の版（シンプル版・考証を描き込んだ版・アニメ調・人体と芝居を見直した版）の保存。SVG・一覧画像・絵柄の見本・生成スクリプト |

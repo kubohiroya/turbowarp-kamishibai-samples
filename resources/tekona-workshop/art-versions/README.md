@@ -17,7 +17,7 @@
 | `assets/*.svg` | その版の素材一式。ファイル名・大きさ（人物240×380、背景480×360）・回転の中心は全版で共通なので、`stories/tekona/assets/`へ戻せばその版の絵でSB3を作れる |
 | `preview.png` | 素材の一覧（人物の背景の水色は確認用） |
 | `style-reference.png` | その版の`copilot/style-reference.png`（Copilotに添付する絵柄の見本） |
-| `generator/`（版2〜版4） | SVGを生成したスクリプト。`node generator/chars.cjs 出力先フォルダ`、`node generator/backdrops.cjs 出力先フォルダ`（版4は`stork.cjs`・`kokubunji.cjs`・`village.cjs`・`sea.cjs`・`extra.cjs`も同じように）で、`assets/`と同じSVGを出力する |
+| `generator/`（版2〜版4） | SVGを生成したスクリプト。`node generator/chars.cjs 出力先フォルダ`、`node generator/backdrops.cjs 出力先フォルダ`（版4は`stork.cjs`・`kokubunji.cjs`・`village.cjs`・`sea.cjs`・`extra.cjs`・`tenkei.cjs`も同じように）で、`assets/`と同じSVGを出力する |
 
 補足：
 
@@ -115,5 +115,15 @@
   肩から上腕を白い斜めの楕円で描いて翼を胴体の前寄りから生やし、脚の付け根（すねの上）は羽毛の白い斜めの楕円でおおう。足は前の3本の指と付け根の水かき、後ろの短い指。
   5〜9枚目は、翼を広げた姿を立体で組み、傾き・向き・見上げる角度を変えて平面に写して描いています（`generator/stork.cjs`の`soar`）。
   台本`stories/tekona/tekona.k4.yml`のアバンタイトル`avant`で、背景を省いた無地の背景`avant-blank.svg`（`AvantBlank`）の上に置き、スプライト`Stork`（`project-assets-dsl4.yml`）のコスチュームとして順に切り替えています。
+* **点景のカットとアクター**（`generator/tenkei.cjs`。[考証メモ](../research-notes.md)の2.6・6章にもとづく、人物の出ない短いカット）
+  * 背景（480×360）：夜明けの入江を国府台の上から見下ろす大きな景色（`yoake.svg`、朝もやと伏屋の煙、手前に台地の縁と雑木林）、
+    真間の井の寄り（`ido-mizu.svg`、井の字に組んだ丸太の枠と、空と雲を映す清水、なわで下ろした曲物のつるべと水の輪）、
+    日暮れの里（`yugure.svg`、伏屋の戸口に火の明かり）、春（`haru.svg`、水を張った段々の田と苗の列、花の咲く台地、入江の若い葦、つばめ）、
+    夏（`natsu.svg`、入道雲と玉藻のなびく入江、青い葦）、秋（`aki.svg`、うろこ雲、色づいた雑木林、実った葛飾早稲の田と稲束、すすき、赤とんぼ）、
+    冬の嵐の夜（`arashi.svg`、雲に隠れる月、白い波頭がとどろく入江、風に傾く松と葦、横なぐりの雨。左手前の岸に手児奈が立てる）。
+  * アクター：夕げの煙（`kemuri-1`・`kemuri-2`、120×160、回転の中心は煙の根もと）、にほ鳥（`nio-1`浮かぶ・`nio-2`潜る・`nio-3`水の輪、100×70、中心は水面）、
+    雁の列（`kari-1`羽を上げる・`kari-2`下げる、160×90）。台本では`loop`でコスチュームを切り替え、`moveTo`で動かします。
+  * 松・葦・雑木林・伏屋・玉藻・にほ鳥などの部品は`generator/backdrops.cjs`のものを使っています（`backdrops.cjs`は部品を書き出すようにしただけで、出力は変わりません）。
+  * 台本`stories/tekona/tekona.k4.yml`の`kurashi`（`Yoake`・`Yugure`）、`well`（`IdoMizu`）、季節のカット`haru`・`natsu`・`aki`、`quarrel`（`Arashi`）で使っています。
 
 ライセンスは`stories/tekona/assets/`と同じMPL-2.0です（[`stories/tekona/LICENSES.md`](../../../stories/tekona/LICENSES.md)）。
