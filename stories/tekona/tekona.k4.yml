@@ -30,6 +30,14 @@ assets:
   MamaWell: backdrop
   InletSunset: backdrop
   Tsugihashi: backdrop
+  Kokubunji: backdrop
+  Kokuga: backdrop
+  Uma: backdrop
+  Kame: backdrop
+  Ryo: backdrop
+  Hama: backdrop
+  IdoBata: backdrop
+  AvantBlank: backdrop
   # 手児奈
   tekona-stand: costume:Tekona
   tekona-refuse: costume:Tekona
@@ -48,6 +56,16 @@ assets:
   # sNN-stand: {kind: costume, target: SuitorNN, name: stand}
   # sNN-kime: {kind: costume, target: SuitorNN, name: kime}
   # sNN-rejected: {kind: costume, target: SuitorNN, name: rejected}
+  # アバンタイトルのコウノトリ（9枚のコスチュームを順に切り替えて動かす）
+  stork-1: costume:Stork
+  stork-2: costume:Stork
+  stork-3: costume:Stork
+  stork-4: costume:Stork
+  stork-5: costume:Stork
+  stork-6: costume:Stork
+  stork-7: costume:Stork
+  stork-8: costume:Stork
+  stork-9: costume:Stork
   # ナレーション用の透明な下地
   TextPlaceholder: costume:Narration
   # 音
@@ -88,6 +106,7 @@ actors:
   Miyako: miyako-stand
   # ★参加者：席番号NNごとに1行加えます。
   # SuitorNN: sNN-stand
+  Stork: stork-1
   Narration: TextPlaceholder
 cover:
   backdrop: TitleCard
@@ -108,8 +127,36 @@ recognition:
   navigation:
     allowSkip: true
 scenes:
+  # アバンタイトル：再生直後、背景を省いた無地の画面で、水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる
+  avant:
+    - transition: {effect: fadeOut, seconds: 0.5}
+    - stage: AvantBlank
+    - transition: {effect: fadeUp, seconds: 1}
+    - Stork.show: {skin: stork-1, x: 120, y: -120, scale: 100}
+    - wait: 1.6
+    - Stork.setSkin: {skin: stork-2}
+    - wait: 0.6
+    - Stork.setSkin: {skin: stork-3}
+    - wait: 0.3
+    - Stork.setSkin: {skin: stork-4}
+    - wait: 0.4
+    - Stork.setSkin: {skin: stork-5}
+    - wait: 0.6
+    - Stork.setSkin: {skin: stork-6}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-7}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-8}
+    - wait: 0.7
+    - Stork.setSkin: {skin: stork-9}
+    - wait: 0.9
+    - Stork.hide: {}
+    - wait: 0.4
+    - transition: {effect: fadeOut, seconds: 1}
+
   opening:
     - stage: TitleCard
+    - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 20, scale: 100}
     - Narration.setText: {text: 手児奈, style: title}
     - wait: 2
@@ -121,9 +168,10 @@ scenes:
     - wait: 2.5
     - Narration.hide: {}
 
-  well:
+  # 里の暮らし：入江の沖の網漁、遠浅の浜の貝・海藻とり、水辺で甲羅干しをする亀、真間の井の井戸端
+  kurashi:
     - transition: {effect: fadeOut, seconds: 1}
-    - stage: MamaWell
+    - stage: Ryo
     - bgm: Medieval1
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -133,6 +181,52 @@ scenes:
           山のすぐ下まで入江がせまる土地でした。
         style: narration
     - wait: 3
+    - Narration.setText:
+        text: |-
+          入江の沖では、男たちが丸木舟に乗り、
+          網をたぐって魚をとりました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Hama
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          潮が引くと、遠浅の浜では女や子どもたちが
+          貝や海藻をひろい、かごに集めました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Kame
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          水辺の石の上では、親亀と子亀が
+          のんびりと甲羅をほしていました。
+        style: narration
+    - wait: 3
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: IdoBata
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          里の人びとは毎日、真間の井に水をくみに来て、
+          おしゃべりに花をさかせました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+
+  well:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
           井戸の水はしおからいものばかり。
@@ -189,6 +283,31 @@ scenes:
       - Sato.say: {text: とほほ……。, seconds: 1.5}
       - Sato.hide: {}
 
+  # 国府の工事場：国府の役人の求婚の前に、手児奈のうわさが国府にも届いていたことを見せる
+  kokuga:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Kokuga
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          そのころ国府では、新しい役所の建物を建てていました。
+          役人たちは木簡を広げ、大工の棟梁と工事の進み具合を話し合います。
+        style: narration
+    - wait: 4
+    - Narration.setText:
+        text: |-
+          けれども若い役人の心は、
+          真間の井の手児奈のことでいっぱいでした。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
+
   kokufu:
     recognitionModel: KokufuPose
     actions:
@@ -221,6 +340,32 @@ scenes:
       - Narration.hide: {}
       - Kokufu.say: {text: ……役目にもどります。, seconds: 1.5}
       - Kokufu.hide: {}
+
+  # 都からの旅：都の貴族の求婚の前に、従者に馬を引かせて入江の板橋をわたり、真間へやって来るところを見せる
+  # （継橋は物語の終わりに男たちがかけるので、ここでは「継橋」と呼ばない）
+  uma:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Uma
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          手児奈のうわさは、遠い都にまで届いていました。
+          都の貴族が、従者に馬を引かせて真間へやって来ます。
+        style: narration
+    - wait: 4
+    - Narration.setText:
+        text: |-
+          入江の板橋をわたる馬の上から、浜で働く女たちをながめ、
+          貴族は「手児奈はどこにいるのだろう」と思いました。
+        style: narration
+    - wait: 4
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
 
   miyako:
     recognitionModel: MiyakoPose
@@ -366,6 +511,28 @@ scenes:
         style: narration
     - wait: 3.5
     - Tekona.setSkin: tekona-stand
+    - wait: 1.5
+
+  # 後日談：やがて国府台の丘の上に下総国分寺が建てられる（天平13年の国分寺建立の詔のあと。考証メモ1.5）
+  kokubunji:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Kokubunji
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          それから時がたち、国府台の丘の上に
+          下総の国分寺が建てられることになりました。
+        style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          男たちは力をあわせて大きなお堂の屋根を上げ、
+          仏師は木を彫って、仏さまをつくりました。
+        style: narration
+    - wait: 4
+    - Narration.hide: {}
     - wait: 1.5
 
   afterword:

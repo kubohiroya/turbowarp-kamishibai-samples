@@ -7,6 +7,7 @@ Copyright © 2026 Hiroya Kubo.
 - 台本`tekona.k4.yml`（伝承を参考にした新しい再話。外部の物語本文は引用していません）
 - `project-assets-dsl4.yml`
 - `assets/`配下の立ち絵・ポーズ絵・背景・ナレーション用SVG（すべて新規作成した仮素材）
+- `../../resources/tekona-workshop/art-versions/`に保存した、仮素材の過去の版のSVG・一覧画像・生成スクリプト
 - 本ディレクトリの説明
 
 音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある4ファイル（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。
