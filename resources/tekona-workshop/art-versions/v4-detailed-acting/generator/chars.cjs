@@ -220,7 +220,9 @@ function satoFigure(k, mood, extra = '') {
   // 頭：短い髪と、頭の上でまとめた髻
   const hair = `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${c.hair}"/>` +
     `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${c.hair}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`;
-  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true, downcast: k.downcast}) + hair);
+  // headOver：前へ深くかがんで頭が肩より前に出るときは、頭を腕より後に描く
+  const headSvg = placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true, downcast: k.downcast}) + hair);
+  if (!k.headOver) s += headSvg;
   // 腕（筒袖）と手
   // armW：腕の太さの倍率。bareForearm：袖をまくった前腕（ひじ寄りに盛り上がる筋肉）。力仕事の男に使う
   const aw = k.armW || 1;
@@ -230,6 +232,7 @@ function satoFigure(k, mood, extra = '') {
     : limb(sh, a.mid, 17 * aw, 15 * aw, c.cloth) + limb(a.mid, a.end, 15 * aw, 12 * aw, c.cloth)) +
     hand(a.end, ang(a.mid, a.end), c.skin, {kind: (side > 0 ? k.handL : k.handR) || k.handKind || 'relaxed', size: 1.05 * Math.sqrt(aw), side});
   s += arm(k.armR, k.sr, -1) + arm(k.armL, k.sl, 1);
+  if (k.headOver) s += headSvg;
   return s + extra;
 }
 
