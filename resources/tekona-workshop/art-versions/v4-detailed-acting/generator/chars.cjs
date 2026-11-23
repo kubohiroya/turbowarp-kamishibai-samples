@@ -41,14 +41,13 @@ function hand(w, dir, skin, {kind = 'relaxed', size = 1, side = 1} = {}) {
   } else if (kind === 'fist') {
     g += `<path d="M-2 -6 Q10 -9 13 -2 Q14 6 6 8 L-2 6 Z" fill="${skin}"/>`;
   } else if (kind === 'point') {
-    // にぎりこぶしから人差し指を1本立てる（指先は手首から先の向き）
-    // 人差し指は親指の側のふちから立ち、親指はその付け根に沿って曲げた中指の上へかぶせる。
-    // 反対側のふちには、にぎった中指・薬指・小指の関節のふくらみを見せる
-    g += `<path d="M-2 -7 L8 -7 Q12 -6 12 -1 Q12 4 9 7 L-2 7 Z" fill="${skin}"/>`;
-    g += `<path d="M4 7 q2 3 4 0 M8 6.6 q2 3 4 -.6" stroke="${skin}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-    g += `<path d="M8 -4.6 L22 -4.6" stroke="${skin}" stroke-width="4.4" stroke-linecap="round"/>`;
-    g += `<path d="M1 -4 Q6 -1 10 -1" stroke="${skin}" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M2 -2.2 Q6 .4 9.6 .6" stroke="#000000" stroke-width=".8" fill="none" opacity=".18"/>`;
-    g += `<path d="M9 -2.6 h3" stroke="#000000" stroke-width=".8" opacity=".18"/>`;
+    // にぎりこぶしから人差し指を1本立てる（指先は手首から先の向き）。
+    // 人差し指と、その付け根にかぶせた親指は手のひら側（+y）のふち、にぎった中指・薬指・小指の関節は反対（-y）のふちに見せる
+    g += `<path d="M-2 -7 L9 -7 Q12 -4 12 1 Q12 6 8 7 L-2 7 Z" fill="${skin}"/>`;
+    g += `<path d="M4 -7 q2 -3 4 0 M8 -6.6 q2 -3 4 .6" stroke="${skin}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+    g += `<path d="M8 4.6 L22 4.6" stroke="${skin}" stroke-width="4.4" stroke-linecap="round"/>`;
+    g += `<path d="M1 4 Q6 1 10 1" stroke="${skin}" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M2 2.2 Q6 -.4 9.6 -.6" stroke="#000000" stroke-width=".8" fill="none" opacity=".18"/>`;
+    g += `<path d="M9 2.6 h3" stroke="#000000" stroke-width=".8" opacity=".18"/>`;
   } else if (kind === 'grip') {
     g += `<path d="M-2 -6 Q9 -8 12 -3 Q13 5 6 7 L-2 6 Z" fill="${skin}"/><path d="M4 -6 Q9 -10 12 -7" stroke="${skin}" stroke-width="4" stroke-linecap="round" fill="none"/>`;
   } else {
@@ -263,6 +262,8 @@ function officialFigure(k, o, mood) {
     hand(a.end, ang(a.mid, a.end), o.skin, {kind, size: 1.05, side});
   s += arm(k.armR, k.sr, -1, k.handR || 'relaxed');
   if (k.shaku) s += shaku(k.shaku.at, k.shaku.angle);
+  // 体と手前の腕のあいだに抱える持ち物（小脇に抱えた巻物など）
+  if (k.under) s += k.under;
   s += arm(k.armL, k.sl, 1, k.handL || 'relaxed');
   if (k.shakuFront) s += shaku(k.shakuFront.at, k.shakuFront.angle);
   return s;
