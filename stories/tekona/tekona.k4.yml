@@ -374,7 +374,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Sato.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Sato.say: {text: 前かがみになって、ぼうぜんと立ちつくす……。, seconds: 2}
       - Sato.pose:
           steps:
             - pose: rejected
@@ -457,7 +457,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Kokufu.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Kokufu.say: {text: 背すじをのばしたまま、深く頭を下げる……。, seconds: 2}
       - Kokufu.pose:
           steps:
             - pose: rejected
@@ -540,7 +540,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Miyako.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Miyako.say: {text: 片手で口もとをおおって、言葉を失う……。, seconds: 2}
       - Miyako.pose:
           steps:
             - pose: rejected
