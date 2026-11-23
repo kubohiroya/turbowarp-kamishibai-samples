@@ -26,12 +26,21 @@ function farShore(x0, x1, y) {
   return s;
 }
 // 丸木舟（大きく描く）。x, y は舟べりの中央、len は長さ。f=-1 で舳先が右
-function canoe(x, y, len, f = 1) {
+function canoe(x, y, len, f = 1, water = null) {
   const h = len * .14;
+  const hull = `M${-len / 2} ${-h * .1} Q${-len * .44} ${h * .9} ${-len * .2} ${h} L${len * .32} ${h} Q${len * .48} ${h * .7} ${len / 2} ${-h * .2} Q${len * .1} ${h * .05} ${-len / 2} ${-h * .1} Z`;
   let s = `<g transform="translate(${x} ${y}) scale(${f} 1)">`;
   s += `<path d="M${-len / 2} ${-h * .1} Q${-len * .44} ${h * .9} ${-len * .2} ${h} L${len * .32} ${h} Q${len * .48} ${h * .7} ${len / 2} ${-h * .2} Q${len * .1} ${h * .05} ${-len / 2} ${-h * .1} Z" fill="${grad([[0, '#9a6a3a'], [1, '#6a4422']])}"/>`;
   s += `<path d="M${-len / 2} ${-h * .1} Q${-len * .1} ${-h * .3} ${len / 2} ${-h * .2} Q${len * .1} ${h * .05} ${-len / 2} ${-h * .1} Z" fill="#4e3018"/>`;
   s += `<path d="M${-len * .4} ${h * .45} Q0 ${h * .62} ${len * .42} ${h * .4}" stroke="#b07a44" stroke-width="2" fill="none" opacity=".8"/>`;
+  // 喫水：人が2人乗って重くなった舟は深く沈む。舟べりのすぐ下に水面の線を引き、そこから下の船体は水の色を透かして見せる
+  if (water) {
+    const id = `hull${++gid}`, wl = h * .3;
+    defs.push(`<clipPath id="${id}"><path d="${hull}"/></clipPath>`);
+    s += `<g clip-path="url(#${id})"><rect x="${-len}" y="${r1(wl)}" width="${len * 2}" height="${r1(h * 2)}" fill="${water}" opacity=".93"/></g>`;
+    s += `<path d="M${r1(-len * .56)} ${r1(wl)} Q${r1(-len * .25)} ${r1(wl - 1.5)} 0 ${r1(wl)} Q${r1(len * .25)} ${r1(wl + 1.5)} ${r1(len * .56)} ${r1(wl)}" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".75"/>`;
+    s += `<path d="M${r1(-len * .62)} ${r1(wl + 4)} h${r1(len * .1)} M${r1(len * .5)} ${r1(wl + 5)} h${r1(len * .12)}" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>`;
+  }
   return s + `</g>`;
 }
 // 水面に映る舟の影と、まわりのさざ波
@@ -81,7 +90,7 @@ function ryo() {
   un += `<path d="M24 196 q10 -12 24 -6 q14 4 22 -4 M26 202 q14 6 26 -2 q10 -6 20 2 M32 192 l8 14 M46 190 l-4 16 M58 192 l4 12 M22 198 q-6 14 4 30 M70 198 q8 16 0 30" stroke="#8a7a5a" stroke-width="2" fill="none"/><ellipse cx="28" cy="204" rx="4" ry="3" fill="#9a6a44"/><ellipse cx="70" cy="198" rx="4" ry="3" fill="#9a6a44"/>`;
   s += inBoat(place(un, bbx - 30, bfy, bs), bby + 2);
   s += inBoat(place(satoFigure(haul1, 'eager'), bbx + 14, bfy, bs, -1), bby + 2);
-  s += canoe(bbx, bby, bblen, -1);
+  s += canoe(bbx, bby, bblen, -1, '#9dcde3');
   // たぐる網：手から水面へ、浮きと魚
   const hh = [bbx + 14 - (74 - 120) * bs, bfy + (196 - 334) * bs];
   s += `<path d="M${r1(hh[0])} ${r1(hh[1])} Q${r1(hh[0] + 18)} ${r1(hh[1] + 2)} ${r1(hh[0] + 34)} ${r1(hh[1] + 16)} M${r1(hh[0] + 4)} ${r1(hh[1] + 3)} Q${r1(hh[0] + 22)} ${r1(hh[1] + 6)} ${r1(hh[0] + 40)} ${r1(hh[1] + 20)}" stroke="#8a7a5a" stroke-width="1.3" fill="none"/>`;
@@ -104,7 +113,7 @@ function ryo() {
   const cx0 = bx0 - 66, px0 = bx0 + 76, fy = 356;
   s += inBoat(place(recolor(satoFigure(paddler, 'stand'), MAN2), px0, fy, fs), by0 + 2);
   s += inBoat(place(satoFigure(caster, 'focus'), cx0, fy, fs), by0 + 2);
-  s += canoe(bx0, by0, blen);
+  s += canoe(bx0, by0, blen, 1, '#8ac2dc');
   // 櫂：上の手から下の手を通り、舟べりの外の水の中へ
   const u = at(paddler.wristR, px0, fy, fs), l = at(paddler.wristL, px0, fy, fs), tip = [l[0] + (l[0] - u[0]) * 1.2, l[1] + (l[1] - u[1]) * 1.2];
   s += `<path d="M${r1(u[0])} ${r1(u[1])} L${r1(tip[0])} ${r1(tip[1])}" stroke="#b07a44" stroke-width="3.6" stroke-linecap="round"/><path d="M${r1(tip[0] + 2)} ${r1(tip[1] - 16)} q-10 14 -6 26 q8 -2 12 -22 z" fill="#b07a44"/>`;
