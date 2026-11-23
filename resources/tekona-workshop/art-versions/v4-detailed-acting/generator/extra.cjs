@@ -142,26 +142,27 @@ function kokuga() {
   const M = (svg, x, y, sc, f = 1) => place(svg, x, y, sc, f);
   // 棟梁：物差しを立て、柱を指して説明する（右向き）
   const boss = skeleton(MALE, {pelvis: [122, 180], chest: [124, 92], ankleL: [104, 334], ankleR: [142, 334], kneeL: 1, kneeR: 1,
-    wristL: [70, 120], wristR: [150, 196], elbowL: -1, elbowR: -1, headDx: -2, headTilt: -4});
+    wristL: [50, 160], wristR: [150, 196], elbowL: 1, elbowR: -1, headDx: -6, headTilt: -18});
   let b = recolor(satoFigure(boss, 'stand'), {[SATO.cloth]: '#b9a07a', [SATO.clothDark]: '#957c56', [SATO.skin]: '#d39a6a', [SATO.skinDark]: '#b07a4a'});
   b += `<path d="M152 120 L150 330" stroke="#c9a46a" stroke-width="5" stroke-linecap="round"/><path d="M146 140 h8 M146 170 h8 M146 200 h8 M146 230 h8 M146 260 h8 M146 290 h8" stroke="#7a5a34" stroke-width="1.2"/>`;
-  s += M(b, 256, 334, .6, -1);
+  s += M(b, 262, 334, .6, -1);
   // 役人1：木簡の束を手のひらの上に広げて読み上げる（左向き）
   const off1 = skeleton(MALE, {pelvis: [122, 180], chest: [120, 90], ankleL: [104, 334], ankleR: [138, 334], kneeL: 1, kneeR: 1,
-    wristL: [44, 150], wristR: [114, 146], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -4, headTilt: 14});
+    wristL: [24, 156], wristR: [102, 164], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -6, headTilt: -22});
   let o1 = officialFigure(off1, KOKUFU, 'stand');
   // 体の前に重なった袖は、袍と同じ色で見分けにくいので、濃い色のふちを入れて腕の形を見せる（肘は体に沿わせる）
   for (const [sh, a] of [[off1.sr, off1.armR], [off1.sl, off1.armL]]) {
     const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
     o1 += `<path d="${pts}" stroke="${KOKUFU.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${KOKUFU.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
   }
+  o1 += '<!--scroll-->';
   // 木簡の冊書：細長い木の札を横に並べ、上下2か所を紐で編んでつなぎ、巻物のように巻いたもの。
   // 左手に巻いたほうを持ち、右へ広げた札に縦書きの墨の文字が並ぶ
   {
     const x0 = 62, x1 = 120, y0 = 136, h = 40, n = 9, w = (x1 - x0 - 8) / n;
-    // 1.5倍の大きさにし、見る人のほうへ向けて斜めに掲げる（左を下げて右を上げ、少し奥へ傾ける）
+    // 1.5倍の大きさで、体の前に水平に広げる（上から見下ろす面がわずかに見える）。棟梁と2人で同じところをのぞきこむ
     const cx = (x0 + x1) / 2, cy = y0 + h / 2;
-    let m = `<g transform="translate(${cx - 4} ${cy - 18}) rotate(-16) skewY(-8) scale(1.5) translate(${-cx} ${-cy})">`;
+    let m = `<g transform="translate(64 156) skewX(-28) scale(1.6 .48) translate(${-cx} ${-cy})">`;
     // 巻いた部分（左端の筒）
     m += `<rect x="${x0 - 2}" y="${y0 - 1}" width="10" height="${h + 2}" rx="5" fill="#d8c69a"/><ellipse cx="${x0 + 3}" cy="${y0 - 1}" rx="5" ry="2" fill="#c4ae7e"/><path d="M${x0} ${y0 + 6} h6 M${x0} ${y0 + h - 6} h6" stroke="#b9a274" stroke-width="1"/>`;
     // 広げた札（すき間なく並ぶ）と墨の文字
@@ -177,9 +178,10 @@ function kokuga() {
     }
     m += `<path d="M${x1} ${y0 + 7} q5 2 3 8 M${x1} ${y0 + h - 7} q5 -2 4 -8" stroke="#7a5a34" stroke-width="1.4" fill="none"/>`;
     // 両手：巻いた筒と、広げた端をそれぞれ握る（親指が札の上にかかる）
-    m += `<path d="M${x0 - 4} ${y0 + 14} q-4 6 0 14 q6 4 12 0 l0 -14 q-6 -4 -12 0 z" fill="${KOKUFU.skin}"/><path d="M${x0 + 2} ${y0 + 12} q4 -2 6 2" stroke="${KOKUFU.skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
-    m += `<path d="M${x1 + 6} ${y0 + 14} q4 6 0 14 q-6 4 -12 0 l0 -14 q6 -4 12 0 z" fill="${KOKUFU.skin}"/><path d="M${x1 - 1} ${y0 + 12} q-4 -2 -7 3" stroke="${KOKUFU.skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
-    o1 += m + `</g>`;
+    // 両手：左は巻いた筒の下から、右は広げた端の下から支える（手は木簡の下）
+    o1 = o1.replace('<!--scroll-->', m + `</g>`);
+    const hand = (x, y, flip) => `<path d="M${x - 7} ${y} q0 -6 7 -6 q8 0 8 6 q-1 5 -8 5 q-6 0 -7 -5 z" fill="${KOKUFU.skin}"/><path d="M${x + flip * 6} ${y - 4} q${flip * 4} -4 ${flip * 2} -8" stroke="${KOKUFU.skin}" stroke-width="3.2" stroke-linecap="round" fill="none"/>`;
+    o1 += hand(26, 162, 1) + hand(102, 166, -1);
   }
   s += M(o1, 350, 334, .6);
   // 役人2：笏を持ち、少し後ろで聞く（左向き、位の低い浅緑の袍）
