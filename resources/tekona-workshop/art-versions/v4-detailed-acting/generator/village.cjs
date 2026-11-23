@@ -81,7 +81,12 @@ function person(k, o) {
   s += `<path d="M${P(add(waist, [-8, 4]))} q-2 10 1 16" stroke="${c.belt}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
   // 首と頭
   s += `<path d="M${P(add(neckBase, [-5, 3]))} L${P(add(k.neckTop, [-5, 0]))} L${P(add(k.neckTop, [5, 0]))} L${P(add(neckBase, [5, 3]))} Z" fill="${c.skin}"/>`;
-  if (o.back) s += placeHead(k.head, 1, k.headTilt || 0, `<ellipse cx="-15" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="17" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="1" cy="-2" rx="19" ry="25" fill="${c.hair}"/><path d="M-6 18 Q1 46 -2 62 L6 62 Q6 40 8 18 Z" fill="${c.hair}"/><rect x="-4" y="18" width="10" height="4" rx="2" fill="#d8c49a"/>`);
+  // 後ろ姿で肩ごしに振り向く：顔は右の端（ほお・片目・鼻・口もと）だけが見え、残りは後ろ髪に隠れる
+  if (o.back && o.lookBack) s += placeHead(k.head, 1, k.headTilt || 0,
+    face({kind: 'female', mood: o.mood || 'smile', skin: c.skin, skinDark: c.skinDark, brow: c.hair, eye: '#2a1d2a'}) +
+    `<path d="M-22 -2 Q-24 -28 -2 -29 Q14 -29 16 -18 Q8 -14 6 -2 Q5 12 8 22 Q0 30 -12 26 Q-24 16 -22 -2 Z" fill="${c.hair}"/>` +
+    `<path d="M-4 20 Q-2 46 -6 62 L2 62 Q4 40 6 20 Z" fill="${c.hair}"/><rect x="-6" y="20" width="10" height="4" rx="2" fill="#d8c49a"/>`);
+  else if (o.back) s += placeHead(k.head, 1, k.headTilt || 0, `<ellipse cx="-15" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="17" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="1" cy="-2" rx="19" ry="25" fill="${c.hair}"/><path d="M-6 18 Q1 46 -2 62 L6 62 Q6 40 8 18 Z" fill="${c.hair}"/><rect x="-4" y="18" width="10" height="4" rx="2" fill="#d8c49a"/>`);
   else s += placeHead(k.head, 1, k.headTilt || 0, face({kind: 'female', mood: o.mood, old: o.old, skin: c.skin, skinDark: c.skinDark, brow: o.brow || c.hair, eye: '#2a1d2a'}) + hairSvg(o.hair, c.hair));
   // 頭にのせた水がめ
   // 頭にのせた水がめ：頭頂の輪（わら・布の当て物）の上、体の重心の真上に置く
@@ -146,7 +151,7 @@ function scene() {
   // ---- いちばん奥：水がめを頭にのせ、伏屋のほうへ帰っていく女（後ろ姿）。頭・体・足の重心が一直線
   const R = skeleton(FEMALE, {pelvis: [120, 182], chest: [120, 88], ankleL: [108, 334], ankleR: [134, 326], kneeL: -1, kneeR: -1,
     wristL: [104, 196], wristR: [140, 8], elbowL: 1, elbowR: -1, headDx: 0, headTilt: 0, liftR: 6});
-  s += place(person(R, {colors: C.ochre, back: true, hair: 'tied', skirt: 'long', jarHead: true, handR: 'open'}), 150, 276, .38);
+  s += place(person(R, {colors: C.ochre, back: true, lookBack: true, mood: 'smile', hair: 'tied', skirt: 'long', jarHead: true, handR: 'open'}), 150, 276, .38);
   // 奥：丸太に腰かけ、身ぶりをまじえて笑う白髪の老女（右向き）
   s += `<rect x="18" y="286" width="84" height="13" rx="6.5" fill="#8a5a30"/><ellipse cx="102" cy="292" rx="5" ry="6.5" fill="#b07a44"/>`;
   const O = skeleton(FEMALE, {pelvis: [112, 236], chest: [126, 158], shoulderTilt: .06, ankleL: [150, 334], ankleR: [166, 332], kneeL: -1, kneeR: -1,
