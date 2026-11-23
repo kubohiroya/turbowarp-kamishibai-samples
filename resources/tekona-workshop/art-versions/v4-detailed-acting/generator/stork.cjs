@@ -1,8 +1,8 @@
-// コウノトリが水辺から飛び立つ3枚の絵（版4の絵柄：輪郭線なしの平面イラスト）。
-// 320x240, viewBox -80 -40 320 240。3枚とも水面を y=170 にそろえる。回転中心は画像の左上から (198, 210)（水面）。
-// 鳥は3枚のあいだに前（画面の左）へ進み、飛び立った場所の波紋は鳥から見て後ろ（右）へ遠ざかる：
-// 1枚目は足もと、2枚目はけり出した足先より後ろ、3枚目は画像の右へ見切れる。
-// 動き：かがんで翼をひらく → 斜め前へ身を乗り出し、脚で後ろへけり出して、重心をいったん下げながら飛び出す
+// コウノトリが水辺から飛び立つ4枚の絵（版4の絵柄：輪郭線なしの平面イラスト）。
+// 320x240, viewBox -80 -40 320 240。4枚とも水面を y=170 にそろえる。回転中心は画像の左上から (198, 210)（水面）。
+// 鳥は2〜4枚目のあいだに前（画面の左）へ進み、飛び立った場所の波紋は鳥から見て後ろ（右）へ遠ざかる：
+// 1・2枚目は足もと、3枚目はけり出した足先より後ろ、4枚目は画像の右へ見切れる。
+// 動き：あごを引き、翼をたたんで片足で高く立ち、遠く前を見る → かがんで翼をひらく → 斜め前へ身を乗り出し、脚で後ろへけり出して、重心をいったん下げながら飛び出す
 //       → 翼で風をとらえ、前へ進みながら上がる（真上には跳ばない）。
 // コウノトリ：白い体、黒い風切羽、黒く長いくちばし、目のまわりと脚は赤。画面の左へ向かって飛び立つ。
 const fs = require('fs');
@@ -117,7 +117,32 @@ const ripple = (cx, cy, rx, op = .8) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx
 const drops = pts => pts.map(([x, y, r]) => `<path d="M${x} ${y - r * 1.6} Q${x + r} ${y} ${x} ${y + r} Q${x - r} ${y} ${x} ${y - r * 1.6} Z" fill="#bfe6f6"/>`).join('');
 const splash = (cx, cy, w) => `<path d="M${cx - w} ${cy} Q${cx - w * .7} ${cy - w * .6} ${cx - w * .4} ${cy - 2} Q${cx - w * .2} ${cy - w * .9} ${cx} ${cy - 2} Q${cx + w * .25} ${cy - w * .8} ${cx + w * .45} ${cy - 2} Q${cx + w * .75} ${cy - w * .5} ${cx + w} ${cy} Z" fill="#d6f0fa" opacity=".9"/>`;
 
-// 1枚目：身をかがめ、翼を半分ひらいて飛び立つ構え
+// たたんだ翼：背中にそって白い雨覆と、尾の上へのびる黒い風切羽（胴体の上に重ねる）
+const foldedWing = (c, tilt) =>
+  `<g transform="translate(${c[0]} ${c[1]}) rotate(${tilt})">` +
+  `<path d="M-4 -11 Q22 -14 50 1 Q46 5 40 5 Q22 4 6 3 Q-4 -2 -4 -11 Z" fill="${C.black}"/>` +
+  `<path d="M12 -8 L46 0 M14 -3 L44 3" stroke="${C.black2}" stroke-width="1.2" opacity=".9"/>` +
+  `<path d="M-20 -7 Q-4 -17 20 -11 Q14 -1 0 3 Q-14 3 -20 -7 Z" fill="${C.white}"/>` +
+  `<path d="M-14 -3 Q2 -8 16 -8 M-8 1 Q4 -2 12 -4" stroke="${C.shade}" stroke-width="1.4" fill="none"/>` +
+  `</g>`;
+// 1枚目：飛ぶ前の構え。あごを少し引き、翼を体に引き寄せ、重心を高くして片足で立つ。
+// もう一方の足は軽く上げ、遠く前方を見る
+function frame0() {
+  const c = [114, 98], tilt = -4;
+  let s = ripple(118, 171, 30, .55) + ripple(118, 171, 16, .8);
+  // 力を込めて立つ足（奥）：まっすぐのばして体を支える
+  const stand = [bodyPt(c, tilt, 4, 11), [124, 140], [118, 168]];
+  s += leg(stand[0], stand[1], stand[2], 184, true) + thigh(stand[0], stand[1], true);
+  // 軽く上げた足（手前）：かかとの関節を後ろへ曲げ、足先を前へ引き上げて指を軽く垂らす
+  const lift = [bodyPt(c, tilt, -6, 12), [128, 128], [104, 138]];
+  // 首はまっすぐ立て、あごを少し引いて、くちばしをやや下へ。目は前を見る
+  s += neckFromBody(c, tilt, [92, 92], -98, 46, {billDown: 16, bend: 3});
+  s += body(c, tilt);
+  s += leg(lift[0], lift[1], lift[2], 118) + thigh(lift[0], lift[1]);
+  s += foldedWing(c, tilt);
+  return s;
+}
+// 2枚目：身をかがめ、翼を半分ひらいて飛び立つ構え
 function frame1() {
   const c = [120, 112], tilt = -12;
   const legs = [[[124, 120], [138, 144], [122, 168], true], [[112, 120], [124, 146], [104, 168], false]];
@@ -132,7 +157,7 @@ function frame1() {
   s += wing(sn, -124, 80, {spread: .9}) + upperArm(sn, -124, 80);
   return s;
 }
-// 2枚目：斜め前へ身を乗り出し、脚で水を後ろへけり出す。胴体は前に傾き、重心は1枚目より低い
+// 3枚目：斜め前へ身を乗り出し、脚で水を後ろへけり出す。胴体は前に傾き、重心は1枚目より低い
 function frame2() {
   const c = [94, 120], tilt = -20;
   const legs = [[bodyPt(c, tilt, 12, 7), [128, 142], [152, 160], true], [bodyPt(c, tilt, 6, 10), [122, 148], [146, 168], false]];
@@ -148,7 +173,7 @@ function frame2() {
   s += wing(sn, -102, 94, {spread: 1}) + upperArm(sn, -102, 94);
   return s;
 }
-// 3枚目：翼を打ちおろして風をとらえ、前へ進みながら上がる。首をのばし、脚は後ろへのばす。波紋は後ろに残る
+// 4枚目：翼を打ちおろして風をとらえ、前へ進みながら上がる。首をのばし、脚は後ろへのばす。波紋は後ろに残る
 function frame3() {
   const c = [62, 84], tilt = -6;
   const legs = [[bodyPt(c, tilt, 16, 5), [106, 92], [132, 100], true], [bodyPt(c, tilt, 12, 9), [104, 100], [130, 108], false]];
@@ -167,6 +192,6 @@ function frame3() {
 
 const out = process.argv[2];
 const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="-80 -40 320 240"><title>${name}</title>${b}</svg>\n`;
-const files = {'stork-1': frame1(), 'stork-2': frame2(), 'stork-3': frame3()};
+const files = {'stork-1': frame0(), 'stork-2': frame1(), 'stork-3': frame2(), 'stork-4': frame3()};
 for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
-console.log('3 files');
+console.log('4 files');
