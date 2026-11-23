@@ -42,7 +42,13 @@ function hand(w, dir, skin, {kind = 'relaxed', size = 1, side = 1} = {}) {
     g += `<path d="M-2 -6 Q10 -9 13 -2 Q14 6 6 8 L-2 6 Z" fill="${skin}"/>`;
   } else if (kind === 'point') {
     // にぎりこぶしから人差し指を1本立てる（指先は手首から先の向き）
-    g += `<path d="M-2 -6 Q8 -8 10 -2 Q11 6 4 7 L-2 6 Z" fill="${skin}"/><path d="M6 -4 L20 -4" stroke="${skin}" stroke-width="4.2" stroke-linecap="round"/><path d="M4 -7 Q8 -10 10 -7" stroke="${skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
+    // 人差し指は親指の側のふちから立ち、親指はその付け根に沿って曲げた中指の上へかぶせる。
+    // 反対側のふちには、にぎった中指・薬指・小指の関節のふくらみを見せる
+    g += `<path d="M-2 -7 L8 -7 Q12 -6 12 -1 Q12 4 9 7 L-2 7 Z" fill="${skin}"/>`;
+    g += `<path d="M4 7 q2 3 4 0 M8 6.6 q2 3 4 -.6" stroke="${skin}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+    g += `<path d="M8 -4.6 L22 -4.6" stroke="${skin}" stroke-width="4.4" stroke-linecap="round"/>`;
+    g += `<path d="M1 -4 Q6 -1 10 -1" stroke="${skin}" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M2 -2.2 Q6 .4 9.6 .6" stroke="#000000" stroke-width=".8" fill="none" opacity=".18"/>`;
+    g += `<path d="M9 -2.6 h3" stroke="#000000" stroke-width=".8" opacity=".18"/>`;
   } else if (kind === 'grip') {
     g += `<path d="M-2 -6 Q9 -8 12 -3 Q13 5 6 7 L-2 6 Z" fill="${skin}"/><path d="M4 -6 Q9 -10 12 -7" stroke="${skin}" stroke-width="4" stroke-linecap="round" fill="none"/>`;
   } else {
