@@ -159,12 +159,12 @@ async function main() {
     started = Date.now();
     await chooser.locator('[data-dsl4-source-choice=file]').click(editorControlClick);
 
-    const stageCanvas = page.locator('canvas').first();
     const runtimeError = page.locator('[data-dsl4-runtime-error=true]');
     const stage = page.locator('[class*="stage-wrapper"], [class*="stage_stage"]').first();
     const frames = path.join(outputDirectory, 'frames');
     await mkdir(frames, {recursive: true});
-    const deadline = Date.now() + 240_000;
+    // The story with the landscape cuts and suitors #4–#8 plays for about five minutes.
+    const deadline = Date.now() + 480_000;
     let frame = 0;
     let reachedEnd = false;
     await page.waitForTimeout(2_000);
@@ -179,8 +179,14 @@ async function main() {
         document.querySelector<HTMLElement>('[data-dsl4-application-menu=true]')?.style.display === 'block');
       if (menu && frame > 5) { reachedEnd = true; break; }
       // Skip only pose recognition; every scene plays in its written order.
-      await stageCanvas.focus().catch(() => undefined);
-      await page.keyboard.press('Space');
+      // A story opened from the menu runs in the authoring preview session, which listens for its
+      // keymap on the stage renderer canvas (not the document). That canvas cannot take focus, so
+      // deliver the skip key to it directly.
+      await page.evaluate(() => {
+        const canvas = window.vm.renderer?.canvas as HTMLCanvasElement | undefined;
+        for (const type of ['keydown', 'keyup'])
+          canvas?.dispatchEvent(new KeyboardEvent(type, {key: ' ', code: 'Space', bubbles: true, cancelable: true}));
+      });
       await page.waitForTimeout(1_500);
     }
     // The frames are the visual evidence that the participant scene plays before `quarrel`.
