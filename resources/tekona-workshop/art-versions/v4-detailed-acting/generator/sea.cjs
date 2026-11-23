@@ -35,7 +35,7 @@ function canoe(x, y, len, f = 1, water = null) {
   s += `<path d="M${-len * .4} ${h * .45} Q0 ${h * .62} ${len * .42} ${h * .4}" stroke="#b07a44" stroke-width="2" fill="none" opacity=".8"/>`;
   // 喫水：人が2人乗って重くなった舟は深く沈む。舟べりのすぐ下に水面の線を引き、そこから下の船体は水の色を透かして見せる
   if (water) {
-    const id = `hull${++gid}`, wl = h * .3;
+    const id = `hull${++gid}`, wl = h * .55;
     defs.push(`<clipPath id="${id}"><path d="${hull}"/></clipPath>`);
     s += `<g clip-path="url(#${id})"><rect x="${-len}" y="${r1(wl)}" width="${len * 2}" height="${r1(h * 2)}" fill="${water}" opacity=".93"/></g>`;
     s += `<path d="M${r1(-len * .56)} ${r1(wl)} Q${r1(-len * .25)} ${r1(wl - 1.5)} 0 ${r1(wl)} Q${r1(len * .25)} ${r1(wl + 1.5)} ${r1(len * .56)} ${r1(wl)}" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".75"/>`;
