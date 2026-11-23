@@ -148,10 +148,32 @@ function kokuga() {
   s += M(b, 256, 334, .6, -1);
   // 役人1：木簡の束を手のひらの上に広げて読み上げる（左向き）
   const off1 = skeleton(MALE, {pelvis: [122, 180], chest: [120, 90], ankleL: [104, 334], ankleR: [138, 334], kneeL: 1, kneeR: 1,
-    wristL: [86, 170], wristR: [100, 176], elbowL: 1, elbowR: -1, handL: 'open', handR: 'grip', headDx: -2, headTilt: 12});
+    wristL: [64, 160], wristR: [122, 158], elbowL: 1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -4, headTilt: 14});
   let o1 = officialFigure(off1, KOKUFU, 'stand');
-  // 木簡：墨で書いた細長い木の札を何枚か、手のひらの上に少しずらして並べて広げる
-  o1 += `<g transform="translate(92 170) rotate(-8)">` + [[-15, -2, -3], [-5, 0, 2], [5, -3, -1], [15, 1, 3]].map(([dx, dy, a]) => `<g transform="translate(${dx} ${dy}) rotate(${a})"><rect x="-3.4" y="-40" width="6.8" height="40" rx="1" fill="#e8d9b0"/><rect x="-3.4" y="-40" width="2" height="40" fill="#cdb88a"/><path d="M0.6 -36 v4 M0.6 -30 v3 M0.6 -25 v5 M0.6 -18 v3 M0.6 -13 v4" stroke="#2a2a2a" stroke-width="1.3"/></g>`).join('') + `</g>`;
+  // 木簡の冊書：細長い木の札を横に並べ、上下2か所を紐で編んでつなぎ、巻物のように巻いたもの。
+  // 左手に巻いたほうを持ち、右へ広げた札に縦書きの墨の文字が並ぶ
+  {
+    const x0 = 62, x1 = 120, y0 = 136, h = 40, n = 9, w = (x1 - x0 - 8) / n;
+    let m = `<g transform="rotate(-6 ${x0} ${y0 + h / 2})">`;
+    // 巻いた部分（左端の筒）
+    m += `<rect x="${x0 - 2}" y="${y0 - 1}" width="10" height="${h + 2}" rx="5" fill="#d8c69a"/><ellipse cx="${x0 + 3}" cy="${y0 - 1}" rx="5" ry="2" fill="#c4ae7e"/><path d="M${x0} ${y0 + 6} h6 M${x0} ${y0 + h - 6} h6" stroke="#b9a274" stroke-width="1"/>`;
+    // 広げた札（すき間なく並ぶ）と墨の文字
+    for (let j = 0; j < n; j++) {
+      const xx = x0 + 8 + j * w;
+      m += `<rect x="${r1(xx)}" y="${y0}" width="${r1(w)}" height="${h}" fill="${j % 2 ? '#eadcb4' : '#e2d2a6'}"/><path d="M${r1(xx)} ${y0} v${h}" stroke="#c4ae7e" stroke-width=".6"/>`;
+      if (j > 0) { let t = ''; for (let k = 0; k < 6; k++) { const yy = y0 + 4 + k * 5.6 + (j % 3); if (yy < y0 + h - 4) t += ` M${r1(xx + w / 2)} ${r1(yy)} v${r1(2 + ((j + k) % 3))}`; } m += `<path d="${t}" stroke="#2a2a2a" stroke-width="1.1" stroke-linecap="round"/>`; }
+    }
+    // 上下2か所の編み紐（札と札のあいだを交互にくぐる）
+    for (const yy of [y0 + 7, y0 + h - 7]) {
+      m += `<path d="M${x0 + 4} ${yy} H${x1}" stroke="#7a5a34" stroke-width="1.6"/>`;
+      for (let j = 0; j < n; j++) m += `<path d="M${r1(x0 + 8 + j * w + 1)} ${yy - 1.6} l${r1(w - 2)} 3.2" stroke="#5a3e22" stroke-width="1.1"/>`;
+    }
+    m += `<path d="M${x1} ${y0 + 7} q5 2 3 8 M${x1} ${y0 + h - 7} q5 -2 4 -8" stroke="#7a5a34" stroke-width="1.4" fill="none"/>`;
+    // 両手：巻いた筒と、広げた端をそれぞれ握る（親指が札の上にかかる）
+    m += `<path d="M${x0 - 4} ${y0 + 14} q-4 6 0 14 q6 4 12 0 l0 -14 q-6 -4 -12 0 z" fill="${KOKUFU.skin}"/><path d="M${x0 + 2} ${y0 + 12} q4 -2 6 2" stroke="${KOKUFU.skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
+    m += `<path d="M${x1 + 6} ${y0 + 14} q4 6 0 14 q-6 4 -12 0 l0 -14 q6 -4 12 0 z" fill="${KOKUFU.skin}"/><path d="M${x1 - 1} ${y0 + 12} q-4 -2 -7 3" stroke="${KOKUFU.skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
+    o1 += m + `</g>`;
+  }
   s += M(o1, 350, 334, .6);
   // 役人2：笏を持ち、少し後ろで聞く（左向き、位の低い浅緑の袍）
   const off2 = skeleton(MALE, {pelvis: [122, 180], chest: [124, 90], ankleL: [106, 334], ankleR: [138, 334], kneeL: 1, kneeR: 1,
