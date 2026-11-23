@@ -198,18 +198,21 @@ function kokuga() {
   // 役人2：笏を持ち、少し後ろで聞く（左向き、位の低い浅緑の袍）
   // 丸めた木簡の巻物を3巻、手前の腕の小脇に抱える：横にした筒を3本重ね、腕で体へ押しつける。手前に巻いた端の断面（渦）が見える
   const rolls = (() => {
-    // 巻物は前腕の上にのせて前後にのび、後ろの端を上腕で体へ押しつける
-    let r = `<g transform="translate(82 132) rotate(-6) scale(1.15 1)">`;
+    // 巻物の束は体の手前（胸から腹の前）に横たえ、奥の腕（左腕）で下から抱え、手前の手（右手）を胸の前で上に添える
+    let r = `<g transform="translate(86 152) rotate(-10) scale(1.2 1)">`;
     for (const [dx, dy] of [[-2, -16], [4, -4], [-4, 8]]) {
       r += `<g transform="translate(${dx} ${dy})"><rect x="-26" y="-6" width="52" height="12" rx="6" fill="#d8c69a"/><rect x="-26" y="-6" width="52" height="4" rx="2" fill="#e8d9b0"/>`;
       for (let x = -20; x <= 20; x += 5) r += `<path d="M${x} -6 v12" stroke="#c4ae7e" stroke-width=".7"/>`;
       r += `<path d="M-14 -6 v12 M14 -6 v12" stroke="#7a5a34" stroke-width="1.8"/>`;
       r += `<ellipse cx="-26" cy="0" rx="4.4" ry="6.4" fill="#b39a68"/><path d="M-26 0 m-2 0 a2 2.6 0 1 0 2 -2.6 a1.4 1.8 0 1 0 -1.4 1.8" stroke="#7a6038" stroke-width=".8" fill="none"/></g>`;
     }
-    return r + `</g>`;
+    r += `</g>`;
+    // 奥の腕の手：束の下から前の端を支える
+    r += `<path d="M62 166 q-4 6 2 10 q8 2 12 -3 q0 -6 -6 -8 q-5 -1 -8 1 z" fill="#e9bf98"/>`;
+    return r;
   })();
   const off2 = skeleton(MALE, {pelvis: [122, 180], chest: [124, 90], ankleL: [106, 334], ankleR: [138, 334], kneeL: 1, kneeR: 1,
-    wristL: [48, 146], wristR: [136, 196], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'relaxed', under: rolls, headDx: -2, headTilt: 6});
+    wristL: [60, 130], wristR: [70, 170], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', under: rolls, headDx: -2, headTilt: 6});
   s = s + '';
   const OFF2 = {...KOKUFU, robe: '#7fa679', robeDark: '#5f8a5a', type: 'sato', skin: '#e9bf98', skinDark: '#cf9d76'};
   // 奥にいるので先に描く（役人1の後ろに少し重なる）
@@ -217,7 +220,8 @@ function kokuga() {
   let o2 = officialFigure(off2, OFF2, 'stand');
   { const pts = `M${P(off2.sl)} L${P(off2.armL.mid)} L${P(off2.armL.end)}`;
     o2 += `<path d="${pts}" stroke="${OFF2.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${OFF2.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-    o2 += `<path d="M${P(add(off2.armL.end, [-6, -5]))} q-4 5 0 10 q6 3 10 -1 l-1 -9 q-5 -3 -9 0 z" fill="${OFF2.skin}"/>`; }
+    // 手前の手（右手）：胸の前で、束のいちばん上の巻物に指をそろえて添える
+    o2 += `<path d="M${P(add(off2.armL.end, [-12, -2]))} q2 -6 10 -6 q8 0 10 4 q-2 5 -10 5 q-7 1 -10 -3 z" fill="${OFF2.skin}"/><path d="M${P(add(off2.armL.end, [-11, 0]))} h12" stroke="${OFF2.skinDark}" stroke-width=".8" opacity=".6"/>`; }
   s = s.replace(/(<g transform="translate\(350)/, M(o2, 424, 318, .55) + '$1');
   return s;
 }
