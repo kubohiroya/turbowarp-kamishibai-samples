@@ -263,6 +263,12 @@ const frame5 = () => soar({at: [-14, 8], k: .5, yaw: 76, bank: -26, look: -22, h
 
 const out = process.argv[2];
 const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="-80 -40 320 240"><title>${name}</title>${b}</svg>\n`;
-const files = {'stork-1': frame0(), 'stork-2': frame1(), 'stork-3': frame2(), 'stork-4': frame3(), 'stork-5': frame4(), 'stork-6': frame5()};
+// 7〜9枚目：旋回を続けながら画面の奥へゆっくり遠ざかる。だんだん小さく、色は空の青灰色へ寄って明暗の差がなくなり、
+// 最後は影絵のような一色のシルエットになる。位置は6枚目から左上へ、さらに右へ回り込む弧を描く
+const frame6 = () => soar({at: [-24, -8], k: .36, yaw: 102, bank: -30, look: -22, haze: .52, drop: 24});
+const frame7 = () => soar({at: [-16, -22], k: .25, yaw: 128, bank: -28, look: -22, haze: .7, drop: 24});
+const frame8 = () => soar({at: [2, -30], k: .17, yaw: 152, bank: -24, look: -22, haze: .9, drop: 24});
+const files = {'stork-1': frame0(), 'stork-2': frame1(), 'stork-3': frame2(), 'stork-4': frame3(), 'stork-5': frame4(), 'stork-6': frame5(),
+  'stork-7': frame6(), 'stork-8': frame7(), 'stork-9': frame8()};
 for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
 console.log(Object.keys(files).length + ' files');
