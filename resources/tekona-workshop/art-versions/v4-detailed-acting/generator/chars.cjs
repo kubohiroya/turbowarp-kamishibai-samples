@@ -405,7 +405,7 @@ function newcomer(pose) {
 const svg = (name, body) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="380" viewBox="0 -20 240 380"><title>${name}</title>${body}</svg>\n`;
 // ほかの生成スクリプト（kokubunji.cjs など）から人物の部品を使えるようにする
-module.exports = {face, placeHead, limb, hand, foot, ik, lerp, add, seg, ang, len, P, r1, MALE, FEMALE, SATO, skeleton, satoFigure};
+module.exports = {face, placeHead, limb, hand, foot, ik, lerp, add, seg, ang, len, P, r1, MALE, FEMALE, SATO, skeleton, satoFigure, officialFigure, shaku, KOKUFU, MIYAKO};
 if (require.main === module) {
   const out = process.argv[2];
   const files = {};
