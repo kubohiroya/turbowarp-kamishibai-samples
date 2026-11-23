@@ -4,7 +4,7 @@
 // kame.svg  ：自然の点景。水辺の石の上で甲羅干しをする親亀と小亀（画面の中央を外す）。
 const fs = require('fs');
 const path = require('path');
-const {lerp, add, P, r1, MALE, skeleton, satoFigure, officialFigure, KOKUFU, MIYAKO, SATO} = require('./chars.cjs');
+const {lerp, add, P, r1, limb, foot, hand, ang, MALE, skeleton, satoFigure, officialFigure, KOKUFU, MIYAKO, SATO} = require('./chars.cjs');
 const {person, place, C, rnd0} = require('./village.cjs');
 
 let defs = [], gid = 0;
@@ -41,29 +41,58 @@ function hall(x, y, w, h, {roof = .5} = {}) {
 }
 const tinyWorker = (x, y, c = '#d8c49a') => `<path d="M${x} ${y} v-5 M${x} ${y - 5} l-2 5 M${x} ${y - 5} l2 5" stroke="#c99a74" stroke-width="1.2"/><rect x="${x - 1.6}" y="${y - 10}" width="3.2" height="5" fill="${c}"/><circle cx="${x}" cy="${y - 11.6}" r="1.6" fill="#c99a74"/>`;
 
-// ---- 馬（左向き・歩く）。原点はひづめの接地点の中ほど。在来の小柄な馬で、鞍・障泥（泥よけ）・鐙・手綱をつける
+// ---- 馬（左向き・歩く）。原点はひづめの接地点の中ほど。在来の小柄な馬。
+// 体は「肩」「胴」「腰（尻）」の3つのかたまりで組み、脚の上の部分（前脚の前腕・後脚のもも）は胴側が太く関節側が細い台形にする。
+// 鞍・障泥（泥よけ）・鐙・おもがいをつける。乗り手の脚は障泥の上（手前）に描く。
 function horse() {
-  const c = '#8f5d36', cd = '#6e4426', mane = '#2a1d16', hoof = '#3a2a20';
+  const c = '#8f5d36', cl = '#a06a40', cd = '#6e4426', cdd = '#5a361e', mane = '#2a1d16', hoof = '#3a2a20';
+  const trap = (a, b, wa, wb, col) => {
+    const d = Math.hypot(b[0] - a[0], b[1] - a[1]), nx = -(b[1] - a[1]) / d, ny = (b[0] - a[0]) / d;
+    return `<path d="M${P([a[0] + nx * wa / 2, a[1] + ny * wa / 2])} L${P([b[0] + nx * wb / 2, b[1] + ny * wb / 2])} L${P([b[0] - nx * wb / 2, b[1] - ny * wb / 2])} L${P([a[0] - nx * wa / 2, a[1] - ny * wa / 2])} Z" fill="${col}"/>` +
+      `<circle cx="${r1(b[0])}" cy="${r1(b[1])}" r="${r1(wb / 2)}" fill="${col}"/>`;
+  };
+  // 脚：上の台形（胴側が太い）→ひざ・飛節→管（細い）→球節→つなぎ→ひづめ
+  const leg = ([top, joint, fet, toe], w0, w1, col) =>
+    trap(top, joint, w0, w1, col) + trap(joint, fet, w1 * .8, 6.4, col) + trap(fet, toe, 6.4, 6, col) +
+    `<path d="M${r1(toe[0] - 5)} ${r1(toe[1] - 2)} L${r1(toe[0] + 5)} ${r1(toe[1] - 2)} L${r1(toe[0] + 6)} ${r1(toe[1] + 3)} L${r1(toe[0] - 7)} ${r1(toe[1] + 3)} Z" fill="${hoof}"/>`;
   let s = '';
-  const leg = (pts, w, col) => `<path d="M${pts.map(P).join(' L')}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="M${P(add(pts[pts.length - 1], [-5, 0]))} h9 v5 h-10 z" fill="${hoof}"/>`;
-  // 奥の脚（暗い色）
-  s += leg([[-30, -62], [-34, -34], [-26, -14], [-30, -4]], 9, cd) + leg([[30, -64], [22, -34], [28, -4]], 10, cd);
+  // 奥の脚（暗い色）：奥の前脚は後ろへ、奥の後脚は前へ
+  s += leg([[-34, -72], [-30, -34], [-26, -10], [-28, -3]], 18, 9, cd);
+  s += leg([[30, -78], [36, -36], [30, -10], [28, -3]], 24, 9, cd);
   // 尾
-  s += `<path d="M52 -88 Q72 -70 62 -26 Q58 -40 50 -60 Z" fill="${mane}"/>`;
-  // 胴と首・頭
-  s += `<ellipse cx="0" cy="-80" rx="54" ry="25" fill="${c}"/><path d="M-20 -58 Q0 -52 30 -58 Q10 -62 -20 -58 Z" fill="${cd}" opacity=".5"/>`;
-  s += `<path d="M-44 -96 Q-54 -122 -60 -136 L-48 -142 Q-34 -118 -24 -96 Z" fill="${c}"/>`;
-  s += `<path d="M-60 -136 Q-66 -146 -60 -150 Q-72 -146 -92 -114 Q-96 -106 -88 -104 Q-80 -106 -70 -116 Q-58 -128 -48 -142 Z" fill="${c}"/>`;
-  s += `<path d="M-54 -150 l-2 -10 l6 8 z" fill="${cd}"/><circle cx="-68" cy="-130" r="2" fill="#1a1410"/><circle cx="-88" cy="-108" r="1.6" fill="#2a1d16"/>`;
-  s += `<path d="M-48 -142 Q-36 -120 -22 -100 L-30 -98 Q-42 -118 -54 -140 Z" fill="${mane}"/><path d="M-58 -150 q-6 4 -8 10" stroke="${mane}" stroke-width="4" stroke-linecap="round"/>`;
-  // 手前の脚
-  s += leg([[-38, -64], [-38, -34], [-36, -4]], 10, c) + leg([[36, -66], [42, -36], [36, -4]], 11, c);
-  // 馬具：おもがい（頭の革ひも）、鞍、障泥、鐙
-  s += `<path d="M-60 -146 L-72 -120 L-86 -108 M-62 -132 L-80 -116" stroke="#4a2a1a" stroke-width="2" fill="none"/>`;
-  s += `<path d="M-26 -60 Q-10 -56 16 -60 L18 -96 Q-4 -100 -26 -96 Z" fill="#7a2e28"/><path d="M-26 -60 Q-10 -56 16 -60" stroke="#d8b24a" stroke-width="2" fill="none"/>`;
-  s += `<path d="M-30 -100 Q-6 -112 22 -100 L20 -94 Q-6 -104 -28 -94 Z" fill="#4a2a1a"/>`;
-  s += `<path d="M-6 -96 L-8 -60" stroke="#4a2a1a" stroke-width="1.6"/><path d="M-14 -60 q6 -6 12 0 z" fill="#5a5a5a"/>`;
+  s += `<path d="M56 -104 Q74 -96 74 -66 Q74 -44 66 -32 Q62 -52 58 -70 Q54 -86 50 -98 Z" fill="${mane}"/>`;
+  // 首：肩から頭へ、根元が太く、のどの所で細くなる
+  s += `<path d="M-20 -110 Q-44 -146 -66 -160 L-84 -140 Q-72 -112 -64 -82 Z" fill="${c}"/>`;
+  s += `<path d="M-74 -128 Q-70 -106 -64 -84 L-58 -86 Q-64 -108 -68 -128 Z" fill="${cd}" opacity=".5"/>`;
+  // 胴（まん中のかたまり）
+  s += `<path d="M-34 -104 Q0 -112 30 -104 Q42 -86 32 -66 Q0 -56 -34 -64 Q-44 -84 -34 -104 Z" fill="${c}"/>`;
+  s += `<path d="M-30 -66 Q0 -58 30 -68 Q8 -62 -30 -70 Z" fill="${cd}" opacity=".6"/>`;
+  // 肩（前のかたまり）：き甲から肩端へ斜めに傾いた形
+  s += `<path d="M-30 -114 Q-12 -104 -16 -82 Q-20 -60 -42 -60 Q-62 -62 -64 -80 Q-62 -100 -44 -112 Q-38 -116 -30 -114 Z" fill="${cl}"/>`;
+  s += `<path d="M-20 -100 Q-16 -82 -24 -66" stroke="${cd}" stroke-width="2" fill="none" opacity=".55"/>`;
+  // 腰（後ろのかたまり）：丸い尻
+  s += `<path d="M14 -104 Q34 -118 54 -108 Q68 -96 66 -78 Q62 -62 44 -60 Q26 -60 18 -74 Q10 -90 14 -104 Z" fill="${cl}"/>`;
+  s += `<path d="M20 -96 Q16 -80 24 -66" stroke="${cd}" stroke-width="2" fill="none" opacity=".55"/>`;
+  // 手前の脚：手前の前脚は一歩前へ、手前の後脚は後ろへ蹴る
+  s += leg([[-46, -72], [-52, -34], [-56, -10], [-58, -3]], 20, 10, c);
+  s += leg([[44, -76], [58, -36], [56, -10], [60, -3]], 26, 10, c);
+  // 頭：額・ほお（丸い下あご）・鼻づらで組む。斜め下を向く
+  s += `<path d="M-66 -164 Q-86 -168 -98 -150 L-114 -128 Q-120 -116 -110 -112 Q-100 -110 -94 -116 Q-86 -124 -80 -128 Q-64 -128 -62 -146 Q-60 -158 -66 -164 Z" fill="${c}"/>`;
+  s += `<path d="M-80 -128 Q-64 -128 -63 -144 Q-70 -134 -82 -132 Z" fill="${cd}" opacity=".6"/>`;
+  s += `<path d="M-96 -152 Q-108 -134 -114 -124" stroke="${cl}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>`;
+  // 耳（奥・手前）、目、鼻の穴、口
+  s += `<path d="M-74 -162 L-76 -180 L-66 -164 Z" fill="${cdd}"/><path d="M-68 -162 L-64 -180 L-60 -160 Z" fill="${c}"/><path d="M-66 -164 L-64 -176 L-62 -162 Z" fill="${cd}"/>`;
+  s += `<ellipse cx="-82" cy="-150" rx="3" ry="2.2" fill="#1a1410"/><circle cx="-83" cy="-151" r=".8" fill="#ffffff"/>`;
+  s += `<path d="M-112 -124 q-3 2 -2 5" stroke="${mane}" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M-112 -114 q4 1 8 -2" stroke="${cdd}" stroke-width="1.4" fill="none"/>`;
+  // たてがみと前髪
+  s += `<path d="M-64 -164 Q-42 -146 -22 -114 L-30 -112 Q-46 -140 -70 -158 Z" fill="${mane}"/>`;
+  s += `<path d="M-70 -164 q-8 4 -12 12 q8 -2 14 -8 z" fill="${mane}"/>`;
+  // おもがい（頭の革ひも）とはみ
+  s += `<path d="M-68 -160 L-76 -134 L-104 -116 M-96 -146 Q-90 -134 -80 -134 M-108 -130 Q-98 -124 -94 -118" stroke="#4a2a1a" stroke-width="2" fill="none"/><circle cx="-104" cy="-116" r="2.2" fill="#9a9a9a"/>`;
+  // 腹帯、鞍、障泥、鐙の革（乗り手の脚の下になる）
+  s += `<path d="M-12 -108 L-14 -60" stroke="#4a2a1a" stroke-width="4"/>`;
+  s += `<path d="M-30 -102 Q-8 -98 18 -102 L16 -62 Q-6 -58 -28 -62 Z" fill="#7a2e28"/><path d="M-28 -62 Q-6 -58 16 -62" stroke="#d8b24a" stroke-width="2" fill="none"/>`;
+  s += `<path d="M-34 -104 Q-30 -116 -22 -110 Q-6 -114 14 -110 Q22 -118 26 -106 L22 -100 Q-6 -106 -30 -98 Z" fill="#4a2a1a"/>`;
   return s;
 }
 
@@ -97,21 +126,38 @@ function uma() {
   for (let x = -4; x < 490; x += 14) s += `<path d="M${x} ${deck + 1} v6" stroke="#7a4a24" stroke-width="1" opacity=".6"/>`;
   s += `<path d="M0 ${deck + 26} h480" stroke="#2a5a7a" stroke-width="6" opacity=".12"/>`;
   // 馬と、馬に乗った都の貴族（手児奈に求婚しに、都＝平城京からやって来た。浅緋の袍、口ひげ、腰の大刀。左向き）
-  const hx = 336, hy = deck + 2, hs = 1.08;
+  const hx = 330, hy = deck + 2, hs = .9;
   s += `<g transform="translate(${hx} ${hy}) scale(${hs})">${horse()}</g>`;
-  const rider = skeleton(MALE, {pelvis: [122, 250], chest: [118, 164], ankleL: [126, 334], ankleR: [134, 330], kneeL: 1, kneeR: 1,
-    wristL: [80, 232], wristR: [92, 238], elbowL: 1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -2, headTilt: 4});
-  const rx = hx - 6 * hs - 1, ry = hy - 100 * hs + (334 - 250) * .42;
-  s += place(officialFigure(rider, MIYAKO, 'stand'), rx, ry, .42);
-  // 鞍の上に乗せた体を、障泥で手前から少し隠す
-  s += `<g transform="translate(${hx} ${hy}) scale(${hs})"><path d="M-26 -60 Q-10 -56 16 -60 L16 -84 Q-6 -86 -26 -84 Z" fill="#7a2e28"/><path d="M-26 -60 Q-10 -56 16 -60" stroke="#d8b24a" stroke-width="2" fill="none"/></g>`;
-  // 手綱：馬のはみから役人の手へ、もう1本は従者の手へ
-  const bit = [hx - 86 * hs, hy - 110 * hs];
-  s += `<path d="M${P(bit)} Q${r1(bit[0] + 30)} ${r1(bit[1] + 20)} ${r1(rx + (80 - 120) * .42)} ${r1(ry + (232 - 334) * .42)}" stroke="#4a2a1a" stroke-width="1.4" fill="none"/>`;
+  // 乗り手は鞍にまたがる：骨盤を鞍の上に置き、手前の脚は太ももを前下へ、ひざを曲げてすねを下ろし、足を鐙に入れる
+  const rs = .42, seat = [hx - 6 * hs, hy - 106 * hs];
+  const rx = seat[0] - (122 - 120) * rs, ry = seat[1] + (334 - 250) * rs;
+  // 両ひじは体に沿わせて後ろへ引き、両手は腹の前で手綱を持つ
+  const rider = skeleton(MALE, {pelvis: [122, 250], chest: [118, 164], ankleL: [80, 380], ankleR: [80, 380], kneeL: 1, kneeR: 1,
+    wristL: [40, 230], wristR: [96, 232], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -2, headTilt: 4});
+  const hip = [122, 250], knee = [65, 307], ankle = [80, 382];
+  defs.push(`<clipPath id="riderTop" clipPathUnits="userSpaceOnUse"><rect x="0" y="0" width="300" height="252"/></clipPath>`);
+  let rd = `<path d="M140 238 L206 268" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/><path d="M134 234 L142 240" stroke="#d8b24a" stroke-width="6"/><circle cx="160" cy="247" r="3.4" fill="#d8b24a"/><circle cx="186" cy="259" r="3.4" fill="#d8b24a"/>`;
+  rd += `<g clip-path="url(#riderTop)">${officialFigure(rider, {...MIYAKO, sword: false}, 'stand')}</g>`;
+  // 袖は袍と同じ色なので、濃い色のふちを入れて腕の形を見せる（ひじは体に沿わせる）
+  for (const [sh, a, side] of [[rider.sr, rider.armR, -1], [rider.sl, rider.armL, 1]]) {
+    const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
+    rd += `<path d="${pts}" stroke="${MIYAKO.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${MIYAKO.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    rd += hand(a.end, ang(a.mid, a.end), MIYAKO.skin, {kind: 'grip', size: 1.05, side});
+  }
+  // すね（白い袴）と履、鐙
+  rd += limb(knee, ankle, 18, 15, '#efe8d8') + foot(ankle, -1, '#22201f', {size: 1.1});
+  // 袍の裾：腰から太ももを包み、ひざの下へ少し垂れる
+  rd += `<path d="M92 228 L152 230 Q160 254 146 268 Q116 300 92 330 Q72 334 58 322 Q42 312 46 296 Q50 286 60 282 L100 244 Z" fill="${MIYAKO.robe}"/>`;
+  rd += `<path d="M146 268 Q116 300 92 330 Q78 332 66 324 Q96 300 128 268 Z" fill="${MIYAKO.robeDark}" opacity=".5"/><path d="M110 250 Q86 274 64 296" stroke="${MIYAKO.robeDark}" stroke-width="2" fill="none" opacity=".6"/>`;
+  rd += `<path d="M66 384 Q62 400 80 400 Q102 400 98 384" stroke="#5a5a5a" stroke-width="4" fill="none"/><path d="M84 330 L84 384" stroke="#4a2a1a" stroke-width="3"/>`;
+  s += place(rd, rx, ry, rs);
+  // 手綱：馬のはみから乗り手の手へ、もう1本は従者の手へ
+  const bit = [hx - 104 * hs, hy - 116 * hs];
+  s += `<path d="M${P(bit)} Q${r1(bit[0] + 34)} ${r1(bit[1] + 26)} ${r1(rx + (44 - 120) * rs)} ${r1(ry + (230 - 334) * rs)}" stroke="#4a2a1a" stroke-width="1.4" fill="none"/>`;
   // 従者：馬の前を歩き、後ろ手に手綱を引く（左向き）
   const groom = skeleton(MALE, {pelvis: [124, 180], chest: [114, 92], ankleL: [98, 334], ankleR: [148, 326], kneeL: 1, kneeR: 1, liftR: 8,
     wristL: [100, 190], wristR: [176, 168], elbowL: 1, elbowR: 1, headDx: -2, headTilt: 0});
-  const gx = 196, gy = deck + 2, gs = .42;
+  const gx = 208, gy = deck + 2, gs = .42;
   s += place(recolor(satoFigure(groom, 'stand'), {[SATO.cloth]: '#d8d2c0', [SATO.clothDark]: '#b6ae96'}), gx, gy, gs);
   const gh = [gx + (176 - 120) * gs, gy + (168 - 334) * gs];
   s += `<path d="M${P(bit)} Q${r1((bit[0] + gh[0]) / 2)} ${r1((bit[1] + gh[1]) / 2 + 14)} ${P(gh)}" stroke="#4a2a1a" stroke-width="1.6" fill="none"/>`;
