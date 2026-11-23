@@ -40,6 +40,9 @@ function hand(w, dir, skin, {kind = 'relaxed', size = 1, side = 1} = {}) {
     g += `<path d="M2 -6 Q6 -13 11 -12 Q12 -9 8 -5 Z" fill="${skin}"/>`;
   } else if (kind === 'fist') {
     g += `<path d="M-2 -6 Q10 -9 13 -2 Q14 6 6 8 L-2 6 Z" fill="${skin}"/>`;
+  } else if (kind === 'point') {
+    // にぎりこぶしから人差し指を1本立てる（指先は手首から先の向き）
+    g += `<path d="M-2 -6 Q8 -8 10 -2 Q11 6 4 7 L-2 6 Z" fill="${skin}"/><path d="M6 -4 L20 -4" stroke="${skin}" stroke-width="4.2" stroke-linecap="round"/><path d="M4 -7 Q8 -10 10 -7" stroke="${skin}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`;
   } else if (kind === 'grip') {
     g += `<path d="M-2 -6 Q9 -8 12 -3 Q13 5 6 7 L-2 6 Z" fill="${skin}"/><path d="M4 -6 Q9 -10 12 -7" stroke="${skin}" stroke-width="4" stroke-linecap="round" fill="none"/>`;
   } else {
@@ -206,7 +209,7 @@ function satoFigure(k, mood, extra = '') {
   s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
   // 腕（筒袖）と手
   const arm = (a, sh, side) => limb(sh, a.mid, 17, 15, c.cloth) + limb(a.mid, a.end, 15, 12, c.cloth) +
-    hand(a.end, ang(a.mid, a.end), c.skin, {kind: k.handKind || 'relaxed', size: 1.05, side});
+    hand(a.end, ang(a.mid, a.end), c.skin, {kind: (side > 0 ? k.handL : k.handR) || k.handKind || 'relaxed', size: 1.05, side});
   s += arm(k.armR, k.sr, -1) + arm(k.armL, k.sl, 1);
   return s + extra;
 }

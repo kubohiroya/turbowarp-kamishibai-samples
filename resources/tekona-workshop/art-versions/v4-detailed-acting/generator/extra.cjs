@@ -142,7 +142,8 @@ function kokuga() {
   const M = (svg, x, y, sc, f = 1) => place(svg, x, y, sc, f);
   // 棟梁：物差しを立て、柱を指して説明する（右向き）
   const boss = skeleton(MALE, {pelvis: [122, 180], chest: [124, 92], ankleL: [104, 334], ankleR: [142, 334], kneeL: 1, kneeR: 1,
-    wristL: [50, 160], wristR: [150, 196], elbowL: 1, elbowR: -1, headDx: -6, headTilt: -18});
+    // 左腕：肘を体の横に下ろし、肘から先を上へ立てて人差し指を立てる
+    wristL: [70, 110], wristR: [150, 196], elbowL: -1, elbowR: -1, handL: 'point', headDx: -6, headTilt: -18});
   let b = recolor(satoFigure(boss, 'stand'), {[SATO.cloth]: '#b9a07a', [SATO.clothDark]: '#957c56', [SATO.skin]: '#d39a6a', [SATO.skinDark]: '#b07a4a'});
   b += `<path d="M152 120 L150 330" stroke="#c9a46a" stroke-width="5" stroke-linecap="round"/><path d="M146 140 h8 M146 170 h8 M146 200 h8 M146 230 h8 M146 260 h8 M146 290 h8" stroke="#7a5a34" stroke-width="1.2"/>`;
   s += M(b, 262, 334, .6, -1);
@@ -171,6 +172,12 @@ function kokuga() {
       m += `<rect x="${r1(xx)}" y="${y0}" width="${r1(w)}" height="${h}" fill="${j % 2 ? '#eadcb4' : '#e2d2a6'}"/><path d="M${r1(xx)} ${y0} v${h}" stroke="#c4ae7e" stroke-width=".6"/>`;
       if (j > 0) { let t = ''; for (let k = 0; k < 6; k++) { const yy = y0 + 4 + k * 5.6 + (j % 3); if (yy < y0 + h - 4) t += ` M${r1(xx + w / 2)} ${r1(yy)} v${r1(2 + ((j + k) % 3))}`; } m += `<path d="${t}" stroke="#2a2a2a" stroke-width="1.1" stroke-linecap="round"/>`; }
     }
+    // 木の厚み：手前の切り口（札の端の断面）を濃い色の帯で見せ、札ごとの境目を入れる
+    m += `<rect x="${x0 + 8}" y="${y0 + h}" width="${r1(n * w)}" height="9" fill="#b39a68"/>`;
+    for (let j = 0; j <= n; j++) m += `<path d="M${r1(x0 + 8 + j * w)} ${y0 + h} v9" stroke="#8a7044" stroke-width="1"/>`;
+    m += `<path d="M${x0 + 8} ${y0 + h + 9} h${r1(n * w)}" stroke="#7a6038" stroke-width="1.2"/>`;
+    // 巻いた筒の手前の端：巻きこんだ札の断面
+    m += `<ellipse cx="${x0 + 3}" cy="${y0 + h + 2}" rx="6" ry="6" fill="#b39a68"/><path d="M${x0 + 3} ${y0 + h + 2} m-4 0 a4 4 0 1 0 4 -4 a3 3 0 1 0 -3 3 a2 2 0 1 0 2 -2" stroke="#7a6038" stroke-width="1" fill="none"/>`;
     // 上下2か所の編み紐（札と札のあいだを交互にくぐる）
     for (const yy of [y0 + 7, y0 + h - 7]) {
       m += `<path d="M${x0 + 4} ${yy} H${x1}" stroke="#7a5a34" stroke-width="1.6"/>`;
