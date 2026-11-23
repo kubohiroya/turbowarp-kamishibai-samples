@@ -17,13 +17,13 @@
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 31866,
-      "sha256": "e2ecada491f0595701433c984ad8cf1932d90510d98a622bcc26247e0715972c"
+      "size": 45226,
+      "sha256": "ef4f54957bd214df99a6f78099738ca578cfb70aa8c0b6a6bb0b4dfcc416c998"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 12456,
-      "sha256": "23f9a09d1f156fd32634ea7cd4c1de10b8697d53d1ac15cbedca9178eb1efacd"
+      "size": 16376,
+      "sha256": "cce7ad3e3f0a4e74e45016075bb68b4949a2e139e3913fa5bd5589d11f967f1f"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
@@ -44,23 +44,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2111407,
-      "sha256": "fd09b9c8f2b0d8776828914f6a3aa3fb9b96a65e9309b8847870ae3edb61d3d1"
+      "size": 2141117,
+      "sha256": "90314b2f771b1f9e6d8050778c87d0e294f9ff712f8cde455ac529b8f448344f"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 1971218,
-      "sha256": "79effe66313eae51d67e2ba13d6c90b1b66458bb92f51bdde3a5f2970aaf3709"
+      "size": 2011552,
+      "sha256": "1508c137225a92aeb49264440d3ed8fc9f05b2fb47e6be3ec108994668f8e07d"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2002321,
-      "sha256": "6bf02d8e10b5f76adde767f657d3969a614fc20e6f8c0e0ea261c0b1fd4961c3"
+      "size": 2045066,
+      "sha256": "2a28e051c1e86904133720561e893df00ea09642e935cc16c3f5b4202ff96930"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2040194,
-      "sha256": "be7342180aff79f91e036e72340e7c62dca3ac4ca56def7adc34e7096ba9ab4f"
+      "size": 2081094,
+      "sha256": "41c78d7182d7a611c5ba2fda5f27ddbb4913e4ba6f759262527630fc774d2f30"
     }
   }
 }

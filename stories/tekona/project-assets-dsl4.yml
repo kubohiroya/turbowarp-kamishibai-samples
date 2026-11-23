@@ -45,9 +45,60 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
+  # 考証メモ4章の#4〜#8（4.2〜4.6）。場面の順にならべる
+  Ryoshi:
+    layerOrder: 5
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Utabito:
+    layerOrder: 6
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Hataori:
+    layerOrder: 7
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Gunji:
+    layerOrder: 8
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Sakimori:
+    layerOrder: 9
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
   # アバンタイトルで水辺から飛び立つコウノトリ（コスチューム stork-1〜stork-9 を切り替える）
   Stork:
-    layerOrder: 5
+    layerOrder: 10
     visible: false
     x: 0
     y: 0
@@ -58,7 +109,7 @@ sprites:
     volume: 100
   # 点景：夕げの煙（コスチューム kemuri-1・kemuri-2 を交互に切り替えて揺らす）
   Kemuri:
-    layerOrder: 6
+    layerOrder: 11
     visible: false
     x: 0
     y: 0
@@ -69,7 +120,7 @@ sprites:
     volume: 100
   # 点景：入江のにほ鳥（カイツブリ）。nio-1 浮かぶ・nio-2 潜る・nio-3 水の輪
   Nio:
-    layerOrder: 7
+    layerOrder: 12
     visible: false
     x: 0
     y: 0
@@ -80,7 +131,7 @@ sprites:
     volume: 100
   # 点景：秋に渡ってくる雁の列（kari-1・kari-2 で羽ばたく）
   Kari:
-    layerOrder: 8
+    layerOrder: 13
     visible: false
     x: 0
     y: 0
@@ -90,7 +141,7 @@ sprites:
     rotationStyle: all around
     volume: 100
   Narration:
-    layerOrder: 9
+    layerOrder: 14
     visible: false
     x: 0
     y: 0
@@ -320,6 +371,131 @@ assets:
     target: Miyako
     name: rejected
     file: assets/miyako-rejected.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # 入江の漁師
+  ryoshi-stand:
+    kind: costume
+    target: Ryoshi
+    name: stand
+    file: assets/ryoshi-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  ryoshi-kime:
+    kind: costume
+    target: Ryoshi
+    name: kime
+    file: assets/ryoshi-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  ryoshi-rejected:
+    kind: costume
+    target: Ryoshi
+    name: rejected
+    file: assets/ryoshi-rejected.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # 歌の上手な若者
+  utabito-stand:
+    kind: costume
+    target: Utabito
+    name: stand
+    file: assets/utabito-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  utabito-kime:
+    kind: costume
+    target: Utabito
+    name: kime
+    file: assets/utabito-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  utabito-rejected:
+    kind: costume
+    target: Utabito
+    name: rejected
+    file: assets/utabito-rejected.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # 機織りの名人の若者
+  hataori-stand:
+    kind: costume
+    target: Hataori
+    name: stand
+    file: assets/hataori-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  hataori-kime:
+    kind: costume
+    target: Hataori
+    name: kime
+    file: assets/hataori-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  hataori-rejected:
+    kind: costume
+    target: Hataori
+    name: rejected
+    file: assets/hataori-rejected.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # 郡司の息子
+  gunji-stand:
+    kind: costume
+    target: Gunji
+    name: stand
+    file: assets/gunji-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  gunji-kime:
+    kind: costume
+    target: Gunji
+    name: kime
+    file: assets/gunji-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  gunji-rejected:
+    kind: costume
+    target: Gunji
+    name: rejected
+    file: assets/gunji-rejected.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  # 防人に出る若者
+  sakimori-stand:
+    kind: costume
+    target: Sakimori
+    name: stand
+    file: assets/sakimori-stand.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sakimori-kime:
+    kind: costume
+    target: Sakimori
+    name: kime
+    file: assets/sakimori-kime.svg
+    rotationCenterX: 120
+    rotationCenterY: 190
+    license: "MPL-2.0: LICENSES.md"
+  sakimori-rejected:
+    kind: costume
+    target: Sakimori
+    name: rejected
+    file: assets/sakimori-rejected.svg
     rotationCenterX: 120
     rotationCenterY: 190
     license: "MPL-2.0: LICENSES.md"

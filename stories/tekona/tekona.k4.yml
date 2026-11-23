@@ -9,7 +9,7 @@
 #   - 絵：求婚者ごとのスプライトに、コスチューム stand（立ち絵）・kime（決めポーズ）・rejected（断られたポーズ）の3つ。
 #   - ポーズ認識モデル：求婚者ごとに1つ。クラス（ラベル）は stand・kime・rejected の3つ。
 #
-# これはワークショップ用の「半完成品」です。用意済みの求婚者3人（sato・kokufu・miyako）のあとに、
+# これはワークショップ用の「半完成品」です。用意済みの求婚者8人（sato・kokufu・miyako と、考証メモ4章の#4〜#8）のあとに、
 # 参加者がつくった求婚者の場面を席番号ごとに1つずつ加えて完成させます。
 # 追加する場所と雛形は「★参加者」の箇所に示します。
 kamishibai: "4.0"
@@ -60,6 +60,26 @@ assets:
   miyako-stand: {kind: costume, target: Miyako, name: stand}
   miyako-kime: {kind: costume, target: Miyako, name: kime}
   miyako-rejected: {kind: costume, target: Miyako, name: rejected}
+  # 入江の漁師
+  ryoshi-stand: {kind: costume, target: Ryoshi, name: stand}
+  ryoshi-kime: {kind: costume, target: Ryoshi, name: kime}
+  ryoshi-rejected: {kind: costume, target: Ryoshi, name: rejected}
+  # 歌の上手な若者
+  utabito-stand: {kind: costume, target: Utabito, name: stand}
+  utabito-kime: {kind: costume, target: Utabito, name: kime}
+  utabito-rejected: {kind: costume, target: Utabito, name: rejected}
+  # 機織りの名人の若者
+  hataori-stand: {kind: costume, target: Hataori, name: stand}
+  hataori-kime: {kind: costume, target: Hataori, name: kime}
+  hataori-rejected: {kind: costume, target: Hataori, name: rejected}
+  # 郡司の息子
+  gunji-stand: {kind: costume, target: Gunji, name: stand}
+  gunji-kime: {kind: costume, target: Gunji, name: kime}
+  gunji-rejected: {kind: costume, target: Gunji, name: rejected}
+  # 防人に出る若者
+  sakimori-stand: {kind: costume, target: Sakimori, name: stand}
+  sakimori-kime: {kind: costume, target: Sakimori, name: kime}
+  sakimori-rejected: {kind: costume, target: Sakimori, name: rejected}
   # ★参加者：席番号NNごとに、スプライト SuitorNN のコスチュームを3行加えます。
   # sNN-stand: {kind: costume, target: SuitorNN, name: stand}
   # sNN-kime: {kind: costume, target: SuitorNN, name: kime}
@@ -108,6 +128,36 @@ assets:
     loading: lazy
     source:
       url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-MIYAKO-MODEL/
+  RyoshiPose:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-RYOSHI-MODEL/
+  UtabitoPose:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-UTABITO-MODEL/
+  HataoriPose:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-HATAORI-MODEL/
+  GunjiPose:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-GUNJI-MODEL/
+  SakimoriPose:
+    kind: recognitionModel
+    delivery: remote
+    loading: lazy
+    source:
+      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-SAKIMORI-MODEL/
   # ★参加者：席番号NNごとに、参加者のモデル（クラス stand・kime・rejected）を加えます。
   # PoseNN:
   #   kind: recognitionModel
@@ -120,6 +170,11 @@ actors:
   Sato: sato-stand
   Kokufu: kokufu-stand
   Miyako: miyako-stand
+  Ryoshi: ryoshi-stand
+  Utabito: utabito-stand
+  Hataori: hataori-stand
+  Gunji: gunji-stand
+  Sakimori: sakimori-stand
   # ★参加者：席番号NNごとに1行加えます。
   # SuitorNN: sNN-stand
   Stork: stork-1
@@ -306,30 +361,54 @@ scenes:
           つぎつぎと男たちが求婚にやってきました。
         style: narration
     - wait: 3.5
-    # 方式A（語られる求婚者）：考証メモ4章の#4〜#8を、場面もスプライトもモデルも増やさずに一行ずつ紹介する。
-    # 行を増やす・減らすときは、tsugihashi の回収の一覧（方式C）とそろえる。
-    - forEach:
-        as: man
-        items:
-          - text: |-
-              入江の漁師は、毎朝いちばんの魚を
-              とどけようと言いました。
-          - text: |-
-              機織りの名人は、自分で織った
-              いちばん美しい布をさし出しました。
-          - text: |-
-              歌の上手な若者は、思いを歌に詠んで
-              手児奈に問いかけました。
-          - text: |-
-              郡司の息子は、葛飾でいちばん広い
-              わが家の田を自慢しました。
-          - text: |-
-              九州の守りに出る若者は、帰ったら
-              妻になってくれないかと言いました。
-        do:
-          - Narration.setText: {text: {ref: man.text}, style: narration}
-          - wait: 3
+    # 以前ここにあった方式A（#4〜#8を地の文で一行ずつ紹介する forEach）は、
+    # 8人とも場面として登場するようになったので外しました。短縮上演で人を減らすときの手順は
+    # stories/tekona/README.md の「上演に合わせて求婚者を減らす」にあります。
     - Narration.hide: {}
+
+  # 入江の漁師（考証メモ4.2）。手児奈が入江で玉藻を刈る歌（巻3・433）にもとづく、
+  # 求婚の場が真間の井でない唯一の場面。網漁は kurashi で見せているので間奏はいらない。
+  ryoshi:
+    recognitionModel: RyoshiPose
+    actions:
+      - transition: {effect: fadeOut, seconds: 1}
+      - Tekona.hide: {}
+      - stage: Ryo
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - transition: {effect: fadeUp, seconds: 1}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            潮の引いた朝。入江で玉藻を刈る手児奈に、
+            網を上げてきた舟から声がかかりました。
+          style: narration
+      - wait: 3.5
+      - Ryoshi.show: {skin: ryoshi-stand, x: 140, y: -75, scale: 60}
+      - Narration.setText: {text: 入江の漁師, style: narration}
+      - wait: 2
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
+      - Ryoshi.say: {text: 両うでを斜め上へ！ 網を投げるぞ！, seconds: 2.5}
+      - Ryoshi.pose:
+          steps:
+            - pose: kime
+              skin: ryoshi-kime
+              sound: Goal Cheer
+      - Narration.hide: {}
+      - Ryoshi.say: {text: この入江でいちばんの魚を、毎朝とどけよう！, seconds: 3.5}
+      - Tekona.setSkin: tekona-refuse
+      - Tekona.say: {text: ありがとう。その魚は、里のみんなに分けてください。, seconds: 3.5}
+      - Tekona.setSkin: tekona-stand
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+      - Ryoshi.say: {text: 両手で頭をかかえて、うなだれる……。, seconds: 2}
+      - Ryoshi.pose:
+          steps:
+            - pose: rejected
+              skin: ryoshi-rejected
+              sound: Crowd Gasp
+      - Narration.hide: {}
+      - Ryoshi.say: {text: ……そうか。みんなに、か。, seconds: 2}
+      - Ryoshi.hide: {}
 
   # 季節のカット：求婚者のあいだに春・夏・秋・冬を挟み、言葉なしで「何年も求婚が続いた」ことを見せる（考証メモ 6章）
   haru:
@@ -384,6 +463,99 @@ scenes:
       - Sato.say: {text: とほほ……。, seconds: 1.5}
       - Sato.hide: {}
 
+  # 歌の上手な若者（考証メモ4.3）。妻問ひに歌を詠みかけること、歌垣（嬥歌）は〔確〕（2.5）。
+  # 断りも歌で返し、「やさしく、はっきり」を歌の形で守る。
+  utabito:
+    recognitionModel: UtabitoPose
+    actions:
+      - transition: {effect: fadeOut, seconds: 1}
+      - Tekona.hide: {}
+      - stage: InletSunset
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - transition: {effect: fadeUp, seconds: 1}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            春の夕。里の若い男女が集まって歌をかけ合う
+            「歌垣」の場がありました。
+          style: narration
+      - wait: 3.5
+      - Narration.setText:
+          text: |-
+            水をくんで通りかかった手児奈に、
+            歌の上手な若者が歌を詠みかけます。
+          style: narration
+      - wait: 3.5
+      - Utabito.show: {skin: utabito-stand, x: 140, y: -75, scale: 60}
+      - Narration.setText: {text: 歌の上手な若者, style: narration}
+      - wait: 2
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
+      - Utabito.say: {text: 片手を耳に当てて、片手は高く！ 歌うぞ！, seconds: 2.5}
+      - Utabito.pose:
+          steps:
+            - pose: kime
+              skin: utabito-kime
+              sound: Goal Cheer
+      - Narration.hide: {}
+      - Utabito.say: {text: 真間の井に　水くむ君の　手のしずく　玉かとまがう　朝のひかりに, seconds: 3.5}
+      - Tekona.setSkin: tekona-refuse
+      - Tekona.say: {text: よき歌を　うれしく聞きぬ　されどわが　心は誰の　ものにもあらず, seconds: 3.5}
+      - Tekona.setSkin: tekona-stand
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+      - Utabito.say: {text: 片手を額に当てて、天をあおぐ……。, seconds: 2}
+      - Utabito.pose:
+          steps:
+            - pose: rejected
+              skin: utabito-rejected
+              sound: Crowd Gasp
+      - Narration.hide: {}
+      - Utabito.say: {text: ……歌は、とどいたのだけれど。, seconds: 2}
+      - Utabito.hide: {}
+
+  # 機織りの名人の若者（考証メモ4.6）。麻を績んで織ること、倭文幡の帯は〔確〕（巻3・431、巻9・1807、2.3）。
+  hataori:
+    recognitionModel: HataoriPose
+    actions:
+      - transition: {effect: fadeOut, seconds: 1}
+      - Tekona.hide: {}
+      - stage: MamaWell
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - transition: {effect: fadeUp, seconds: 1}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            伏屋の中で麻を績み、機で布を織る若者がいました。
+            国へ納める布のほかに、一反だけ自分のために。
+          style: narration
+      - wait: 4
+      - Hataori.show: {skin: hataori-stand, x: 140, y: -75, scale: 60}
+      - Narration.setText: {text: 機織りの名人の若者, style: narration}
+      - wait: 2
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
+      - Hataori.say: {text: 両手を胸の前で、左右へひらいて！, seconds: 2.5}
+      - Hataori.pose:
+          steps:
+            - pose: kime
+              skin: hataori-kime
+              sound: Goal Cheer
+      - Narration.hide: {}
+      - Hataori.say: {text: あなたのために、いちばん美しい布を織りました。, seconds: 3.5}
+      - Tekona.setSkin: tekona-refuse
+      - Tekona.say: {text: 見事な織りですね。この布は、里の娘たちみんなに織ってください。, seconds: 3.5}
+      - Tekona.setSkin: tekona-stand
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+      - Hataori.say: {text: 布を胸に抱きしめて、うつむく……。, seconds: 2}
+      - Hataori.pose:
+          steps:
+            - pose: rejected
+              skin: hataori-rejected
+              sound: Crowd Gasp
+      - Narration.hide: {}
+      - Hataori.say: {text: ……みんなに、ですか。, seconds: 2}
+      - Hataori.hide: {}
+
   # 季節のカット（夏）：にほ鳥が入江の中ほどで潜っては浮かびながら、ゆっくり右へ進む
   natsu:
     - transition: {effect: fadeOut, seconds: 1}
@@ -408,6 +580,53 @@ scenes:
     - Nio.moveTo: {x: 30, y: -76, seconds: 4.5}
     - Narration.hide: {}
     - Nio.hide: {}
+
+  # 郡司の息子（考証メモ4.4）。郡司に地元の有力者が任じられたこと、租・庸・調、葛飾早稲は〔確〕（2.4、1.5）。
+  # 身分の差があって断りにくい相手として、断る自由という主題を強める。
+  gunji:
+    recognitionModel: GunjiPose
+    actions:
+      - stage: MamaWell
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            秋。郡司の家が集めた稲と麻布が、
+            行列をつくって国府へ運ばれていきます。
+          style: narration
+      - wait: 3.5
+      - Narration.setText:
+          text: |-
+            その先頭で馬に乗っていた息子が、
+            井で水をくむ手児奈を見つけました。
+          style: narration
+      - wait: 3.5
+      - Gunji.show: {skin: gunji-stand, x: 140, y: -75, scale: 60}
+      - Narration.setText: {text: 郡司の息子, style: narration}
+      - wait: 2
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
+      - Gunji.say: {text: 両手を腰に当てて、胸を張って！, seconds: 2.5}
+      - Gunji.pose:
+          steps:
+            - pose: kime
+              skin: gunji-kime
+              sound: Goal Cheer
+      - Narration.hide: {}
+      - Gunji.say: {text: わが家の田は、この葛飾でいちばん広いぞ。どうだ。, seconds: 3.5}
+      - Tekona.setSkin: tekona-refuse
+      - Tekona.say: {text: 広い田のことは、よくわかりました。わたしは、あなたのことを知りません。, seconds: 3.5}
+      - Tekona.setSkin: tekona-stand
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+      - Gunji.say: {text: むちを取り落として、腕を組む……。, seconds: 2}
+      - Gunji.pose:
+          steps:
+            - pose: rejected
+              skin: gunji-rejected
+              sound: Crowd Gasp
+      - Narration.hide: {}
+      - Gunji.say: {text: ……ぐっ。この、おれが。, seconds: 2}
+      - Gunji.hide: {}
 
   # 国府の工事場：国府の役人の求婚の前に、手児奈のうわさが国府にも届いていたことを見せる
   kokuga:
@@ -468,6 +687,68 @@ scenes:
       - Kokufu.hide: {}
 
   # 季節のカット（秋）：雁の列が空を左から右へ渡る。字幕は空をあけて画面の下に出す
+  # 防人に出る若者（考証メモ4.5）。東国から防人が出たことは〔確〕（2.4）。
+  # 家族と離れるつらい務めだったことに必ずふれる。弓矢は手児奈のほうへ向けない。
+  # 小学生向けの上演では外すことをすすめます（README「上演に合わせて求婚者を減らす」）。
+  sakimori:
+    recognitionModel: SakimoriPose
+    actions:
+      - transition: {effect: fadeOut, seconds: 1}
+      - Tekona.hide: {}
+      - stage: Uma
+      - transition: {effect: fadeUp, seconds: 1}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            東国からは、九州の守りにつく「防人」が出ました。
+            家族と何年も離れる、つらい務めです。
+          style: narration
+      - wait: 4
+      - Narration.setText:
+          text: |-
+            国府に集められた若者たちは、
+            翌朝この道を南へ下っていきます。
+          style: narration
+      - wait: 3.5
+      - Narration.hide: {}
+      - transition: {effect: fadeOut, seconds: 1}
+      - stage: MamaWell
+      - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+      - transition: {effect: fadeUp, seconds: 1}
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText:
+          text: |-
+            その前の夕、ひとりが真間の井へ
+            水を飲みに寄りました。
+          style: narration
+      - wait: 3
+      - Sakimori.show: {skin: sakimori-stand, x: 140, y: -75, scale: 60}
+      - Narration.setText: {text: 防人に出る若者, style: narration}
+      - wait: 2
+      - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
+      - Sakimori.say: {text: 足を広げて、手児奈のほうの手を胸に。弓矢は下げたまま！, seconds: 2.5}
+      - Sakimori.pose:
+          steps:
+            - pose: kime
+              skin: sakimori-kime
+              sound: Goal Cheer
+      - Narration.hide: {}
+      - Sakimori.say: {text: 遠い九州から帰ったら、妻になってくれないか。, seconds: 3.5}
+      - Tekona.setSkin: tekona-refuse
+      - Tekona.say: {text: 約束はできません。でも、無事に帰ってくることを祈ります。, seconds: 3.5}
+      - Tekona.setSkin: tekona-stand
+      - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+      - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
+      - Sakimori.say: {text: 弓の先を地につけ、まっすぐ立ったまま……。, seconds: 2}
+      - Sakimori.pose:
+          steps:
+            - pose: rejected
+              skin: sakimori-rejected
+              sound: Crowd Gasp
+      - Narration.hide: {}
+      - Sakimori.say: {text: ……その言葉を、持っていく。, seconds: 2}
+      - Sakimori.hide: {}
+
   aki:
     - transition: {effect: fadeOut, seconds: 1}
     - Tekona.hide: {}
@@ -672,7 +953,7 @@ scenes:
         style: narration
     - wait: 3.5
     # 方式C（終盤の回収）：求婚した男たちの技が橋づくりでどう生きたかを一行ずつ（考証メモ4.2〜4.6、4.8）。
-    # 上演でその人を出さないときは shown を false にする。場面 well の一覧（方式A）と順番・人数をそろえる。
+    # 上演でその人を出さないときは shown を false にする。登場する求婚者の場面と順番・人数をそろえる。
     - forEach:
         as: man
         items:
