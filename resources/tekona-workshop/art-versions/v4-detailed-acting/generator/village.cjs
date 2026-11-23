@@ -36,7 +36,8 @@ const hairSvg = (style, c) => {
   if (style === 'bun') return cap + `<circle cx="-18" cy="-16" r="9" fill="${c}"/><path d="M-26 -12 q8 4 14 -2" stroke="#d8c49a" stroke-width="2" fill="none"/>`;
   if (style === 'oldbun') return `<path d="M-19 4 Q-23 -26 0 -28 Q22 -28 21 -8 Q12 -16 4 -16 Q-6 -16 -12 -10 Q-15 -4 -15 8 Z" fill="${c}"/><circle cx="-17" cy="-19" r="7" fill="${c}"/>`;
   if (style === 'bob') return `<path d="M-20 10 Q-24 -26 0 -28 Q22 -28 22 -6 L20 -4 Q12 -16 4 -16 L2 -12 L-2 -16 Q-12 -12 -14 6 Z" fill="${c}"/>`;
-  if (style === 'tufts') return cap + `<ellipse cx="-14" cy="6" rx="5" ry="8" fill="${c}"/><ellipse cx="16" cy="6" rx="4" ry="7" fill="${c}"/>`;
+  // 耳の横で束ねた子どもの髪。顔の側（奥）の房は頭の向こうに隠れるので描かない
+  if (style === 'tufts') return cap + `<ellipse cx="-14" cy="6" rx="5" ry="8" fill="${c}"/>`;
   return cap;
 };
 
@@ -70,18 +71,29 @@ function person(k, o) {
   const top = [add(k.sl, [-5, -5]), add(k.sr, [5, -5]), add(neckBase, [0, -7]), add(k.hl, [-13, 6]), add(k.hr, [13, 6]), add(hemL, [-12, 4]), add(hemR, [12, 4])];
   s += `<path d="${hull(top)}" fill="${c.cloth}"/>`;
   s += `<path d="M${P(add(neckBase, [8, 4]))} L${P(add(k.sr, [5, -4]))} L${P(add(hemR, [12, 4]))} L${P(lerp(add(hemL, [-12, 4]), add(hemR, [12, 4]), .65))} Z" fill="${c.clothDark}" opacity=".4"/>`;
-  // 衿（右前）とひもの帯
+  // 衿（右前）とひもの帯。後ろ姿は衿の代わりに背縫いと、うなじの衿
+  if (o.back) s += `<path d="M${P(neckBase)} L${P(waist)}" stroke="${c.clothDark}" stroke-width="1.6"/><path d="M${P(add(neckBase, [-7, 1]))} Q${P(add(neckBase, [0, 5]))} ${P(add(neckBase, [7, 1]))}" stroke="${c.eri}" stroke-width="4" fill="none"/>`;
+  else {
   s += `<path d="M${P(add(neckBase, [-6, -1]))} L${P(add(neckBase, [1, 14]))}" stroke="${c.eriDark}" stroke-width="${child ? 4 : 5}" stroke-linecap="round"/>`;
   s += `<path d="M${P(add(neckBase, [6, -1]))} L${P(lerp(add(k.hl, [-6, 0]), waist, .3))}" stroke="${c.eri}" stroke-width="${child ? 4.6 : 6}" stroke-linecap="round"/>`;
+  }
   s += seg(add(waist, [-19, 2]), add(waist, [19, 2]), child ? 4 : 5, c.belt);
   s += `<path d="M${P(add(waist, [-8, 4]))} q-2 10 1 16" stroke="${c.belt}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
   // 首と頭
   s += `<path d="M${P(add(neckBase, [-5, 3]))} L${P(add(k.neckTop, [-5, 0]))} L${P(add(k.neckTop, [5, 0]))} L${P(add(neckBase, [5, 3]))} Z" fill="${c.skin}"/>`;
-  s += placeHead(k.head, 1, k.headTilt || 0, face({kind: 'female', mood: o.mood, old: o.old, skin: c.skin, skinDark: c.skinDark, brow: o.brow || c.hair, eye: '#2a1d2a'}) + hairSvg(o.hair, c.hair));
+  if (o.back) s += placeHead(k.head, 1, k.headTilt || 0, `<ellipse cx="-15" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="17" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="1" cy="-2" rx="19" ry="25" fill="${c.hair}"/><path d="M-6 18 Q1 46 -2 62 L6 62 Q6 40 8 18 Z" fill="${c.hair}"/><rect x="-4" y="18" width="10" height="4" rx="2" fill="#d8c49a"/>`);
+  else s += placeHead(k.head, 1, k.headTilt || 0, face({kind: 'female', mood: o.mood, old: o.old, skin: c.skin, skinDark: c.skinDark, brow: o.brow || c.hair, eye: '#2a1d2a'}) + hairSvg(o.hair, c.hair));
   // 頭にのせた水がめ
-  if (o.jarHead) { const j = add(k.head, [0, -34]); s += `<ellipse cx="${r1(j[0])}" cy="${r1(j[1] + 15)}" rx="13" ry="4" fill="#d8c49a"/><path d="M${P(add(j, [-11, -4]))} q-12 14 -4 22 q15 8 30 0 q8 -8 -4 -22 z" fill="#b5703c"/><ellipse cx="${r1(j[0] + 4)}" cy="${r1(j[1] - 4)}" rx="10" ry="3.2" fill="#7a4a24"/>`; }
+  // 頭にのせた水がめ：頭頂の輪（わら・布の当て物）の上、体の重心の真上に置く
+  if (o.jarHead) { const t0 = add(k.head, [1, -26]); const t = [0, 0]; let js = '';
+    js += `<ellipse cx="${r1(t[0])}" cy="${r1(t[1])}" rx="13" ry="4" fill="#c9b07a"/><ellipse cx="${r1(t[0])}" cy="${r1(t[1] - 1)}" rx="8" ry="2" fill="#a88f58"/>`;
+    js += `<path d="M${r1(t[0] - 9)} ${r1(t[1] - 1)} Q${r1(t[0] - 22)} ${r1(t[1] - 16)} ${r1(t[0] - 10)} ${r1(t[1] - 30)} L${r1(t[0] + 10)} ${r1(t[1] - 30)} Q${r1(t[0] + 22)} ${r1(t[1] - 16)} ${r1(t[0] + 9)} ${r1(t[1] - 1)} Z" fill="#b5703c"/>`;
+    js += `<path d="M${r1(t[0] + 6)} ${r1(t[1] - 26)} Q${r1(t[0] + 18)} ${r1(t[1] - 16)} ${r1(t[0] + 8)} ${r1(t[1] - 3)}" stroke="#94552a" stroke-width="3" fill="none"/><ellipse cx="${r1(t[0])}" cy="${r1(t[1] - 30)}" rx="10" ry="3" fill="#7a4a24"/>`; 
+    s += `<g transform="translate(${P(t0)}) scale(1.4)">${js}</g>`; }
+  if (o.midFront) s += o.midFront;
   // 手前の腕
   s += arm(k.armL, k.sl, 1, o.handL || 'relaxed');
+  if (o.overFront) s += o.overFront;
   if (o.jarHip) { const j = add(k.armL.end, [-2, 6]); s += `<path d="M${P(add(j, [-12, -14]))} q-12 14 -4 28 q16 10 32 0 q8 -14 -4 -28 z" fill="#b5703c"/><ellipse cx="${r1(j[0] + 4)}" cy="${r1(j[1] - 14)}" rx="12" ry="3.6" fill="#7a4a24"/>` + hand(k.armL.end, ang(k.armL.mid, k.armL.end), c.skin, {kind: 'grip', size: .85}); }
   return s;
 }
@@ -113,55 +125,66 @@ function scene() {
   s += fuseya(46, 222, 70) + fuseya(132, 214, 52);
   // 干した布（竿にかけた麻布）
   s += `<path d="M176 196 V226 M222 196 V226" stroke="#7a5a34" stroke-width="2.4"/><path d="M174 198 H224" stroke="#7a5a34" stroke-width="2"/><path d="M180 199 h18 v20 q-9 3 -18 0 z" fill="#ece4cf"/><path d="M201 199 h18 v16 q-9 3 -18 0 z" fill="#7a9ab8"/>`;
-  // 真間の井：木を井の字に組んだ低い枠。曲物の桶をなわでたぐり上げる
-  const wx = 240, wy = 256;
-  s += `<ellipse cx="${wx}" cy="${wy + 30}" rx="66" ry="10" fill="#c2a46f"/>`;
-  s += `<path d="M${wx - 44} ${wy - 6} h88 l10 14 h-108 z" fill="${grad([[0, '#2c4d63'], [1, '#4f7e98']])}"/>`;
-  s += `<path d="M${wx - 38} ${wy - 2} q38 5 76 0" stroke="#9fd3ea" stroke-width="2.5" fill="none" opacity=".8"/>`;
-  for (let i = 0; i < 3; i++) s += `<rect x="${wx - 54}" y="${wy + 8 + i * 9}" width="108" height="9" rx="3" fill="${i % 2 ? '#8a5a30' : '#7a4c26'}"/>`;
-  s += `<rect x="${wx - 58}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/><rect x="${wx + 49}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/>`;
-  s += `<rect x="${wx - 62}" y="${wy}" width="124" height="8" rx="3" fill="#9a6a3a"/>`;
-  // 足もとの水がめと、水をはったたらい
-  s += `<path d="M${wx + 70} ${wy + 14} q-12 16 -4 30 q14 10 28 0 q8 -14 -4 -30 z" fill="#b5703c"/><ellipse cx="${wx + 80}" cy="${wy + 14}" rx="10" ry="3.5" fill="#7a4a24"/>`;
-  s += `<path d="M${wx - 96} ${wy + 18} q-8 12 -2 22 q10 8 20 0 q6 -10 -2 -22 z" fill="#7d8486"/><ellipse cx="${wx - 89}" cy="${wy + 18}" rx="7" ry="2.6" fill="#55595b"/>`;
+  // 位置のめやす：人物の足もとの基準（120, 334）を (x, y) に、倍率 sc、向き f で置いたときの画面の座標
+  const at = (q, x, y, sc, f = 1) => [x + (q[0] - 120) * sc * f, y + (q[1] - 334) * sc];
+  const wx = 236, wy = 262;
+  const well = () => {
+    let w = `<ellipse cx="${wx}" cy="${wy + 32}" rx="68" ry="10" fill="#c2a46f"/>`;
+    w += `<path d="M${wx - 44} ${wy - 6} h88 l10 14 h-108 z" fill="${grad([[0, '#2c4d63'], [1, '#4f7e98']])}"/>`;
+    w += `<path d="M${wx - 38} ${wy - 2} q38 5 76 0" stroke="#9fd3ea" stroke-width="2.5" fill="none" opacity=".8"/>`;
+    for (let i = 0; i < 3; i++) w += `<rect x="${wx - 54}" y="${wy + 8 + i * 9}" width="108" height="9" rx="3" fill="${i % 2 ? '#8a5a30' : '#7a4c26'}"/>`;
+    w += `<rect x="${wx - 58}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/><rect x="${wx + 49}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/>`;
+    return w + `<rect x="${wx - 62}" y="${wy}" width="124" height="8" rx="3" fill="#9a6a3a"/>`;
+  };
+  // 曲物の木桶。tilt で傾ける
+  const bucket = (x, y, tilt = 0, sc = 1, water = true) => `<g transform="translate(${r1(x)} ${r1(y)}) rotate(${tilt}) scale(${sc})">` +
+    `<path d="M-10 -9 L10 -9 L9 9 L-9 9 Z" fill="#c8a46a"/><path d="M-10 -4 h20 M-9.6 4 h19" stroke="#9a7a48" stroke-width="2"/>` +
+    (water ? `<ellipse cx="0" cy="-9" rx="10" ry="2.6" fill="#7fbcd9"/>` : '') + `<path d="M-9 -9 Q0 -22 9 -9" stroke="#8a6a3a" stroke-width="1.6" fill="none"/></g>`;
+  const jar = (x, y, sc = 1) => `<g transform="translate(${r1(x)} ${r1(y)}) scale(${sc})"><path d="M-10 -30 Q-26 -14 -12 0 Q0 6 12 0 Q26 -14 10 -30 Z" fill="#b5703c"/>` +
+    `<path d="M6 -27 Q20 -14 9 -2" stroke="#94552a" stroke-width="3" fill="none"/><ellipse cx="0" cy="-30" rx="11" ry="3.4" fill="#7a4a24"/><ellipse cx="0" cy="-30.4" rx="7.4" ry="2" fill="#4d6f8f"/></g>`;
 
-  // ---- 人物
-  // A：井戸のなわをたぐって、桶を引き上げる女（右向き）
-  const A = skeleton(FEMALE, {pelvis: [114, 180], chest: [124, 88], ankleL: [100, 334], ankleR: [128, 332], kneeL: -1, kneeR: -1,
-    wristL: [168, 108], wristR: [176, 140], elbowL: 1, elbowR: 1, headDx: 3, headTilt: 10});
-  let a = person(A, {colors: C.indigo, hair: 'tied', mood: 'talk', skirt: 'long', handL: 'grip', handR: 'grip'});
-  a = `<path d="M176 100 L182 330" stroke="#a88a5a" stroke-width="2.4"/>` + a;
-  s += `<path d="M${wx - 14} ${wy - 22} q-2 14 0 18" stroke="#a88a5a" stroke-width="1.6" fill="none"/>`;
-  s += place(a, 196, 300, .46);
-  // 引き上げた桶（なわの先）
-  s += `<rect x="${wx - 22}" y="${wy - 32}" width="16" height="13" rx="2" fill="#c8a46a"/><path d="M${wx - 22} ${wy - 27} h16" stroke="#9a7a48" stroke-width="2"/><path d="M${wx - 20} ${wy - 19} q4 6 1 10" stroke="#9fd3ea" stroke-width="1.6" fill="none"/>`;
-  // B：頭に水がめをのせ、笑いながら話す女（左向き）
-  const B = skeleton(FEMALE, {pelvis: [120, 180], hipTilt: 3, chest: [118, 86], shoulderTilt: .04, ankleL: [108, 334], ankleR: [136, 330], kneeL: -1, kneeR: -1,
-    wristL: [150, 150], wristR: [132, 14], elbowL: 1, elbowR: -1, headDx: -1, headTilt: -4});
-  s += place(person(B, {colors: C.ochre, hair: 'bun', mood: 'laugh', skirt: 'long', jarHead: true, handR: 'grip', handL: 'open'}), 312, 306, .46, -1);
-  // D：水がめを腰にかかえ、口に手を当てて笑う女（左向き）
-  const D = skeleton(FEMALE, {pelvis: [118, 180], hipTilt: 4, chest: [122, 88], ankleL: [106, 334], ankleR: [134, 332], kneeL: -1, kneeR: -1,
-    wristL: [104, 180], wristR: [136, 136], elbowL: 1, elbowR: -1, headDx: 2, headTilt: 6});
-  s += place(person(D, {colors: C.brown, hair: 'tied', mood: 'laugh', skirt: 'long', jarHip: true, handR: 'open'}), 398, 318, .48, -1);
-  // C：丸太に腰かけ、腰をかがめて話す白髪の老女（右向き）
-  s += `<rect x="58" y="300" width="88" height="14" rx="7" fill="#8a5a30"/><ellipse cx="146" cy="307" rx="5" ry="7" fill="#b07a44"/>`;
-  const Cs = skeleton(FEMALE, {pelvis: [112, 236], chest: [134, 160], shoulderTilt: .08, ankleL: [150, 334], ankleR: [166, 332], kneeL: -1, kneeR: -1,
-    wristL: [168, 254], wristR: [176, 248], elbowL: 1, elbowR: 1, headDx: 8, headTilt: 12});
-  s += place(person(Cs, {colors: C.old, hair: 'oldbun', brow: '#a8a39b', old: true, mood: 'talk', skirt: 'long'}), 84, 324, .48);
-  // 老女の杖
-  s += `<path d="M160 260 L150 328" stroke="#7a5a34" stroke-width="2.6" stroke-linecap="round"/>`;
-  // F：しゃがんで、たらいの水で遊ぶ小さな子（右向き）
-  s += `<ellipse cx="214" cy="340" rx="20" ry="6" fill="#8a5a30"/><ellipse cx="214" cy="337" rx="17" ry="4" fill="#7fbcd9"/><path d="M204 336 q4 -6 8 0 M218 334 q3 -5 6 0" stroke="#ffffff" stroke-width="1.2" fill="none"/>`;
-  const F = skeleton(CHILD, {pelvis: [116, 294], chest: [128, 244], ankleL: [110, 334], ankleR: [126, 334], kneeL: -1, kneeR: -1,
-    wristL: [160, 300], wristR: [150, 296], elbowL: 1, elbowR: 1, headDx: 4, headTilt: 14});
-  s += place(person(F, {child: true, colors: C.childB, hair: 'tufts', mood: 'laugh', handL: 'open', handR: 'open'}), 188, 342, .5);
-  // E：小さな桶を持って走る子（左向き）
-  const E = skeleton(CHILD, {pelvis: [120, 240], chest: [114, 194], ankleL: [92, 330], ankleR: [150, 318], kneeL: 1, kneeR: 1,
-    wristL: [146, 236], wristR: [90, 222], elbowL: 1, elbowR: -1, headDx: -3, headTilt: -6});
-  let e = person(E, {child: true, colors: C.childA, hair: 'bob', mood: 'laugh'});
-  e += `<rect x="138" y="236" width="18" height="14" rx="2" fill="#c8a46a"/><path d="M138 241 h18" stroke="#9a7a48" stroke-width="2"/><path d="M140 236 q7 -10 14 0" stroke="#9a7a48" stroke-width="1.6" fill="none"/>`;
-  s += place(e, 286, 352, .52, -1);
-  s += `<path d="M300 348 q-10 -4 -18 0 M310 340 q-8 -3 -14 0" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>`;
+  // ---- いちばん奥：水がめを頭にのせ、伏屋のほうへ帰っていく女（後ろ姿）。頭・体・足の重心が一直線
+  const R = skeleton(FEMALE, {pelvis: [120, 182], chest: [120, 88], ankleL: [108, 334], ankleR: [134, 326], kneeL: -1, kneeR: -1,
+    wristL: [104, 196], wristR: [140, 8], elbowL: 1, elbowR: -1, headDx: 0, headTilt: 0, liftR: 6});
+  s += place(person(R, {colors: C.ochre, back: true, hair: 'tied', skirt: 'long', jarHead: true, handR: 'open'}), 150, 276, .38);
+  // 奥：丸太に腰かけ、身ぶりをまじえて笑う白髪の老女（右向き）
+  s += `<rect x="18" y="286" width="84" height="13" rx="6.5" fill="#8a5a30"/><ellipse cx="102" cy="292" rx="5" ry="6.5" fill="#b07a44"/>`;
+  const O = skeleton(FEMALE, {pelvis: [112, 236], chest: [126, 158], shoulderTilt: .06, ankleL: [150, 334], ankleR: [166, 332], kneeL: -1, kneeR: -1,
+    wristL: [176, 196], wristR: [170, 252], elbowL: 1, elbowR: 1, headDx: 6, headTilt: 4});
+  s += place(person(O, {colors: C.old, hair: 'oldbun', brow: '#a8a39b', old: true, mood: 'laugh', skirt: 'long', handL: 'open'}), 44, 310, .44);
+  s += well();
+  // ---- 井戸の右：縄をたぐって、水の入った木桶を井戸から引き上げる女（左向き）。腰を落とし、上体を後ろへ引く
+  const Pk = skeleton(FEMALE, {pelvis: [100, 188], chest: [90, 100], ankleL: [92, 334], ankleR: [132, 330], kneeL: -1, kneeR: -1,
+    wristL: [150, 112], wristR: [138, 146], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 12});
+  const px = 300, py = 304, ps = .47;
+  s += place(person(Pk, {colors: C.indigo, hair: 'tied', mood: 'smile', skirt: 'long', handL: 'grip', handR: 'grip'}), px, py, ps, -1);
+  const h1 = at(Pk.wristL, px, py, ps, -1), h2 = at(Pk.wristR, px, py, ps, -1);
+  // 井戸の中から桶まで張った縄、桶から手へ、手からたぐった縄の余りが足もとへ
+  const bx = wx + 14, by = wy - 30;
+  s += `<path d="M${bx} ${by - 12} L${r1(h2[0])} ${r1(h2[1])} L${r1(h1[0])} ${r1(h1[1])}" stroke="#a88a5a" stroke-width="1.8" fill="none"/>`;
+  s += `<path d="M${r1(h1[0])} ${r1(h1[1])} Q${r1(h1[0] + 18)} ${r1(h1[1] + 30)} ${r1(px + 10)} ${py - 2} q12 4 20 -2" stroke="#a88a5a" stroke-width="1.6" fill="none"/>`;
+  s += bucket(bx, by, -8, 1.1);
+  s += `<path d="M${bx - 6} ${by + 11} q1 6 -1 10 M${bx + 4} ${by + 11} q2 8 0 14" stroke="#9fd3ea" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="${bx - 2}" cy="${by + 30}" r="1.4" fill="#9fd3ea"/>`;
+  // ---- 井戸の左手前：井戸のふちに手をかけて、のぞきこむ子（右向き）
+  const K1 = skeleton(CHILD, {pelvis: [114, 250], chest: [128, 204], ankleL: [104, 330], ankleR: [122, 326], kneeL: -1, kneeR: -1,
+    wristL: [164, 232], wristR: [156, 236], elbowL: 1, elbowR: 1, headDx: 4, headTilt: 18, liftL: 8, liftR: 8});
+  s += place(person(K1, {child: true, colors: C.childB, hair: 'tufts', mood: 'laugh', handL: 'grip', handR: 'grip'}), 168, 312, .54);
+  // ---- 手前の左：木桶をかたむけて、地面の水がめへ水を移す女（右向き）。桶の重さで腰を少し落とし、ひじを張る
+  const Q = skeleton(FEMALE, {pelvis: [112, 188], chest: [134, 104], shoulderTilt: .06, ankleL: [98, 334], ankleR: [134, 334], kneeL: -1, kneeR: -1,
+    wristL: [176, 196], wristR: [160, 176], elbowL: 1, elbowR: 1, headDx: 6, headTilt: 20});
+  const pour = bucket(184, 180, 52, 1.5, false) +
+    `<path d="M190 196 Q200 214 202 256" stroke="#8fc7ea" stroke-width="5" fill="none" stroke-linecap="round" opacity=".9"/><path d="M193 200 Q201 220 203 254" stroke="#ffffff" stroke-width="1.4" fill="none" opacity=".8"/>` +
+    jar(204, 300, 1.35).replace('<ellipse cx="0" cy="-30.4" rx="7.4" ry="2" fill="#4d6f8f"/>', '<ellipse cx="0" cy="-30.4" rx="7.4" ry="2" fill="#8fc7ea"/><path d="M-6 -32 q6 -5 12 0" stroke="#ffffff" stroke-width="1.2" fill="none"/>');
+  s += place(person(Q, {colors: C.brown, hair: 'bun', mood: 'smile', skirt: 'long', handL: 'grip', handR: 'grip', overFront: pour}), 96, 336, .54);
+  // ---- 手前の右：水の入った大きな水がめを、腰に当てて体に抱き寄せる女（左向き）。重さで上体を反らし、肩を下げる
+  const H = skeleton(FEMALE, {pelvis: [124, 182], hipTilt: -3, chest: [112, 92], shoulderTilt: -.1, ankleL: [100, 334], ankleR: [140, 334], kneeL: -1, kneeR: -1,
+    wristL: [148, 238], wristR: [140, 170], elbowL: -1, elbowR: 1, headDx: -2, headTilt: -10});
+  const hip = jar(126, 238, 1.55);
+  s += place(person(H, {colors: C.ochre, hair: 'tied', mood: 'talk', skirt: 'long', handL: 'grip', handR: 'grip', midFront: hip}), 404, 344, .55, -1);
+  // ---- 右の女のすそにつかまり、見上げる小さな子（左向き）
+  const K2 = skeleton(CHILD, {pelvis: [120, 244], chest: [118, 198], ankleL: [108, 334], ankleR: [130, 334], kneeL: -1, kneeR: -1,
+    wristL: [98, 230], wristR: [104, 240], elbowL: -1, elbowR: -1, headDx: -2, headTilt: -22});
+  s += place(person(K2, {child: true, colors: C.childA, hair: 'bob', mood: 'smile', handL: 'grip', handR: 'grip'}), 352, 350, .5, -1);
   return s;
 }
 

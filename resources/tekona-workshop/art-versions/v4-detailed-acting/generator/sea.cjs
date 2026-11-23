@@ -68,13 +68,14 @@ function ryo() {
   s += gulls([[220, 70, 1], [244, 60, .8], [300, 96, .7]]);
   // ---- 奥の舟：2人で網をたぐり上げる（右向き）
   s += reflection(352, 254, 170);
-  const haul1 = skeleton(MALE, {pelvis: [128, 186], chest: [140, 100], ankleL: [110, 334], ankleR: [140, 334], kneeL: 1, kneeR: 1, wristL: [62, 190], wristR: [76, 200], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 6});
-  const haul2 = skeleton(MALE, {pelvis: [126, 188], chest: [146, 104], ankleL: [110, 334], ankleR: [140, 334], kneeL: 1, kneeR: 1, wristL: [70, 196], wristR: [80, 206], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 10});
+  // 舟の上では腰を低く落とし、足を開いてふんばる（重心を低くしないと舟から落ちる）
+  const haul1 = skeleton(MALE, {pelvis: [132, 256], chest: [150, 168], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [74, 196], wristR: [86, 206], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 8});
+  const haul2 = skeleton(MALE, {pelvis: [130, 262], chest: [152, 174], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [78, 200], wristR: [90, 210], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 12});
   s += inBoat(place(recolor(satoFigure(haul2, 'serious'), MAN3), 316, 300, .4, -1), 256);
   s += inBoat(place(satoFigure(haul1, 'eager'), 366, 300, .4, -1), 256);
   s += canoe(352, 254, 170, -1);
   // たぐる網：手から水面へ、浮きと魚
-  s += `<path d="M396 236 Q420 240 436 262 M402 240 Q426 246 446 266" stroke="#8a7a5a" stroke-width="1.4" fill="none"/>`;
+  s += `<path d="M384 246 Q414 248 436 262 M394 250 Q424 254 446 266" stroke="#8a7a5a" stroke-width="1.4" fill="none"/>`;
   s += `<path d="M430 258 Q452 252 474 262 L470 276 Q450 280 432 272 Z" fill="#b8a888" opacity=".55"/>`;
   for (let i = 0; i < 5; i++) s += `<path d="M${434 + i * 9} 258 l-2 18" stroke="#8a7a5a" stroke-width=".8"/>`;
   for (const [x, y] of [[440, 262], [458, 258], [472, 262]]) s += `<ellipse cx="${x}" cy="${y}" rx="3" ry="2" fill="#d8c49a"/>`;
@@ -82,16 +83,17 @@ function ryo() {
   s += `<path d="M444 254 q2 -8 6 -10 M458 250 q4 -6 8 -6" stroke="#ffffff" stroke-width="1.4" fill="none" opacity=".8"/>`;
   // ---- 手前の舟：舳先の男が網を打ち、艫の男が櫂をこぐ（左向き）
   s += reflection(150, 296, 200);
-  const caster = skeleton(MALE, {pelvis: [124, 182], chest: [110, 92], ankleL: [104, 334], ankleR: [140, 334], kneeL: 1, kneeR: 1, wristL: [-6, 44], wristR: [10, 62], elbowL: 1, elbowR: 1, headDx: -6, headTilt: -10});
-  const paddler = skeleton(MALE, {pelvis: [124, 186], chest: [118, 98], ankleL: [104, 334], ankleR: [140, 334], kneeL: 1, kneeR: 1, wristL: [78, 196], wristR: [104, 128], elbowL: 1, elbowR: -1, headDx: -2, headTilt: 4});
+  const caster = skeleton(MALE, {pelvis: [126, 250], chest: [104, 166], ankleL: [92, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [-12, 122], wristR: [4, 138], elbowL: 1, elbowR: 1, headDx: -6, headTilt: -10});
+  // 艫の男は片ひざをついて腰を落とし、櫂をこぐ
+  const paddler = skeleton(MALE, {pelvis: [126, 270], chest: [118, 184], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [78, 270], wristR: [104, 210], elbowL: 1, elbowR: -1, headDx: -2, headTilt: 4});
   s += inBoat(place(recolor(satoFigure(paddler, 'stand'), MAN2), 214, 340, .42), 298);
   s += inBoat(place(satoFigure(caster, 'eager'), 96, 340, .42), 298);
   s += canoe(150, 296, 200);
   // 櫂：上の手から下の手を通り、舟べりの外の水の中へ
-  s += `<path d="M210 244 L182 330" stroke="#b07a44" stroke-width="3.4" stroke-linecap="round"/><path d="M186 316 q-10 14 -6 26 q8 -2 12 -22 z" fill="#b07a44"/>`;
+  s += `<path d="M211 278 L184 336" stroke="#b07a44" stroke-width="3.4" stroke-linecap="round"/><path d="M188 322 q-10 14 -6 26 q8 -2 12 -22 z" fill="#b07a44"/>`;
   s += `<path d="M166 340 q14 -5 28 0" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".8"/>`;
   // 打った網：手から前へ扇のように広がり、ふちに土錘がつく
-  const hx = 44, hy = 216;
+  const hx = 41, hy = 248;
   s += `<path d="M${hx} ${hy} Q20 170 -6 214 Q8 258 ${hx} ${hy} Z" fill="#c9bea4" opacity=".35"/>`;
   for (let i = 0; i <= 6; i++) { const t = i / 6, ex = -6 + 10 * Math.sin(t * Math.PI), ey = 180 + t * 70; s += `<path d="M${hx} ${hy} Q${r1(30 - 10 * t)} ${r1(196 + t * 24)} ${r1(ex)} ${r1(ey)}" stroke="#8a7a5a" stroke-width=".9" fill="none"/>`; }
   for (let j = 1; j <= 3; j++) s += `<path d="M${r1(hx - 18 * j)} ${r1(hy - 14 * j + 8)} Q${r1(hx - 22 * j)} ${hy} ${r1(hx - 18 * j)} ${r1(hy + 12 * j - 4)}" stroke="#8a7a5a" stroke-width=".9" fill="none"/>`;
