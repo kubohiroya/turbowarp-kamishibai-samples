@@ -10,9 +10,9 @@
 
 ## 状態
 
-- 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.1**の`validate-dsl4`で`valid`です。
+- 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.5**の`validate-dsl4`で`valid`です。
   見本の提出から参加者の場面を加えた台本も、生成のたびに`valid`であることを確かめます。
-- `pnpm update:tekona`で、同じ4.0.1から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
+- `pnpm update:tekona`で、同じ4.0.5から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
 - ワークショップの組み込みは**ブロック台本版**（基本）と**外部YAML版**（予備）の2通りで、どちらもTurboWarp Plus Editorでの
   アシスタントの作業を自動リハーサルしました（`pnpm verify:tekona-block-workshop-editor`、`pnpm verify:tekona-workshop-editor`）。
   参加者の場面は用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
@@ -21,18 +21,15 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`、後日談`kokubunji`（背景`Kokubunji`）、里の暮らし`kurashi`（背景`Ryo`・`Hama`・`Kame`・`IdoBata`）、国府の工事場`kokuga`（背景`Kokuga`）、都からの旅`uma`（背景`Uma`）を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
-  `pnpm update:tekona`はまだ実行していません（この作業環境にAppがないため）。`dsl4-artifacts.lock.json`の台本・素材の宣言のハッシュは古いままなので、
-  `pnpm verify:tekona`は作り直すまで一致しません。
-- **未検証**: 点景（考証メモ2.6・6章）の背景7枚（`Yoake`・`IdoMizu`・`Yugure`・`Haru`・`Natsu`・`Aki`・`Arashi`）とスプライト`Kemuri`・`Nio`・`Kari`を加えた台本は、
-  公開App 4.0.1と、`app-release.json`が固定する4.0.5の`validate-dsl4`で`valid`です。ただし`pnpm update:tekona`でのSB3の生成と再生（`loop`・`moveTo`の動き）はまだ確かめていません。
-  季節のカットは用意済みの3人のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
-- **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・参加者の枠の仮の人物・背景4枚。[絵柄の版の記録](../../resources/tekona-workshop/art-versions/README.md)の版4）は、まだSB3へ反映していません。
-  公開4.0.1のAppで`pnpm update:tekona`を実行し、生成したSB3を照合・公開するまで、配布中のSB3は描き直し前の絵です。
-- `well`の群像紹介（方式A）と`quarrel`・`tsugihashi`・`kokubunji`の回収（方式C）は、`app-release.json`が固定する
-  公開App **4.0.5**（commit `5910e2e`）の`validate-dsl4`で`valid`です。公開4.0.1・開発版4.0.0-rc.95でも`valid`でした。
-  点景を入れた台本とまとめた状態でも`4.0.5`で`valid`です。SB3の作り直し（`pnpm update:tekona`）は上の点景・素材と同じく未実行で、
-  まとめて行うのが適切です。
+- **生成済み・未公開**: 点景（考証メモ2.6・6章の背景7枚とスプライト`Kemuri`・`Nio`・`Kari`）、版4へ描き直した`assets/`のSVG、
+  `avant`・`kurashi`・`kokuga`・`uma`・`kokubunji`の場面、`well`の群像紹介（方式A）と終盤の回収（方式C）をすべて含めて、
+  公開App **4.0.5**（commit `5910e2e`）で`pnpm update:tekona`を実行し、`dsl4-artifacts.lock.json`を更新しました（`pnpm verify:tekona`は一致）。
+  ただし生成したSB3はまだGitHub Releaseへ公開しておらず、`sb3-assets.json`は描き直し前の旧版を指しています。
+  `pnpm sb3:publish`で公開するまで、配布中のSB3は旧版です。
+- **未検証**: 生成したSB3の再生（点景の`loop`・`moveTo`の動きを含む）。公開Plus Editorの拡張機能の確認ダイアログが
+  「Enable all and run」の形に変わり、`pnpm verify:tekona-workshop-editor`はSB3の読み込みで止まります
+  （ダイアログのボタンをスクリプトから押せない）。リハーサルの手順をこのダイアログに合わせて直す必要があります。
+- 季節のカットは用意済みの3人のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
 - **注意**: `forEach`と`if`を使うため、この台本は**物語制御に対応したrunner（DSL 4.0 Standard、App 4.0.0-rc.44以降）**が必要です。
   `validate-dsl4 --no-narrative-control`では`K4-NARRATIVE-FLAG-001`で拒否されます（確認済み）。rc.43以前のSB3へ台本だけを移しても動きません。
 - **未完了**: Web版、作品一覧（`site/works.json`）への掲載、`pnpm build`への組み込み。
@@ -155,10 +152,10 @@
 
 ## 生成と検証
 
-公開4.0.1のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
+公開4.0.5のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
 
 ```bash
-TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.1 pnpm update:tekona
+TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.5 pnpm update:tekona
 ```
 
 `pnpm verify:tekona`は再生成した成果物がロックと補助ページに一致することを確かめます。

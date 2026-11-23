@@ -2,28 +2,28 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.1",
-    "commit": "465963ba37d38c98a4b8c6c7e87f8263eee5768f",
+    "version": "4.0.5",
+    "commit": "5910e2edbfe257017d2f78bf36ee479c1374db03",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:4d33fc6ab4a9283b9e5fb17ee29cd5fb46f86e0e43da2c990b4b21b6cab681b9",
-    "baseSize": 7858665,
-    "baseSha256": "8105d8b4842603765162686b0b2ca135f1392b94d943a7844803fbef5852fb11"
+    "baseSourceIdentity": "sha256:57ae9cd56788ab18b8ef817e7de474b5000fd7e0046b5ac5b915a7c7cb078e08",
+    "baseSize": 1543659,
+    "baseSha256": "5b54da258631b56dd324549ac862d48d54b0e4ce10a5d0f5fb0223f13075b434"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.1",
-    "commit": "465963ba37d38c98a4b8c6c7e87f8263eee5768f"
+    "version": "4.0.5",
+    "commit": "5910e2edbfe257017d2f78bf36ee479c1374db03"
   },
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 17270,
-      "sha256": "6b1cf2e716fe6cb0f685cb59ec9e1bcfcec6f9e97081b1677cee7a269cf91c42"
+      "size": 31866,
+      "sha256": "e2ecada491f0595701433c984ad8cf1932d90510d98a622bcc26247e0715972c"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 5178,
-      "sha256": "204f2091858195b6ae72cfa489acd4d056d045a9872e044515d52836341c91db"
+      "size": 12456,
+      "sha256": "23f9a09d1f156fd32634ea7cd4c1de10b8697d53d1ac15cbedca9178eb1efacd"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
@@ -44,23 +44,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 8285960,
-      "sha256": "7d2bda87cc0f8c52e585b8777cc87ec4218bbb516909738d15704a3e5d7d4869"
+      "size": 2111407,
+      "sha256": "fd09b9c8f2b0d8776828914f6a3aa3fb9b96a65e9309b8847870ae3edb61d3d1"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 8164658,
-      "sha256": "2dcb8886fc91f81394f1d2f1849359a0cf11ba57f75b588d4986f07282b574db"
+      "size": 1971218,
+      "sha256": "79effe66313eae51d67e2ba13d6c90b1b66458bb92f51bdde3a5f2970aaf3709"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 8192157,
-      "sha256": "8ccb79e615e7ca55f258298454496d57426e888df18975fde0577fefef224d1a"
+      "size": 2002321,
+      "sha256": "6bf02d8e10b5f76adde767f657d3969a614fc20e6f8c0e0ea261c0b1fd4961c3"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 8222724,
-      "sha256": "56996b133f8eaba587797dd260e8444704588de700b12264f678d4b5abf9427f"
+      "size": 2040194,
+      "sha256": "be7342180aff79f91e036e72340e7c62dca3ac4ca56def7adc34e7096ba9ab4f"
     }
   }
 }
