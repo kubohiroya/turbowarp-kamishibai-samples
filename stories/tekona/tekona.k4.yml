@@ -32,6 +32,7 @@ assets:
   Tsugihashi: backdrop
   Kokubunji: backdrop
   Kokuga: backdrop
+  Uma: backdrop
   Ryo: backdrop
   Hama: backdrop
   IdoBata: backdrop
@@ -327,6 +328,32 @@ scenes:
       - Narration.hide: {}
       - Kokufu.say: {text: ……役目にもどります。, seconds: 1.5}
       - Kokufu.hide: {}
+
+  # 都からの旅：都の貴族の求婚の前に、従者に馬を引かせて入江の板橋をわたり、真間へやって来るところを見せる
+  # （継橋は物語の終わりに男たちがかけるので、ここでは「継橋」と呼ばない）
+  uma:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Uma
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          手児奈のうわさは、遠い都にまで届いていました。
+          都の貴族が、従者に馬を引かせて真間へやって来ます。
+        style: narration
+    - wait: 4
+    - Narration.setText:
+        text: |-
+          入江の板橋をわたる馬の上から、浜で働く女たちをながめ、
+          貴族は「手児奈はどこにいるのだろう」と思いました。
+        style: narration
+    - wait: 4
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
 
   miyako:
     recognitionModel: MiyakoPose
