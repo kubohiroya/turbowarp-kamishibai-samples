@@ -84,11 +84,12 @@ function sculptor() {
   const c = {skin: '#dfa77a', skinDark: '#c4875a', cloth: '#d6c9a8', clothDark: '#b3a37c', hakama: '#8f8466', hakamaDark: '#776c52', cord: '#6e5638', hair: '#231a14'};
   const b = MALE, f = 1;
   // 骨格（右向き）。腰を落として左ひざを地面につき、右ひざを立てる
-  const pelvis = [120, 262], chest = [132, 176];
+  // 上体を仏像のほうへ乗り出し、顔を仏像に近づける
+  const pelvis = [124, 262], chest = [152, 184];
   const sl = [chest[0] - 22, chest[1] + 2], sr = [chest[0] + 26, chest[1] - 2];
   const hl = [pelvis[0] - 6, pelvis[1]], hr = [pelvis[0] + 10, pelvis[1] - 2];
   const legFar = ik(hl, [88, 332], b.th, b.sh, -1);   // 地面についたひざ
-  const legNear = ik(hr, [172, 332], b.th, b.sh, 1);  // 立てたひざ
+  const legNear = ik(hr, [178, 332], b.th, b.sh, -1);  // 立てたひざ：ひざを上に、すねは下の足先へ
   // 右を向いているので、手前に見えるのは左腕（ノミを仏像に当てる）、奥は右腕（木槌を頭の後ろへ振り上げる）
   const armFar = ik(sl, [112, 86], b.ua, b.fa, -1);   // 木槌を振り上げる
   const armNear = ik(sr, [206, 184], b.ua, b.fa, 1);  // ノミを仏像に当てる
@@ -117,11 +118,11 @@ function sculptor() {
   const waist = lerp(neckBase, pelvis, .74);
   s += `<path d="M${P(add(waist, [-26, 2]))} Q${P(add(waist, [0, 6]))} ${P(add(waist, [26, -2]))}" stroke="${c.cord}" stroke-width="5" fill="none"/>`;
   // 首と頭：仏像の顔を見つめる
-  const neckTop = add(neckBase, [6, -18]);
+  const neckTop = add(neckBase, [12, -16]);
   s += `<path d="M${P(add(neckBase, [-8, 4]))} L${P(add(neckTop, [-8, 0]))} L${P(add(neckTop, [8, 0]))} L${P(add(neckBase, [10, 4]))} Z" fill="${c.skin}"/>`;
   const hair = `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${c.hair}"/>` +
     `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${c.hair}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`;
-  s += placeHead(add(neckTop, [3, -24]), f, 8, face({kind: 'male', type: 'kokufu', mood: 'serious', skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
+  s += placeHead(add(neckTop, [8, -22]), f, 16, face({kind: 'male', type: 'kokufu', mood: 'focus', skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
   // 手前の腕（ノミ）：刃先を仏像の胸に当てる
   s += limb(sr, armNear.mid, 17, 15, c.cloth) + limb(armNear.mid, armNear.end, 15, 12, c.cloth);
   s += `<g transform="translate(${P(armNear.end)}) rotate(-6)"><rect x="2" y="-3" width="16" height="6" rx="2" fill="#8a5a30"/><rect x="18" y="-1.6" width="16" height="3.2" fill="#7d8486"/><path d="M34 -1.6 l3 1.6 l-3 1.6 z" fill="#c4cacc"/></g>`;
