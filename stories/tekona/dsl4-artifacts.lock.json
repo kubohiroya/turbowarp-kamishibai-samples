@@ -44,23 +44,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2111407,
-      "sha256": "fd09b9c8f2b0d8776828914f6a3aa3fb9b96a65e9309b8847870ae3edb61d3d1"
+      "size": 2111401,
+      "sha256": "5adec47a8dba1893879836c4fd2526a541b3ef89d3cfd31857c7d65b94cfa7c5"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 1971218,
-      "sha256": "79effe66313eae51d67e2ba13d6c90b1b66458bb92f51bdde3a5f2970aaf3709"
+      "size": 1971208,
+      "sha256": "55da42a3ecf9abfe2225845ee87a4e59e735b2a5a2e7ec628a2c14ff015bf7dd"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2002321,
-      "sha256": "6bf02d8e10b5f76adde767f657d3969a614fc20e6f8c0e0ea261c0b1fd4961c3"
+      "size": 2002315,
+      "sha256": "a94d8bade5c845261969681e11a3818334510d0237c7ca670b7fd7a4e013e50a"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2040194,
-      "sha256": "be7342180aff79f91e036e72340e7c62dca3ac4ca56def7adc34e7096ba9ab4f"
+      "size": 2040186,
+      "sha256": "b907fcba48a49a77a2ebd7b4e23680d41d82caacfda15e2510b93727262020d3"
     }
   }
 }
