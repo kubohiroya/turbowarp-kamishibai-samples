@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {chromium, type Browser, type ConsoleMessage} from 'playwright';
+import {parse} from 'yaml';
 
 import {readDsl4StoryConfig} from './story-config.ts';
 
@@ -53,6 +54,14 @@ const workshopSource = await readFile(
   path.join(projectRoot, 'stories/my-urashima/my-urashima.k4.yml'),
   'utf8',
 );
+// The workshop story names its recognition models by address (`delivery: remote`). From App
+// 4.0.5 the runtime loads a scene's models in the background, so those addresses are fetched
+// while the check runs; they are the story's own network use, not the runtime's.
+const workshopRemoteModels = Object.values(
+  (parse(workshopSource) as {assets?: Record<string, {delivery?: string; source?: {url?: string}}>})
+    .assets ?? {},
+).flatMap((asset) => (asset.delivery === 'remote' && asset.source?.url ? [asset.source.url] : []));
+assert(workshopRemoteModels.length > 0, 'The workshop story must name its remote recognition models.');
 
 function conciseFailure(value: unknown): string {
   return String(value).replace(/data:text\/javascript;base64,[^\s)]+/gu, 'data:<embedded-runtime>');
@@ -88,8 +97,10 @@ async function openDsl4Page(
   browser: Browser,
   origin: string,
   pathname: string,
-  {storySource}: {storySource?: string} = {},
+  {storySource, remotePrefixes = []}: {storySource?: string; remotePrefixes?: string[]} = {},
 ) {
+  const appTeachableMachineRuntime =
+    /^https:\/\/kubohiroya\.github\.io\/turbowarp-kamishibai-app\/(?:teachable-machine\/\d+\.\d+\.\d+\/(?:[\w.-]+\/)*[\w.-]+|posenet\/sha256-[0-9a-f]{64})$/u;
   const page = await browser.newPage({locale: 'ja-JP', viewport: {width: 960, height: 720}});
   const failures: string[] = [];
   const externalRequests: string[] = [];
@@ -141,7 +152,17 @@ async function openDsl4Page(
   });
   await page.route('**/*', async (route: any) => {
     const url = route.request().url();
-    if (url.startsWith(origin) || url.startsWith('blob:') || url.startsWith('data:')) {
+    // From App 4.0.4 a work loads the Teachable Machine runtime (TF.js and its backends) from the
+    // App site, and from 4.0.3 the content-addressed PoseNet model, once it enters a scene that
+    // uses pose recognition. That is the only network use the samples allow; every other external
+    // request still fails the check.
+    if (
+      url.startsWith(origin) ||
+      url.startsWith('blob:') ||
+      url.startsWith('data:') ||
+      appTeachableMachineRuntime.test(url) ||
+      remotePrefixes.some((prefix) => url.startsWith(prefix))
+    ) {
       await route.continue();
       return;
     }
@@ -281,7 +302,10 @@ try {
   }
 
   if (myUrashimaEnabled) {
-    const workshop = await openDsl4Page(browser, origin, '/my-urashima', {storySource: workshopSource});
+    const workshop = await openDsl4Page(browser, origin, '/my-urashima', {
+      storySource: workshopSource,
+      remotePrefixes: workshopRemoteModels,
+    });
     const workshopProject = await workshop.page.evaluate(() => {
       const vm = globalThis.Scratch?.vm ?? globalThis.scaffolding?.vm;
       const project = JSON.parse(vm.toJSON());
