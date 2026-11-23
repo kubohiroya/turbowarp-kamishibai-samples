@@ -306,6 +306,29 @@ scenes:
           つぎつぎと男たちが求婚にやってきました。
         style: narration
     - wait: 3.5
+    # 方式A（語られる求婚者）：考証メモ4章の#4〜#8を、場面もスプライトもモデルも増やさずに一行ずつ紹介する。
+    # 行を増やす・減らすときは、tsugihashi の回収の一覧（方式C）とそろえる。
+    - forEach:
+        as: man
+        items:
+          - text: |-
+              入江の漁師は、毎朝いちばんの魚を
+              とどけようと言いました。
+          - text: |-
+              機織りの名人は、自分で織った
+              いちばん美しい布をさし出しました。
+          - text: |-
+              歌の上手な若者は、思いを歌に詠んで
+              手児奈に問いかけました。
+          - text: |-
+              郡司の息子は、葛飾でいちばん広い
+              わが家の田を自慢しました。
+          - text: |-
+              九州の守りに出る若者は、帰ったら
+              妻になってくれないかと言いました。
+        do:
+          - Narration.setText: {text: {ref: man.text}, style: narration}
+          - wait: 3
     - Narration.hide: {}
 
   # 季節のカット：求婚者のあいだに春・夏・秋・冬を挟み、言葉なしで「何年も求婚が続いた」ことを見せる（考証メモ 6章）
@@ -351,7 +374,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Sato.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Sato.say: {text: 前かがみになって、ぼうぜんと立ちつくす……。, seconds: 2}
       - Sato.pose:
           steps:
             - pose: rejected
@@ -434,7 +457,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Kokufu.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Kokufu.say: {text: 背すじをのばしたまま、深く頭を下げる……。, seconds: 2}
       - Kokufu.pose:
           steps:
             - pose: rejected
@@ -517,7 +540,7 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Miyako.say: {text: 肩を落として、がっくり……。, seconds: 2}
+      - Miyako.say: {text: 片手で口もとをおおって、言葉を失う……。, seconds: 2}
       - Miyako.pose:
           steps:
             - pose: rejected
@@ -578,6 +601,13 @@ scenes:
           「手児奈にふさわしいのは、このわたしだ！」
         style: narration
     - wait: 3.5
+    # 方式C（終盤の回収）：言い出したのは郡司の息子（考証メモ4.4）
+    - Narration.setText:
+        text: |-
+          はじめにそう言い出したのは、
+          郡司の息子でした。
+        style: narration
+    - wait: 3
     - Narration.setText:
         text: |-
           男たちは言いあらそいをはじめ、
@@ -641,6 +671,37 @@ scenes:
           橋をかけました。
         style: narration
     - wait: 3.5
+    # 方式C（終盤の回収）：求婚した男たちの技が橋づくりでどう生きたかを一行ずつ（考証メモ4.2〜4.6、4.8）。
+    # 上演でその人を出さないときは shown を false にする。場面 well の一覧（方式A）と順番・人数をそろえる。
+    - forEach:
+        as: man
+        items:
+          - shown: true
+            text: |-
+              入江の漁師は丸木舟を出し、
+              橋の杭を運びました。
+          - shown: true
+            text: |-
+              機織りの名人は、橋板を結ぶ綱を
+              より合わせました。
+          - shown: true
+            text: |-
+              歌の上手な若者は、みんなの手が
+              そろうように歌で音頭をとりました。
+          - shown: true
+            text: |-
+              郡司の息子は、わが家の人手と
+              木材を出しました。
+          - shown: true
+            text: |-
+              九州の守りに出た若者は、できた橋を
+              わたって旅立っていきました。
+        do:
+          - if:
+              condition: {ref: man.shown}
+              then:
+                - Narration.setText: {text: {ref: man.text}, style: narration}
+                - wait: 3
     - Narration.setText:
         text: |-
           そして手児奈は、今日も真間の井で
@@ -669,6 +730,13 @@ scenes:
           仏師は木を彫って、仏さまをつくりました。
         style: narration
     - wait: 4
+    # 方式C（終盤の回収）：機織りの名人と郡司の息子（考証メモ4.4、4.6）
+    - Narration.setText:
+        text: |-
+          機織りの名人は金堂にかける幡を織り、
+          郡司の息子は、はたらく人びとを集めました。
+        style: narration
+    - wait: 3.5
     - Narration.hide: {}
     - wait: 1.5
 
