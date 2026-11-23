@@ -27,7 +27,7 @@ The script, source assets and generation settings for the Urashima Tarō sample 
 
 The official Urashima Tarō runtime artifact uses DSL 3.2 SVG Text, and demonstrates named styles, relative font sizes and a multi-line Narration actor. The work library also distributes the DSL4.0 YAML script converted and verified by the official CLI, an SB3 project file and a single-file HTML web build. Compatibility with the deprecated older Text Asset is covered by a test fixture kept separate from the official script.
 
-`pnpm build` uses the fully pinned TurboWarp-Kamishibai 3.2 npm builder, the 3.2 generic base published with app release v3.2.4 (commit `a458dbc`) and pinned by hash, a 4.0 generic base and 4.0 builder pinned by commit and hash, and `@turbowarp/packager` `3.13.0`, to produce:
+`pnpm build` uses the fully pinned TurboWarp-Kamishibai 3.2 npm builder, the 3.2 generic base published with app release v3.2.5 (commit `6107ce0`) and pinned by hash, a 4.0 generic base and 4.0 builder pinned by commit and hash, and `@turbowarp/packager` `3.13.0`, to produce:
 
 - `_urashima.sb3` (`editor`): no embedded script, embedded assets; for story authors to edit
 - `urashima.sb3` (`player`): script and assets embedded; for distribution and playback
