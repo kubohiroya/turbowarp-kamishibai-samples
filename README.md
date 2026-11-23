@@ -214,7 +214,7 @@ textとsecondsだけのsay/thinkは簡易版になります。装飾・入力待
 
 The home page and the three story detail pages share `site/work-delivery.json` and one renderer. Each provided configuration has separate columns for **asset storage**, **script storage**, and **actions**. Asset storage distinguishes external URLs, internal paths to bundled files, and native costumes/backdrops/sounds. Mixed image/audio, model, and auxiliary-asset storage is stated explicitly. Script storage distinguishes externally loaded and embedded DSL4.0 YAML scripts from embedded DSL4.0 block scripts. DSL3.2 TXT scripts have a separate section.
 
-Rows describe actual artifacts; they do not create nine combinations or reuse a YAML Web player for a block-script project. Web links inherit the declared action and its build-time flag. The my-urashima YAML row explains that the accompanying YAML must be downloaded and selected from the Kamishibai menu inside the Web player or SB3.
+Rows describe actual artifacts; they do not create nine combinations or reuse a YAML Web player for a block-script project. Web links inherit the declared action and its build-time flag. The my-urashima listing offers DSL4.0 block scripts and DSL3.2 TXT scripts; it omits the DSL4.0 YAML configuration. The YAML used to generate blocks, existing artifacts, and compatibility URLs are retained.
 
 | Action | Japanese label | English label |
 | --- | --- | --- |
