@@ -397,14 +397,18 @@ function newcomer(pose) {
 
 const svg = (name, body) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="380" viewBox="0 -20 240 380"><title>${name}</title>${body}</svg>\n`;
-const out = process.argv[2];
-const files = {};
-for (const p of ['stand', 'refuse', 'resolve']) files[`tekona-${p}`] = tekona(p);
-for (const p of ['stand', 'kime', 'rejected']) {
-  files[`sato-${p}`] = sato(p);
-  files[`kokufu-${p}`] = kokufu(p);
-  files[`miyako-${p}`] = miyako(p);
-  files[`newcomer-${p}`] = newcomer(p);
+// ほかの生成スクリプト（kokubunji.cjs など）から人物の部品を使えるようにする
+module.exports = {face, placeHead, limb, hand, foot, ik, lerp, add, seg, ang, len, P, r1, MALE, SATO};
+if (require.main === module) {
+  const out = process.argv[2];
+  const files = {};
+  for (const p of ['stand', 'refuse', 'resolve']) files[`tekona-${p}`] = tekona(p);
+  for (const p of ['stand', 'kime', 'rejected']) {
+    files[`sato-${p}`] = sato(p);
+    files[`kokufu-${p}`] = kokufu(p);
+    files[`miyako-${p}`] = miyako(p);
+    files[`newcomer-${p}`] = newcomer(p);
+  }
+  for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
+  console.log(Object.keys(files).length, 'files');
 }
-for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
-console.log(Object.keys(files).length, 'files');
