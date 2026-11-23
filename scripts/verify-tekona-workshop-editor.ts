@@ -58,10 +58,36 @@ async function loadWorkshopProject(page: Page, input: string) {
   await chooser.setFiles(input);
   let approvals = 0;
   const deadline = Date.now() + 180_000;
+  // Plus Editor 2026-11 ignores a file set on its hidden input from automation (no load starts).
+  // If nothing has started loading after a while, load the same bytes through the VM instead.
+  const fallbackAt = Date.now() + 15_000;
+  let vmFallback = false;
   const loaded = () => page.evaluate(() => (window as any).__tekonaLoaded &&
     window.vm.runtime.targets.some((target: any) => target.getName() === 'Suitor01'));
   while (!await loaded()) {
     assert(Date.now() < deadline, 'The workshop SB3 did not finish loading.');
+    const loadError = await page.evaluate(() => (window as any).__tekonaLoadError);
+    assert(!loadError, `The workshop SB3 failed to load: ${loadError}`);
+    if (!vmFallback && approvals === 0 && Date.now() > fallbackAt) {
+      vmFallback = true;
+      await page.evaluate((base64) => {
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        window.vm.loadProject(bytes.buffer).catch((error: unknown) => {
+          (window as any).__tekonaLoadError = String(error).slice(0, 500);
+        });
+      }, (await readFile(input)).toString('base64'));
+    }
+    // Current extension security dialog: one bulk choice. Approve it only for the kamishibai runtime extension.
+    const enableAll = page.getByRole('button', {name: 'Enable all and run', exact: true}).filter({visible: true});
+    if (await enableAll.count()) {
+      assert(approvals++ < 12, 'Too many extension permission dialogs.');
+      const review = page.locator('.twextsec-review').filter({visible: true});
+      assert.match(await review.first().innerText(), /Kamishibai DSL 4\.0 Runtime/u,
+        'The permission dialog must be for the Kamishibai runtime extension.');
+      await enableAll.first().click(editorControlClick);
+      await page.waitForTimeout(500);
+      continue;
+    }
     const dialog = page.getByRole('dialog').filter({has: page.getByRole('button', {name: /^(OK|Allow|許可)$/u})});
     if (await dialog.count() && await dialog.first().isVisible()) {
       assert(approvals++ < 12, 'Too many extension permission dialogs.');
@@ -140,6 +166,7 @@ async function main() {
     await mkdir(frames, {recursive: true});
     const deadline = Date.now() + 240_000;
     let frame = 0;
+    let reachedEnd = false;
     await page.waitForTimeout(2_000);
     while (Date.now() < deadline) {
       if (await runtimeError.isVisible()) {
@@ -150,15 +177,16 @@ async function main() {
       // The story returns to the application menu after its last scene.
       const menu = await page.evaluate(() =>
         document.querySelector<HTMLElement>('[data-dsl4-application-menu=true]')?.style.display === 'block');
-      if (menu && frame > 5) break;
+      if (menu && frame > 5) { reachedEnd = true; break; }
       // Skip only pose recognition; every scene plays in its written order.
       await stageCanvas.focus().catch(() => undefined);
       await page.keyboard.press('Space');
       await page.waitForTimeout(1_500);
     }
     // The frames are the visual evidence that the participant scene plays before `quarrel`.
-    report.playback = {frames: frame, seconds: (Date.now() - started) / 1000, framesDirectory: frames};
+    report.playback = {frames: frame, seconds: (Date.now() - started) / 1000, framesDirectory: frames, reachedEnd};
     assert(!report.runtimeError, `Story failed: ${report.runtimeError}`);
+    assert(reachedEnd, 'The story did not return to the application menu before the playback deadline.');
     assert(frame > 5, 'The story must play.');
     // The assistant's saved SB3 must keep the uploaded costumes for the next composition.
     const bytes = await page.evaluate(async () => {

@@ -21,14 +21,19 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-- **生成済み・未公開**: 点景（考証メモ2.6・6章の背景7枚とスプライト`Kemuri`・`Nio`・`Kari`）、版4へ描き直した`assets/`のSVG、
-  `avant`・`kurashi`・`kokuga`・`uma`・`kokubunji`の場面、`well`の群像紹介（方式A）と終盤の回収（方式C）をすべて含めて、
-  公開App **4.0.5**（commit `5910e2e`）で`pnpm update:tekona`を実行し、`dsl4-artifacts.lock.json`を更新しました（`pnpm verify:tekona`は一致）。
+- **生成済み・未公開**: 点景（考証メモ2.6・6章の背景7枚とスプライト`Kemuri`・`Nio`・`Kari`）、版4へ描き直した`assets/`のSVG
+  （#305で描き直した既存3人の`rejected`を含む）、`avant`・`kurashi`・`kokuga`・`uma`・`kokubunji`の場面、`well`の群像紹介（方式A）と
+  終盤の回収（方式C）をすべて含めて、公開App **4.0.5**（commit `5910e2e`）で`pnpm update:tekona`を実行し、
+  `dsl4-artifacts.lock.json`を更新しました（`pnpm verify:tekona`は一致）。
   ただし生成したSB3はまだGitHub Releaseへ公開しておらず、`sb3-assets.json`は描き直し前の旧版を指しています。
   `pnpm sb3:publish`で公開するまで、配布中のSB3は旧版です。
-- **未検証**: 生成したSB3の再生（点景の`loop`・`moveTo`の動きを含む）。公開Plus Editorの拡張機能の確認ダイアログが
-  「Enable all and run」の形に変わり、`pnpm verify:tekona-workshop-editor`はSB3の読み込みで止まります
-  （ダイアログのボタンをスクリプトから押せない）。リハーサルの手順をこのダイアログに合わせて直す必要があります。
+- **一部確認**: `pnpm verify:tekona-workshop-editor`で公開Plus Editorに作業用SB3を読み込み、参加者1人を加えた台本を再生しました。
+  アバンタイトル、タイトル、里の一日（夜明け・網漁・浜・亀・井戸端・夕げの煙が立ちのぼるところ）、井戸の寄り、群像紹介、春のカット、
+  里の若者の`kime`までは実行時エラーなく進みます。ただし里の若者の`rejected`のポーズ待ちで、Spaceキーによるポーズのスキップが効かず、
+  そこから先（夏・秋のカット、にほ鳥・雁の動き、冬の嵐の夜、終盤）はまだ確かめていません。リハーサルは、終わりまで進まなければ失敗と報告します。
+  - 公開Plus Editor（2026年11月）は、自動操作でファイル入力に渡したSB3を読み込まないため、リハーサルは15秒たっても読み込みが始まらなければ
+    同じSB3をVMへ直接読み込みます。拡張機能の確認ダイアログは「Enable all and run」の形になったので、Kamishibai DSL 4.0 Runtimeの確認であることを
+    確かめてから押します。
 - 季節のカットは用意済みの3人のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
 - **注意**: `forEach`と`if`を使うため、この台本は**物語制御に対応したrunner（DSL 4.0 Standard、App 4.0.0-rc.44以降）**が必要です。
   `validate-dsl4 --no-narrative-control`では`K4-NARRATIVE-FLAG-001`で拒否されます（確認済み）。rc.43以前のSB3へ台本だけを移しても動きません。
