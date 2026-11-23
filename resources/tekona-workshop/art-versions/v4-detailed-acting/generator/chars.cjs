@@ -127,7 +127,7 @@ function face(o) {
     const eyeAt = (x, near) => {
       const sx = near ? 1 : .74, sy = near ? 1 : .9;
       let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
-      if (mood === 'gentle') e += `<path d="M-5.4 1 q5.4 -5 10.8 0" stroke="${eye}" stroke-width="${r1(2.4 / sx)}" fill="none" stroke-linecap="round"/>`;
+      if (mood === 'gentle' || mood === 'laugh') e += `<path d="M-5.4 1 q5.4 -5 10.8 0" stroke="${eye}" stroke-width="${r1(2.4 / sx)}" fill="none" stroke-linecap="round"/>`;
       else e += `<path d="M-5.4 0 Q0 -6 5.4 -1 Q0 4 -5.4 0 Z" fill="#fbf6ee"/><ellipse cx="1" cy="-.5" rx="3.2" ry="3.8" fill="${eye}"/><circle cx="0" cy="-2" r="1.2" fill="#fff"/>` +
         `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(1.7 / sx)}" fill="none" stroke-linecap="round"/>`;
       return e + `</g>`;
@@ -138,8 +138,13 @@ function face(o) {
     // 口：両目のあいだの下、やや手前寄り
     s += {smile: `<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
       gentle: `<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
-      resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`}[mood];
-    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity=".5"/><ellipse cx="14" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity=".5"/>`;
+      resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`,
+      // laugh：目を細めて口をあけて笑う／talk：話している途中の小さくあいた口
+      laugh: `<path d="M0 12.6 Q5 12 10 12 Q9 19 5 19 Q1 18.6 0 12.6 Z" fill="#8a3a32"/><path d="M.6 12.8 L9.6 12.2 L9.2 14 L1 14.4 Z" fill="#fff"/>`,
+      talk: `<ellipse cx="5" cy="15" rx="3" ry="2.2" fill="#8a3a32"/>`}[mood];
+    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity="${o.old ? '.25' : '.5'}"/><ellipse cx="14" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity="${o.old ? '.25' : '.5'}"/>`;
+    // 年寄り：目じり・ほうれい線・額のしわ
+    if (o.old) s += `<path d="M-11 -1 l-3 -2 M-11 1.4 l-3.2 .6 M16 -1 l2.4 -1.6 M1 9 Q-1 13 0 17 M12 9 Q14 13 12.6 17 M-8 -17 Q0 -19 8 -17 M-6 -14 Q1 -15.6 7 -14" stroke="${skinDark}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
   }
   return s;
 }
@@ -400,7 +405,7 @@ function newcomer(pose) {
 const svg = (name, body) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="380" viewBox="0 -20 240 380"><title>${name}</title>${body}</svg>\n`;
 // ほかの生成スクリプト（kokubunji.cjs など）から人物の部品を使えるようにする
-module.exports = {face, placeHead, limb, hand, foot, ik, lerp, add, seg, ang, len, P, r1, MALE, SATO};
+module.exports = {face, placeHead, limb, hand, foot, ik, lerp, add, seg, ang, len, P, r1, MALE, FEMALE, SATO, skeleton, satoFigure};
 if (require.main === module) {
   const out = process.argv[2];
   const files = {};
