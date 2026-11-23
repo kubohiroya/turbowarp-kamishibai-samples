@@ -205,7 +205,8 @@ function kokuga() {
       r += `<g transform="translate(${dx} ${dy})"><rect x="-26" y="-6" width="52" height="12" rx="6" fill="#d8c69a"/><rect x="-26" y="-6" width="52" height="4" rx="2" fill="#e8d9b0"/>`;
       for (let x = -20; x <= 20; x += 5) r += `<path d="M${x} -6 v12" stroke="#c4ae7e" stroke-width=".7"/>`;
       r += `<path d="M-14 -6 v12 M14 -6 v12" stroke="#7a5a34" stroke-width="1.8"/>`;
-      r += `<ellipse cx="-26" cy="0" rx="4.4" ry="6.4" fill="#b39a68"/><path d="M-26 0 m-2 0 a2 2.6 0 1 0 2 -2.6 a1.4 1.8 0 1 0 -1.4 1.8" stroke="#7a6038" stroke-width=".8" fill="none"/></g>`;
+      // 巻いた端の断面：斜めから見るので、縦に細い楕円にする
+      r += `<ellipse cx="-26" cy="0" rx="2" ry="6" fill="#b39a68"/><g transform="translate(-26 0) scale(.42 1)"><path d="M0 0 m-2 0 a2 2.6 0 1 0 2 -2.6 a1.4 1.8 0 1 0 -1.4 1.8" stroke="#7a6038" stroke-width="1" fill="none"/></g></g>`;
     }
     return r + `</g>`;
   })();
