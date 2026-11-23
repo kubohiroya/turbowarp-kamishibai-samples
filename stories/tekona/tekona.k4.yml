@@ -31,6 +31,9 @@ assets:
   InletSunset: backdrop
   Tsugihashi: backdrop
   Kokubunji: backdrop
+  Ryo: backdrop
+  Hama: backdrop
+  IdoBata: backdrop
   AvantBlank: backdrop
   # 手児奈
   tekona-stand: costume:Tekona
@@ -162,9 +165,10 @@ scenes:
     - wait: 2.5
     - Narration.hide: {}
 
-  well:
+  # 里の暮らし：入江の沖の網漁、遠浅の浜の貝・海藻とり、真間の井の井戸端
+  kurashi:
     - transition: {effect: fadeOut, seconds: 1}
-    - stage: MamaWell
+    - stage: Ryo
     - bgm: Medieval1
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -174,6 +178,41 @@ scenes:
           山のすぐ下まで入江がせまる土地でした。
         style: narration
     - wait: 3
+    - Narration.setText:
+        text: |-
+          入江の沖では、男たちが丸木舟に乗り、
+          網を打って魚をとりました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Hama
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          潮が引くと、遠浅の浜では女や子どもたちが
+          貝や海藻をひろい、かごに集めました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: IdoBata
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          里の人びとは毎日、真間の井に水をくみに来て、
+          おしゃべりに花をさかせました。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+
+  well:
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
     - Narration.setText:
         text: |-
           井戸の水はしおからいものばかり。

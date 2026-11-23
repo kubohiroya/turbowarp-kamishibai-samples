@@ -91,6 +91,27 @@ assets:
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
+  # 凪いだ近海で、丸木舟から網を打つ男たち
+  Ryo:
+    kind: backdrop
+    file: assets/ryo.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 遠浅の浜で、貝や海藻をとってかごに集める女と子どもたち
+  Hama:
+    kind: backdrop
+    file: assets/hama.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  # 真間の井で水をくみ、話して笑い合う女たち・老女・子どもたち
+  IdoBata:
+    kind: backdrop
+    file: assets/ido-bata.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
   # 丘の上で国分寺を建設する場面（遠景に金堂の屋根をつくる労務者、手前に仏像を彫る仏師）
   Kokubunji:
     kind: backdrop
