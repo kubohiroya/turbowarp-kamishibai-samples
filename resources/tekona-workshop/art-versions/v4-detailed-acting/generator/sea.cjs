@@ -129,8 +129,15 @@ function ryo() {
     s += wv + fm; }
   // 束ねた綱：網の口から前の手、後ろの手まで一直線に張る（たるみなし）
   const end = [h2[0] + (h2[0] - h1[0]) * .25, h2[1] + (h2[1] - h1[1]) * .25];
-  s += `<path d="M${P(m)} L${P(h1)} L${P(end)}" stroke="#6e5a3a" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-  s += `<path d="M${P(m)} L${P(h1)} L${P(end)}" stroke="#a8946a" stroke-width="1" fill="none" stroke-dasharray="3 2"/>`;
+  // 綱：細い縄をより合わせた1本の綱。暗い芯の線に、明るい縄目がらせん状に左右へよじれて見える
+  for (const [p0, p1] of [[m, h1], [h1, end]]) {
+    const d = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), nx = -(p1[1] - p0[1]) / d, ny = (p1[0] - p0[0]) / d, n = Math.max(2, Math.round(d / 3));
+    s += `<path d="M${P(p0)} L${P(p1)}" stroke="#5e4a2e" stroke-width="2" stroke-linecap="round"/>`;
+    let tw = '';
+    for (let i = 0; i < n; i++) { const t0 = i / n, t1 = (i + .7) / n, q0 = lerp(p0, p1, t0), q1 = lerp(p0, p1, t1);
+      tw += `M${r1(q0[0] - nx * .7)} ${r1(q0[1] - ny * .7)} L${r1(q1[0] + nx * .7)} ${r1(q1[1] + ny * .7)} `; }
+    s += `<path d="${tw}" stroke="#b09a6c" stroke-width=".7" stroke-linecap="round"/>`;
+  }
   for (const dx of [-14, 14]) s += `<path d="M${r1(m[0] + dx)} ${r1(m[1] + 1)} L${r1(m[0] + 6 * Math.sign(dx) * -0)} ${r1(m[1] - 6)}" stroke="#6e5a3a" stroke-width="1.2"/>`;
   // 手で握った綱の上に手を描きなおす（綱を握りこむ）
   const hd = (q, from) => hand(q, ang(from, q), SATO.skin, {kind: 'grip', size: 1.05 * Math.sqrt(1.5), side: 1});
