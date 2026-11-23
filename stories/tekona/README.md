@@ -21,7 +21,7 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
+- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`、後日談`kokubunji`（背景`Kokubunji`）を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
   `pnpm update:tekona`はまだ実行していません（この作業環境にAppがないため）。`dsl4-artifacts.lock.json`の台本・素材の宣言のハッシュは古いままなので、
   `pnpm verify:tekona`は作り直すまで一致しません。
 - **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・参加者の枠の仮の人物・背景4枚。[絵柄の版の記録](../../resources/tekona-workshop/art-versions/README.md)の版4）は、まだSB3へ反映していません。
@@ -75,6 +75,7 @@
 | `quarrel` | 断られた男たちが争いをはじめる | なし |
 | `inlet` | 夕日の入江で、手児奈が「わたしの心は、わたしのもの」と決める | なし |
 | `tsugihashi` | 手児奈が争いをやめるよう告げ、男たちは力をあわせて入江に橋（継橋）をかける | なし |
+| `kokubunji` | 後日談。やがて国府台の丘の上に下総国分寺が建てられ、男たちが金堂の屋根を上げ、仏師が仏像を彫る（背景`Kokubunji`） | なし |
 | `afterword` | 再話であることと、本来の言い伝え（手児奈が入江に姿を消し、里人がまつった）、手児奈霊堂の紹介 | なし |
 
 ポーズ認識モデルは場面ごとに1つです（`Actor.pose`にはモデルを指定できません）。そのため、どの求婚者も自分の場面を持ちます。

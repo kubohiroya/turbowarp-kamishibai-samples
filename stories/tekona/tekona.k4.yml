@@ -30,6 +30,7 @@ assets:
   MamaWell: backdrop
   InletSunset: backdrop
   Tsugihashi: backdrop
+  Kokubunji: backdrop
   AvantBlank: backdrop
   # 手児奈
   tekona-stand: costume:Tekona
@@ -406,6 +407,28 @@ scenes:
         style: narration
     - wait: 3.5
     - Tekona.setSkin: tekona-stand
+    - wait: 1.5
+
+  # 後日談：やがて国府台の丘の上に下総国分寺が建てられる（天平13年の国分寺建立の詔のあと。考証メモ1.5）
+  kokubunji:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Kokubunji
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          それから時がたち、国府台の丘の上に
+          下総の国分寺が建てられることになりました。
+        style: narration
+    - wait: 3.5
+    - Narration.setText:
+        text: |-
+          男たちは力をあわせて大きなお堂の屋根を上げ、
+          仏師は木を彫って、仏さまをつくりました。
+        style: narration
+    - wait: 4
+    - Narration.hide: {}
     - wait: 1.5
 
   afterword:

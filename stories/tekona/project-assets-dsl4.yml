@@ -91,6 +91,13 @@ assets:
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
+  # 丘の上で国分寺を建設する場面（遠景に金堂の屋根をつくる労務者、手前に仏像を彫る仏師）
+  Kokubunji:
+    kind: backdrop
+    file: assets/kokubunji.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
   # アバンタイトルの無地の背景（コウノトリだけを見せる）
   AvantBlank:
     kind: backdrop
