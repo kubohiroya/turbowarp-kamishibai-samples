@@ -96,7 +96,8 @@ function ryo() {
   // 中腰：足を大きく開いてひざを曲げ、腰を落としたまま上体を前へ倒す。両手は舳先の舟べりの先で網をつかむ
   const caster = skeleton(MALE, {pelvis: [130, 236], chest: [86, 172], ankleL: [88, 334], ankleR: [156, 334], kneeL: 1, kneeR: 1,
     wristL: [-24, 226], wristR: [12, 232], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip'});
-  caster.neckTop = [75, 156]; caster.head = [72, 132]; caster.headTilt = 28;
+  // 頭は大きく前へ倒して（反時計回り）真下の網をのぞき込み、目を伏せる
+  caster.neckTop = [75, 156]; caster.head = [72, 132]; caster.headTilt = -52; caster.downcast = true;
   // 艫の男は片ひざをついて腰を落とし、櫂をこぐ
   const paddler = skeleton(MALE, {pelvis: [126, 270], chest: [118, 184], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [78, 270], wristR: [104, 210], elbowL: 1, elbowR: -1, headDx: -2, headTilt: 4});
   const cx0 = bx0 - 66, px0 = bx0 + 76, fy = 356;

@@ -97,6 +97,15 @@ function face(o) {
       const w = F.eyeW * (near ? 1 : .78), h = F.eyeH * (mood === 'focus' ? .82 : 1);
       if (mood === 'pained') return `<path d="M${x - w} -1 q${w} 3 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M${x - w} -4 l${w * 2} 2" stroke="${eye}" stroke-width="1.2" opacity=".6"/>`;
       if (mood === 'proud') return `<path d="M${x - w} 0 q${w} -4 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+      // downcast：目を伏せる。まぶたを下ろして白目を細く残し、下に寄せた瞳を暗く沈ませる（手元を見つめてうつむく顔）
+      if (o.downcast) {
+        let d = `<path d="M${x - w} 0 Q${x} ${-h * 2} ${x + w} -1 Q${x} ${h * 1.1} ${x - w} 0 Z" fill="#e6ddd0"/>` +
+          `<ellipse cx="${r1(x + (near ? .6 : .3))}" cy="${r1(h * .45)}" rx="${F.iris}" ry="${r1(F.iris * .9)}" fill="#0e0907"/>`;
+        d += `<path d="M${x - w - 1} .6 Q${x} ${r1(-h * .2)} ${x + w + 1} -.4 L${x + w + 1} ${r1(-h * 2.4)} L${x - w - 1} ${r1(-h * 2.4)} Z" fill="${skin}"/>`;
+        d += `<path d="M${x - w - .5} .6 Q${x} ${r1(-h * .2)} ${x + w + .5} -.4" stroke="${eye}" stroke-width="${r1(F.lid + .6)}" fill="none" stroke-linecap="round"/>`;
+        d += `<path d="M${x - w * .8} ${r1(-h * 1.1)} Q${x} ${r1(-h * 1.7)} ${x + w * .8} ${r1(-h * 1.3)}" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+        return d;
+      }
       let e = `<path d="M${x - w} 0 Q${x} ${-h * 2} ${x + w} -1 Q${x} ${h} ${x - w} 0 Z" fill="#fbf6ee"/>` +
         `<ellipse cx="${r1(x + (near ? 1.2 : .7))}" cy="${r1(-h * .25)}" rx="${F.iris}" ry="${r1(Math.min(F.iris * 1.1, h * 1.3))}" fill="${eye}"/>`;
       if (F.heavyLid) e += `<path d="M${x - w - .5} -.3 Q${x} ${-h * 1.9} ${x + w + .5} -1.4 L${x + w} ${-h * .6} Q${x} ${-h * 1.1} ${x - w} -.6 Z" fill="${skinDark}"/>`;
@@ -211,7 +220,7 @@ function satoFigure(k, mood, extra = '') {
   // 頭：短い髪と、頭の上でまとめた髻
   const hair = `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${c.hair}"/>` +
     `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${c.hair}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`;
-  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true}) + hair);
+  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true, downcast: k.downcast}) + hair);
   // 腕（筒袖）と手
   const arm = (a, sh, side) => limb(sh, a.mid, 17, 15, c.cloth) + limb(a.mid, a.end, 15, 12, c.cloth) +
     hand(a.end, ang(a.mid, a.end), c.skin, {kind: (side > 0 ? k.handL : k.handR) || k.handKind || 'relaxed', size: 1.05, side});
