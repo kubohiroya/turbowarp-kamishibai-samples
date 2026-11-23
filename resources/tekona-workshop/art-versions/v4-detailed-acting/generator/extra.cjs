@@ -1,10 +1,10 @@
 // 背景3枚（480x360、版4の絵柄：輪郭線なしの平面イラスト）。
-// uma.svg   ：従者が手綱を引く馬に乗った地方役人が、水辺の継橋の上を進む。中景に浜で働く女たち、遠景の丘に建設中の国府。
+// uma.svg   ：従者が手綱を引く馬に乗った都の貴族（手児奈に求婚しにやって来た）が、水辺の継橋の上を進む。中景に浜で働く女たち、遠景の丘に建設中の国府。
 // kokuga.svg：建設中の建物の柱のたもとで、木簡を広げて工事の進み具合を淡々と話し合う2人の役人と大工の棟梁（画面の中心を外す）。
 // kame.svg  ：自然の点景。水辺の石の上で甲羅干しをする親亀と小亀（画面の中央を外す）。
 const fs = require('fs');
 const path = require('path');
-const {lerp, add, P, r1, MALE, skeleton, satoFigure, officialFigure, KOKUFU, SATO} = require('./chars.cjs');
+const {lerp, add, P, r1, MALE, skeleton, satoFigure, officialFigure, KOKUFU, MIYAKO, SATO} = require('./chars.cjs');
 const {person, place, C, rnd0} = require('./village.cjs');
 
 let defs = [], gid = 0;
@@ -96,13 +96,13 @@ function uma() {
   s += `<path d="M-10 ${deck} H242 M236 ${deck + 1} H496" stroke="#f0c890" stroke-width="1.2"/>`;
   for (let x = -4; x < 490; x += 14) s += `<path d="M${x} ${deck + 1} v6" stroke="#7a4a24" stroke-width="1" opacity=".6"/>`;
   s += `<path d="M0 ${deck + 26} h480" stroke="#2a5a7a" stroke-width="6" opacity=".12"/>`;
-  // 馬と、馬に乗った地方役人（国府の役人の装い。左向き）
+  // 馬と、馬に乗った都の貴族（手児奈に求婚しに、都＝平城京からやって来た。浅緋の袍、口ひげ、腰の大刀。左向き）
   const hx = 336, hy = deck + 2, hs = 1.08;
   s += `<g transform="translate(${hx} ${hy}) scale(${hs})">${horse()}</g>`;
   const rider = skeleton(MALE, {pelvis: [122, 250], chest: [118, 164], ankleL: [126, 334], ankleR: [134, 330], kneeL: 1, kneeR: 1,
     wristL: [80, 232], wristR: [92, 238], elbowL: 1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -2, headTilt: 4});
   const rx = hx - 6 * hs - 1, ry = hy - 100 * hs + (334 - 250) * .42;
-  s += place(officialFigure(rider, KOKUFU, 'serious'), rx, ry, .42);
+  s += place(officialFigure(rider, MIYAKO, 'stand'), rx, ry, .42);
   // 鞍の上に乗せた体を、障泥で手前から少し隠す
   s += `<g transform="translate(${hx} ${hy}) scale(${hs})"><path d="M-26 -60 Q-10 -56 16 -60 L16 -84 Q-6 -86 -26 -84 Z" fill="#7a2e28"/><path d="M-26 -60 Q-10 -56 16 -60" stroke="#d8b24a" stroke-width="2" fill="none"/></g>`;
   // 手綱：馬のはみから役人の手へ、もう1本は従者の手へ
