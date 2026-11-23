@@ -142,6 +142,8 @@ function frame0() {
   s += foldedWing(c, tilt);
   return s;
 }
+// 翼を肩から上方向へ1.4倍に伸ばす（2枚目：ひらきかけの翼を大きく見せる）
+const up14 = (shoulder, svg) => `<g transform="translate(${shoulder[0]} ${shoulder[1]}) scale(1 1.4) translate(${-shoulder[0]} ${-shoulder[1]})">${svg}</g>`;
 // 2枚目：身をかがめ、翼を半分ひらいて飛び立つ構え
 function frame1() {
   const c = [120, 112], tilt = -12;
@@ -150,11 +152,11 @@ function frame1() {
   let s = ripple(113, 171, 44, .7) + ripple(113, 171, 26, .9);
   for (const [h, k, f, far] of legs) s += leg(h, k, f, 184, far) + (far ? thigh(h, k, true) : '');
   const sf = bodyPt(c, tilt, -4, -11), sn = bodyPt(c, tilt, -10, -8);
-  s += wing(sf, -140, 74, {spread: .8, far: true}) + upperArm(sf, -140, 74, true);
+  s += up14(sf, wing(sf, -140, 74, {spread: .8, far: true}) + upperArm(sf, -140, 74, true));
   s += neckFromBody(c, tilt, [94, 104], 200, 30, {billDown: 28, bend: -4});
   s += body(c, tilt);
   for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
-  s += wing(sn, -124, 80, {spread: .9}) + upperArm(sn, -124, 80);
+  s += up14(sn, wing(sn, -124, 80, {spread: .9}) + upperArm(sn, -124, 80));
   return s;
 }
 // 3枚目：斜め前へ身を乗り出し、脚で水を後ろへけり出す。胴体は前に傾き、重心は1枚目より低い
