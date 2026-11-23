@@ -214,14 +214,16 @@ function kokuga() {
   const OFF2 = {...KOKUFU, robe: '#7fa679', robeDark: '#5f8a5a', type: 'sato', skin: '#e9bf98', skinDark: '#cf9d76'};
   // 奥にいるので先に描く（役人1の後ろに少し重なる）。袖は袍と同じ色なので、濃い色のふちを入れて腕の形を見せる
   let o2 = officialFigure(off2, OFF2, 'stand');
-  for (const [sh, a] of [[off2.sr, off2.armR], [off2.sl, off2.armL]]) {
-    const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
-    o2 += `<path d="${pts}" stroke="${OFF2.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${OFF2.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-  }
-  // 左手：束の下から抱える（指先が束の下にまわる）
-  o2 += `<path d="M${P(add(off2.armR.end, [-12, -2]))} q2 6 10 6 q8 0 10 -5 q-2 -4 -10 -4 q-7 -1 -10 3 z" fill="${OFF2.skin}"/>`;
-  // 右手：胸の前で、束のいちばん上の巻物に指をそろえて添える
+  const sleeve = (sh, a) => { const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
+    return `<path d="${pts}" stroke="${OFF2.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${OFF2.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; };
+  // 右腕と右手（奥の肩から）：木簡の束より奥に描く（束の上のふちに指先がかかる）
+  o2 += sleeve(off2.sl, off2.armL);
   o2 += `<path d="M${P(add(off2.armL.end, [-12, -2]))} q2 -6 10 -6 q8 0 10 4 q-2 5 -10 5 q-7 1 -10 -3 z" fill="${OFF2.skin}"/><path d="M${P(add(off2.armL.end, [-11, 0]))} h12" stroke="${OFF2.skinDark}" stroke-width=".8" opacity=".6"/>`;
+  // 木簡の束を右腕の手前に描きなおす
+  o2 += rolls;
+  // 左腕と左手（手前の肩から）：束の手前で、下から抱える
+  o2 += sleeve(off2.sr, off2.armR);
+  o2 += `<path d="M${P(add(off2.armR.end, [-12, -2]))} q2 6 10 6 q8 0 10 -5 q-2 -4 -10 -4 q-7 -1 -10 3 z" fill="${OFF2.skin}"/>`;
   s = s.replace(/(<g transform="translate\(350)/, M(o2, 424, 318, .55) + '$1');
   return s;
 }
