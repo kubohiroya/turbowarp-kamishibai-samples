@@ -125,6 +125,16 @@ const net = (x, y, w, h) => {
   for (let i = 0; i < 5; i++) g += `<ellipse cx="${x + 8 + i * (w - 16) / 4}" cy="${y + h + 1}" rx="2.2" ry="1.4" fill="#9a6a44"/>`;
   return g;
 };
+// 草むら：低い草の小さな株を、間隔と位置をばらつかせて置く
+const grass = (x0, x1, y, c, seed = 5, h = 8) => {
+  const rnd = rnd0(seed * 97 + 11);
+  let r = '';
+  for (let x = x0; x < x1; x += 14 + rnd() * 26) {
+    const yy = y + rnd() * 18;
+    r += `<path d="M${x.toFixed(1)} ${yy.toFixed(1)} l2 ${-h} l2 ${h} l3 ${(-h * .7).toFixed(1)} l1 ${(h * .7).toFixed(1)} z" fill="${c}"/>`;
+  }
+  return r;
+};
 const ripples = (pts, c, op = 0.6) => pts.map(([x, y, w]) => `<path d="M${x} ${y} h${w}" stroke="${c}" stroke-width="2.5" stroke-linecap="round" opacity="${op}"/>`).join('');
 
 // 昼の背景は、人物と表情が目立つよう明るく淡い色へ寄せて明暗の差を小さくする（soften）。
@@ -211,7 +221,7 @@ function tsugihashi() {
   // 入江と海
   s += `<rect y="${H}" width="480" height="${360 - H}" fill="${grad([[0, '#9acfe6'], [.4, '#7cbcdb'], [1, '#5ea3c8']])}"/>`;
   s += `<rect x="270" y="${H}" width="210" height="6" fill="#b2dbee"/>`;
-  s += ripples([[30, 300, 40], [140, 318, 30], [340, 312, 44], [420, 330, 30], [200, 340, 50], [250, 290, 30]], '#ffffff', .5);
+  s += ripples([[30, 292, 40], [140, 300, 30], [330, 302, 44], [210, 296, 40], [250, 280, 30]], '#ffffff', .5);
   // 左右の砂州と、その上の道・松
   const sand = grad([[0, '#f0e1b4'], [1, '#d6bd86']]);
   s += `<path d="M-10 238 Q70 226 168 234 Q184 244 168 256 H-10 Z" fill="${sand}"/>`;
@@ -233,7 +243,13 @@ function tsugihashi() {
   s += `<path d="M352 258 q4 10 12 18" stroke="#8a6a3a" stroke-width="1.4" fill="none"/>`;
   s += marukibune(390, 282, .72, {f: -1});
   s += `<path d="M352 290 q40 6 80 0" stroke="#ffffff" stroke-width="1.8" fill="none" opacity=".7"/>`;
-  s += tamamo(220, 306, '#3f7f5a') + tamamo(96, 320, '#3f7f5a', 2);
+  s += tamamo(220, 300, '#3f7f5a') + tamamo(96, 296, '#3f7f5a', 2);
+  // 手前の低い砂地：人物が水の中に立って見えないよう、足もとにゆるやかな起伏のある浜を置く
+  s += `<path d="M0 326 Q50 314 110 320 Q170 326 230 318 Q300 310 360 320 Q420 328 480 316 V360 H0 Z" fill="${grad([[0, '#ead9a8'], [1, '#d4ba84']])}"/>`;
+  s += `<path d="M0 326 Q50 314 110 320 Q170 326 230 318 Q300 310 360 320 Q420 328 480 316" stroke="#f6edd2" stroke-width="2.4" fill="none" opacity=".8"/>`;
+  s += `<path d="M0 330 Q50 320 110 325 Q170 331 230 323 Q300 316 360 325 Q420 333 480 321 L480 326 Q420 338 360 330 Q300 322 230 328 Q170 336 110 330 Q50 325 0 335 Z" fill="#c4a670" opacity=".45"/>`;
+  s += `<path d="M40 344 q30 -6 60 0 M180 350 q36 -6 70 0 M330 346 q30 -5 60 0" stroke="#c9ad78" stroke-width="2" fill="none" opacity=".6"/>`;
+  s += grass(56, 430, 330, '#9ab066', 4, 5);
   // 手前の葦
   s += reeds(0, 48, 360, '#4f7a3a', 3, 84) + reeds(438, 480, 360, '#5f8d44', 13, 86);
   return soften(s);
