@@ -116,16 +116,30 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   );
   assert(extensionSource.includes('dsl4SpeechAdvanceTypewriter:!0'));
   assert(extensionSource.includes('data-dsl4-runtime-error'));
-  const tmNotices = extensionSource.match(
-    /\/\*! @license\n(# Third-party notices[\s\S]*?)\n\*\//u,
+  // From App 4.0.4 the runtime no longer bundles TF.js and Teachable Machine Pose: it loads the
+  // Teachable Machine runtime from the App site when pose recognition starts. The components it
+  // uses are named in its composed notices instead of carrying their full notice text.
+  const composedNotices = extensionSource.match(
+    /\/\*!\n \* Kamishibai DSL 4\.0 Runtime — composed source notices\n([\s\S]*?)\n \*\//u,
   );
-  assert(tmNotices, 'The full Teachable Machine third-party notice is missing.');
-  assert.equal(
-    sha256(tmNotices[1] as string),
-    'c28e024ef10a10b53ddefa7ff3014dda02b9845236d1cb14ac2f79fe4ceb8ffe',
-    'The reviewed TM 4.1.0 third-party notice must remain byte-identical.',
+  assert(composedNotices, 'The DSL 4.0 runtime composed source notices are missing.');
+  const tmVersion = (composedNotices[1] as string).match(
+    /Teachable Machine — Hiroya Kubo — MPL-2\.0 — @kubohiroya\/turbowarp-teachable-machine@(\d+\.\d+\.\d+)\n/u,
+  )?.[1];
+  assert(tmVersion, 'The composed notices must name the Teachable Machine version.');
+  for (const component of [
+    /Teachable Machine Pose — Google LLC — Apache-2\.0 — @teachablemachine\/pose@/u,
+    /TensorFlow\.js — Google LLC — Apache-2\.0 — @tensorflow\/tfjs@/u,
+    /PoseNet MobileNetV1 model — TensorFlow Authors — Apache-2\.0 — @tensorflow-models\/posenet@/u,
+  ]) {
+    assert.match(composedNotices[1] as string, component);
+  }
+  assert(
+    extensionSource.includes(
+      `site:{version:"${tmVersion}",runtimeUrl:"https://kubohiroya.github.io/turbowarp-kamishibai-app/teachable-machine/${tmVersion}/runtime.js",integrity:"sha384-`,
+    ),
+    'The runtime must load the noticed Teachable Machine version from the App site with SRI.',
   );
-  assert.match(extensionSource, /\b[A-Za-z_$][\w$]*\.tmPose\s*=(?!=)/u);
   assert(extensionSource.includes('Webcam'));
   assert(extensionSource.includes('loadFromFiles'));
   for (const actor of ['Urashima', 'Turtle', 'Princess', 'Fish', 'Narration']) {
