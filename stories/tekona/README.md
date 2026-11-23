@@ -36,7 +36,8 @@
   - **App側の問題**: メニューの「開く」で読み込んだ台本（外部YAML版）は、Appの作者用プレビューの仕組みで再生され、キー操作（Space・→・↓）を
     ステージの描画用canvas（`Scratch.vm.renderer.canvas`）で受け取ります。このcanvasはフォーカスを受け取れないため、ふつうにキーを押しても
     ポーズや場面を飛ばせません（埋め込み版のSB3は`document`で受け取るので効きます）。リハーサルはcanvasへ直接キーを送って回避しています。
-    外部YAML版でワークショップを進めるときは、ポーズを飛ばせない前提で準備してください。
+    外部YAML版でワークショップを進めるときは、ポーズを飛ばせない前提で準備してください
+    （[turbowarp-kamishibai-app#1183](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/1183)）。
 - 季節のカットは用意済みの3人のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
 - **注意**: `forEach`と`if`を使うため、この台本は**物語制御に対応したrunner（DSL 4.0 Standard、App 4.0.0-rc.44以降）**が必要です。
   `validate-dsl4 --no-narrative-control`では`K4-NARRATIVE-FLAG-001`で拒否されます（確認済み）。rc.43以前のSB3へ台本だけを移しても動きません。

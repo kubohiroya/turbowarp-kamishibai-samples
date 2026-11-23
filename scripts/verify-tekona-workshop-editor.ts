@@ -181,7 +181,7 @@ async function main() {
       // Skip only pose recognition; every scene plays in its written order.
       // A story opened from the menu runs in the authoring preview session, which listens for its
       // keymap on the stage renderer canvas (not the document). That canvas cannot take focus, so
-      // deliver the skip key to it directly.
+      // deliver the skip key to it directly (kubohiroya/turbowarp-kamishibai-app#1183).
       await page.evaluate(() => {
         const canvas = window.vm.renderer?.canvas as HTMLCanvasElement | undefined;
         for (const type of ['keydown', 'keyup'])
