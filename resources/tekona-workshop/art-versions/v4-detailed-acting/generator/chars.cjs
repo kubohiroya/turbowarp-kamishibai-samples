@@ -266,7 +266,8 @@ function officialFigure(k, o, mood) {
   if (k.shaku) s += shaku(k.shaku.at, k.shaku.angle);
   // 体と手前の腕のあいだに抱える持ち物（小脇に抱えた巻物など）
   if (k.under && !k.underFirst) s += k.under;
-  s += arm(k.armL, k.sl, 1, k.handL || 'relaxed');
+  // hideArmL：奥の腕を体のかげに隠して描かない（馬上で片手だけ手綱を持つ場合など）
+  if (!k.hideArmL) s += arm(k.armL, k.sl, 1, k.handL || 'relaxed');
   if (k.shakuFront) s += shaku(k.shakuFront.at, k.shakuFront.angle);
   return s;
 }

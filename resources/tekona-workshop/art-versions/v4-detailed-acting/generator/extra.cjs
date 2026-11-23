@@ -131,29 +131,31 @@ function uma() {
   // 乗り手は鞍にまたがる：骨盤を鞍の上に置き、手前の脚は太ももを前下へ、ひざを曲げてすねを下ろし、足を鐙に入れる
   const rs = .42, seat = [hx - 6 * hs, hy - 106 * hs];
   const rx = seat[0] - (122 - 120) * rs, ry = seat[1] + (334 - 250) * rs;
-  // 両ひじは体に沿わせて後ろへ引き、両手は腹の前で手綱を持つ
+  // 奥の右腕は体と馬のかげに隠し、手前の左腕はひじを体に沿わせて、腹の前で手綱を持つ
   const rider = skeleton(MALE, {pelvis: [122, 250], chest: [118, 164], ankleL: [80, 380], ankleR: [80, 380], kneeL: 1, kneeR: 1,
-    wristL: [40, 230], wristR: [96, 232], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -2, headTilt: 4});
+    wristL: [40, 230], wristR: [80, 236], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', hideArmL: true, headDx: -2, headTilt: 4});
   const hip = [122, 250], knee = [65, 307], ankle = [80, 382];
   defs.push(`<clipPath id="riderTop" clipPathUnits="userSpaceOnUse"><rect x="0" y="0" width="300" height="252"/></clipPath>`);
   let rd = `<path d="M140 238 L206 268" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/><path d="M134 234 L142 240" stroke="#d8b24a" stroke-width="6"/><circle cx="160" cy="247" r="3.4" fill="#d8b24a"/><circle cx="186" cy="259" r="3.4" fill="#d8b24a"/>`;
   rd += `<g clip-path="url(#riderTop)">${officialFigure(rider, {...MIYAKO, sword: false}, 'stand')}</g>`;
   // 袖は袍と同じ色なので、濃い色のふちを入れて腕の形を見せる（ひじは体に沿わせる）
-  for (const [sh, a, side] of [[rider.sr, rider.armR, -1], [rider.sl, rider.armL, 1]]) {
+  for (const [sh, a, side] of [[rider.sr, rider.armR, -1]]) {
     const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
     rd += `<path d="${pts}" stroke="${MIYAKO.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${MIYAKO.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
     rd += hand(a.end, ang(a.mid, a.end), MIYAKO.skin, {kind: 'grip', size: 1.05, side});
   }
   // すね（白い袴）と履、鐙
+  // 鐙：革の吊りひもと輪（足の奥側）を先に描き、足の裏をのせる踏み板を後で描く
+  rd += `<path d="M76 330 L72 372" stroke="#4a2a1a" stroke-width="3"/><path d="M54 394 Q50 370 70 366 Q90 370 86 394" stroke="#5a5a5a" stroke-width="4" fill="none"/>`;
   rd += limb(knee, ankle, 18, 15, '#efe8d8') + foot(ankle, -1, '#22201f', {size: 1.1});
+  rd += `<rect x="52" y="391" width="36" height="5" rx="2" fill="#5a5a5a"/>`;
   // 袍の裾：腰から太ももを包み、ひざの下へ少し垂れる
   rd += `<path d="M92 228 L152 230 Q160 254 146 268 Q116 300 92 330 Q72 334 58 322 Q42 312 46 296 Q50 286 60 282 L100 244 Z" fill="${MIYAKO.robe}"/>`;
   rd += `<path d="M146 268 Q116 300 92 330 Q78 332 66 324 Q96 300 128 268 Z" fill="${MIYAKO.robeDark}" opacity=".5"/><path d="M110 250 Q86 274 64 296" stroke="${MIYAKO.robeDark}" stroke-width="2" fill="none" opacity=".6"/>`;
-  rd += `<path d="M66 384 Q62 400 80 400 Q102 400 98 384" stroke="#5a5a5a" stroke-width="4" fill="none"/><path d="M84 330 L84 384" stroke="#4a2a1a" stroke-width="3"/>`;
   s += place(rd, rx, ry, rs);
-  // 手綱：馬のはみから乗り手の手へ、もう1本は従者の手へ
+  // 手綱：馬のはみから乗り手の手前の手へ、もう1本は従者の手へ
   const bit = [hx - 104 * hs, hy - 116 * hs];
-  s += `<path d="M${P(bit)} Q${r1(bit[0] + 34)} ${r1(bit[1] + 26)} ${r1(rx + (44 - 120) * rs)} ${r1(ry + (230 - 334) * rs)}" stroke="#4a2a1a" stroke-width="1.4" fill="none"/>`;
+  s += `<path d="M${P(bit)} Q${r1(bit[0] + 34)} ${r1(bit[1] + 26)} ${r1(rx + (70 - 120) * rs)} ${r1(ry + (238 - 334) * rs)}" stroke="#4a2a1a" stroke-width="1.4" fill="none"/>`;
   // 従者：馬の前を歩き、後ろ手に手綱を引く（左向き）
   const groom = skeleton(MALE, {pelvis: [124, 180], chest: [114, 92], ankleL: [98, 334], ankleR: [148, 326], kneeL: 1, kneeR: 1, liftR: 8,
     wristL: [100, 190], wristR: [176, 168], elbowL: 1, elbowR: 1, headDx: -2, headTilt: 0});
