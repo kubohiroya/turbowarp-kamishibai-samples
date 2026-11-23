@@ -203,8 +203,9 @@ function kokuga() {
     let r = `<g transform="translate(74 150) rotate(-8) scale(1.4 1)">`;
     for (const [dx, dy] of [[-2, -14], [3, -2], [-3, 10]]) {
       r += `<g transform="translate(${dx} ${dy})"><rect x="-26" y="-6" width="52" height="12" rx="6" fill="#d8c69a"/><rect x="-26" y="-6" width="52" height="4" rx="2" fill="#e8d9b0"/>`;
-      for (let x = -20; x <= 20; x += 5) r += `<path d="M${x} -6 v12" stroke="#c4ae7e" stroke-width=".7"/>`;
-      r += `<path d="M-14 -6 v12 M14 -6 v12" stroke="#7a5a34" stroke-width="1.8"/>`;
+      // 札の境目と2本の紐は、筒のまわりをめぐる線なので、断面と同じ向き（右へふくらむ弧）に描く
+      for (let x = -20; x <= 20; x += 5) r += `<path d="M${x} -6 Q${x + 2.6} 0 ${x} 6" stroke="#c4ae7e" stroke-width=".7" fill="none"/>`;
+      r += `<path d="M-14 -6 Q-11 0 -14 6 M14 -6 Q17 0 14 6" stroke="#7a5a34" stroke-width="1.8" fill="none"/>`;
       // 巻いた端の断面：斜めから見るので、縦に細い楕円にする
       r += `<ellipse cx="-26" cy="0" rx="2" ry="6" fill="#b39a68"/><g transform="translate(-26 0) scale(.42 1)"><path d="M0 0 m-2 0 a2 2.6 0 1 0 2 -2.6 a1.4 1.8 0 1 0 -1.4 1.8" stroke="#7a6038" stroke-width="1" fill="none"/></g></g>`;
     }
