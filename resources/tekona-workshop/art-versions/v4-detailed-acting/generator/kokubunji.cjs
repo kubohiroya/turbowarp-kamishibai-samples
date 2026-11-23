@@ -39,7 +39,7 @@ function worker(x, y, s, pose, {flip = 1, cloth = '#c9b184', skin = '#d9a074', l
 // ---- 遠景：丘の上の金堂（建設中）
 function temple() {
   let s = '';
-  const L = 216, R = 468, base = 196;
+  const L = 180, R = 470, base = 176;
   // 基壇（礎石の上に建つ）と石段
   s += `<path d="M${L - 8} ${base} H${R + 8} V${base + 10} H${L - 8} Z" fill="#c9bfa8"/><path d="M${L - 8} ${base} H${R + 8}" stroke="#e6ddc8" stroke-width="2"/>`;
   s += `<path d="M330 ${base + 10} h24 l4 6 h-32 z" fill="#b9ae96"/>`;
@@ -164,23 +164,28 @@ function statue() {
 function kokubunji() {
   let s = `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.6, '#d8eef8'], [1, '#f1f9fc']])}"/>`;
   s += `<path d="M60 48 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M300 30 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
-  // 遠くの入江と砂州
-  let far = `<rect x="0" y="206" width="480" height="20" fill="#a6d4ea"/><path d="M0 214 Q120 206 260 212 V222 H0 Z" fill="#e3d2a4"/>`;
-  // 国府台の丘：右へ高くなり、上は平ら。金堂はその上に建つ
-  far += `<path d="M0 236 Q90 226 170 214 Q200 206 210 206 H480 V260 H0 Z" fill="${grad([[0, '#8fbf72'], [1, '#76a660']])}"/>`;
+  // 左手奥：遠くの海と、水平線の手前の低い浜
+  let far = `<rect x="0" y="198" width="150" height="56" fill="${grad([[0, '#a9d6ec'], [1, '#86c0dc']])}"/>`;
+  far += `<path d="M6 206 h40 M60 214 h44 M14 228 h56 M80 238 h40" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>`;
+  far += `<path d="M0 250 Q60 244 110 250 Q126 253 136 258 V264 H0 Z" fill="#e3d2a4"/>`;
+  // 国府台の丘：上が平らな小高い丘。金堂の左下は切り立った崖になって、海側の低い浜へ落ちる
+  far += `<path d="M146 184 Q190 180 260 182 H480 V262 H108 Q120 226 146 184 Z" fill="${grad([[0, '#8fbf72'], [1, '#76a660']])}"/>`;
+  far += `<path d="M146 184 Q156 188 162 196 Q150 230 160 262 H108 Q120 226 146 184 Z" fill="#b58c5c"/>`;
+  far += `<path d="M150 196 Q154 199 158 202 M138 210 Q148 213 156 220 M128 228 Q140 231 154 238 M118 246 Q132 249 156 254" stroke="#946c40" stroke-width="2" fill="none"/>`;
+  far += `<path d="M146 184 Q154 186 162 194" stroke="#6f9f58" stroke-width="3" fill="none"/>`;
+  far += `<path d="M162 196 Q150 230 160 262" stroke="#6f9f58" stroke-width="2" fill="none" opacity=".6"/>`;
   far += temple();
-  // 丘の上の木材置き場：積んだ丸太と瓦
-  for (let i = 0; i < 4; i++) far += `<rect x="${150 + i * 2}" y="${200 - i * 5}" width="46" height="5" rx="2.5" fill="${i % 2 ? '#a0703c' : '#b07c46'}"/>`;
-  for (let i = 0; i < 3; i++) far += `<rect x="${118}" y="${204 - i * 4}" width="20" height="4" fill="#7d8486"/>`;
-  far += worker(184, 214, .8, 'carry', {load: 'log', flip: -1}) + worker(200, 216, .8, 'walk', {load: 'log', flip: -1});
+  // 崖の上（丘の端）で丸太をかついで運ぶ労務者
+  far += worker(170, 192, .78, 'carry', {load: 'log', flip: -1}) + worker(186, 194, .78, 'walk', {load: 'log', flip: -1});
   s += haze(far, .22);
   // 手前の地面（丘の中腹の作業場）
   s += `<path d="M0 262 Q160 252 300 258 Q400 262 480 256 V360 H0 Z" fill="${grad([[0, '#e2cf9c'], [1, '#cfb27c']])}"/>`;
-  s += `<path d="M300 300 q40 -6 80 0 M380 330 q40 -6 80 0" stroke="#c4a670" stroke-width="2" fill="none" opacity=".6"/>`;
-  // 手前の右：材木と道具
-  s += `<rect x="330" y="300" width="120" height="10" rx="5" fill="#a0703c"/><rect x="336" y="290" width="104" height="10" rx="5" fill="#b07c46"/><ellipse cx="450" cy="305" rx="4" ry="5" fill="#c99260"/>`;
-  s += `<g transform="translate(400 330) rotate(-20)"><rect x="0" y="-2" width="30" height="4" rx="2" fill="#9a6a3a"/><path d="M28 -6 l10 2 l-10 6 z" fill="#7d8486"/></g>`;
-  s += statue() + sculptor();
+  s += `<path d="M150 300 q40 -6 80 0 M40 340 q40 -6 80 0" stroke="#c4a670" stroke-width="2" fill="none" opacity=".6"/>`;
+  // 手前の左：材木と道具
+  s += `<rect x="14" y="300" width="110" height="10" rx="5" fill="#a0703c"/><rect x="20" y="290" width="96" height="10" rx="5" fill="#b07c46"/><ellipse cx="124" cy="305" rx="4" ry="5" fill="#c99260"/>`;
+  s += `<g transform="translate(40 334) rotate(-14)"><rect x="0" y="-2" width="30" height="4" rx="2" fill="#9a6a3a"/><path d="M28 -6 l10 2 l-10 6 z" fill="#7d8486"/></g>`;
+  // 仏師と仏像：画面の中央よりやや右へ
+  s += `<g transform="translate(112 0)">${statue() + sculptor()}</g>`;
   return s;
 }
 
