@@ -31,6 +31,7 @@ assets:
   InletSunset: backdrop
   Tsugihashi: backdrop
   Kokubunji: backdrop
+  Kokuga: backdrop
   Ryo: backdrop
   Hama: backdrop
   IdoBata: backdrop
@@ -268,6 +269,31 @@ scenes:
       - Narration.hide: {}
       - Sato.say: {text: とほほ……。, seconds: 1.5}
       - Sato.hide: {}
+
+  # 国府の工事場：国府の役人の求婚の前に、手児奈のうわさが国府にも届いていたことを見せる
+  kokuga:
+    - transition: {effect: fadeOut, seconds: 1}
+    - Tekona.hide: {}
+    - stage: Kokuga
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          そのころ国府では、新しい役所の建物を建てていました。
+          役人たちは木簡を広げ、大工の棟梁と工事の進み具合を話し合います。
+        style: narration
+    - wait: 4
+    - Narration.setText:
+        text: |-
+          けれども若い役人の心は、
+          真間の井の手児奈のことでいっぱいでした。
+        style: narration
+    - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: MamaWell
+    - Tekona.show: {skin: tekona-stand, x: -150, y: -75, scale: 60}
+    - transition: {effect: fadeUp, seconds: 1}
 
   kokufu:
     recognitionModel: KokufuPose
