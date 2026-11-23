@@ -86,7 +86,7 @@ function face(o) {
     if (stubble) s += `<path d="M-8 ${cy - 8} Q4 ${cy + 2} 16 ${cy - 6} L17 ${cy - 11} Q6 ${cy - 4} -6 ${cy - 12} Z" fill="#3a2a20" opacity=".16"/>`;
     // 目
     const eyeAt = (x, near) => {
-      const w = F.eyeW * (near ? 1 : .78), h = F.eyeH * (mood === 'focus' ? .6 : 1);
+      const w = F.eyeW * (near ? 1 : .78), h = F.eyeH * (mood === 'focus' ? .82 : 1);
       if (mood === 'pained') return `<path d="M${x - w} -1 q${w} 3 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M${x - w} -4 l${w * 2} 2" stroke="${eye}" stroke-width="1.2" opacity=".6"/>`;
       if (mood === 'proud') return `<path d="M${x - w} 0 q${w} -4 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
       let e = `<path d="M${x - w} 0 Q${x} ${-h * 2} ${x + w} -1 Q${x} ${h} ${x - w} 0 Z" fill="#fbf6ee"/>` +
@@ -99,11 +99,10 @@ function face(o) {
     s += eyeAt(-6, true) + eyeAt(13, false);
     // 眉
     const t = {stand: 0, eager: -2, serious: 0, proud: -3, pained: 0}[mood] || 0;
-    const tilt = {serious: 3, focus: 5, pained: -4}[mood] || 0;
+    const tilt = {serious: 3, focus: 1.5, pained: -4}[mood] || 0;
     const browN = `M-13 ${F.browY + t + (tilt < 0 ? 0 : 0)} Q-6 ${F.browY + t - F.browArch} 0 ${F.browY + t + tilt}`;
     const browF = `M8 ${F.browY + t + tilt} Q13 ${F.browY + t - F.browArch} 18 ${F.browY + t}`;
     s += [browN, browF].map(d => `<path d="${d}" stroke="${brow}" stroke-width="${F.browW}" fill="none" stroke-linecap="round"/>`).join('');
-    if (mood === 'focus') s += `<path d="M3 ${F.browY - 1} v5 M5.4 ${F.browY - .6} v4" stroke="${skinDark}" stroke-width="1.2" stroke-linecap="round"/>`;
     if (mood === 'pained') s += `<path d="M2 ${F.browY - 4} q2 -2 4 0" stroke="${skinDark}" stroke-width="1.2" fill="none"/>`;
     // 口
     const mx = 6, hw = 5 * F.mouthW, my = F.mouthY;
@@ -111,8 +110,8 @@ function face(o) {
       stand: `<path d="M${mx - hw} ${my} Q${mx} ${my + 1.4} ${mx + hw} ${my - 1}" stroke="#8a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`,
       eager: `<path d="M${mx - hw - 1} ${my - 2} Q${mx} ${my - 2} ${mx + hw} ${my - 3} Q${mx + hw - 2} ${my + 5} ${mx - 1} ${my + 5} Q${mx - hw - 1} ${my + 4} ${mx - hw - 1} ${my - 2} Z" fill="#7a2e28"/><path d="M${mx - hw} ${my - 1.5} L${mx + hw - 1} ${my - 2.4} L${mx + hw - 1.4} ${my - .4} L${mx - hw + .4} ${my} Z" fill="#fff"/>`,
       serious: `<path d="M${mx - hw} ${my} L${mx + hw} ${my - 1}" stroke="#8a4a3a" stroke-width="2.2" stroke-linecap="round"/>`,
-      // focus：一心に見つめる。口をきつく結び、口角を少し下げる
-      focus: `<path d="M${mx - hw * .8} ${my + .6} Q${mx} ${my - 1} ${mx + hw * .8} ${my + .2}" stroke="#8a4a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,
+      // focus：一心に見つめる。目をわずかに細め、口を静かに結ぶ（怖くならないよう眉は寄せすぎない）
+      focus: `<path d="M${mx - hw * .75} ${my} L${mx + hw * .75} ${my - .4}" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round"/>`,
       proud: `<path d="M${mx - hw - 2} ${my - 3} Q${mx} ${my - 2} ${mx + hw + 1} ${my - 4} Q${mx + hw - 1} ${my + 6} ${mx - 1} ${my + 6} Q${mx - hw - 2} ${my + 4} ${mx - hw - 2} ${my - 3} Z" fill="#7a2e28"/><path d="M${mx - hw - 1} ${my - 2.6} L${mx + hw} ${my - 3.6} L${mx + hw - .6} ${my - 1} L${mx - hw - .6} ${my - .4} Z" fill="#fff"/>`,
       pained: `<path d="M${mx - hw} ${my + 2} Q${mx - hw / 2} ${my - 2} ${mx} ${my + 1} Q${mx + hw / 2} ${my - 2} ${mx + hw} ${my + 2} Q${mx} ${my + 4} ${mx - hw} ${my + 2} Z" fill="#7a2e28"/>`,
     }[mood];
