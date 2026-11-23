@@ -148,13 +148,20 @@ function kokuga() {
   s += M(b, 256, 334, .6, -1);
   // 役人1：木簡の束を手のひらの上に広げて読み上げる（左向き）
   const off1 = skeleton(MALE, {pelvis: [122, 180], chest: [120, 90], ankleL: [104, 334], ankleR: [138, 334], kneeL: 1, kneeR: 1,
-    wristL: [64, 160], wristR: [122, 158], elbowL: 1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -4, headTilt: 14});
+    wristL: [44, 150], wristR: [114, 146], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', headDx: -4, headTilt: 14});
   let o1 = officialFigure(off1, KOKUFU, 'stand');
+  // 体の前に重なった袖は、袍と同じ色で見分けにくいので、濃い色のふちを入れて腕の形を見せる（肘は体に沿わせる）
+  for (const [sh, a] of [[off1.sr, off1.armR], [off1.sl, off1.armL]]) {
+    const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;
+    o1 += `<path d="${pts}" stroke="${KOKUFU.robeDark}" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${pts}" stroke="${KOKUFU.robe}" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
   // 木簡の冊書：細長い木の札を横に並べ、上下2か所を紐で編んでつなぎ、巻物のように巻いたもの。
   // 左手に巻いたほうを持ち、右へ広げた札に縦書きの墨の文字が並ぶ
   {
     const x0 = 62, x1 = 120, y0 = 136, h = 40, n = 9, w = (x1 - x0 - 8) / n;
-    let m = `<g transform="rotate(-6 ${x0} ${y0 + h / 2})">`;
+    // 1.5倍の大きさにし、見る人のほうへ向けて斜めに掲げる（左を下げて右を上げ、少し奥へ傾ける）
+    const cx = (x0 + x1) / 2, cy = y0 + h / 2;
+    let m = `<g transform="translate(${cx - 4} ${cy - 18}) rotate(-16) skewY(-8) scale(1.5) translate(${-cx} ${-cy})">`;
     // 巻いた部分（左端の筒）
     m += `<rect x="${x0 - 2}" y="${y0 - 1}" width="10" height="${h + 2}" rx="5" fill="#d8c69a"/><ellipse cx="${x0 + 3}" cy="${y0 - 1}" rx="5" ry="2" fill="#c4ae7e"/><path d="M${x0} ${y0 + 6} h6 M${x0} ${y0 + h - 6} h6" stroke="#b9a274" stroke-width="1"/>`;
     // 広げた札（すき間なく並ぶ）と墨の文字
