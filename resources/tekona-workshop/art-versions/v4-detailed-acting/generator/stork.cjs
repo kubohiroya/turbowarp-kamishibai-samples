@@ -181,12 +181,14 @@ function frame3() {
   let s = ripple(272, 171, 70, .4) + ripple(272, 171, 44, .55);
   s += drops([[132, 124, 2], [140, 140, 2.2], [146, 156, 1.8], [124, 146, 1.6]]);
   for (const [h, k, f, far] of legs) s += leg(h, k, f, 12, far) + (far ? thigh(h, k, true) : '');
-  const sf = bodyPt(c, tilt, -6, -10), sn = bodyPt(c, tilt, -12, -6);
-  s += wing(sf, -196, 86, {spread: .85, far: true}) + upperArm(sf, -196, 86, true);
-  s += neckFromBody(c, tilt, [36, 76], 188, 32);
+  // 翼は肩から下へ打ちおろす。前へのばした首と頭にかからないよう、肩を首の付け根より後ろに置く
+  const sf = bodyPt(c, tilt, 0, -10), sn = bodyPt(c, tilt, -2, -6);
+  s += wing(sf, 150, 82, {spread: .85, far: true}) + upperArm(sf, 150, 82, true);
+  // 首は水平にのばし、頭を重心（胴体の中心 y=84）と同じ高さに置く
+  s += neckFromBody(c, tilt, [36, 84], 180, 32);
   s += body(c, tilt);
   for (const [h, k, , far] of legs) if (!far) s += thigh(h, k);
-  s += wing(sn, 146, 96, {spread: 1}) + upperArm(sn, 146, 96);
+  s += wing(sn, 124, 96, {spread: 1}) + upperArm(sn, 124, 96);
   return s;
 }
 
