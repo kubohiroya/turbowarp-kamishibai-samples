@@ -132,7 +132,8 @@ function sculptor() {
 
 // ---- 手前：彫りかけの仏像（立像）。上半身は彫り出し、下半身は荒彫りの角材のまま
 function statue() {
-  const w = '#cfa56c', wd = '#a97c48', wl = '#e2c290';
+  // 木の色：濃い茶色（彫った面の明るい部分は wl、影は wd）
+  const w = '#93643a', wd = '#6c4420', wl = '#b5844f';
   const x = 236, top = 128, foot = 340;
   let s = '';
   // 台にしている丸太
@@ -150,10 +151,10 @@ function statue() {
   s += `<rect x="${x - 4}" y="${top + 28}" width="10" height="10" fill="${w}"/>`;
   s += `<ellipse cx="${x + 1}" cy="${top + 18}" rx="13" ry="15" fill="${w}"/><path d="M${x + 8} ${top + 8} Q${x + 14} ${top + 18} ${x + 10} ${top + 30} Q${x + 14} ${top + 18} ${x + 8} ${top + 8} Z" fill="${wd}" opacity=".5"/>`;
   s += `<path d="M${x - 12} ${top + 12} Q${x + 1} ${top - 8} ${x + 14} ${top + 12} Q${x + 1} ${top + 4} ${x - 12} ${top + 12} Z" fill="${wd}"/><ellipse cx="${x + 1}" cy="${top - 2}" rx="7" ry="6" fill="${wd}"/>`;
-  for (let i = 0; i < 5; i++) s += `<circle cx="${x - 6 + i * 3.4}" cy="${top + 6 + Math.abs(i - 2) * .8}" r="1.1" fill="#8a6234"/>`;
+  for (let i = 0; i < 5; i++) s += `<circle cx="${x - 6 + i * 3.4}" cy="${top + 6 + Math.abs(i - 2) * .8}" r="1.1" fill="#4e2e14"/>`;
   s += `<path d="M${x - 12} ${top + 14} q-3 8 0 18 M${x + 14} ${top + 14} q3 8 0 18" stroke="${wd}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-  s += `<path d="M${x - 6} ${top + 19} q3 1.6 6 0 M${x + 3} ${top + 19} q3 1.6 6 0" stroke="#7a5228" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
-  s += `<circle cx="${x + 1}" cy="${top + 13}" r="1.1" fill="#7a5228"/><path d="M${x - 2} ${top + 27} q3 1.4 6 0" stroke="#7a5228" stroke-width="1.2" fill="none"/>`;
+  s += `<path d="M${x - 6} ${top + 19} q3 1.6 6 0 M${x + 3} ${top + 19} q3 1.6 6 0" stroke="#3f2410" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  s += `<circle cx="${x + 1}" cy="${top + 13}" r="1.1" fill="#3f2410"/><path d="M${x - 2} ${top + 27} q3 1.4 6 0" stroke="#3f2410" stroke-width="1.2" fill="none"/>`;
   // 木くず
   const rnd = rnd0(77);
   for (let i = 0; i < 18; i++) { const cx = x - 60 + rnd() * 140, cy = foot + 2 + rnd() * 6; s += `<path d="M${r1(cx)} ${r1(cy)} q3 -3 6 0 q-3 1 -6 0 z" fill="${rnd() > .5 ? wl : w}"/>`; }
