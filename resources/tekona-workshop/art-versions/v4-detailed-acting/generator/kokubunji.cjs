@@ -39,7 +39,7 @@ function worker(x, y, s, pose, {flip = 1, cloth = '#c9b184', skin = '#d9a074', l
 // ---- 遠景：丘の上の金堂（建設中）
 function temple() {
   let s = '';
-  const L = 180, R = 470, base = 176;
+  const L = 196, R = 440, base = 176;
   // 基壇（礎石の上に建つ）と石段
   s += `<path d="M${L - 8} ${base} H${R + 8} V${base + 10} H${L - 8} Z" fill="#c9bfa8"/><path d="M${L - 8} ${base} H${R + 8}" stroke="#e6ddc8" stroke-width="2"/>`;
   s += `<path d="M330 ${base + 10} h24 l4 6 h-32 z" fill="#b9ae96"/>`;
@@ -164,19 +164,22 @@ function statue() {
 function kokubunji() {
   let s = `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.6, '#d8eef8'], [1, '#f1f9fc']])}"/>`;
   s += `<path d="M60 48 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M300 30 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
-  // 左手奥：遠くの海と、水平線の手前の低い浜
-  let far = `<rect x="0" y="198" width="150" height="56" fill="${grad([[0, '#a9d6ec'], [1, '#86c0dc']])}"/>`;
-  far += `<path d="M6 206 h40 M60 214 h44 M14 228 h56 M80 238 h40" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>`;
-  far += `<path d="M0 250 Q60 244 110 250 Q126 253 136 258 V264 H0 Z" fill="#e3d2a4"/>`;
-  // 国府台の丘：上が平らな小高い丘。金堂の左下は切り立った崖になって、海側の低い浜へ落ちる
-  far += `<path d="M146 184 Q190 180 260 182 H480 V262 H108 Q120 226 146 184 Z" fill="${grad([[0, '#8fbf72'], [1, '#76a660']])}"/>`;
-  far += `<path d="M146 184 Q156 188 162 196 Q150 230 160 262 H108 Q120 226 146 184 Z" fill="#b58c5c"/>`;
-  far += `<path d="M150 196 Q154 199 158 202 M138 210 Q148 213 156 220 M128 228 Q140 231 154 238 M118 246 Q132 249 156 254" stroke="#946c40" stroke-width="2" fill="none"/>`;
-  far += `<path d="M146 184 Q154 186 162 194" stroke="#6f9f58" stroke-width="3" fill="none"/>`;
-  far += `<path d="M162 196 Q150 230 160 262" stroke="#6f9f58" stroke-width="2" fill="none" opacity=".6"/>`;
+  // 左手奥：遠くの海と、水平線の手前の低い浜（画面の左端）
+  let far = `<rect x="0" y="198" width="70" height="56" fill="${grad([[0, '#a9d6ec'], [1, '#86c0dc']])}"/>`;
+  far += `<path d="M4 206 h30 M10 220 h36 M2 236 h30" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>`;
+  far += `<path d="M0 250 Q30 246 50 252 Q58 255 62 258 V264 H0 Z" fill="#e3d2a4"/>`;
+  // 国府台の丘：上が平らな小高い丘。金堂のまわりに平地を広くとり、丘の左端（画面の左端近く）が切り立った崖になって、海側の低い浜へ落ちる
+  far += `<path d="M66 184 Q120 180 260 182 H480 V262 H36 Q46 226 66 184 Z" fill="${grad([[0, '#8fbf72'], [1, '#76a660']])}"/>`;
+  far += `<path d="M66 184 Q76 188 82 196 Q70 230 80 262 H36 Q46 226 66 184 Z" fill="#b58c5c"/>`;
+  far += `<path d="M70 196 Q74 199 78 202 M58 210 Q68 213 76 220 M50 228 Q62 231 74 238 M42 246 Q56 249 76 254" stroke="#946c40" stroke-width="2" fill="none"/>`;
+  far += `<path d="M66 184 Q74 186 82 194" stroke="#6f9f58" stroke-width="3" fill="none"/>`;
+  far += `<path d="M82 196 Q70 230 80 262" stroke="#6f9f58" stroke-width="2" fill="none" opacity=".6"/>`;
+  // 平地の上の道と、積んだ瓦
+  far += `<path d="M96 196 Q140 192 180 190" stroke="#d9c597" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  for (let i = 0; i < 3; i++) far += `<rect x="${460}" y="${184 - i * 4}" width="16" height="4" fill="#7d8486"/>`;
   far += temple();
-  // 崖の上（丘の端）で丸太をかついで運ぶ労務者
-  far += worker(170, 192, .78, 'carry', {load: 'log', flip: -1}) + worker(186, 194, .78, 'walk', {load: 'log', flip: -1});
+  // 平地を丸太をかついで運ぶ労務者
+  far += worker(110, 200, .78, 'carry', {load: 'log', flip: -1}) + worker(126, 202, .78, 'walk', {load: 'log', flip: -1});
   s += haze(far, .22);
   // 手前の地面（丘の中腹の作業場）
   s += `<path d="M0 262 Q160 252 300 258 Q400 262 480 256 V360 H0 Z" fill="${grad([[0, '#e2cf9c'], [1, '#cfb27c']])}"/>`;
