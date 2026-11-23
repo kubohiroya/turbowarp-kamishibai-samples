@@ -17,7 +17,9 @@
   アシスタントの作業を自動リハーサルしました（`pnpm verify:tekona-block-workshop-editor`、`pnpm verify:tekona-workshop-editor`）。
   参加者の場面は用意済みの3人のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
   （モデルは浦島太郎の既存モデルで代用し、ポーズはスキップ）。
-- **未確認**: ブロック台本版の席ごとのモデルを、開き直した`seat-NN.tm`から同じリンクのまま更新できること（実際のアップロードでの確認が必要）。
+- **待ち**: ブロック台本版で参加者が自分のモデルのリンクを書き入れる手順は、App 4.0.11以降が必要です。
+  4.0.10までの公開Appは反映を`Remote asset source does not match: PoseNN`で拒否します
+  （kubohiroya/turbowarp-kamishibai-app#1184、修正はPR #1185）。`app-release.json`の固定はまだ4.0.11ではありません。
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
@@ -121,16 +123,17 @@
 
 - 場面`suitor-NN`：用意済みの3人と`quarrel`の間に席番号順。中身は`if: {condition: false}`で囲まれ、組み込むまで何も再生しない。
 - スプライト`SuitorNN`と仮のコスチューム`stand`・`kime`・`rejected`（「？」の人物）。
-- モデル`PoseNN`：`slotModelUrls`の席ごとのリンク、なければ`sampleModelUrl`。
+- モデル`PoseNN`：見本モデルのリンク（`sampleModelUrl`）。参加者が自分のリンクへ書き換えます。
 
 アシスタントの1人分の作業は、絵3枚の差し替え、枠の文の書き換え（補助ページ[`compose.html`](../../resources/tekona-workshop/assistant/compose.html)が
 提出文から「いまの文 → 入れる文」の一覧を作る）、条件を`true`にすること、台本への反映です。
 `pnpm verify:tekona-block-workshop-editor`は、この一覧（`blockEdits`）どおりに枠01を書き換え（手児奈の心が揺れなかった場合のブロック削除を含む）、
 反映・再生・保存・書き戻しまでを公開Plus Editorで確かめます。
 
-**席ごとのモデル**：運営が席ごとのモデルを事前にアップロードし、`pnpm tekona:seat-models collect 席ファイルのフォルダ --write`で
-リンクを`slotModelUrls`へ入れてから`pnpm update:tekona`で作り直します。当日は参加者が席の`seat-NN.tm`で学習し直し、
-同じリンクのまま「クラウドモデルを更新」します（手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。
+**モデル**：参加者が自分のモデルを新規に作り、クラウドへエクスポートし、自分の枠のモデルのリンクを自分のURLへ書き換えます
+（手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。運営が席ごとのモデルを事前に
+用意することはしません。`workshop.config.json`の`slotModelUrls`と`pnpm tekona:seat-models`は、その事前準備のための
+仕組みで、App 4.0.11へ追従するときに作業用SB3の作り直しとまとめて外します。
 
 ### 外部YAML版（予備）
 
@@ -144,16 +147,18 @@
 
 ### ブロック台本版の制約
 
-公開rc.79のTurboWarp Plus Editorでは、ブロック台本に次の変更を加えると台本への反映ができません。このため枠を事前に登録しています。
+TurboWarp Plus Editorでは、ブロック台本に次の変更を加えると台本への反映ができません。このため枠を事前に登録しています。
 
 - 素材の宣言ブロック（参加者のコスチュームでもモデルでも）を加えると、文書ハットのアイコンからの反映
   （「表示されている形式に変換して検証・保存」）が`Asset bundle must contain every StoryDocument asset`で無効になる。
   反映しないまま再生すると`K4-SOURCE-VIEW-UNAPPLIED`で止まる。
 - 新しい場面を`quarrel`の前につなぐと、反映後の台本では最後（`afterword`の後）に置かれる。
 - モデル`PoseNN`のリンクを書き換えると、反映が`Remote asset source does not match: PoseNN`で無効になる。
-  `TEKONA_REPLACE_MODEL_URL=1`を付けてリハーサルすると、App側でリンクの書き換えが直ったかを確かめられる。
+  4.0.10までのすべての公開Appで起きます。**App 4.0.11で直す予定**です（kubohiroya/turbowarp-kamishibai-app#1184、PR #1185はまだマージも公開もされていません）。
+  `app-release.json`の固定は4.0.11より前なので、`TEKONA_REPLACE_MODEL_URL=1`を付けたリハーサルは、固定を4.0.11へ上げるまで失敗します。
+  追従のときに、この環境変数を外して書き換えを常に確かめるようにします。
 
-どれもApp側（Plus Editorでの素材一覧の更新、場面の並びの書き戻し、リモート素材の書き換え）の対応で解消できる見込みです。
+残る2つはApp側（Plus Editorでの素材一覧の更新、場面の並びの書き戻し）の対応で解消できる見込みです。
 
 ## 生成と検証
 

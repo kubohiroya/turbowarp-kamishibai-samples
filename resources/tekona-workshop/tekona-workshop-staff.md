@@ -66,10 +66,10 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
 | 共有作品 | SB3が1つ | SB3と台本の2つセット |
 
 **ブロック台本版を基本にする理由**：参加者が完成品をブロックで読め、共有作品がSB3 1つで済むためです。
-公開App 4.0.0-rc.79のTurboWarp Plus Editorでは、ブロック台本に新しい素材（コスチューム・モデル）を加えたり、
+TurboWarp Plus Editorでは、ブロック台本に新しい素材（コスチューム・モデル）を加えたり、
 新しい場面を`quarrel`の前に挿入したりすると、台本への反映ができません（[README](../../stories/tekona/README.md)の「ブロック台本版の制約」）。
 そこで、**素材と場面の枠をあらかじめ登録しておき、それを差し替える**方式にしています。
-モデルのリンクも書き換えられないため、席ごとのモデルを事前に用意します（4.1節）。
+モデルのリンクは参加者が自分で書き換えます。これにはApp 4.0.11以降が必要です（4.1節）。
 
 **外部YAML版を使う場合**：席ごとのモデルを事前に用意できない、21人以上で枠が足りない、Plus Editorでの反映がうまくいかない、といった場合です。
 
@@ -115,14 +115,16 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
 ## 4.1 前日まで（運営）
 
 1. [`pose-dataset-plan.md`](pose-dataset-plan.md)に従い、用意済み3人のモデル（`SatoPose`・`KokufuPose`・`MiyakoPose`、各`stand`・`kime`・`rejected`）を作り、台本に設定する。
-2. **席ごとのモデルを用意する（ブロック台本版）**：[`pose-dataset-plan.md`](pose-dataset-plan.md)の「ブロック台本版：席ごとのモデル」に従い、
-   席数分の`seat-NN.tm`を作ってアップロードし、`pnpm tekona:seat-models collect 席ファイルのフォルダ --write`でリンクを登録する。
-   席数を変える場合は、先に`stories/tekona/workshop.config.json`の`slots`を変える。
+2. **席ごとのモデルは用意しない**：参加者が当日、自分のモデルを新規に作ってクラウドへエクスポートし、自分の枠のリンクを
+   自分のURLへ書き換える（[`pose-dataset-plan.md`](pose-dataset-plan.md)の「ブロック台本版：参加者が自分のモデルを作る」）。
+   席数を変える場合は、`stories/tekona/workshop.config.json`の`slots`を変えてから作業用SB3を作り直す。
 3. `pnpm update:tekona`で作業用SB3を作り直し、`stories/tekona/`の次のファイルをアシスタントPCに置く。
    * ブロック台本版：`tekona-workshop-blocks-4.0.sb3`、台本`tekona.k4.yml`（補助ページで文の一覧を作るため）
    * 外部YAML版（予備）：`tekona-workshop-4.0.sb3`、台本`tekona.k4.yml`
    * 補助ページ`resources/tekona-workshop/assistant/compose.html`
-4. **開き直した`seat-NN.tm`から同じリンクを更新できることを、1席分で確かめる**〔要確認〕。
+4. **Appの対応版を確かめる**：参加者がモデルのリンクを書き換えられるのはApp 4.0.11以降である。`app-release.json`の固定が
+   4.0.11より前の間、この手順は実機で通らない（4.0.10までは反映が「Remote asset source does not match: PoseNN」で止まる。
+   kubohiroya/turbowarp-kamishibai-app#1184、PR #1185はまだマージも公開もされていない）。
    `seat-01.tm`を開いて写真を撮り直し、「クラウドモデルを更新」したあと、ブロック台本版の枠01でその変更が認識に反映されることを見る。
 5. 5章の手順を、見本の提出（`scripts/build-tekona.ts`の`sampleSubmission`と同じ形）で通しで練習し、1人あたりの所要時間を測る。
 6. 掲示板に次の投稿を用意する。
@@ -173,7 +175,7 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
 | --- | --- |
 | 場面`suitor-NN` | 用意済みの3人（`miyako`）と`quarrel`の間に席番号順。中身は「もし［false］」で囲まれ、組み込むまで何も再生しない |
 | スプライト`SuitorNN`とコスチューム`stand`・`kime`・`rejected` | 「？」の人物の仮の絵 |
-| モデル`PoseNN` | その席の`seat-NN.tm`でアップロードしたリンク（`slotModelUrls`）。未登録の席は見本モデル（`sampleModelUrl`） |
+| モデル`PoseNN` | 見本モデルのリンク（`sampleModelUrl`）。参加者が自分のリンクへ書き換える |
 
 1人分で行うことは次の5つです。公開App 4.0.0-rc.94とTurboWarp Plus Editorでの自動リハーサル（`pnpm verify:tekona-block-workshop-editor`）で、
 補助ページの一覧どおりに枠01を書き換え（手児奈の心が揺れなかった場合の削除を含む）、反映・再生・保存までを確かめました。
@@ -201,9 +203,10 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
    多くは文の中の`"`や`\`（使えない記号）、ブロックの外し方の誤り。直せない場合は、その枠の「もし」を`false`に戻して反映する。
 5. **確かめる**：緑の旗 → タイトルの×で閉じる → ↓キーで場面をとばして、参加者の場面に絵とセリフが出ることを確かめる。ポーズはSpaceキーでとばせる。
 
-**モデルのブロックは触りません。** rc.94でも、モデル`PoseNN`のリンクを書き換えると反映が
-「Remote asset source does not match: PoseNN」で無効になるためです。リンクは席ごとに決まっていて、参加者がその席の`seat-NN.tm`で
-「クラウドモデルを更新」すると、同じリンクのモデルが参加者のポーズに置き換わります（[`pose-dataset-plan.md`](pose-dataset-plan.md)）。
+**モデルのブロックは、参加者が自分で書き換えます。** 自分のモデルをクラウドへエクスポートして得たリンクを、自分の枠のモデルの
+リンクへ入れます（[`pose-dataset-plan.md`](pose-dataset-plan.md)）。これにはApp 4.0.11以降が必要です。4.0.10までの公開Appでは、
+反映が「Remote asset source does not match: PoseNN」で無効になります（kubohiroya/turbowarp-kamishibai-app#1184、PR #1185）。
+`app-release.json`の固定が4.0.11へ上がるまで、この手順は実機で通りません。
 
 ## 5.3 共有作品への組み込み（外部YAML版・予備）
 
@@ -248,7 +251,8 @@ Copyright © 2026 Hiroya Kubo. 素案（開催日・対象年齢・人数は未�
 | --- | --- |
 | 参加者の場面でモデルを読み込めない | ブロック台本版：その席の`seat-NN.tm`で「クラウドモデルを更新」が済んでいるか確認する。外部YAML版：リンクの誤りを確認する。直せない場合は、その場面の「もし」を`false`に戻して（外部YAML版では台本から外して）上演を続ける |
 | 参加者の場面で、仮のポーズ（スタッフのポーズ）しか認識されない | ブロック台本版で、参加者が`seat-NN.tm`を開かずに新しいプロジェクトで学習したか、「モデルをアップロード」を押した（別のリンクになる）。`seat-NN.tm`を開き直し、写真を撮り直して「クラウドモデルを更新」してもらう |
-| 反映で`Asset bundle must contain every StoryDocument asset`／`Remote asset source does not match` | ブロック台本版で、素材やモデルのブロックを加えた・書き換えた。Plus Editorの「編集」→「元に戻す」で戻すか、直前に保存した共有作品から組み込み直す |
+| 反映で`Asset bundle must contain every StoryDocument asset` | ブロック台本版で、素材のブロックを加えた。Plus Editorの「編集」→「元に戻す」で戻すか、直前に保存した共有作品から組み込み直す |
+| 反映で`Remote asset source does not match` | モデルのリンクを書き換えた。App 4.0.11以降が必要（#1184）。固定が4.0.11より前の間は、その枠の「もし」を`false`に戻して反映する |
 | `Unknown pose kime in model PoseNN`（または`rejected`） | Teachable Machineのラベルが`stand`・`kime`・`rejected`になっていない。参加者にラベルを直して「クラウドモデルを更新」してもらう（外部YAML版でリンクが変わった場合は提出し直してもらう） |
 | 前のカメラでポーズが認識されにくい | 自分の席のカメラで学習したため、距離・明るさ・角度がちがう。立ち位置を席での撮影に近づける。だめならSpaceキーで進める |
 | 左右が反対のポーズになる | 左右対称のポーズをすすめる。非対称の場合は、左右両方の向きで撮影してもらう |

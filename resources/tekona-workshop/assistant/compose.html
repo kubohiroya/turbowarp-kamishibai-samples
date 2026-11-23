@@ -216,7 +216,7 @@ function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'kime'} =
   }
   const slots = Array.from({length: count}, (_, index) => {
     const nn = String(index + 1).padStart(2, '0');
-    // A seat may have its own pre-uploaded model; rc.79 cannot change a remote URL in the editor.
+    // The slot carries the sample model; the participant replaces the URL in the editor (App 4.0.11+).
     const placeholder = {nn, model: modelUrls[nn] ?? modelUrl, moved: true};
     for (const [label, key] of Object.entries(placeholders)) placeholder[key] = `（${label}）`;
     const {assets, actor, scene} = participantYaml(source, placeholder, {pose});
