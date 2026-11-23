@@ -91,6 +91,13 @@ assets:
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
+  # アバンタイトルの無地の背景（コウノトリだけを見せる）
+  AvantBlank:
+    kind: backdrop
+    file: assets/avant-blank.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
   tekona-stand:
     kind: costume
     target: Tekona

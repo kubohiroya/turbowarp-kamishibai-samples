@@ -112,56 +112,53 @@ const net = (x, y, w, h) => {
 };
 const ripples = (pts, c, op = 0.6) => pts.map(([x, y, w]) => `<path d="M${x} ${y} h${w}" stroke="${c}" stroke-width="2.5" stroke-linecap="round" opacity="${op}"/>`).join('');
 
+// 昼の背景は、人物と表情が目立つよう明るく淡い色へ寄せて明暗の差を小さくする（soften）。
+// 水平線（遠くの海・砂州・台地のすそ）は、夕日の入江と同じく人物の顔（画面の上から 140〜180）より下の y≈200 に置く。
+// 人物は手児奈が画面の左（x 20〜160）、求婚者が右（x 310〜450）に立つので、井戸・家・舟などの小道具は左右に寄せ、人物の後ろに重ねる。
+const soften = (svg, t = .3, to = [0xee, 0xf3, 0xef]) => svg.replace(/#([0-9a-f]{6})/gi, (_, h) =>
+  '#' + [0, 2, 4].map(i => { const v = parseInt(h.slice(i, i + 2), 16); return Math.round(v + (to[i / 2] - v) * t).toString(16).padStart(2, '0'); }).join(''));
+const HORIZON = 200;
 // ---------- 真間の井（昼） ----------
 function mamaWell() {
-  let s = `<rect width="480" height="360" fill="${grad([[0, '#a9d8f1'], [.6, '#d4ecf8'], [1, '#f1f9fc']])}"/>`;
-  s += `<path d="M40 52 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M330 34 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
-  // 遠くの海と砂州（右）
-  s += `<rect x="250" y="150" width="230" height="20" fill="${grad([[0, '#a6d4ea'], [1, '#86c0dc']])}"/>`;
-  s += `<path d="M250 168 Q360 158 480 166 V176 H250 Z" fill="${grad([[0, '#ecdcae'], [1, '#d9c38e']])}"/>`;
-  s += pineRow([288, 304, 326, 350, 372, 398, 424, 446, 468], 168, .42, ['#4f7a52', '#6a9466'], 21);
-  // 国府台の台地（左・平らな上面と急な崖）
-  s += `<path d="M0 98 Q60 92 150 96 Q205 100 226 128 Q250 160 300 176 H0 Z" fill="#7fae67"/>`;
-  s += grove(0, 214, 100, '#5f8f4f', '#6f9f58');
-  s += `<path d="M150 104 Q200 112 226 140 Q246 162 300 176 H160 Z" fill="#6c9a58" opacity=".7"/>`;
+  const H = HORIZON;
+  let s = `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.55, '#d6edf8'], [1, '#f1f9fc']])}"/>`;
+  s += `<path d="M40 52 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M330 40 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
+  // 遠くの海と砂州・松（右）
+  s += `<rect x="220" y="${H - 8}" width="260" height="12" fill="${grad([[0, '#a6d4ea'], [1, '#8cc4de']])}"/>`;
+  s += `<path d="M230 ${H + 2} Q350 ${H - 6} 480 ${H} V${H + 8} H230 Z" fill="${grad([[0, '#ecdcae'], [1, '#d9c38e']])}"/>`;
+  s += pineRow([300, 318, 340, 362, 384, 408, 432, 454, 474], H + 1, .34, ['#4f7a52', '#6a9466'], 21);
+  // 国府台：左手に低くのびる台地のすそ（上は y≈190、木の頭でも 182 まで。人物の顔より下）
+  s += `<path d="M0 ${H - 9} Q70 ${H - 12} 150 ${H - 9} Q200 ${H - 6} 236 ${H + 4} H0 Z" fill="${grad([[0, '#8fbf72'], [1, '#6f9f5c']])}"/>`;
+  s += grove(0, 200, H - 8, '#5f8f4f', '#6f9f58', 4).replace(/r="([\d.]+)"/g, (m, r) => `r="${(r * .4).toFixed(1)}"`);
   // 真間の入江（右手前に広がる）
-  s += `<path d="M230 176 H480 V300 Q430 268 360 262 Q300 256 268 230 Q248 206 230 176 Z" fill="${grad([[0, '#86c4e0'], [.55, '#6fb3d6'], [1, '#5aa2c8']])}"/>`;
-  s += `<path d="M268 230 Q300 256 360 262 Q430 268 480 300 V286 Q430 258 362 252 Q306 246 276 226 Z" fill="#9fd3ea" opacity=".55"/>`;
-  s += ripples([[300, 200, 30], [360, 214, 40], [420, 196, 34], [330, 236, 26], [410, 240, 40]], '#ffffff', 0.55);
-  s += tamamo(318, 250, '#3f7f5a') + tamamo(402, 258, '#3f7f5a', 4) + tamamo(452, 230, '#3f7f5a', 2);
-  s += grebe(372, 226, 0.9) + grebe(430, 210, 0.7);
+  s += `<path d="M236 ${H + 4} H480 V318 Q430 290 372 284 Q318 276 290 252 Q268 224 236 ${H + 4} Z" fill="${grad([[0, '#8ac6e0'], [.6, '#72b4d6'], [1, '#62a8cc']])}"/>`;
+  s += `<path d="M290 252 Q318 276 372 284 Q430 290 480 318 V306 Q430 280 374 274 Q322 268 298 248 Z" fill="#a8d8ec" opacity=".6"/>`;
+  s += ripples([[300, 218, 30], [372, 230, 40], [430, 214, 34], [340, 256, 26], [420, 262, 40]], '#ffffff', .5);
+  s += tamamo(332, 272, '#3f7f5a') + tamamo(452, 250, '#3f7f5a', 2);
   // 里の地面
-  s += `<path d="M0 176 H230 Q248 206 268 230 Q300 256 360 262 Q430 268 480 300 V360 H0 Z" fill="${grad([[0, '#e6d3a2'], [.5, '#dcc492'], [1, '#cdb07a']])}"/>`;
-  s += `<path d="M262 226 Q300 254 360 260 Q430 266 480 298 L480 306 Q430 274 360 268 Q296 262 258 232 Z" fill="#c4a670" opacity=".6"/>`;
-  s += `<path d="M0 230 Q120 222 240 236" stroke="#c9ae78" stroke-width="3" fill="none" opacity=".6"/>`;
-  // 伏屋（竪穴住居）
-  s += fuseya(54, 192, 70, '#b89a5e', '#8a6c3c', '#4a3720') + fuseya(146, 186, 56, '#c2a66a', '#8a6c3c', '#4a3720');
-  s += `<path d="M146 152 q-4 -10 2 -18 q6 -8 0 -16" stroke="#ffffff" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>`;
-  // 干した網（伏屋のわき）と、岸に引き上げた丸木舟
-  s += net(178, 156, 34, 26);
-  s += marukibune(300, 226, .62, {f: -1});
-  s += `<path d="M266 232 q34 6 70 2" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".7"/>`;
-  // 真間の井：木を井の字に組んだ低い枠。屋根もつるべもつけない
-  const wx = 240, wy = 250;
-  s += `<ellipse cx="${wx}" cy="${wy + 26}" rx="62" ry="10" fill="#c2a46f"/>`;
-  s += `<path d="M${wx - 44} ${wy - 6} h88 l10 14 h-108 z" fill="#3c5f74"/>`;
-  s += `<path d="M${wx - 40} ${wy - 2} q40 6 80 0" stroke="#9fd3ea" stroke-width="2.5" fill="none" opacity=".8"/>`;
-  for (let i = 0; i < 3; i++) {
-    const y = wy + 8 + i * 9;
-    s += `<rect x="${wx - 54}" y="${y}" width="108" height="9" rx="3" fill="${i % 2 ? '#8a5a30' : '#7a4c26'}"/>`;
-  }
-  s += `<rect x="${wx - 58}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/><rect x="${wx + 49}" y="${wy + 2}" width="9" height="34" rx="3" fill="#6a4020"/>`;
-  s += `<rect x="${wx - 62}" y="${wy}" width="124" height="8" rx="3" fill="#9a6a3a"/>`;
-  // 曲物のつるべ桶となわ、水がめ（土師器・須恵器）
-  s += `<path d="M${wx + 32} ${wy - 2} q20 -4 26 10" stroke="#a88a5a" stroke-width="2" fill="none"/>`;
-  s += `<rect x="${wx + 52}" y="${wy + 6}" width="18" height="14" rx="2" fill="#c8a46a"/><path d="M${wx + 52} ${wy + 10} h18" stroke="#9a7a48" stroke-width="2"/>`;
-  s += `<path d="M${wx - 92} ${wy + 6} q-12 16 -4 30 q14 10 28 0 q8 -14 -4 -30 z" fill="#b5703c"/><ellipse cx="${wx - 82}" cy="${wy + 6}" rx="10" ry="3.5" fill="#7a4a24"/>`;
-  s += `<path d="M${wx + 82} ${wy + 14} q-8 12 -2 22 q10 8 20 0 q6 -10 -2 -22 z" fill="#7d8486"/><ellipse cx="${wx + 90}" cy="${wy + 14}" rx="7" ry="2.6" fill="#55595b"/>`;
-  // 草で編んだかご（貝や魚を入れて井戸のそばに置く）
-  s += kago(wx + 2, wy + 52, .9) + kago(wx - 44, wy + 48, .75, {fill: 'greens'});
+  s += `<path d="M0 ${H} H236 Q268 224 290 252 Q318 276 372 284 Q430 290 480 318 V360 H0 Z" fill="${grad([[0, '#e6d3a2'], [.5, '#dcc492'], [1, '#cdb07a']])}"/>`;
+  s += `<path d="M284 248 Q318 274 372 282 Q430 288 480 316 L480 324 Q430 296 372 290 Q314 282 280 254 Z" fill="#c4a670" opacity=".55"/>`;
+  s += `<path d="M0 258 Q120 250 230 262" stroke="#c9ae78" stroke-width="3" fill="none" opacity=".5"/>`;
+  // 左：伏屋（手児奈の後ろ）と、木を井の字に組んだ真間の井
+  s += fuseya(26, 232, 62, '#b89a5e', '#8a6c3c', '#4a3720') + fuseya(116, 226, 52, '#c2a66a', '#8a6c3c', '#4a3720');
+  s += `<path d="M116 192 q-4 -8 2 -14 q6 -6 0 -12" stroke="#ffffff" stroke-width="3" fill="none" opacity=".6" stroke-linecap="round"/>`;
+  const wx = 150, wy = 266;
+  s += `<ellipse cx="${wx}" cy="${wy + 26}" rx="60" ry="9" fill="#c2a46f"/>`;
+  s += `<path d="M${wx - 42} ${wy - 6} h84 l10 14 h-104 z" fill="${grad([[0, '#2c4d63'], [1, '#4f7e98']])}"/>`;
+  s += `<path d="M${wx - 36} ${wy - 2} q36 5 72 0" stroke="#9fd3ea" stroke-width="2.5" fill="none" opacity=".8"/>`;
+  for (let i = 0; i < 3; i++) s += `<rect x="${wx - 52}" y="${wy + 8 + i * 9}" width="104" height="9" rx="3" fill="${i % 2 ? '#8a5a30' : '#7a4c26'}"/>`;
+  s += `<rect x="${wx - 56}" y="${wy + 2}" width="9" height="33" rx="3" fill="#6a4020"/><rect x="${wx + 47}" y="${wy + 2}" width="9" height="33" rx="3" fill="#6a4020"/>`;
+  s += `<rect x="${wx - 60}" y="${wy}" width="120" height="8" rx="3" fill="#9a6a3a"/>`;
+  s += `<path d="M${wx + 30} ${wy - 2} q18 -4 24 10" stroke="#a88a5a" stroke-width="2" fill="none"/><rect x="${wx + 48}" y="${wy + 6}" width="18" height="14" rx="2" fill="#c8a46a"/><path d="M${wx + 48} ${wy + 10} h18" stroke="#9a7a48" stroke-width="2"/>`;
+  s += `<path d="M30 ${wy + 12} q-12 16 -4 30 q14 10 28 0 q8 -14 -4 -30 z" fill="#b5703c"/><ellipse cx="40" cy="${wy + 12}" rx="10" ry="3.5" fill="#7a4a24"/>`;
+  s += kago(wx + 2, wy + 54, .85) + kago(wx - 40, wy + 50, .7, {fill: 'greens'});
+  // 右：岸に引き上げた丸木舟と、竿に干した網（求婚者の後ろ）
+  s += net(404, H + 6, 36, 26);
+  s += marukibune(372, 280, .7, {f: -1});
+  s += `<path d="M332 288 q40 6 84 2" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".7"/>`;
   // 手前の葦
-  s += reeds(0, 60, 360, '#5f8d44', 7, 90) + reeds(424, 480, 360, '#4f7a3a', 11, 100);
-  return s;
+  s += reeds(0, 50, 360, '#5f8d44', 7, 80) + reeds(436, 480, 360, '#4f7a3a', 11, 86);
+  return soften(s);
 }
 
 // ---------- 夕日の入江 ----------
@@ -190,41 +187,41 @@ function inletSunset() {
 
 // ---------- 真間の継橋（昼） ----------
 function tsugihashi() {
-  let s = `<rect width="480" height="360" fill="${grad([[0, '#b2dcf2'], [.55, '#d9eef8'], [1, '#f2f9fc']])}"/>`;
-  s += `<path d="M380 48 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z" fill="#ffffff" opacity=".85"/>`;
-  // 国府台（奥）
-  s += `<path d="M0 132 Q120 124 220 130 Q260 134 280 160 H0 Z" fill="#8fbf74"/>`;
-  s += grove(0, 260, 132, '#78a862', '#86b46c', 5);
+  const H = HORIZON;
+  let s = `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.55, '#d6edf8'], [1, '#f1f9fc']])}"/>`;
+  s += `<path d="M380 52 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M60 70 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
+  // 国府台（奥、低く）
+  s += `<path d="M0 ${H - 9} Q110 ${H - 12} 210 ${H - 9} Q250 ${H - 6} 270 ${H + 2} H0 Z" fill="${grad([[0, '#a6cf8c'], [1, '#86b46c']])}"/>`;
+  s += grove(0, 250, H - 8, '#78a862', '#86b46c', 5).replace(/r="([\d.]+)"/g, (m, r) => `r="${(r * .4).toFixed(1)}"`);
   // 入江と海
-  s += `<rect y="158" width="480" height="202" fill="${grad([[0, '#93cbe4'], [.4, '#74b8d9'], [1, '#559fc6']])}"/>`;
-  s += `<rect x="280" y="158" width="200" height="12" fill="${grad([[0, '#b2dbee'], [1, '#93cbe4']])}"/>`;
-  s += ripples([[30, 290, 40], [150, 300, 30], [330, 296, 44], [420, 318, 30], [200, 330, 50], [80, 334, 30]], '#ffffff', 0.55);
-  // 左右の砂州と道
+  s += `<rect y="${H}" width="480" height="${360 - H}" fill="${grad([[0, '#9acfe6'], [.4, '#7cbcdb'], [1, '#5ea3c8']])}"/>`;
+  s += `<rect x="270" y="${H}" width="210" height="6" fill="#b2dbee"/>`;
+  s += ripples([[30, 300, 40], [140, 318, 30], [340, 312, 44], [420, 330, 30], [200, 340, 50], [250, 290, 30]], '#ffffff', .5);
+  // 左右の砂州と、その上の道・松
   const sand = grad([[0, '#f0e1b4'], [1, '#d6bd86']]);
-  s += `<path d="M-10 214 Q70 200 160 210 Q178 222 160 236 H-10 Z" fill="${sand}"/>`;
-  s += `<path d="M330 212 Q420 200 490 206 V238 H322 Q306 224 330 212 Z" fill="${sand}"/>`;
-  s += `<path d="M-10 232 Q80 238 160 236 M322 236 Q400 240 490 236" stroke="#c4a670" stroke-width="3" fill="none" opacity=".6"/>`;
-  s += `<path d="M0 222 Q80 214 160 222 M330 222 Q410 214 480 218" stroke="#cdb57f" stroke-width="5" fill="none" stroke-linecap="round"/>`;
-  s += pineRow([10, 34, 62, 86, 112, 138], 212, .62, ['#466e4a', '#5f8a5e'], 7, -4);
-  s += pineRow([346, 372, 398, 424, 452, 474], 210, .62, ['#466e4a', '#5f8a5e'], 13, 4);
-  // 継橋：杭で支えた平らな板橋を、中ほどでつなぐ
-  const deckY = 212;
-  for (const x of [168, 200, 232, 248, 280, 312]) s += `<rect x="${x}" y="${deckY}" width="7" height="${x === 232 || x === 248 ? 46 : 40}" fill="#5a3a20"/>`;
-  s += `<rect x="156" y="${deckY - 6}" width="86" height="9" fill="#a0683a"/><rect x="236" y="${deckY - 4}" width="92" height="9" fill="#a8703f"/>`;
-  s += `<path d="M156 ${deckY - 6} h86 M236 ${deckY - 4} h92" stroke="#7a4a24" stroke-width="2"/>`;
-  for (let x = 162; x < 326; x += 12) s += `<path d="M${x} ${deckY - 5} v7" stroke="#8a5a30" stroke-width="1.2" opacity=".7"/>`;
-  s += ripples([[166, 254, 14], [198, 254, 14], [230, 260, 30], [278, 254, 14], [310, 254, 14]], '#ffffff', 0.7);
-  // 橋のたもとにつないだ丸木舟と、橋の上に置いたかご
-  s += `<path d="M206 262 q-8 4 -14 14" stroke="#8a6a3a" stroke-width="1.4" fill="none"/>`;
-  s += marukibune(236, 280, .72);
-  s += `<path d="M200 288 q36 6 76 0" stroke="#ffffff" stroke-width="1.8" fill="none" opacity=".7"/>`;
-  s += kago(176, 204, .55);
-  // 入江の玉藻と水鳥
-  s += tamamo(110, 290, '#3f7f5a') + tamamo(360, 300, '#3f7f5a', 4);
-  s += grebe(84, 268, 0.8) + grebe(396, 274, 0.9);
+  s += `<path d="M-10 238 Q70 226 168 234 Q184 244 168 256 H-10 Z" fill="${sand}"/>`;
+  s += `<path d="M312 236 Q410 224 490 230 V258 H306 Q292 246 312 236 Z" fill="${sand}"/>`;
+  s += `<path d="M-10 254 Q80 260 168 256 M306 258 Q400 262 490 258" stroke="#c4a670" stroke-width="3" fill="none" opacity=".6"/>`;
+  s += `<path d="M0 244 Q80 238 166 244 M314 244 Q400 238 480 240" stroke="#cdb57f" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  s += pineRow([8, 32, 58, 84, 108, 136], 236, .5, ['#466e4a', '#5f8a5e'], 7, -4);
+  s += pineRow([326, 352, 378, 404, 430, 456, 476], 234, .5, ['#466e4a', '#5f8a5e'], 13, 4);
+  // 継橋：水面すれすれの低い板橋を、短い杭で支えて中ほどでつなぐ
+  const deck = 247, water = 255;
+  for (const x of [170, 196, 222, 238, 264, 290]) s += `<rect x="${x}" y="${deck + 2}" width="5" height="${water - deck + 3}" fill="#5a3a20"/><path d="M${x - 3} ${water + 4} q5.5 2 11 0" stroke="#ffffff" stroke-width="1.4" fill="none" opacity=".7"/>`;
+  s += `<rect x="160" y="${deck - 3}" width="84" height="6" rx="1" fill="${grad([[0, '#c4884e'], [1, '#8a5a30']])}"/><rect x="234" y="${deck - 2}" width="82" height="6" rx="1" fill="${grad([[0, '#c88e54'], [1, '#8f5f34']])}"/>`;
+  s += `<path d="M160 ${deck - 3} h84 M234 ${deck - 2} h82" stroke="#f0c890" stroke-width="1.2"/>`;
+  for (let x = 166; x < 314; x += 10) s += `<path d="M${x} ${deck - 2} v5" stroke="#7a4a24" stroke-width="1" opacity=".7"/>`;
+  s += `<path d="M160 ${water + 1} h156" stroke="#2a5a7a" stroke-width="5" opacity=".15"/>`;
+  s += ripples([[176, 262, 20], [226, 264, 30], [276, 262, 22]], '#ffffff', .65);
+  // 左：砂州のかご（手児奈の後ろ）／右：岸につないだ丸木舟（求婚者の後ろ）
+  s += kago(118, 246, .6) + kago(140, 250, .5, {fill: 'greens'});
+  s += `<path d="M352 258 q4 10 12 18" stroke="#8a6a3a" stroke-width="1.4" fill="none"/>`;
+  s += marukibune(390, 282, .72, {f: -1});
+  s += `<path d="M352 290 q40 6 80 0" stroke="#ffffff" stroke-width="1.8" fill="none" opacity=".7"/>`;
+  s += tamamo(220, 306, '#3f7f5a') + tamamo(96, 320, '#3f7f5a', 2);
   // 手前の葦
-  s += reeds(0, 56, 360, '#4f7a3a', 3, 96) + reeds(430, 480, 360, '#5f8d44', 13, 100);
-  return s;
+  s += reeds(0, 48, 360, '#4f7a3a', 3, 84) + reeds(438, 480, 360, '#5f8d44', 13, 86);
+  return soften(s);
 }
 
 // ---------- タイトル（月夜の入江） ----------
