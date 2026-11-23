@@ -33,6 +33,7 @@ assets:
   Kokubunji: backdrop
   Kokuga: backdrop
   Uma: backdrop
+  Kame: backdrop
   Ryo: backdrop
   Hama: backdrop
   IdoBata: backdrop
@@ -167,7 +168,7 @@ scenes:
     - wait: 2.5
     - Narration.hide: {}
 
-  # 里の暮らし：入江の沖の網漁、遠浅の浜の貝・海藻とり、真間の井の井戸端
+  # 里の暮らし：入江の沖の網漁、遠浅の浜の貝・海藻とり、水辺で甲羅干しをする亀、真間の井の井戸端
   kurashi:
     - transition: {effect: fadeOut, seconds: 1}
     - stage: Ryo
@@ -183,7 +184,7 @@ scenes:
     - Narration.setText:
         text: |-
           入江の沖では、男たちが丸木舟に乗り、
-          網を打って魚をとりました。
+          網をたぐって魚をとりました。
         style: narration
     - wait: 3.5
     - Narration.hide: {}
@@ -197,6 +198,17 @@ scenes:
           貝や海藻をひろい、かごに集めました。
         style: narration
     - wait: 3.5
+    - Narration.hide: {}
+    - transition: {effect: fadeOut, seconds: 1}
+    - stage: Kame
+    - transition: {effect: fadeUp, seconds: 1}
+    - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
+    - Narration.setText:
+        text: |-
+          水辺の石の上では、親亀と子亀が
+          のんびりと甲羅をほしていました。
+        style: narration
+    - wait: 3
     - Narration.hide: {}
     - transition: {effect: fadeOut, seconds: 1}
     - stage: IdoBata

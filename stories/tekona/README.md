@@ -21,7 +21,7 @@
 - **未完了**: 用意済み3人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`）は未作成で、URLは仮の値です。撮影計画は
   [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
   用意済み3人の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`、後日談`kokubunji`（背景`Kokubunji`）、里の暮らし`kurashi`（背景`Ryo`・`Hama`・`IdoBata`）、国府の工事場`kokuga`（背景`Kokuga`）、都からの旅`uma`（背景`Uma`）を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
+- **未検証**: アバンタイトル`avant`（コウノトリ）とスプライト`Stork`、後日談`kokubunji`（背景`Kokubunji`）、里の暮らし`kurashi`（背景`Ryo`・`Hama`・`Kame`・`IdoBata`）、国府の工事場`kokuga`（背景`Kokuga`）、都からの旅`uma`（背景`Uma`）を台本・素材の宣言に加えたあと、公開4.0.1のAppの`validate-dsl4`と
   `pnpm update:tekona`はまだ実行していません（この作業環境にAppがないため）。`dsl4-artifacts.lock.json`の台本・素材の宣言のハッシュは古いままなので、
   `pnpm verify:tekona`は作り直すまで一致しません。
 - **未完了**: 考証にもとづいて描き直した`assets/`のSVG（手児奈・用意済み3人・参加者の枠の仮の人物・背景4枚。[絵柄の版の記録](../../resources/tekona-workshop/art-versions/README.md)の版4）は、まだSB3へ反映していません。
@@ -69,7 +69,7 @@
 | --- | --- | --- |
 | `avant` | アバンタイトル。背景を省いた無地の画面（背景`AvantBlank`）で、水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる（スプライト`Stork`のコスチューム`stork-1`〜`stork-9`を順に切り替える） | なし |
 | `opening` | タイトル | なし |
-| `kurashi` | 里の暮らし。入江の沖の網漁（背景`Ryo`）、遠浅の浜の貝・海藻とり（`Hama`）、真間の井の井戸端（`IdoBata`）を順に見せる。冒頭の「むかし、下総の国の真間は…」もここで語る | なし |
+| `kurashi` | 里の暮らし。入江の沖の網漁（背景`Ryo`）、遠浅の浜の貝・海藻とり（`Hama`）、水辺の石の上で甲羅干しをする親亀と子亀（`Kame`）、真間の井の井戸端（`IdoBata`）を順に見せる。冒頭の「むかし、下総の国の真間は…」もここで語る | なし |
 | `well` | 真間の井と手児奈。評判が国府・都へ広まる | なし |
 | `sato`・`kokufu`・`miyako` | 用意済みの3人（里の若者・国府の役人・都の貴族）。参加者と同じ雛形の流れ | `SatoPose`・`KokufuPose`・`MiyakoPose` |
 | `kokuga` | 国府の工事場（`sato`と`kokufu`のあいだ）。柱のたもとで役人たちが木簡を広げ、大工の棟梁と工事の進み具合を話し合う（背景`Kokuga`）。若い役人の心は手児奈のことでいっぱい | なし |

@@ -1,6 +1,7 @@
 // 背景2枚（480x360、版4の絵柄：輪郭線なしの平面イラスト）。考証メモ 2.2（漁具：丸木舟、網と土錘）・2.4（漁撈）にもとづく。
 // ryo.svg ：穏やかに凪いだ近海で、丸木舟に乗って網で漁をする男たち。
-//           手前の舟では舳先の男が網を打ち、艫の男が櫂で舟をあやつる。奥の舟では2人が網をたぐり上げ、魚が跳ねる。
+//           手前の舟（画面の中央）では舳先の男が前かがみ・中腰で網をたぐって魚を引き上げ、艫の男が櫂で舟をあやつる。
+//           奥の舟では1人が網をたぐり上げ、もう1人は舟の中にしゃがんで、うつむいて網のもつれをほどく。
 // hama.svg：遠浅の浜で、身をかがめて貝や海藻をとり、草で編んだかごに集める女と子どもたち。
 // 人物は chars.cjs（男：里の若者と同じ描き方）と village.cjs（女・子ども）の部品で描く。
 const fs = require('fs');
@@ -66,49 +67,56 @@ function ryo() {
   // 遠くの舟
   s += `<path d="M398 180 q20 3 40 0 l-4 4 h-32 z" fill="#6f8796"/><path d="M412 180 v-9 M424 180 v-11" stroke="#6f8796" stroke-width="2"/><circle cx="412" cy="169" r="2" fill="#6f8796"/><circle cx="424" cy="167" r="2" fill="#6f8796"/>`;
   s += gulls([[220, 70, 1], [244, 60, .8], [300, 96, .7]]);
-  // ---- 奥の舟：2人で網をたぐり上げる（右向き）
-  s += reflection(352, 254, 170);
+  // ---- 奥の舟（右寄り・小さめ）：艫の男が網をたぐり上げ、もう1人は舟の中にしゃがんで、うつむいて手元の網のもつれをほどく
+  const bbx = 382, bby = 240, bblen = 140, bs = .34, bfy = bby + 40;
+  s += reflection(bbx, bby, bblen);
   // 舟の上では腰を低く落とし、足を開いてふんばる（重心を低くしないと舟から落ちる）
   const haul1 = skeleton(MALE, {pelvis: [132, 256], chest: [150, 168], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [74, 196], wristR: [86, 206], elbowL: -1, elbowR: -1, headDx: 4, headTilt: 8});
-  // 左の男：相方と背中合わせに体を左へ向け、身をかがめて舟の中（とれた魚）を見下ろす
-  const haul2 = skeleton(MALE, {pelvis: [128, 262], chest: [102, 192], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [70, 258], wristR: [86, 266], elbowL: 1, elbowR: -1, headDx: -6, headTilt: 28});
-  s += inBoat(place(recolor(satoFigure(haul2, 'stand'), MAN3), 312, 300, .4), 256);
-  s += inBoat(place(satoFigure(haul1, 'eager'), 366, 300, .4, -1), 256);
-  s += canoe(352, 254, 170, -1);
+  // しゃがむ男：背を丸めて前へかがみ、首は背骨の先から前へ出して、顔を手元へ向ける（左向き）
+  const untangle = skeleton(MALE, {pelvis: [130, 250], chest: [104, 180], ankleL: [92, 334], ankleR: [140, 334], kneeL: 1, kneeR: 1,
+    wristL: [30, 194], wristR: [50, 200], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip'});
+  untangle.neckTop = [97, 162]; untangle.head = [94, 140]; untangle.headTilt = 34;
+  let un = recolor(satoFigure(untangle, 'focus'), MAN3);
+  // 手元のもつれた網のかたまり（土錘つき）
+  un += `<path d="M24 196 q10 -12 24 -6 q14 4 22 -4 M26 202 q14 6 26 -2 q10 -6 20 2 M32 192 l8 14 M46 190 l-4 16 M58 192 l4 12 M22 198 q-6 14 4 30 M70 198 q8 16 0 30" stroke="#8a7a5a" stroke-width="2" fill="none"/><ellipse cx="28" cy="204" rx="4" ry="3" fill="#9a6a44"/><ellipse cx="70" cy="198" rx="4" ry="3" fill="#9a6a44"/>`;
+  s += inBoat(place(un, bbx - 30, bfy, bs), bby + 2);
+  s += inBoat(place(satoFigure(haul1, 'eager'), bbx + 14, bfy, bs, -1), bby + 2);
+  s += canoe(bbx, bby, bblen, -1);
   // たぐる網：手から水面へ、浮きと魚
-  s += `<path d="M384 246 Q414 248 436 262 M394 250 Q424 254 446 266" stroke="#8a7a5a" stroke-width="1.4" fill="none"/>`;
-  s += `<path d="M430 258 Q452 252 474 262 L470 276 Q450 280 432 272 Z" fill="#b8a888" opacity=".55"/>`;
-  for (let i = 0; i < 5; i++) s += `<path d="M${434 + i * 9} 258 l-2 18" stroke="#8a7a5a" stroke-width=".8"/>`;
-  for (const [x, y] of [[440, 262], [458, 258], [472, 262]]) s += `<ellipse cx="${x}" cy="${y}" rx="3" ry="2" fill="#d8c49a"/>`;
-  s += fish(448, 248, -30, .9) + fish(462, 240, 20, .7);
-  s += `<path d="M444 254 q2 -8 6 -10 M458 250 q4 -6 8 -6" stroke="#ffffff" stroke-width="1.4" fill="none" opacity=".8"/>`;
-  // ---- 手前の舟（大きめ・左寄り）：舳先の男が投網を空へ打ち、艫の男が櫂をこぐ（左向き）
+  const hh = [bbx + 14 - (74 - 120) * bs, bfy + (196 - 334) * bs];
+  s += `<path d="M${r1(hh[0])} ${r1(hh[1])} Q${r1(hh[0] + 18)} ${r1(hh[1] + 2)} ${r1(hh[0] + 34)} ${r1(hh[1] + 16)} M${r1(hh[0] + 4)} ${r1(hh[1] + 3)} Q${r1(hh[0] + 22)} ${r1(hh[1] + 6)} ${r1(hh[0] + 40)} ${r1(hh[1] + 20)}" stroke="#8a7a5a" stroke-width="1.3" fill="none"/>`;
+  const nx = hh[0] + 30, ny = hh[1] + 14;
+  s += `<path d="M${r1(nx)} ${r1(ny)} Q${r1(nx + 14)} ${r1(ny - 4)} ${r1(nx + 30)} ${r1(ny + 2)} L${r1(nx + 28)} ${r1(ny + 14)} Q${r1(nx + 14)} ${r1(ny + 18)} ${r1(nx + 2)} ${r1(ny + 12)} Z" fill="#b8a888" opacity=".55"/>`;
+  for (let i = 0; i < 4; i++) s += `<path d="M${r1(nx + 3 + i * 8)} ${r1(ny)} l-2 14" stroke="#8a7a5a" stroke-width=".8"/>`;
+  s += fish(nx + 14, ny - 8, -30, .7) + `<path d="M${r1(nx + 10)} ${r1(ny - 2)} q2 -6 5 -8" stroke="#ffffff" stroke-width="1.2" fill="none" opacity=".8"/>`;
+  // ---- 手前の舟（大きめ・画面の中央）：舳先の男が不安定な舟の上で前かがみ・中腰になり、網をたぐって魚を引き上げる。艫の男が櫂をこぐ（左向き）
   const at = (q, x, y, sc) => [x + (q[0] - 120) * sc, y + (q[1] - 334) * sc];
-  const bx0 = 130, by0 = 302, blen = 250, fs = .5;
+  const bx0 = 228, by0 = 302, blen = 236, fs = .5;
   s += reflection(bx0, by0, blen);
-  const caster = skeleton(MALE, {pelvis: [126, 250], chest: [108, 164], ankleL: [92, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [-16, 106], wristR: [0, 122], elbowL: -1, elbowR: -1, headDx: -4, headTilt: -12});
+  // 中腰：足を大きく開いてひざを曲げ、腰を落としたまま上体を前へ倒す。両手は舳先の舟べりの先で網をつかむ
+  const caster = skeleton(MALE, {pelvis: [130, 236], chest: [86, 172], ankleL: [88, 334], ankleR: [156, 334], kneeL: 1, kneeR: 1,
+    wristL: [-24, 226], wristR: [12, 232], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip'});
+  caster.neckTop = [75, 156]; caster.head = [72, 132]; caster.headTilt = 28;
   // 艫の男は片ひざをついて腰を落とし、櫂をこぐ
   const paddler = skeleton(MALE, {pelvis: [126, 270], chest: [118, 184], ankleL: [96, 334], ankleR: [150, 334], kneeL: 1, kneeR: 1, wristL: [78, 270], wristR: [104, 210], elbowL: 1, elbowR: -1, headDx: -2, headTilt: 4});
-  const cx0 = 92, px0 = 214, fy = 356;
+  const cx0 = bx0 - 66, px0 = bx0 + 76, fy = 356;
   s += inBoat(place(recolor(satoFigure(paddler, 'stand'), MAN2), px0, fy, fs), by0 + 2);
-  s += inBoat(place(satoFigure(caster, 'eager'), cx0, fy, fs), by0 + 2);
+  s += inBoat(place(satoFigure(caster, 'focus'), cx0, fy, fs), by0 + 2);
   s += canoe(bx0, by0, blen);
   // 櫂：上の手から下の手を通り、舟べりの外の水の中へ
   const u = at(paddler.wristR, px0, fy, fs), l = at(paddler.wristL, px0, fy, fs), tip = [l[0] + (l[0] - u[0]) * 1.2, l[1] + (l[1] - u[1]) * 1.2];
   s += `<path d="M${r1(u[0])} ${r1(u[1])} L${r1(tip[0])} ${r1(tip[1])}" stroke="#b07a44" stroke-width="3.6" stroke-linecap="round"/><path d="M${r1(tip[0] + 2)} ${r1(tip[1] - 16)} q-10 14 -6 26 q8 -2 12 -22 z" fill="#b07a44"/>`;
   s += `<path d="M${r1(tip[0] - 18)} ${r1(tip[1] + 6)} q14 -5 28 0" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".8"/>`;
-  // 投網：男の手から前の空へ放たれ、丸く平らに大きく広がって水面へ落ちていく。ふちに土錘、真ん中の手綱は男の手へ
-  const h = at(caster.wristL, cx0, fy, fs);
-  const nc = [70, 150], nrx = 66, nry = 20, tilt = -10;
-  s += `<path d="M${r1(h[0])} ${r1(h[1])} Q${r1((h[0] + nc[0]) / 2 + 14)} ${r1((h[1] + nc[1]) / 2 + 6)} ${nc[0]} ${nc[1]}" stroke="#8a7a5a" stroke-width="1.6" fill="none"/>`;
-  let net = `<ellipse cx="0" cy="0" rx="${nrx}" ry="${nry}" fill="#c9bea4" opacity=".4"/>`;
-  for (let i = 0; i < 16; i++) { const a = Math.PI * 2 * i / 16; net += `<path d="M0 0 L${r1(nrx * Math.cos(a))} ${r1(nry * Math.sin(a))}" stroke="#8a7a5a" stroke-width=".8"/>`; }
-  for (const k of [.33, .66]) net += `<ellipse cx="0" cy="0" rx="${r1(nrx * k)}" ry="${r1(nry * k)}" fill="none" stroke="#8a7a5a" stroke-width=".8"/>`;
-  net += `<ellipse cx="0" cy="0" rx="${nrx}" ry="${nry}" fill="none" stroke="#8a7a5a" stroke-width="1.2"/>`;
-  for (let i = 0; i < 20; i++) { const a = Math.PI * 2 * i / 20; net += `<ellipse cx="${r1(nrx * Math.cos(a))}" cy="${r1(nry * Math.sin(a))}" rx="2.4" ry="1.7" fill="#9a6a44"/>`; }
-  s += `<g transform="translate(${nc[0]} ${nc[1]}) rotate(${tilt})">${net}</g>`;
-  // 投げた勢いの線
-  s += `<path d="M${r1(h[0] + 18)} ${r1(h[1] - 22)} q-16 -18 -26 -36 M${r1(h[0] + 30)} ${r1(h[1] - 14)} q-16 -22 -24 -44" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>`;
+  // たぐり上げる網：両手から舳先の外へ垂れ、水面で魚の入った網のふくらみになる。ふちに土錘
+  const h1 = at(caster.wristL, cx0, fy, fs), h2 = at(caster.wristR, cx0, fy, fs);
+  const w = [h1[0] - 26, by0 + 20];
+  s += `<path d="M${r1(w[0] - 22)} ${r1(w[1] + 2)} Q${r1(w[0])} ${r1(w[1] + 26)} ${r1(w[0] + 26)} ${r1(w[1] + 4)} Q${r1(w[0] + 10)} ${r1(w[1] - 4)} ${r1(w[0] - 22)} ${r1(w[1] + 2)} Z" fill="#c9bea4" opacity=".75"/>`;
+  for (let i = 0; i < 6; i++) { const t = i / 5; s += `<path d="M${r1(w[0] - 22 + 48 * t)} ${r1(w[1] + 2 - 2 * t)} Q${r1(w[0] - 6 + 16 * t)} ${r1(w[1] + 14)} ${r1(w[0] + 2)} ${r1(w[1] + 22)}" stroke="#8a7a5a" stroke-width=".8" fill="none"/>`; }
+  for (const k of [.35, .7]) s += `<path d="M${r1(w[0] - 22 + 6 * k)} ${r1(w[1] + 2 + 10 * k)} Q${r1(w[0])} ${r1(w[1] + 4 + 22 * k)} ${r1(w[0] + 26 - 8 * k)} ${r1(w[1] + 4 + 10 * k)}" stroke="#8a7a5a" stroke-width=".8" fill="none"/>`;
+  for (let i = 0; i < 6; i++) s += `<ellipse cx="${r1(w[0] - 20 + i * 9)}" cy="${r1(w[1] + 2 - (i % 2))}" rx="2.4" ry="1.7" fill="#9a6a44"/>`;
+  s += fish(w[0] - 6, w[1] + 8, 20, .8) + fish(w[0] + 10, w[1] + 6, -15, .75) + fish(w[0] + 2, w[1] - 6, -40, .7);
+  for (const h of [h1, h2]) s += `<path d="M${r1(h[0])} ${r1(h[1])} Q${r1((h[0] + w[0]) / 2 - 4)} ${r1((h[1] + w[1]) / 2 + 2)} ${r1(w[0] + (h === h1 ? -16 : 18))} ${r1(w[1] + 2)}" stroke="#8a7a5a" stroke-width="1.4" fill="none"/>`;
+  s += `<path d="M${r1(w[0] - 34)} ${r1(w[1] + 10)} q12 -5 24 0 M${r1(w[0] + 20)} ${r1(w[1] + 12)} q10 -4 20 0" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".8"/>`;
   return s;
 }
 
