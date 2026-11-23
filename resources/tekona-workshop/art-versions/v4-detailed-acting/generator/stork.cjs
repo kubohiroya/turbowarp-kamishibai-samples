@@ -192,8 +192,68 @@ function frame3() {
   return s;
 }
 
+// ---------- 5・6枚目：翼を大きく広げて風に乗り、画面の奥へゆっくり旋回していく ----------
+// 翼を広げた姿を立体（X：前後、前が -X ／ Y：翼の広がる向き ／ Z：上）で組み、
+// 傾き（bank：進む向きを軸に回す）、向き（yaw：上から見て回す。奥へ向かう）、見上げる角度で回して平面に写す。
+function soar({at, k, yaw, bank, look = -14}) {
+  const rad = d => d * Math.PI / 180;
+  const [cy, sy, cb, sb, cl, sl] = [Math.cos(rad(yaw)), Math.sin(rad(yaw)), Math.cos(rad(bank)), Math.sin(rad(bank)), Math.cos(rad(look)), Math.sin(rad(look))];
+  // 立体の点 → [画面x, 画面y, 手前への深さ]
+  const pr = ([X, Y, Z]) => {
+    let y1 = Y * cb - Z * sb, z1 = Y * sb + Z * cb;               // 傾き
+    let x2 = X * cy - y1 * sy, y2 = X * sy + y1 * cy;              // 向き（Y が手前）
+    let d = y2 * cl - z1 * sl, z3 = y2 * sl + z1 * cl;             // 見上げる
+    return [at[0] + x2 * k, at[1] - z3 * k, d];
+  };
+  const P = q => { const v = pr(q); return `${r1(v[0])} ${r1(v[1])}`; };
+  const poly = (pts, fill, op) => `<path d="M${pts.map(P).join(' L')} Z" fill="${fill}"${op ? ` opacity="${op}"` : ''}/>`;
+  const hull = pts => {
+    const q = pts.map(pr).map(v => [v[0], v[1]]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    for (const v of q) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], v) <= 0) lo.pop(); lo.push(v); }
+    for (const v of q.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], v) <= 0) up.pop(); up.push(v); }
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  };
+  const blob = (pts, fill) => `<path d="M${hull(pts).map(v => `${r1(v[0])} ${r1(v[1])}`).join(' L')} Z" fill="${fill}"/>`;
+  const ell = (cx, rx, rr, z0 = 0) => { const o = []; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; o.push([cx, Math.cos(a) * rr, z0 + Math.sin(a) * rr]); } return o; };
+  // 翼（side=+1 が手前側の翼）：白い雨覆、黒い風切羽、先は指のように分かれる初列風切
+  const wingSide = side => {
+    const Y = y => side * y;
+    let w = poly([[-10, Y(6), 2], [-14, Y(40), 6], [-9, Y(78), 9], [-4, Y(86), 9], [16, Y(82), 7], [19, Y(40), 4], [13, Y(6), 2]], C.black);
+    for (let i = 0; i < 6; i++) {
+      const bx = -6 + i * 4, tx = -12 + i * 6.5, span = 112 - i * 4.5;
+      w += poly([[bx - 2, Y(80), 9], [tx - 1.4, Y(span - 2), 10 + i * .4], [tx + .6, Y(span), 10 + i * .4], [bx + 3, Y(80), 9]], C.black);
+    }
+    w += poly([[-10, Y(6), 2.2], [-14, Y(40), 6.2], [-9, Y(76), 9.2], [1, Y(74), 8.2], [3, Y(40), 4.2], [1, Y(6), 2.2]], side > 0 ? C.white : C.shade);
+    return {svg: w, depth: pr([0, Y(50), 6])[2]};
+  };
+  const wings = [wingSide(1), wingSide(-1)].sort((a, b) => a.depth - b.depth);
+  let s = wings[0].svg;
+  // 脚：後ろへのばす
+  for (const y of [-3, 3]) s += `<path d="M${P([20, y, -4])} L${P([62, y, -5])}" stroke="${C.red}" stroke-width="${r1(3 * k)}" stroke-linecap="round"/>` + `<path d="M${P([62, y, -5])} L${P([70, y - 2, -6])} M${P([62, y, -5])} L${P([71, y + 1, -5])}" stroke="${C.red}" stroke-width="${r1(1.6 * k)}" stroke-linecap="round"/>`;
+  // 尾羽：三角で、先へ向かって墨の筋
+  s += poly([[22, -8, 0], [48, 0, 0], [22, 8, 0]], C.white);
+  s += poly([[36, -4, 0], [49, 0, 0], [36, 4, 0]], C.black, .8) + poly([[30, -6, 0], [49, 0, 0], [34, -2, 0]], C.black, .5) + poly([[30, 6, 0], [49, 0, 0], [34, 2, 0]], C.black, .45);
+  // 胴体と首・頭・くちばし（首はまっすぐ前へ）
+  const bodyPts = [...ell(-24, 0, 5), ...ell(-12, 0, 9), ...ell(0, 0, 10), ...ell(14, 0, 9), ...ell(26, 0, 5)];
+  s += blob(bodyPts, C.white);
+  s += blob([...ell(-50, 0, 4.4, 3), ...ell(-24, 0, 6, 1)], C.white);
+  s += blob(ell(-54, 0, 7, 4), C.white);
+  s += poly([[-57, -1.6, 5.6], [-92, 0, 2], [-57, 1.6, 2.4]], C.bill);
+  const eyeSide = pr([-56, 4, 6])[2] > pr([-56, -4, 6])[2] ? 4 : -4;
+  const ev = pr([-56, eyeSide * .9, 6.4]);
+  s += `<ellipse cx="${r1(ev[0])}" cy="${r1(ev[1])}" rx="${r1(2.6 * k)}" ry="${r1(2.2 * k)}" fill="${C.red}"/><circle cx="${r1(ev[0])}" cy="${r1(ev[1])}" r="${r1(1 * k)}" fill="#1a1a1a"/>`;
+  s += wings[1].svg;
+  return s;
+}
+// 5枚目：羽ばたきのあと、風をとらえた翼を大きく広げ、少し傾いて奥へ向きを変えはじめる
+const frame4 = () => soar({at: [14, 40], k: .82, yaw: 48, bank: -16, look: -26});
+// 6枚目：さらに傾いて画面の奥へ旋回し、小さく遠ざかる
+const frame5 = () => soar({at: [-14, 8], k: .5, yaw: 76, bank: -26, look: -22});
+
 const out = process.argv[2];
 const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="-80 -40 320 240"><title>${name}</title>${b}</svg>\n`;
-const files = {'stork-1': frame0(), 'stork-2': frame1(), 'stork-3': frame2(), 'stork-4': frame3()};
+const files = {'stork-1': frame0(), 'stork-2': frame1(), 'stork-3': frame2(), 'stork-4': frame3(), 'stork-5': frame4(), 'stork-6': frame5()};
 for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
-console.log('4 files');
+console.log(Object.keys(files).length + ' files');
