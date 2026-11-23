@@ -194,10 +194,15 @@ function frame3() {
   return s;
 }
 
+// 遠ざかる鳥の色：空の色（くすんだ青灰色）へ寄せ、少し暗く、明暗の差を小さくする
+const hazeColors = (svg, t) => svg.replace(/#([0-9a-f]{6})/gi, (_, h) => {
+  const to = [0x7e, 0x93, 0xa4], c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+  return '#' + c.map((v, i) => Math.round(v + (to[i] - v) * t).toString(16).padStart(2, '0')).join('');
+});
 // ---------- 5・6枚目：翼を大きく広げて風に乗り、画面の奥へゆっくり旋回していく ----------
 // 翼を広げた姿を立体（X：前後、前が -X ／ Y：翼の広がる向き ／ Z：上）で組み、
 // 傾き（bank：進む向きを軸に回す）、向き（yaw：上から見て回す。奥へ向かう）、見上げる角度で回して平面に写す。
-function soar({at, k, yaw, bank, look = -14}) {
+function soar({at, k, yaw, bank, look = -14, haze = 0, drop = 8}) {
   const rad = d => d * Math.PI / 180;
   const [cy, sy, cb, sb, cl, sl] = [Math.cos(rad(yaw)), Math.sin(rad(yaw)), Math.cos(rad(bank)), Math.sin(rad(bank)), Math.cos(rad(look)), Math.sin(rad(look))];
   // 立体の点 → [画面x, 画面y, 手前への深さ]
@@ -240,19 +245,21 @@ function soar({at, k, yaw, bank, look = -14}) {
   // 胴体と首・頭・くちばし（首はまっすぐ前へ）
   const bodyPts = [...ell(-24, 0, 5), ...ell(-12, 0, 9), ...ell(0, 0, 10), ...ell(14, 0, 9), ...ell(26, 0, 5)];
   s += blob(bodyPts, C.white);
-  s += blob([...ell(-50, 0, 4.4, 3), ...ell(-24, 0, 6, 1)], C.white);
-  s += blob(ell(-54, 0, 7, 4), C.white);
-  s += poly([[-57, -1.6, 5.6], [-92, 0, 2], [-57, 1.6, 2.4]], C.bill);
-  const eyeSide = pr([-56, 4, 6])[2] > pr([-56, -4, 6])[2] ? 4 : -4;
-  const ev = pr([-56, eyeSide * .9, 6.4]);
+  // 首は前へのばしつつ少し下げ、頭を胴体より低めに置く（飛んでいるコウノトリの首は水平かやや垂れる）
+  // drop：頭を胴体の中心線からどれだけ下げるか
+  s += blob([...ell(-50, 0, 4.4, 1 - drop), ...ell(-24, 0, 6, -drop / 8)], C.white);
+  s += blob(ell(-54, 0, 7, -drop), C.white);
+  s += poly([[-57, -1.6, 1.6 - drop], [-92, 0, -6 - drop * 1.1], [-57, 1.6, -1.6 - drop]], C.bill);
+  const eyeSide = pr([-56, 4, -drop])[2] > pr([-56, -4, -drop])[2] ? 4 : -4;
+  const ev = pr([-56, eyeSide * .9, 2.4 - drop]);
   s += `<ellipse cx="${r1(ev[0])}" cy="${r1(ev[1])}" rx="${r1(2.6 * k)}" ry="${r1(2.2 * k)}" fill="${C.red}"/><circle cx="${r1(ev[0])}" cy="${r1(ev[1])}" r="${r1(1 * k)}" fill="#1a1a1a"/>`;
   s += wings[1].svg;
-  return s;
+  return haze ? hazeColors(s, haze) : s;
 }
 // 5枚目：羽ばたきのあと、風をとらえた翼を大きく広げ、少し傾いて奥へ向きを変えはじめる
-const frame4 = () => soar({at: [14, 40], k: .82, yaw: 48, bank: -16, look: -26});
+const frame4 = () => soar({at: [14, 40], k: .82, yaw: 48, bank: -16, look: -26, haze: .22, drop: 12});
 // 6枚目：さらに傾いて画面の奥へ旋回し、小さく遠ざかる
-const frame5 = () => soar({at: [-14, 8], k: .5, yaw: 76, bank: -26, look: -22});
+const frame5 = () => soar({at: [-14, 8], k: .5, yaw: 76, bank: -26, look: -22, haze: .36, drop: 22});
 
 const out = process.argv[2];
 const svg = (name, b) => `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="-80 -40 320 240"><title>${name}</title>${b}</svg>\n`;
