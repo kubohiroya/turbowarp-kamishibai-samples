@@ -164,9 +164,13 @@ function statue() {
 function kokubunji() {
   let s = `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.6, '#d8eef8'], [1, '#f1f9fc']])}"/>`;
   s += `<path d="M60 48 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M300 30 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
-  // 左手奥：遠くの海と、水平線の手前の低い浜（画面の左端）
-  let far = `<rect x="0" y="198" width="70" height="56" fill="${grad([[0, '#a9d6ec'], [1, '#86c0dc']])}"/>`;
-  far += `<path d="M4 206 h30 M10 220 h36 M2 236 h30" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>`;
+  // 左手奥：大きな川の下流（国府台の西を流れる、いまの江戸川にあたる川）。向こう岸に低い丘と木が見える
+  let far = `<path d="M0 178 Q30 170 64 174 Q100 168 150 174 Q220 166 300 172 Q380 166 480 174 V200 H0 Z" fill="#9fc493"/>`;
+  far += `<path d="M0 186 Q40 180 80 184 Q110 182 150 186 Q300 180 480 186 V200 H0 Z" fill="#8db884"/>`;
+  { const r = rnd0(31); for (let x = 4; x < 136; x += 7 + r() * 8) { const rr = 3 + r() * 3.4; far += `<circle cx="${r1(x)}" cy="${r1(190 - rr * .4 - r() * 4)}" r="${r1(rr)}" fill="${r() > .5 ? '#6f9f68' : '#7eaa72'}"/>`; } }
+  far += `<path d="M0 198 Q40 195 80 197 Q110 196 140 198 V202 H0 Z" fill="#d8cfa6"/>`;
+  far += `<rect x="0" y="202" width="90" height="52" fill="${grad([[0, '#a9cfe0'], [1, '#8cbcd4']])}"/>`;
+  far += `<path d="M6 210 l26 3 M20 222 l30 4 M4 234 l28 4 M40 244 l24 3" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>`;
   far += `<path d="M0 250 Q30 246 50 252 Q58 255 62 258 V264 H0 Z" fill="#e3d2a4"/>`;
   // 国府台の丘：上が平らな小高い丘。金堂のまわりに平地を広くとり、丘の左端（画面の左端近く）が切り立った崖になって、海側の低い浜へ落ちる
   far += `<path d="M66 184 Q120 180 260 182 H480 V262 H36 Q46 226 66 184 Z" fill="${grad([[0, '#8fbf72'], [1, '#76a660']])}"/>`;
