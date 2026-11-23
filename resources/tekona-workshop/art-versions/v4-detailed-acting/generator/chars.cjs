@@ -77,6 +77,26 @@ const MALE_FACES = {
   miyako: {chin: 30, jowl: true, contour: 'M-19 -6 Q-21 12 -13 22 Q-6 29 4 30 Q12 30 17 24 Q22 16 21 6 Q22 -16 11 -24 Q1 -29 -10 -26 Q-19 -20 -19 -6 Z', ear: 5,
     eyeW: 5.6, eyeH: 2.2, iris: 2.4, lid: 1.8, heavyLid: true, bags: true, browY: -12, browArch: 2.6, browW: 2.6, mouthW: 1, mouthY: 18, lip: true,
     nose: '<path d="M4 -4 Q8 1 9 6 Q11 9 8 11 Q5 12 3 10" fill="none" stroke="SD" stroke-width="1.8" stroke-linecap="round"/><path d="M4 -4 Q7 1 8 7 Q5 6 4.4 2 Z" fill="SD" opacity=".5"/>'},
+  // 入江の漁師：角張った広い顔とまっすぐなあごの線、大きく見開いた丸い目、太く短い眉、横に広い鼻、大きな口
+  ryoshi: {chin: 29, contour: 'M-21 -8 L-20 14 Q-18 23 -8 28 L6 29 Q16 28 19 19 L21 2 Q22 -18 10 -25 Q0 -28 -11 -25 Q-21 -20 -21 -8 Z', ear: 5.4,
+    eyeW: 5.4, eyeH: 3, iris: 2.8, lid: 1.8, browY: -10, browArch: .6, browW: 4.4, mouthW: 1.35, mouthY: 18,
+    nose: '<path d="M5 -3 Q6 3 9 8 Q10 11 5 12 Q2 12 2 10" fill="none" stroke="SD" stroke-width="2" stroke-linecap="round"/><ellipse cx="6" cy="10" rx="5.4" ry="2.8" fill="SD" opacity=".45"/>'},
+  // 歌の上手な若者：細くやさしい顔、大きめの目、細く弧を描く眉、小さく通った鼻、やわらかい厚めの口
+  utabito: {chin: 29, contour: 'M-18 -7 Q-19 11 -11 22 Q-4 29 4 29 Q11 28 15 21 Q19 12 19 0 Q20 -19 9 -25 Q-1 -29 -10 -26 Q-18 -21 -18 -7 Z', ear: 4.6,
+    eyeW: 5.8, eyeH: 2.8, iris: 2.7, lid: 1.5, browY: -12, browArch: 2.4, browW: 2, mouthW: 1, mouthY: 18, lip: true,
+    nose: '<path d="M4 -4 Q5 3 7 9 Q5 10.6 3 10" fill="none" stroke="SD" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="5.4" cy="9.6" rx="3.4" ry="2" fill="SD" opacity=".4"/>'},
+  // 郡司の息子：下ぶくれでほおが張った顔、小さく細い目、太い眉、短く上を向いた鼻、小さくとがった口
+  gunji: {chin: 29, contour: 'M-20 -10 Q-23 8 -14 21 Q-4 29 6 29 Q17 28 21 19 Q25 9 22 -2 Q22 -20 10 -25 Q0 -28 -11 -25 Q-20 -21 -20 -10 Z', ear: 5,
+    eyeW: 4.6, eyeH: 2, iris: 2.1, lid: 2, browY: -11, browArch: .4, browW: 4, mouthW: .9, mouthY: 18,
+    nose: '<path d="M5 0 Q7 4 8 7 Q9 10 5 10.4 Q2.4 10.2 2.6 8.4" fill="none" stroke="SD" stroke-width="1.9" stroke-linecap="round"/><ellipse cx="5.6" cy="8.8" rx="4.4" ry="2.4" fill="SD" opacity=".45"/>'},
+  // 防人に出る若者：縦長でひきしまった顔、大きめの切れ長の目、太くまっすぐな眉、細くまっすぐな鼻、引き結んだ口
+  sakimori: {chin: 31, contour: 'M-18 -9 Q-19 12 -11 23 Q-4 31 4 31 Q11 30 15 23 Q19 13 19 -2 Q20 -20 9 -26 Q-1 -29 -10 -26 Q-18 -21 -18 -9 Z', ear: 4.8,
+    eyeW: 6, eyeH: 2.2, iris: 2.4, lid: 1.8, browY: -11, browArch: 0, browW: 3.2, mouthW: .95, mouthY: 20,
+    nose: '<path d="M4 -5 L6 9 Q4 10.4 2.6 9.8" fill="none" stroke="SD" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="5" cy="9.8" rx="3.6" ry="2" fill="SD" opacity=".42"/>'},
+  // 機織りの名人の若者：卵形のおもながな顔、細い目、薄い眉、細く小さい鼻、小さく静かな口
+  hataori: {chin: 30, contour: 'M-18 -6 Q-19 12 -11 23 Q-3 30 5 30 Q13 29 16 22 Q20 12 19 1 Q20 -19 9 -25 Q-1 -29 -10 -26 Q-18 -20 -18 -6 Z', ear: 4.6,
+    eyeW: 5.6, eyeH: 2, iris: 2.2, lid: 1.4, browY: -12, browArch: 1, browW: 2.4, mouthW: .85, mouthY: 19,
+    nose: '<path d="M4 -4 Q4.6 3 7 9 Q5.4 10.2 3.4 9.6 Q4.6 9 4.8 8.2 Q4.2 2 4 -4 Z" fill="SD" opacity=".7"/><path d="M3.4 10.2 q2 .8 3.8 -.4" stroke="SD" stroke-width="1.2" fill="none" stroke-linecap="round"/>'},
 };
 function face(o) {
   const {kind, mood, skin, skinDark, brow = '#2b2118', eye = '#2a1d16', beard = false, mustache = false, stubble = false} = o;
@@ -97,6 +117,10 @@ function face(o) {
       const w = F.eyeW * (near ? 1 : .78), h = F.eyeH * (mood === 'focus' ? .82 : 1);
       if (mood === 'pained') return `<path d="M${x - w} -1 q${w} 3 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M${x - w} -4 l${w * 2} 2" stroke="${eye}" stroke-width="1.2" opacity=".6"/>`;
       if (mood === 'proud') return `<path d="M${x - w} 0 q${w} -4 ${w * 2} 0" stroke="${eye}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+      // stunned：言葉を失って見開いた目。白目を大きく、瞳を小さく縮める
+      if (mood === 'stunned') return `<path d="M${x - w} .6 Q${x} ${r1(-h * 2.8)} ${x + w} -1.6 Q${x} ${r1(h * 1.6)} ${x - w} .6 Z" fill="#fbf6ee"/>` +
+        `<ellipse cx="${r1(x + (near ? 1 : .6))}" cy="${r1(-h * .2)}" rx="${r1(F.iris * .62)}" ry="${r1(F.iris * .68)}" fill="${eye}"/>` +
+        `<path d="M${r1(x - w - .5)} .2 Q${x} ${r1(-h * 2.9)} ${r1(x + w + .5)} ${r1(-2.2)}" stroke="${eye}" stroke-width="${F.lid}" fill="none" stroke-linecap="round"/>`;
       // downcast：目を伏せる。まぶたを下ろして白目を細く残し、下に寄せた瞳を暗く沈ませる（手元を見つめてうつむく顔）
       if (o.downcast) {
         let d = `<path d="M${x - w} 0 Q${x} ${-h * 2} ${x + w} -1 Q${x} ${h * 1.1} ${x - w} 0 Z" fill="#e6ddd0"/>` +
@@ -115,7 +139,7 @@ function face(o) {
     };
     s += eyeAt(-6, true) + eyeAt(13, false);
     // 眉
-    const t = {stand: 0, eager: -2, serious: 0, proud: -3, pained: 0}[mood] || 0;
+    const t = {stand: 0, eager: -2, serious: 0, proud: -3, pained: 0, stunned: -4}[mood] || 0;
     const tilt = {serious: 3, focus: 1.5, pained: -4}[mood] || 0;
     const browN = `M-13 ${F.browY + t + (tilt < 0 ? 0 : 0)} Q-6 ${F.browY + t - F.browArch} 0 ${F.browY + t + tilt}`;
     const browF = `M8 ${F.browY + t + tilt} Q13 ${F.browY + t - F.browArch} 18 ${F.browY + t}`;
@@ -131,6 +155,8 @@ function face(o) {
       focus: `<path d="M${mx - hw * .75} ${my} L${mx + hw * .75} ${my - .4}" stroke="#8a4a3a" stroke-width="2" stroke-linecap="round"/>`,
       proud: `<path d="M${mx - hw - 2} ${my - 3} Q${mx} ${my - 2} ${mx + hw + 1} ${my - 4} Q${mx + hw - 1} ${my + 6} ${mx - 1} ${my + 6} Q${mx - hw - 2} ${my + 4} ${mx - hw - 2} ${my - 3} Z" fill="#7a2e28"/><path d="M${mx - hw - 1} ${my - 2.6} L${mx + hw} ${my - 3.6} L${mx + hw - .6} ${my - 1} L${mx - hw - .6} ${my - .4} Z" fill="#fff"/>`,
       pained: `<path d="M${mx - hw} ${my + 2} Q${mx - hw / 2} ${my - 2} ${mx} ${my + 1} Q${mx + hw / 2} ${my - 2} ${mx + hw} ${my + 2} Q${mx} ${my + 4} ${mx - hw} ${my + 2} Z" fill="#7a2e28"/>`,
+      // stunned：声が出ずに小さくあいた口
+      stunned: `<ellipse cx="${mx}" cy="${r1(my + 1)}" rx="${r1(hw * .42)}" ry="${r1(hw * .56)}" fill="#7a2e28"/>`,
     }[mood];
     s += mouth || '';
     if (F.lip && (mood === 'stand' || mood === 'serious')) s += `<path d="M${mx - hw * .6} ${my + 2.6} Q${mx} ${my + 4} ${mx + hw * .6} ${my + 2}" stroke="${skinDark}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
@@ -188,9 +214,36 @@ function skeleton(b, p) {
 
 // ---------------- 里の若者 ----------------
 const SATO = {skin: '#e3ae80', skinDark: '#c58a5c', cloth: '#c9b184', clothDark: '#a8915f', hakama: '#ad9467', hakamaDark: '#8e7650', cord: '#6e5638', hair: '#231a14'};
-function satoFigure(k, mood, extra = '') {
-  const c = SATO, f = -1;
-  let s = '';
+// 庶民の髪型。h は髪の色。頭と同じ座標系（顔は +x を向き、うなじは -x、耳は -14,3）で描く
+const COMMON_HAIR = {
+  // 頭の上でまとめた髻（里の若者）
+  mage: h => `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${h}"/>` +
+    `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${h}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`,
+  // 短く刈って毛先が立った髪（入江の漁師）
+  spiky: h => `<path d="M-21 0 Q-24 -26 -2 -30 Q20 -31 22 -11 Q14 -24 2 -22 L4 -17 L-5 -21 Q-12 -17 -14 -6 L-16 5 Q-22 7 -21 0 Z" fill="${h}"/>` +
+    `<path d="M-2 -29 l2 -6 l3 5 M7 -28 l4 -5 l1 6 M-12 -26 l-2 -6 l5 4" stroke="${h}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+  // 髻に草花をさした髪（歌の上手な若者）
+  flower: h => COMMON_HAIR.mage(h) +
+    [[-15, -23], [-7, -31]].map(([x, y]) => `<g transform="translate(${x} ${y})">` +
+      [0, 72, 144, 216, 288].map(a => `<circle cx="${r1(Math.cos(a * Math.PI / 180) * 3.2)}" cy="${r1(Math.sin(a * Math.PI / 180) * 3.2)}" r="2.4" fill="#f3ece0"/>`).join('') +
+      `<circle r="1.7" fill="#e8c24e"/></g>`).join('') +
+    `<path d="M-19 -18 q-3 -6 1 -11" stroke="#5f7a46" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  // 高く結い上げた大きな髻を、染めた紐でしばる（郡司の息子）
+  bigMage: h => `<path d="M-20 -2 Q-22 -27 -2 -30 Q19 -31 22 -12 Q12 -23 2 -22 L3 -17 L-4 -21 Q-10 -17 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${h}"/>` +
+    `<ellipse cx="-1" cy="-37" rx="10.5" ry="9" fill="${h}"/><rect x="-10" y="-33" width="18" height="5" rx="2.5" fill="#8d3b36"/>`,
+  // うなじの低い位置で後ろへ束ねた髪（防人に出る若者）
+  ponytail: h => `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${h}"/>` +
+    `<path d="M-18 -7 Q-28 -2 -31 10 Q-32 17 -27 18 Q-26 7 -17 1 Z" fill="${h}"/>` +
+    `<path d="M-19 -5 L-23 2" stroke="#6e5638" stroke-width="4" stroke-linecap="round"/>`,
+  // 耳の高さの後ろで小さくまとめ、布のきれでしばる（機織りの名人の若者）
+  lowBun: h => `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${h}"/>` +
+    `<ellipse cx="-23" cy="-5" rx="7" ry="6.5" fill="${h}"/><path d="M-27 -9 L-16 -11" stroke="#d8cdb4" stroke-width="4" stroke-linecap="round"/>`,
+};
+// o：人物ごとの色・顔立ち・髪型・衣の丈（省略すると里の若者）
+function satoFigure(k, mood, extra = '', o = {}) {
+  const c = {...SATO, ...o}, f = -1;
+  // k.back：体より後ろに描く持ち物（背に負った矢筒など）
+  let s = k.back || '';
   // 後ろの腕
   const knee = (leg, a) => lerp(leg.mid, leg.end, a);
   // 脚：はかま（ひざ下で足結）とすね・はだし
@@ -205,8 +258,8 @@ function satoFigure(k, mood, extra = '') {
     { const a = knee(leg, .1), b = knee(leg, .2), d = len(a, b), nx = -(b[1] - a[1]) / d * 9, ny = (b[0] - a[0]) / d * 9, m = lerp(a, b, .7);
       s += `<path d="M${P([m[0] + nx, m[1] + ny])} L${P([m[0] - nx, m[1] - ny])}" stroke="${c.cord}" stroke-width="3.4" stroke-linecap="round"/>`; }
   }
-  // 上衣（太もも丈）。胴は肩から骨盤へ
-  const hemL = add(k.hl, [-14, 34]), hemR = add(k.hr, [14, 34]);
+  // 上衣（太もも丈。o.hem を小さくすると短い上衣）。胴は肩から骨盤へ
+  const hemL = add(k.hl, [-14, o.hem || 34]), hemR = add(k.hr, [14, o.hem || 34]);
   s += `<path d="M${P(add(k.sl, [-6, -7]))} Q${P(add(lerp(k.sl, k.sr, .5), [0, -9]))} ${P(add(k.sr, [6, -7]))} L${P(add(k.hr, [10, 0]))} L${P(hemR)} L${P(hemL)} L${P(add(k.hl, [-10, 0]))} Z" fill="${c.cloth}"/>`;
   s += `<path d="M${P(lerp(k.sr, k.hr, .1))} L${P(add(k.sr, [4, -2]))} L${P(add(k.hr, [10, 0]))} L${P(hemR)} L${P(lerp(hemL, hemR, .72))} Z" fill="${c.clothDark}" opacity=".5"/>`;
   const neckBase = lerp(k.sl, k.sr, .5);
@@ -214,14 +267,18 @@ function satoFigure(k, mood, extra = '') {
   s += `<path d="M${P(add(neckBase, [7, 0]))} L${P(add(waist, [-14, 0]))} M${P(add(neckBase, [-7, 0]))} L${P(add(neckBase, [2, 18]))}" stroke="${c.clothDark}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
   s += `<path d="M${P(add(waist, [-28, 0]))} Q${P(add(waist, [0, 5]))} ${P(add(waist, [28, 0]))}" stroke="${c.cord}" stroke-width="5" fill="none"/>`;
   s += `<path d="M${P(add(waist, [-10, 3]))} q-3 12 0 18 M${P(add(waist, [-7, 3]))} q4 10 8 14" stroke="${c.cord}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+  // o.fitting：帯の飾り（帯金具）。地元の有力者だけにつける
+  if (c.fitting) for (let i = 0; i < 5; i++) {
+    const q = lerp(add(waist, [-22, 1]), add(waist, [22, 1]), (i + .5) / 5);
+    s += `<rect x="${r1(q[0] - 2.6)}" y="${r1(q[1] - 2.4)}" width="5.2" height="4.8" rx="1" fill="${c.fitting}"/>`;
+  }
   // 首（太く短く）
   s += `<path d="M${P(add(neckBase, [-9, 4]))} L${P(add(k.neckTop, [-9, 0]))} L${P(add(k.neckTop, [9, 0]))} L${P(add(neckBase, [9, 4]))} Z" fill="${c.skin}"/>`;
   s += `<path d="M${P(add(k.neckTop, [-9, 0]))} L${P(add(k.neckTop, [9, 0]))} L${P(add(k.neckTop, [9, 7]))} Z" fill="${c.skinDark}" opacity=".6"/>`;
-  // 頭：短い髪と、頭の上でまとめた髻
-  const hair = `<path d="M-20 -2 Q-22 -26 -2 -29 Q18 -30 21 -12 Q12 -22 2 -21 L3 -16 L-4 -20 Q-10 -16 -12 -6 L-14 4 Q-20 6 -20 -2 Z" fill="${c.hair}"/>` +
-    `<ellipse cx="-2" cy="-33" rx="9" ry="8" fill="${c.hair}"/><rect x="-10" y="-30" width="16" height="4.4" rx="2" fill="#d8c49a"/>`;
+  // 頭：短い髪と、人物ごとの結い方（省略すると頭の上でまとめた髻）
+  const hair = (COMMON_HAIR[o.hairStyle] || COMMON_HAIR.mage)(c.hair);
   // headOver：前へ深くかがんで頭が肩より前に出るときは、頭を腕より後に描く
-  const headSvg = placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: true, downcast: k.downcast}) + hair);
+  const headSvg = placeHead(k.head, f, k.headTilt || 0, face({kind: 'male', type: o.faceType || 'sato', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, stubble: o.stubble !== false, mustache: o.mustache, beard: o.beard, downcast: k.downcast}) + hair);
   if (!k.headOver) s += headSvg;
   // 腕（筒袖）と手
   // armW：腕の太さの倍率。bareForearm：袖をまくった前腕（ひじ寄りに盛り上がる筋肉）。力仕事の男に使う
@@ -231,6 +288,8 @@ function satoFigure(k, mood, extra = '') {
       `<path d="M${P(lerp(a.mid, a.end, .2))} L${P(lerp(a.mid, a.end, .7))}" stroke="${c.skinDark}" stroke-width="1.6" opacity=".6"/>` + `<path d="M${P(lerp(sh, a.mid, .78))} l${r1((a.mid[0] - sh[0]) * .02)} 0" stroke="${c.clothDark}" stroke-width="${r1(17 * aw)}" stroke-linecap="butt" opacity=".5"/>`
     : limb(sh, a.mid, 17 * aw, 15 * aw, c.cloth) + limb(a.mid, a.end, 15 * aw, 12 * aw, c.cloth)) +
     hand(a.end, ang(a.mid, a.end), c.skin, {kind: (side > 0 ? k.handL : k.handR) || k.handKind || 'relaxed', size: 1.05 * Math.sqrt(aw), side});
+  // k.behind：体の手前、両腕より後ろに描く持ち物（腰のびく、胸の前に広げた布など）
+  if (k.behind) s += k.behind;
   s += arm(k.armR, k.sr, -1) + arm(k.armL, k.sl, 1);
   if (k.headOver) s += headSvg;
   return s + extra;
@@ -306,16 +365,22 @@ const malePoses = {
     wristL: [100, 232], wristR: [154, 240], elbowL: 1, elbowR: -1, headDx: -6, headTilt: 26, liftL: 4},
 };
 
+// 断られたときの姿勢は人物ごとに変える（malePoses.rejected は基本形で、参加者の枠の「？」がそのまま使う）
+const SATO_REJECTED = {...malePoses.rejected, pelvis: [132, 196], hipTilt: 2, chest: [118, 112], shoulderTilt: .08,
+  ankleL: [110, 334], ankleR: [152, 334], wristL: [90, 232], wristR: [142, 244], headDx: -12, headTilt: 10, liftL: 0};
 const SATO_KIME = {...malePoses.kime, chest: [118, 94], headTilt: -2, wristL: [104, -2], wristR: [124, -2], elbowL: -1, elbowR: 1, handKind: 'open'};
-function sato(pose) {
+// rejectedPose：断られた姿勢。参加者の枠の「？」は、ポーズ認識モデルの手本どおりの基本形（malePoses.rejected）を使う
+function sato(pose, rejectedPose = SATO_REJECTED) {
   if (pose === 'stand') return satoFigure(skeleton(MALE, malePoses.stand), 'stand');
   if (pose === 'kime') {
     // 両うでで頭の上に大きなハート
     const k = skeleton(MALE, SATO_KIME);
     return satoFigure(k, 'eager', `<path d="M36 110 q-8 -10 0 -15 q4 -2 7 2 q3 -4 7 -2 q8 5 0 15 l-7 7 z" fill="#e8667a"/><path d="M200 70 q-6 -8 0 -12 q3 -2 6 1 q3 -3 6 -1 q6 4 0 12 l-6 6 z" fill="#e8667a" opacity=".85"/>` + motion([[180, 300, 22], [176, 312, 14]]));
   }
-  const k = skeleton(MALE, malePoses.rejected);
-  return satoFigure(k, 'pained', gloom(add(k.head, [0, -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 14)));
+  // 前かがみのまま、ひざは折れずに立ちつくす。目を見開いて呆然とする
+  const k = skeleton(MALE, rejectedPose), own = rejectedPose === SATO_REJECTED;
+  return satoFigure(k, own ? 'stunned' : 'pained',
+    gloom(add(k.head, [0, own ? -32 : -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - (own ? 12 : 14))));
 }
 
 const KOKUFU = {type: 'kokufu', robe: '#2f6644', robeDark: '#1f4a30', fitting: '#9a8a62', skin: '#efc7a2', skinDark: '#d6a27a'};
@@ -332,9 +397,12 @@ function kokufu(pose) {
     const p = {...malePoses.kime, wristR: [116, 120], elbowR: -1, handR: 'grip', shaku: {at: [118, 118], angle: 14}, wristL: [24, 104], elbowL: -1, handL: 'open'};
     return officialFigure(skeleton(MALE, p), KOKUFU, 'serious') + motion([[186, 300, 22], [180, 312, 14]]);
   }
-  const p = {...malePoses.rejected, handR: 'grip', shaku: {at: [154, 262], angle: 168}};
+  // 几帳面なまま、笏を取り落として足もとに落とし、背すじをのばしたまま深く頭を下げる
+  const p = {...malePoses.rejected, pelvis: [130, 186], hipTilt: 0, chest: [128, 92], shoulderTilt: .06,
+    ankleL: [116, 334], ankleR: [144, 334], wristL: [110, 198], wristR: [148, 202], headDx: -4, headTilt: 38, liftL: 0};
   const k = skeleton(MALE, p);
-  return officialFigure(k, KOKUFU, 'pained') + gloom(add(k.head, [0, -36])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 14));
+  return officialFigure(k, KOKUFU, 'pained') + shaku([102, 322], 96) +
+    gloom(add(k.head, [0, -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 10));
 }
 function miyako(pose) {
   if (pose === 'stand') {
@@ -348,9 +416,223 @@ function miyako(pose) {
     return officialFigure(skeleton(MALE, p), MIYAKO, 'proud') +
       `<path d="M30 140 l4 -10 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 z" fill="#f5d86a"/><path d="M200 120 l3 -7 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 z" fill="#f5d86a"/>`;
   }
-  const p = {...malePoses.rejected, handR: 'grip', shaku: {at: [154, 262], angle: 168}};
+  // 言葉を失い、上体を引いて片手で口元を覆う。笏はもう片方の手にだらりと下げる
+  const p = {...malePoses.rejected, pelvis: [132, 192], hipTilt: 2, chest: [140, 104], shoulderTilt: .04,
+    ankleL: [118, 334], ankleR: [158, 332], wristL: [134, 86], elbowL: 1, handL: 'open',
+    wristR: [164, 236], elbowR: -1, handR: 'grip', shaku: {at: [164, 234], angle: 172}, headDx: -2, headTilt: 4, liftL: 0};
   const k = skeleton(MALE, p);
-  return officialFigure(k, MIYAKO, 'pained') + gloom(add(k.head, [0, -36])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 14));
+  return officialFigure(k, MIYAKO, 'stunned') + gloom(add(k.head, [0, -32])) + sweat(r1(k.head[0] + 28), r1(k.head[1] - 10));
+}
+
+// ---------------- 求婚者4〜8人目の小道具（網・びく・弓矢・むち・織った布） ----------------
+// 投網：両手のあいだに張った上の綱から、たるんで垂れ下がる網。下のふちに土錘をつける
+function amiNet(a, b, lift, depth) {
+  const ctrl = [(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - lift];
+  const q = t => { const u = 1 - t; return [u * u * a[0] + 2 * u * t * ctrl[0] + t * t * b[0], u * u * a[1] + 2 * u * t * ctrl[1] + t * t * b[1]]; };
+  const low = t => { const p = q(t); return [p[0], p[1] + depth * (.4 + .6 * Math.sin(Math.PI * t))]; };
+  const N = 10;
+  let s = '';
+  for (let i = 0; i <= N; i++) { const t = i / N; s += `<path d="M${P(q(t))} L${P(low(t))}" stroke="#efe8d6" stroke-width="1.2" opacity=".85"/>`; }
+  for (let j = 1; j <= 3; j++) {
+    let d = '';
+    for (let i = 0; i <= N; i++) { const t = i / N; d += (i ? ' L' : 'M') + P(lerp(q(t), low(t), j / 4)); }
+    s += `<path d="${d}" stroke="#efe8d6" stroke-width="1.2" fill="none" opacity=".85"/>`;
+  }
+  let d0 = '';
+  for (let i = 0; i <= N; i++) d0 += (i ? ' L' : 'M') + P(q(i / N));
+  s += `<path d="${d0}" stroke="#9c8a62" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  for (let i = 0; i <= N; i++) { const p = low(i / N); s += `<circle cx="${r1(p[0])}" cy="${r1(p[1])}" r="2.4" fill="#6b6256"/>`; }
+  return s;
+}
+// びく：腰に下げた、草で編んだ魚かご。肩からの紐でつる
+const biku = (at, sh) => `<path d="M${P(add(sh, [0, 2]))} L${P(add(at, [-2, -12]))}" stroke="#6e5638" stroke-width="3" stroke-linecap="round"/>` +
+  `<g transform="translate(${P(at)})"><path d="M-15 -11 L15 -11 L11 15 Q0 20 -11 15 Z" fill="#b9a271"/>` +
+  `<path d="M-13 -3 q13 4 26 0 M-12 5 q12 4 24 0" stroke="#8e7a4e" stroke-width="1.6" fill="none"/>` +
+  `<path d="M-6 -11 L-4 15 M3 -11 L4 15" stroke="#8e7a4e" stroke-width="1.4" opacity=".7"/>` +
+  `<path d="M-16 -11 q16 -7 32 0" stroke="#8e7a4e" stroke-width="3" fill="none" stroke-linecap="round"/>` +
+  `<path d="M-5 -14 q6 -9 13 -5 q-4 4 -2 6 q-5 2 -11 -1 z" fill="#8fa6b4"/></g>`;
+// 弓：上の弭・にぎり・下の弭を通る反った竿と、籐を巻いたにぎり、弦。drawAt があれば弦を引き絞る
+function yumi(top, grip, bot, drawAt, rev = -15) {
+  const m1 = lerp(top, grip, .5), m2 = lerp(grip, bot, .5);
+  let s = `<path d="M${P(top)} Q${P([m1[0] + rev, m1[1]])} ${P(grip)} Q${P([m2[0] + rev, m2[1]])} ${P(bot)}" fill="none" stroke="#6a4a2a" stroke-width="4.4" stroke-linecap="round"/>`;
+  const sp = drawAt || [(top[0] + bot[0]) / 2 + 4, (top[1] + bot[1]) / 2];
+  s += `<path d="M${P(top)} L${P(sp)} L${P(bot)}" fill="none" stroke="#efe6ce" stroke-width="1.8"/>`;
+  return s + `<path d="M${P(add(grip, [0, -10]))} L${P(add(grip, [0, 10]))}" stroke="#2f2a22" stroke-width="6.4" stroke-linecap="round"/>`;
+}
+// 矢：手もとの矢羽から先の鏃へ
+function ya(from, to) {
+  const a = ang(from, to);
+  return `<path d="M${P(from)} L${P(to)}" stroke="#c9a96e" stroke-width="2.4" stroke-linecap="round"/>` +
+    `<g transform="translate(${P(to)}) rotate(${r1(a)})"><path d="M0 0 L-10 -3.4 L-10 3.4 Z" fill="#4a4038"/></g>` +
+    `<g transform="translate(${P(from)}) rotate(${r1(a)})"><path d="M2 0 L15 -4 L17 0 L15 4 Z" fill="#e8ddc6"/><path d="M3 0 L15 -3.6" stroke="#b9a98a" stroke-width="1"/></g>`;
+}
+// 束ねた矢：手に下げて持つ数本の矢
+const yaTaba = (top, bot, n = 3) => [...Array(n)].map((_, i) => {
+  const a = [top[0] + i * 4.4, top[1] + i * 3], b = [bot[0] + i * 4.4, bot[1]];
+  return `<path d="M${P(a)} L${P(b)}" stroke="#c9a96e" stroke-width="2.4" stroke-linecap="round"/>` +
+    `<path d="M${P(add(a, [-3.4, 0]))} L${P(add(a, [0, -8]))} L${P(add(a, [3.4, 0]))} Z" fill="#e8ddc6"/>`;
+}).join('');
+// 矢筒：背に負った筒と、口から出た矢
+const yazutsu = (at, angle) => `<g transform="translate(${P(at)}) rotate(${angle})">` +
+  [[-5, -31], [0, -34], [5, -31]].map(([x, y]) => `<path d="M${x} ${y} L${x} -8" stroke="#c9a96e" stroke-width="2.2" stroke-linecap="round"/><path d="M${x - 3.4} ${y} L${x} ${y - 7} L${x + 3.4} ${y} Z" fill="#e8ddc6"/>`).join('') +
+  `<path d="M-10 -14 L10 -14 L8 26 Q0 30 -8 26 Z" fill="#6b4a2c"/>` +
+  `<path d="M-9.4 -6 q9.4 3.4 18.8 0 M-8.8 6 q8.8 3.4 17.6 0" stroke="#4e3420" stroke-width="2" fill="none"/></g>`;
+// 馬のむち：短い柄と、先へ細くなるしなった革
+const muchi = (at, angle) => `<g transform="translate(${P(at)}) rotate(${angle})">` +
+  `<path d="M0 0 Q7 26 4 52 Q3 60 -3 65" fill="none" stroke="#4a3a28" stroke-width="2.6" stroke-linecap="round"/>` +
+  `<path d="M-3.6 -13 L3.6 -13 L3.6 3 L-3.6 3 Z" fill="#6e5638"/>` +
+  `<path d="M-3.6 -9 L3.6 -9 M-3.6 -5 L3.6 -5 M-3.6 -1 L3.6 -1" stroke="#50402c" stroke-width="1.2"/></g>`;
+// 織った布：2点のあいだにたれ下がる、縞を織り出した布
+function nuno(a, b, sag, h) {
+  const ctrl = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + sag];
+  const q = t => { const u = 1 - t; return [u * u * a[0] + 2 * u * t * ctrl[0] + t * t * b[0], u * u * a[1] + 2 * u * t * ctrl[1] + t * t * b[1]]; };
+  const N = 12;
+  const line = (o, back) => { let d = ''; for (let i = 0; i <= N; i++) { const p = q((back ? N - i : i) / N); d += (i ? ' L' : 'M') + P([p[0], p[1] + o]); } return d; };
+  let s = `<path d="${line(0)} ${line(h, true).slice(1)} Z" fill="#e7dfc9"/>`;
+  ['#2f5b9a', '#a8483a', '#2f5b9a'].forEach((col, j) => { s += `<path d="${line(h * (j + 1) / 4)}" stroke="${col}" stroke-width="3" fill="none" opacity=".9"/>`; });
+  return s + `<path d="${line(h)}" stroke="#cfc4ab" stroke-width="1.6" fill="none"/>`;
+}
+// 手からまっすぐ垂れ下がる布（縞は布の長さの向きに走る）
+const nunoDrop = (at, w, h) => `<g transform="translate(${P(at)})">` +
+  `<path d="M${r1(-w / 2)} 0 L${r1(w / 2)} 0 L${r1(w / 2 + 3)} ${h - 8} Q0 ${h + 7} ${r1(-w / 2 - 3)} ${h - 6} Z" fill="#e7dfc9"/>` +
+  [-1, 0, 1].map((i, j) => `<path d="M${r1(i * w / 4)} 2 L${r1(i * (w / 4 + 1.5))} ${h - 7}" stroke="${['#2f5b9a', '#a8483a', '#2f5b9a'][j]}" stroke-width="3" stroke-linecap="butt"/>`).join('') +
+  `</g>`;
+// たすき：自分で織った縞の布を、肩から反対の腰へかける
+function tasuki(k) {
+  const a = add(k.sl, [-2, -7]), b = add(k.hr, [9, 12]);
+  let s = seg(a, b, 13, '#e7dfc9');
+  const d = len(a, b), n = [-(b[1] - a[1]) / d, (b[0] - a[0]) / d];
+  ['#2f5b9a', '#a8483a', '#2f5b9a'].forEach((col, i) => {
+    const o = [n[0] * (i - 1) * 3.8, n[1] * (i - 1) * 3.8];
+    s += seg(add(a, o), add(b, o), 2.4, col);
+  });
+  return s;
+}
+// 巻いた布：手に持つ、縞を織り出した布の巻き
+const maki = (at, angle) => `<g transform="translate(${P(at)}) rotate(${angle})">` +
+  `<path d="M-8 -20 L8 -20 L8 18 Q0 22 -8 18 Z" fill="#e7dfc9"/>` +
+  `<path d="M-8 -10 L8 -10 M-8 0 L8 0 M-8 10 L8 10" stroke="#2f5b9a" stroke-width="2.6"/>` +
+  `<ellipse cx="0" cy="-20" rx="8" ry="3" fill="#cfc4ab"/></g>`;
+
+// ---------------- 入江の漁師 ----------------
+// 麻の短い上衣（考証メモ4章）。日焼けした肌、袖をまくった前腕、腰に魚かご（びく）
+const RYOSHI = {faceType: 'ryoshi', hairStyle: 'spiky', hem: 24,
+  skin: '#cf8f58', skinDark: '#a96c38', cloth: '#a9b5b4', clothDark: '#879695', hakama: '#7d8f9e', hakamaDark: '#667886', cord: '#5c5244', hair: '#1e1812'};
+function ryoshi(pose) {
+  if (pose === 'stand') {
+    const k = skeleton(MALE, {...malePoses.stand, bareForearm: true, handR: 'grip'});
+    return satoFigure({...k, behind: biku(add(k.hr, [17, 25]), add(k.sr, [2, 0]))}, 'stand', '', RYOSHI);
+  }
+  if (pose === 'kime') {
+    // 網を投げる：両うでを斜め上へ振り上げ、頭の後ろで網を大きく開く
+    const k = skeleton(MALE, {...malePoses.kime, chest: [117, 92], bareForearm: true,
+      wristL: [34, 28], elbowL: -1, wristR: [198, 34], elbowR: 1, handL: 'grip', handR: 'grip', headTilt: -5});
+    return satoFigure({...k, back: amiNet([34, 28], [198, 34], 40, 76)}, 'eager', motion([[182, 300, 22], [176, 312, 14]]), RYOSHI);
+  }
+  // 網を足もとに取り落とし、立ったまま両手で頭を抱えてうなだれる
+  const k = skeleton(MALE, {...malePoses.rejected, pelvis: [132, 196], hipTilt: 2, chest: [124, 112], shoulderTilt: .06,
+    ankleL: [110, 334], ankleR: [150, 334], liftL: 0,
+    wristL: [96, 52], elbowL: -1, handL: 'open', wristR: [132, 50], elbowR: 1, handR: 'open',
+    headDx: -8, headTilt: 16, bareForearm: true});
+  return satoFigure({...k, behind: biku(add(k.hr, [17, 25]), add(k.sr, [2, 0]))}, 'pained',
+    amiNet([54, 316], [116, 326], -6, 16) + gloom(add(k.head, [0, -34])) + sweat(r1(k.head[0] + 28), r1(k.head[1] - 10)), RYOSHI);
+}
+
+// ---------------- 歌の上手な若者（歌垣の名手） ----------------
+// さらした麻の衣、髪に草花をさす（考証メモ4章）
+const UTABITO = {faceType: 'utabito', hairStyle: 'flower', stubble: false,
+  skin: '#e8bc95', skinDark: '#c89468', cloth: '#e5ddc6', clothDark: '#bcb296', hakama: '#b5aa88', hakamaDark: '#948a6c', cord: '#7d6d4c', hair: '#2a2018'};
+function utabito(pose) {
+  if (pose === 'stand') return satoFigure(skeleton(MALE, malePoses.stand), 'stand', '', UTABITO);
+  if (pose === 'kime') {
+    // 歌いかける：片手を耳に当て、片手を高くかかげ、目を閉じて口をあける
+    const k = skeleton(MALE, {...malePoses.kime, chest: [116, 94],
+      wristL: [40, 18], elbowL: -1, handL: 'open', wristR: [130, 62], elbowR: 1, handR: 'open', headTilt: -5});
+    const voice = [0, 1, 2].map(i => `<path d="M${82 - i * 10} ${56 - i * 3} q${7 + i * 2} ${10 + i} 0 ${20 + i * 2}" fill="none" stroke="#e8c24e" stroke-width="2.6" stroke-linecap="round" opacity="${(.9 - i * .2).toFixed(1)}"/>`).join('');
+    return satoFigure(k, 'proud', voice + motion([[184, 300, 20], [178, 312, 13]]), UTABITO);
+  }
+  // 片手の甲を額に当て、のけぞって天をあおぐ。もう片方の手はだらりと下げる
+  const k = skeleton(MALE, {...malePoses.rejected, pelvis: [130, 192], hipTilt: 2, chest: [134, 106], shoulderTilt: .02,
+    ankleL: [114, 334], ankleR: [150, 332], liftL: 0,
+    wristL: [124, 48], elbowL: -1, handL: 'open', wristR: [160, 218], elbowR: -1,
+    headDx: 2, headTilt: -14});
+  return satoFigure(k, 'pained', gloom(add(k.head, [0, -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 12)), UTABITO);
+}
+
+// ---------------- 郡司の息子（地元の有力者） ----------------
+// 茜で染めた色のついた衣、濃い藍の袴、帯の飾り（帯金具）、馬のむち（考証メモ4章）
+const GUNJI = {faceType: 'gunji', hairStyle: 'bigMage', stubble: false, fitting: '#b99a4e',
+  skin: '#e6b489', skinDark: '#c48d5f', cloth: '#a8614c', clothDark: '#86432f', hakama: '#4a5a72', hakamaDark: '#3a4759', cord: '#6d4336', hair: '#241c16'};
+function gunji(pose) {
+  if (pose === 'stand') {
+    const k = skeleton(MALE, {...malePoses.stand, wristR: [154, 186], elbowR: -1, handR: 'grip'});
+    return satoFigure({...k, behind: muchi([154, 188], -12)}, 'stand', '', GUNJI);
+  }
+  if (pose === 'kime') {
+    // 両手を腰に当てて胸を張る。むちは帯にさす
+    const k = skeleton(MALE, {...malePoses.kime, chest: [120, 94],
+      wristL: [102, 178], elbowL: 1, handL: 'fist', wristR: [150, 180], elbowR: -1, handR: 'fist', headTilt: -3});
+    return satoFigure({...k, behind: muchi([156, 170], -6)}, 'proud', motion([[186, 300, 22], [180, 312, 14]]), GUNJI);
+  }
+  // むちを取り落とし、腰から手を離して腕を組み、あごを上げて強がる
+  // （`kime`の「両手を腰に当てる」と腕の形が重ならないよう、手を腰から胸の前へ移している）
+  const k = skeleton(MALE, {...malePoses.rejected, pelvis: [132, 192], hipTilt: 2, chest: [132, 98], shoulderTilt: .02,
+    ankleL: [116, 334], ankleR: [152, 334], liftL: 0,
+    wristL: [150, 150], elbowL: 1, wristR: [104, 142], elbowR: -1,
+    headDx: -2, headTilt: -6});
+  return satoFigure(k, 'serious',
+    muchi([150, 330], 92) + gloom(add(k.head, [0, -32])) + sweat(r1(k.head[0] + 28), r1(k.head[1] - 10)), GUNJI);
+}
+
+// ---------------- 防人に出る若者 ----------------
+// 色のあせた麻の衣、背に矢筒、手に弓（考証メモ4章・2.4）。勇ましさより決意と不安を出す
+const SAKIMORI = {faceType: 'sakimori', hairStyle: 'ponytail', stubble: false,
+  skin: '#dda87a', skinDark: '#b98252', cloth: '#aeaa98', clothDark: '#8d8976', hakama: '#8c8a78', hakamaDark: '#6f6d5c', cord: '#5e5340', hair: '#221a12'};
+function sakimori(pose) {
+  if (pose === 'stand') {
+    const k = skeleton(MALE, {...malePoses.stand, wristL: [88, 194], elbowL: 1, handL: 'grip'});
+    return satoFigure({...k, back: yazutsu([172, 150], 14)}, 'serious',
+      yumi([80, 96], [88, 196], [84, 290]) + sweat(r1(k.head[0] + 24), r1(k.head[1] - 18)), SAKIMORI);
+  }
+  if (pose === 'kime') {
+    // 弓は向けない。足を広げて斜に構え、手児奈のほう（画面の左）の手を自分の胸に当てて誓い、
+    // 遠いほうの手は弓矢を束ねてだらりと下げる
+    const k = skeleton(MALE, {...malePoses.kime, chest: [122, 96], ankleL: [60, 334], ankleR: [182, 332], liftR: 6,
+      wristL: [122, 124], elbowL: 1, handL: 'open', wristR: [160, 200], elbowR: -1, handR: 'grip', headTilt: -2});
+    return satoFigure(k, 'serious',
+      yaTaba([150, 114], [154, 296]) + yumi([164, 94], [168, 202], [166, 302], null, 15) +
+      sweat(r1(k.head[0] + 24), r1(k.head[1] - 16)), SAKIMORI);
+  }
+  // ひざを折らず、肩だけ落としてまっすぐ立つ。弓の先を地につけ、その上に両手を重ねて手児奈を見返す
+  const k = skeleton(MALE, {...malePoses.rejected, pelvis: [126, 188], hipTilt: 0, chest: [124, 102], shoulderTilt: .03,
+    ankleL: [112, 334], ankleR: [142, 334], wristL: [114, 186], elbowL: 1, handL: 'grip',
+    wristR: [132, 192], elbowR: -1, handR: 'grip', headDx: -2, headTilt: -2, liftL: 0});
+  return satoFigure({...k, back: yazutsu([172, 150], 14)}, 'serious',
+    yumi([116, 86], [124, 190], [120, 330]) + gloom(add(k.head, [0, -34])), SAKIMORI);
+}
+
+// ---------------- 機織りの名人の若者 ----------------
+// 生成りの麻の衣に、自分で織った縞の布をたすきにかける（考証メモ4章・2.2の機織り）
+const HATAORI = {faceType: 'hataori', hairStyle: 'lowBun', stubble: false,
+  skin: '#e9bd99', skinDark: '#c9966f', cloth: '#c4b89b', clothDark: '#a0947a', hakama: '#a79c80', hakamaDark: '#857b63', cord: '#6f5f41', hair: '#282018'};
+function hataori(pose) {
+  if (pose === 'stand') {
+    const k = skeleton(MALE, {...malePoses.stand, handR: 'grip'});
+    return satoFigure(k, 'stand', tasuki(k) + maki([153, 202], 6), HATAORI);
+  }
+  if (pose === 'kime') {
+    // 布を広げる：両手を胸の前で左右へ開き、織った布をたらす
+    const k = skeleton(MALE, {...malePoses.kime, chest: [118, 94],
+      wristL: [26, 120], elbowL: 1, handL: 'grip', wristR: [208, 116], elbowR: -1, handR: 'grip', headTilt: -3});
+    return satoFigure({...k, behind: nuno([26, 122], [208, 118], 46, 34)}, 'focus',
+      tasuki(k) + motion([[188, 300, 20], [182, 312, 13]]), HATAORI);
+  }
+  // 織った布を両手で胸に抱きしめ、背を丸めて静かにうつむく
+  const k = skeleton(MALE, {...malePoses.rejected, pelvis: [134, 204], hipTilt: 3, chest: [124, 116], shoulderTilt: .1,
+    ankleL: [110, 334], ankleR: [154, 334], wristL: [116, 150], elbowL: 1, handL: 'grip',
+    wristR: [138, 154], elbowR: -1, handR: 'grip', headDx: -8, headTilt: 26, liftL: 0});
+  return satoFigure({...k, behind: nunoDrop([127, 146], 34, 58)}, 'pained',
+    tasuki(k) + gloom(add(k.head, [0, -30])) + sweat(r1(k.head[0] + 26), r1(k.head[1] - 12)), HATAORI);
 }
 
 // ---------------- 手児奈 ----------------
@@ -423,7 +705,7 @@ function tekona(pose) {
 
 // ---------------- 参加者の枠の仮の人物（「？」） ----------------
 function newcomer(pose) {
-  let s = sato(pose);
+  let s = sato(pose, malePoses.rejected);
   const map = {[SATO.cloth]: '#a7adb3', [SATO.clothDark]: '#8a9096', [SATO.hakama]: '#8a9096', [SATO.hakamaDark]: '#767c82', [SATO.cord]: '#5f656b',
     [SATO.hair]: '#7d8389', [SATO.skin]: '#cfd3d7', [SATO.skinDark]: '#b9bec3', '#d8c49a': '#b8bdc2', '#e8667a': '#c9ced3', '#3a2a20': '#7d8389', '#8a4a3a': '#9aa0a6', '#7a2e28': '#9aa0a6'};
   for (const [a, b] of Object.entries(map)) s = s.replaceAll(a, b);
@@ -444,6 +726,11 @@ if (require.main === module) {
     files[`sato-${p}`] = sato(p);
     files[`kokufu-${p}`] = kokufu(p);
     files[`miyako-${p}`] = miyako(p);
+    files[`ryoshi-${p}`] = ryoshi(p);
+    files[`utabito-${p}`] = utabito(p);
+    files[`gunji-${p}`] = gunji(p);
+    files[`sakimori-${p}`] = sakimori(p);
+    files[`hataori-${p}`] = hataori(p);
     files[`newcomer-${p}`] = newcomer(p);
   }
   for (const [n, b] of Object.entries(files)) fs.writeFileSync(path.join(out, `${n}.svg`), svg(n, b));
