@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kubohiroya/turbowarp-kamishibai-app':
-        specifier: 3.2.4
-        version: 3.2.4
+        specifier: 3.2.5
+        version: 3.2.5
       fflate:
         specifier: 0.8.3
         version: 0.8.3
@@ -85,12 +85,12 @@ packages:
     engines: {node: '>=24'}
     hasBin: true
 
-  '@kubohiroya/turbowarp-bubble@0.21.0':
-    resolution: {integrity: sha512-MGEjk/71aOfNVPaP0BrrlfxYD9CRN+ca+aVQ1OtgN0x0NceYQB6ZBvKkLwe7qDWILmX9y3usS4nf/SWSbp9qXA==}
+  '@kubohiroya/turbowarp-bubble@0.22.0':
+    resolution: {integrity: sha512-RCg27WE6lwm1xt9W6QVHKYTlSA0AItT8lKOjvX4GdYcZmrPO3EJl8WnSGt4psYwfNVgSQK58/j1ZIQaF09dydw==}
     engines: {node: '>=24'}
     peerDependencies:
       '@kubohiroya/turbowarp-asset-cache': ^0.10.0
-      '@kubohiroya/turbowarp-async-input': ^0.14.0
+      '@kubohiroya/turbowarp-async-input': ^0.15.0
       '@kubohiroya/turbowarp-runtime-expression': ^0.12.0
     peerDependenciesMeta:
       '@kubohiroya/turbowarp-asset-cache':
@@ -104,8 +104,8 @@ packages:
     resolution: {integrity: sha512-mgt5y2oToh8DM9Sa9N8zV1CRMo6GC/zPO2RfLgCFC5gsgI58eP6/OHEX/OjFJGYteh4upBohgz35I2QrCFMZXg==}
     engines: {node: '>=26'}
 
-  '@kubohiroya/turbowarp-kamishibai-app@3.2.4':
-    resolution: {integrity: sha512-rXOCFCQVoxK5k/jC1kDR7FsVpYxn9ukvs+YnjuXFVObAiqXh1DmlLiFTXXe0iTrHOtvWWjkMsqbO+yi+rRq1lg==}
+  '@kubohiroya/turbowarp-kamishibai-app@3.2.5':
+    resolution: {integrity: sha512-cXflwGtP/55pcF+7FPIWckjbq9jQK/KOTtbkqHxz8VqGUoHgmnJTi58EDnl/mT7nMb3BBaDjIVZj/ZzTJD0S5g==}
     engines: {node: '>=22.12.0'}
     hasBin: true
 
@@ -830,16 +830,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@kubohiroya/turbowarp-bubble@0.21.0':
+  '@kubohiroya/turbowarp-bubble@0.22.0':
     dependencies:
       '@cto.af/linebreak': 4.0.3
       '@kubohiroya/turbowarp-svg-text': 0.17.0
 
   '@kubohiroya/turbowarp-extension-loader@0.12.0': {}
 
-  '@kubohiroya/turbowarp-kamishibai-app@3.2.4':
+  '@kubohiroya/turbowarp-kamishibai-app@3.2.5':
     dependencies:
-      '@kubohiroya/turbowarp-bubble': 0.21.0
+      '@kubohiroya/turbowarp-bubble': 0.22.0
       '@kubohiroya/turbowarp-svg-text': 0.17.0
       fflate: 0.8.3
     transitivePeerDependencies:

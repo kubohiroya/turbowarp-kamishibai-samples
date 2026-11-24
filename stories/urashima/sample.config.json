@@ -3,17 +3,17 @@
   "sample": "urashima",
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "3.2.4",
-    "source": "npm:@kubohiroya/turbowarp-kamishibai-app@3.2.4",
-    "commit": "a458dbc4a16378a5b04561170eaa6907102438c1"
+    "version": "3.2.5",
+    "source": "npm:@kubohiroya/turbowarp-kamishibai-app@3.2.5",
+    "commit": "6107ce0e62c32297337f4fde803aaec66c2cea14"
   },
   "baseSb3": {
     "path": "base/kamishibai.sb3",
     "profile": "generic",
-    "source": "github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.4/kamishibai-3.2.sb3",
-    "commit": "a458dbc4a16378a5b04561170eaa6907102438c1",
-    "size": 915913,
-    "sha256": "eac87c83f46c1326115e2456cfc98aa1d7f106393da14a0c515bc4d8f1615431"
+    "source": "github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.5/kamishibai-3.2.sb3",
+    "commit": "6107ce0e62c32297337f4fde803aaec66c2cea14",
+    "size": 915907,
+    "sha256": "117917bd4a1e2d16020500427655e4da8c166e77be9a748d88a23b880f443b9b"
   },
   "sourceScript": "source.txt",
   "assetManifest": "assets.lock.json",

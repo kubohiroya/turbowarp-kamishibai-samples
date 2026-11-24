@@ -139,7 +139,7 @@ test('licenses the repository, runtime, Urashima content, and Packager notices',
   assert(licenseSummary.includes('CC BY-SA 2.0'));
   assert(licenseSummary.includes('7bd800cb66d6fb18886a4c5cea1b76a6'));
   assert(licenseSummary.includes('tm-kamishibai-MPL-2.0.txt'));
-  assert(licenseSummary.includes('a458dbc4a16378a5b04561170eaa6907102438c1'));
+  assert(licenseSummary.includes('6107ce0e62c32297337f4fde803aaec66c2cea14'));
   assert(runtimeLicense.startsWith('Mozilla Public License Version 2.0'));
   assert.equal(runtimeLicense, runtimePackageLicense);
   assert.equal(runtimeLicense, license);
@@ -247,18 +247,18 @@ test('pins the generic, editor, and player profile contract', async () => {
   ]);
   assert.equal(
     packageJson.dependencies['@kubohiroya/turbowarp-kamishibai-app'],
-    '3.2.4',
+    '3.2.5',
   );
-  assert.equal(config.builder.version, '3.2.4');
-  assert.equal(config.builder.commit, 'a458dbc4a16378a5b04561170eaa6907102438c1');
+  assert.equal(config.builder.version, '3.2.5');
+  assert.equal(config.builder.commit, '6107ce0e62c32297337f4fde803aaec66c2cea14');
   assert.equal(config.baseSb3.profile, 'generic');
   assert.equal(
     config.baseSb3.source,
-    'github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.4/kamishibai-3.2.sb3',
+    'github-release:kubohiroya/turbowarp-kamishibai-app@v3.2.5/kamishibai-3.2.sb3',
   );
   assert.equal(
     config.baseSb3.commit,
-    'a458dbc4a16378a5b04561170eaa6907102438c1',
+    '6107ce0e62c32297337f4fde803aaec66c2cea14',
   );
   assert.equal(config.baseSb3.size, baseSb3.length);
   assert.equal(config.baseSb3.sha256, sha256(baseSb3));
@@ -371,7 +371,7 @@ test('pins the generic, editor, and player profile contract', async () => {
   );
   assert.match(
     strFromU8(titleArchive[titleCostume.md5ext as string] as Uint8Array),
-    /Version 3\.2\.4 \(2026\/11\/23\)/,
+    /Version 3\.2\.5 \(2026\/11\/23\)/,
     'Urashima base: Title has an unexpected fallback version label',
   );
   assert.doesNotMatch(

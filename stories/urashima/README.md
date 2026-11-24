@@ -106,8 +106,8 @@ scene 7では、本体3.2系列の標準コマンド`fadeToWhite`でステージ
 
 - 移設元: [`kubohiroya/turbowarp-kamishibai-app`](https://github.com/kubohiroya/turbowarp-kamishibai-app) PR #44
 - 移設元コミット: `9526c9d6391622ee261b8d7c0778b1fbbd2e6745`
-- ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `@kubohiroya/turbowarp-kamishibai-app@3.2.4` / `a458dbc4a16378a5b04561170eaa6907102438c1`
-- 汎用ベース: TurboWarp-Kamishibai v3.2.4 のGitHub Release asset `kamishibai-3.2.sb3` / `a458dbc4a16378a5b04561170eaa6907102438c1`
+- ビルダー: TurboWarp-Kamishibai 3.2 npm artifact `@kubohiroya/turbowarp-kamishibai-app@3.2.5` / `6107ce0e62c32297337f4fde803aaec66c2cea14`
+- 汎用ベース: TurboWarp-Kamishibai v3.2.5 のGitHub Release asset `kamishibai-3.2.sb3` / `6107ce0e62c32297337f4fde803aaec66c2cea14`
 - DSL 4.0汎用ベース・再生用・編集用ビルダー: ルートの`app-release.json`に記録した同じ公開Release。サイズ・SHA-256・commitをCIで自動更新・照合します。
 
 依存の自動更新は[Issue #190](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/190)で管理します。切り戻す場合は、ビルダーとブロック台本用CLIのpin、ベースSB3、生成SB3、artifact lock、公開surfaceを更新前の組へ戻して再デプロイします。公開済みの本体rc.23／rc.25のrelease artifactは差し替えません。
