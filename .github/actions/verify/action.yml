@@ -157,6 +157,12 @@ runs:
       env:
         KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks }}
         KAMISHIBAI_BLOCK_DIAGNOSTICS: ${{ inputs.pull-request != '' && '1' || '0' }}
+        # Keep glibc from holding freed memory in per-thread arenas. Building an SB3 is mostly
+        # Buffer and zlib work, which lives outside V8's heap, so no heap limit bounds it and no
+        # collection returns it; glibc gives each thread an arena of its own, up to eight per core,
+        # and what a thread frees stays in its arena. The same suite costs 3.3 GB on a developer
+        # machine, whose allocator returns memory to the system promptly, and exhausts the runner.
+        MALLOC_ARENA_MAX: '2'
       run: |
         # The totals alone do not say who holds the memory, so each line also names the largest
         # processes. That tells apart the type check, the test workers and however many of them
