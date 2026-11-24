@@ -62,5 +62,78 @@
       "size": 2111429,
       "sha256": "3886bab204eabc67e6a36cb67d4ca11ee7a063d8d5457e7fcbdc923f22bc6d84"
     }
+  },
+  "web": {
+    "enabled": true,
+    "publicPath": "web-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "tekona-4.0.sb3",
+      "size": 2040077,
+      "sha256": "831956cbb9af5ad4c49f8157e90a34b7dcd26e5358beb9bb159ae9c080573f9e"
+    },
+    "output": {
+      "path": "web-4.0/index.html",
+      "contentType": "text/html",
+      "size": 8711723,
+      "sha256": "6088019ead4c4b9148e58bab1f32c3e2fed0450eb55687c4eb07647e41a81883"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true,
+        "packagedRuntime": false
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "b47795da4121440d7f70dd211100a21b3a1797e3d74b8e9b4e057267f2dee091"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded",
+    "audioUnlock": {
+      "enabled": true,
+      "events": [
+        "pointerdown",
+        "pointerup",
+        "touchend",
+        "mousedown",
+        "click",
+        "keydown"
+      ],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
+      "verification": {
+        "strategy": "state-and-clock",
+        "clockCheckDelayMs": 250,
+        "primesOutput": true
+      }
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
+    }
   }
 }

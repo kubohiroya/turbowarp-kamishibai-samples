@@ -43,7 +43,15 @@
 - 季節のカットは用意済みの求婚者のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
 - **注意**: `forEach`と`if`を使うため、この台本は**物語制御に対応したrunner（DSL 4.0 Standard、App 4.0.0-rc.44以降）**が必要です。
   `validate-dsl4 --no-narrative-control`では`K4-NARRATIVE-FLAG-001`で拒否されます（確認済み）。rc.43以前のSB3へ台本だけを移しても動きません。
-- **未完了**: Web版、作品一覧（`site/works.json`）への掲載、`pnpm build`への組み込み。
+- **Web版**: `pnpm update:tekona`が`tekona-4.0.sb3`からオフライン用のHTML（`web-4.0/index.html`、約8.3MB）も作り、
+  `dsl4-artifacts.lock.json`の`web`に記録します。台本・素材・実行基盤をすべて埋め込む設定（`scriptMode: embedded`・
+  `assets: embedded`）なので、**配信元へ取りに行かずに再生できます**（ローカルで開いて確認：読み込みから再生開始まで
+  外部への通信は0件。ポーズ認識の初期化でカメラを要求するところまで動く）。
+  ただしポーズ認識の**モデルだけは例外**で、Teachable Machineの共有リンクから取得するためネットワークが要ります。
+  いまはモデルが仮のリンクなので、求婚者の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
+  ワークショップ用のSB3（`tekona-workshop*`）は参加者が編集するためのものなので、Web版は作りません。
+- **未完了**: 作品一覧（`site/works.json`）への掲載と、`pnpm build`でのWeb版の公開。
+  生成とlockへの記録はできていますが、サイトへは出していません。
 
 ## ファイル
 

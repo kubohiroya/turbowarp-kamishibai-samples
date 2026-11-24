@@ -12,6 +12,8 @@ import {parse, stringify} from 'yaml';
 import {appBasePath, appRuntimeIdentity, readAppRelease} from './app-dependency.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
+import {buildPackagedWeb} from './build-packaged-web.ts';
+import type {WebConfig} from './story-config.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import {
   checkSubmission,
@@ -271,6 +273,37 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
         blockWorkshop: await record(temporary, tekonaBlockWorkshopOutput),
       },
     };
+    // オフラインで遊ぶ向けのWeb版。台本・素材・実行基盤をすべてHTMLへ埋め込む。
+    // ワークショップ用のSB3は参加者が編集するためのものなので、Web版は作らない。
+    const webConfig: WebConfig = {
+      enabled: true,
+      inputProfile: 'dsl4-offline',
+      outputDirectory: 'web-4.0',
+      outputFilename: 'index.html',
+      maxOutputBytes: 64 * 1024 * 1024,
+      scriptMode: 'embedded',
+      assets: 'embedded',
+      audioUnlock: {enabled: true},
+      packager: {
+        package: '@turbowarp/packager',
+        version: '3.13.0',
+        options: {
+          target: 'html',
+          autoplay: true,
+          app: {windowTitle: '手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居'},
+          cloudVariables: {mode: 'disabled'},
+        },
+      },
+      allowedOnlineDependencies: [],
+      runtimeCapabilities: [],
+    };
+    const web = await buildPackagedWeb({
+      inputSb3Path: path.join(temporary, tekonaYamlOutput),
+      outputSampleDirectory: temporary,
+      rawWebConfig: webConfig,
+    });
+    assert.equal(web.enabled, true, 'The tekona Web artifact must be built.');
+    (lock as Record<string, unknown>).web = web;
     const lockPath = path.join(storyRoot, 'dsl4-artifacts.lock.json');
     const page = await renderComposePage();
     if (writeLock) {
