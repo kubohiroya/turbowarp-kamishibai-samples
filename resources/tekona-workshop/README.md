@@ -40,15 +40,18 @@ Copilotで絵をつくり、自分のPCのTeachable Machineでポーズを学習
   自分のモデル（クラス`stand`・`kime`・`rejected`）を持ち、1人1場面で登場します。参加者の場面の雛形を台本に示しています。
 * 手児奈・用意済みの求婚者3人・代わりの「？」の人物・背景4枚のSVG仮素材と、BGM・効果音。
 * アシスタント用の補助ページ（ブロック台本版：枠に入れる文の一覧、外部YAML版：台本の組み立て）。
-* ブロック台本版の席ごとのモデルを準備・確認するコマンド（`pnpm tekona:seat-models`）。
-* TurboWarp Plus Editorでの組み込みの自動リハーサル（公開App 4.0.0-rc.94。両方の版で、参加者の場面が用意済みの3人のあと、`quarrel`の前で再生されることを確認）。
+* TurboWarp Plus Editorでの組み込みの自動リハーサル（記録を取った時点の公開App 4.0.0-rc.94。両方の版で、参加者の場面が用意済みの3人のあと、`quarrel`の前で再生されることを確認。モデルのリンクの書き換えは、この時点では確認できていません）。
 
 ## まだ用意していないもの
 
 * **用意済み3人のポーズ学習用データとモデル**：写真の撮影が必要です。[`pose-dataset-plan.md`](pose-dataset-plan.md)に従って事前撮影し、
   モデルの共有リンクを台本の`SatoPose`・`KokufuPose`・`MiyakoPose`へ設定してください。写真を含む`project.tm`はこのリポジトリへコミットしません。
-* **席ごとのモデル（ブロック台本版）**：`seat-NN.tm`の作成・アップロードと、開き直したプロジェクトから同じリンクを更新できることの確認〔要確認〕
-  （[`pose-dataset-plan.md`](pose-dataset-plan.md)の「ブロック台本版：席ごとのモデル」）。
+* **参加者がモデルのリンクを書き換える手順の実機確認**：App 4.0.11以降が必要です。4.0.10までの公開Appでは、台本への反映が
+  `Remote asset source does not match: PoseNN`で拒否されます（kubohiroya/turbowarp-kamishibai-app#1184、PR #1185はまだマージも公開もされていません）。
+  `app-release.json`の固定を4.0.11へ上げ、作業用SB3を作り直し、`pnpm verify:tekona-block-workshop-editor`から
+  `TEKONA_REPLACE_MODEL_URL`を外すところまでを、公開後に一度にまとめて行います。
+  それまで、席ごとのモデルの事前準備の仕組み（`workshop.config.json`の`slotModelUrls`、`pnpm tekona:seat-models`）は残しますが、
+  使いません（[`pose-dataset-plan.md`](pose-dataset-plan.md)の「ブロック台本版：参加者が自分のモデルを作る」）。
 * 公開用のWeb版、作品一覧への掲載。
 * 掲示板の投稿（半完成品・素材・提出のしかた・発展課題・共有作品）の実物と、会場PCでの通し練習（1人あたりの組み込み時間の実測）。
 * 教材の図版（画面写真）、PDF化、配布ZIPの生成。

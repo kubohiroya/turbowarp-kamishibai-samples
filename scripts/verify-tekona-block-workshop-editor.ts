@@ -181,8 +181,10 @@ async function main() {
 
     let started = Date.now();
     report.suitorCostumes = await replaceCostumes(page, `Suitor${nn}`, pictures);
-    // rc.79 through rc.89 cannot reflect a changed remote model URL ("Remote asset source does not match"), so the
-    // slot keeps its pre-registered URL. TEKONA_REPLACE_MODEL_URL=1 re-checks the replacement.
+    // Every App published up to 4.0.10 refuses a changed remote model URL ("Remote asset source does not
+    // match"), so the slot keeps the sample URL. App 4.0.11 makes the URL editable in an unsealed work
+    // (kubohiroya/turbowarp-kamishibai-app#1184); TEKONA_REPLACE_MODEL_URL=1 exercises the replacement.
+    // Once app-release.json pins 4.0.11, drop the flag and always assert it: the workshop depends on it.
     const replaceModel = Boolean(process.env.TEKONA_REPLACE_MODEL_URL);
     report.replaceModel = replaceModel;
     report.changed = await fillSlot(page, nn, edits, replaceModel ? submission.model! : '');
