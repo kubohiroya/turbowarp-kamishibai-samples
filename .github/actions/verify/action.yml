@@ -162,7 +162,33 @@ runs:
         # enough of the command line to tell which one it is. `Shmem` is counted as used but
         # written as files, so a run that fills a RAM-backed filesystem would otherwise look like
         # a leak in the totals alone.
+        #
+        # Once a process passes five gigabytes, ask it for a Node diagnostic report and print the
+        # JavaScript stack out of it, which names what is allocating. The tests run with
+        # --report-on-signal for this (see vite.config.ts). The growth is not in V8's heap, so a
+        # heap limit would neither stop it nor report it.
+        mkdir -p .tmp/reports
+        dump() {
+          local pid=$1 mb=$2 report
+          printf '[diagnostic] pid %s reached %s MB; asking it for a report\n' "$pid" "$mb"
+          kill -USR2 "$pid" 2> /dev/null || true
+          sleep 5
+          report=$(ls -t .tmp/reports/*.json 2> /dev/null | head -1)
+          if [[ -z "$report" ]]; then
+            printf '[diagnostic] the process wrote no report\n'
+            return
+          fi
+          printf '[diagnostic] %s\n' "$report"
+          node -e '
+            const report = require(process.argv[1]);
+            const {rss, external, arrayBuffers} = report.resourceUsage ?? {};
+            console.log("[diagnostic] rss=%s external=%s arrayBuffers=%s", rss, external, arrayBuffers);
+            console.log("[diagnostic] heap:", JSON.stringify(report.javascriptHeap?.heapSpaces ?? {}));
+            for (const frame of report.javascriptStack?.stack ?? []) console.log("[diagnostic]   ", frame);
+          ' "$report" || printf '[diagnostic] could not read the report\n'
+        }
         sample() {
+          local dumped=0 pid rss
           while :; do
             printf '[resources] %s %s %s %s | %s\n' \
               "$(date -u +%H:%M:%S)" \
@@ -170,6 +196,13 @@ runs:
               "$(awk '/^Shmem:/ {printf "shmem=%dM", $2 / 1024}' /proc/meminfo)" \
               "$(df -m / | awk 'NR == 2 {printf "disk_used=%sM disk_available=%sM (%s)", $3, $4, $5}')" \
               "$(ps -eo rss=,args= --sort=-rss | head -4 | awk '{rss = $1 / 1024; $1 = ""; printf "%dM %s; ", rss, substr($0, 2, 160)}')"
+            if (( dumped == 0 )); then
+              read -r pid rss < <(ps -eo pid=,rss=,comm= --sort=-rss | awk '$3 ~ /node/ {print $1, $2; exit}')
+              if [[ -n "$rss" ]] && (( rss > 5 * 1024 * 1024 )); then
+                dumped=1
+                dump "$pid" "$(( rss / 1024 ))"
+              fi
+            fi
             sleep 5
           done
         }

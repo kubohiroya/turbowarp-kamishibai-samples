@@ -24,6 +24,17 @@ export default defineConfig({
     // sb3 のビルドやパッケージングを伴うテストがあるため、既定より長めに取る。
     testTimeout: 180_000,
     hookTimeout: 180_000,
-    ...(process.env.CI ? {maxWorkers: 1} : {}),
+    ...(process.env.CI
+      ? {
+          maxWorkers: 1,
+          // Names each file as it starts, so a run the kernel kills says which one it was in.
+          setupFiles: ['./test/report-test-file.setup.ts'],
+          // Let the sampler ask the worker for a diagnostic report while it grows: the report
+          // carries the JavaScript stack, which names what is allocating. A heap limit would not,
+          // because the growth is not in V8's heap — this file's tests pass here under a 256 MB
+          // old-space limit.
+          poolOptions: {forks: {execArgv: ['--report-on-signal', '--report-directory=.tmp/reports']}},
+        }
+      : {}),
   },
 });
