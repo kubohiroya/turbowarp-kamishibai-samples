@@ -91,7 +91,10 @@ async function record(root: string, filename: string) {
 }
 
 /** Build the workshop, YAML and block-script SB3 from the pinned published App release. */
-export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {}) {
+export async function buildTekona({
+  writeLock = false,
+  outputDirectory,
+}: {writeLock?: boolean; outputDirectory?: string} = {}) {
   const release = await readAppRelease();
   const builder = await resolveBlockAuthoringBuilder();
   const packageJson = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8'));
@@ -319,6 +322,34 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
       );
       assert.equal(await readFile(path.join(projectRoot, composePage), 'utf8'), page,
         'The assistant compose page is stale; run update:tekona.');
+    }
+    if (outputDirectory) {
+      await mkdir(outputDirectory, {recursive: true});
+      const copy = async (from: string, name: string) => {
+        await mkdir(path.dirname(path.join(outputDirectory, name)), {recursive: true});
+        await copyFile(path.join(from, name), path.join(outputDirectory, name));
+      };
+      for (const name of [
+        'README.md',
+        'LICENSES.md',
+        sourceName,
+        projectAssetsName,
+        workshopConfigName,
+        'dsl4-artifacts.lock.json',
+        'assets/title-card.svg',
+        'card-scenes.gif',
+        'card-scenes/01.webp',
+        'card-scenes/02.webp',
+        'card-scenes/03.webp',
+        'card-scenes/04.webp',
+      ]) await copy(storyRoot, name);
+      for (const name of [
+        tekonaYamlOutput,
+        tekonaBlocksOutput,
+        tekonaWorkshopOutput,
+        tekonaBlockWorkshopOutput,
+        'web-4.0/index.html',
+      ]) await copy(temporary, name);
     }
     return lock;
   } finally {

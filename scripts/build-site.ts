@@ -9,6 +9,7 @@ import {assetModeLabels, scriptFormatLabels, workDelivery, type WorkDelivery} fr
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildThreeVisits} from './build-three-visits.ts';
+import {buildTekona} from './build-tekona.ts';
 import {buildMyUrashima} from './build-my-urashima.ts';
 import {buildMyUrashimaDsl4} from './build-my-urashima-dsl4.ts';
 import {buildUrashima} from './build-urashima.ts';
@@ -1303,6 +1304,25 @@ ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('s
 ${renderSiteFooter('../../')}</body></html>`;
 }
 
+export function renderTekonaIndex(tekonaWork: WorkEntry, version: string): string {
+  return `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#eef3f7;color:#243247}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#963f2f}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/tekona/')}
+<main><h1>手児奈 ― 真間の井の求婚者たち</h1><p>DSL 4.0 / ${version}。千葉県市川市真間に伝わる「真間の手児奈」を、参加型紙芝居として再話した創作台本です。カメラの前で求婚者になりきってポーズを決めると、ポーズ認識AIがそれを認めて物語が進みます。</p>
+<img src="card-scenes.gif" alt="月夜の真間の入江、井で水をくむ手児奈、求婚の決めポーズ、継橋" width="480" style="max-width:100%;height:auto;background:#fff">
+<p>これはワークショップ用の<strong>半完成品</strong>です。用意済みの求婚者8人のあとに、参加者がつくった求婚者の場面を加えて完成させます。</p>
+${renderArtifactFormats(tekonaWork, () => true, '', (href) => href.replace('stories/tekona/', ''))}
+<ul><li>DSL4.0 YAML台本： <a href="web-4.0/">Web版でプレイ</a>（台本・素材・実行基盤をすべて埋め込んだHTML。ポーズ認識のモデルだけは配信元から取得します）</li>
+<li><a href="tekona-4.0.sb3" download>YAML版SB3</a> / <a href="tekona-blocks-4.0.sb3" download>ブロック台本SB3</a></li>
+<li>ワークショップ用： <a href="tekona-workshop-blocks-4.0.sb3" download>ブロック台本版</a>（参加者の枠を登録済み） / <a href="tekona-workshop-4.0.sb3" download>外部YAML版</a></li></ul>
+<p>ポーズ認識モデルは運営側で撮影・学習したものに差し替えて使います。差し替え前は、求婚者の場面がポーズ認識の段階で止まります（Spaceキーでとばせます）。</p>
+<p>ソース: <a href="tekona.k4.yml" download>台本</a>・<a href="project-assets-dsl4.yml" download>素材の宣言</a>・<a href="workshop.config.json" download>ワークショップ設定</a>。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${version}">${version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
+<p><a href="https://kubohiroya.github.io/turbowarp-kamishibai-docs/4.0/dsl-author-guides/dsl-4.0-author-guide/">作者ガイド</a> / <a href="README.md">使い方・ワークショップの手順</a> / <a href="dsl4-artifacts.lock.json">生成記録</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`;
+}
+
 export async function buildSite() {
   await refreshChangedStoryArtifacts();
   const [
@@ -1646,6 +1666,16 @@ export async function buildSite() {
   await writeFile(
     path.join(narrativeDirectory, 'index.html'),
     renderThreeVisitsIndex(narrativeWork, narrative.builder.version),
+    'utf8',
+  );
+
+  const tekonaWork = worksCatalog.works.find(({id}) => id === 'tekona');
+  assert(tekonaWork, 'tekona is missing from the works catalog.');
+  const tekonaDirectory = path.join(outputDirectory, 'stories/tekona');
+  const tekona = await buildTekona({outputDirectory: tekonaDirectory});
+  await writeFile(
+    path.join(tekonaDirectory, 'index.html'),
+    renderTekonaIndex(tekonaWork, tekona.builder.version),
     'utf8',
   );
 
