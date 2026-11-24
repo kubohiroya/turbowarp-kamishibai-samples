@@ -17,9 +17,11 @@ import {fileURLToPath} from 'node:url';
  * Running them in order costs about two minutes of wall time. A silent kill costs the whole run
  * and leaves nothing to read, so the two minutes are the cheaper side.
  *
- * The unit stage is buffered and printed before the build starts, so its output cannot interleave
- * with the build's, which streams as it goes. Both stages run even when the first one fails, so
- * one run still reports both stages' failures.
+ * Both stages stream as they go. The unit stage used to be buffered so that its output could not
+ * interleave with the build's, which no longer applies now that they do not overlap, and a
+ * buffered stage loses everything it printed when the kernel takes it — which is how the runs that
+ * exhaust the runner end. Both stages run even when the first one fails, so one run still reports
+ * both stages' failures.
  *
  * The browser checks, the site verification and the repository policy check need dist/ and stay
  * after the build, in that order.
@@ -78,9 +80,8 @@ if (fetched.code !== 0) {
   process.exit(fetched.code);
 }
 
-// In order, not together: see the memory note above. The unit stage is reported before the build
-// starts so that its buffered output never lands in the middle of the build's stream.
-const unit = await stage('typecheck + test', ['typecheck', 'test'], true);
+// In order, not together: see the memory note above.
+const unit = await stage('typecheck + test', ['typecheck', 'test'], false);
 report(unit);
 const build = await stage('build', ['build'], false);
 report(build);

@@ -157,17 +157,11 @@ runs:
       env:
         KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks }}
         KAMISHIBAI_BLOCK_DIAGNOSTICS: ${{ inputs.pull-request != '' && '1' || '0' }}
-        # Keep glibc from holding freed memory in per-thread arenas. Building an SB3 is mostly
-        # Buffer and zlib work, which lives outside V8's heap, so no heap limit bounds it and no
-        # collection returns it; glibc gives each thread an arena of its own, up to eight per core,
-        # and what a thread frees stays in its arena. The same suite costs 3.3 GB on a developer
-        # machine, whose allocator returns memory to the system promptly, and exhausts the runner.
-        MALLOC_ARENA_MAX: '2'
       run: |
-        # The totals alone do not say who holds the memory, so each line also names the largest
-        # processes. That tells apart the type check, the test workers and however many of them
-        # actually ran. `Shmem` is counted as used but written as files, so a run that fills a
-        # RAM-backed filesystem looks like a leak in the totals alone.
+        # A single process grows to 15 GB here, so each line names the largest processes with
+        # enough of the command line to tell which one it is. `Shmem` is counted as used but
+        # written as files, so a run that fills a RAM-backed filesystem would otherwise look like
+        # a leak in the totals alone.
         sample() {
           while :; do
             printf '[resources] %s %s %s %s | %s\n' \
@@ -175,7 +169,7 @@ runs:
               "$(free -m | awk '/^Mem:/ {memory = sprintf("mem_used=%sM mem_available=%sM", $3, $7)} /^Swap:/ {swap = sprintf("swap_used=%sM", $3)} END {print memory, swap}')" \
               "$(awk '/^Shmem:/ {printf "shmem=%dM", $2 / 1024}' /proc/meminfo)" \
               "$(df -m / | awk 'NR == 2 {printf "disk_used=%sM disk_available=%sM (%s)", $3, $4, $5}')" \
-              "$(ps -eo rss=,args= --sort=-rss | head -5 | awk '{rss = $1 / 1024; $1 = ""; printf "%dM %s; ", rss, substr($0, 2, 60)}')"
+              "$(ps -eo rss=,args= --sort=-rss | head -4 | awk '{rss = $1 / 1024; $1 = ""; printf "%dM %s; ", rss, substr($0, 2, 160)}')"
             sleep 5
           done
         }

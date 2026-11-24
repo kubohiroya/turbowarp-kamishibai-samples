@@ -4,20 +4,19 @@ import {defineConfig} from 'vitest/config';
 
 // On CI, one test file at a time.
 //
-// The GitHub-hosted runner (4 cores, 15.7 GB) runs out of memory while this stage runs and the
-// kernel takes the process: once reported as a cancelled job, once as the runner losing
-// communication with the server. Either way GitHub discards the job's log, so the run says only
-// that it failed.
+// The GitHub-hosted runner (4 cores, 15.7 GB) runs out of memory while the tests run and the
+// kernel takes the process, which GitHub reports as a cancelled job. Sampling the runner showed a
+// single Node process growing from 350 MB to 15.2 GB in thirty seconds, so the cost is one file's,
+// not the sum of several running at once: capping the workers by memory did not help, and neither
+// did bounding glibc's per-thread arenas.
 //
-// Deriving the worker count from the runner's memory did not change that, and the suite's own cost
-// does not explain it: measured on a developer machine, the whole suite with nine workers peaks at
-// 3.3 GB across ten processes, and the largest single worker at 1.0 GB. Removing dist/ beforehand,
-// as CI has it, does not change those numbers either. So what holds the runner's memory is not
-// established, and Vitest's workers are not shown to be it.
+// Measured on a developer machine the whole suite with nine workers peaks at 3.3 GB across ten
+// processes and its largest single worker at 1.0 GB, with or without dist/ present, so the file
+// that does this on the runner does not do it here and the cause is still open.
 //
-// Until it is explained, CI runs the files in order. Each file still gets its own process, so
-// whatever one file allocates is returned before the next one starts, and nothing multiplies it.
-// A developer machine keeps the default, so local runs are unchanged.
+// Running the files in order does not make the suite fit. It is here because the log then names
+// the file that was running when the runner died, and because the suite costs 1.3 GB instead of
+// 3.3 GB for 85s instead of 35s. A developer machine keeps the default.
 export default defineConfig({
   test: {
     environment: 'node',
