@@ -9,6 +9,7 @@ import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {test} from 'vitest';
 
 import {readBlockProjectExtensions} from '../scripts/block-project-extensions.ts';
+import {assertSameBytes} from '../scripts/same-bytes.ts';
 import {
   assertBlockSourceRuntimeWrapper,
   buildEditableBlockSource,
@@ -87,16 +88,19 @@ for (const story of ['urashima', 'tutorial']) {
     const appRoot =
       process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
       path.resolve(import.meta.dirname, '../../turbowarp-kamishibai-app');
-    assert.equal(
-      source,
-      await readFile(
-        path.join(
-          appRoot,
-          'dist/builder/generated/dsl4-narrative-playback-runtime-extension.js',
-        ),
-        'utf8',
-      ),
-      'Migrated samples must retain the exact official runtime rather than a local wrapper.',
+    const official = await readFile(
+      path.join(appRoot, 'dist/builder/generated/dsl4-narrative-playback-runtime-extension.js'),
+      'utf8',
+    );
+    // By digest: these are about 3.2 million characters each, and a diff of two of them fills the
+    // report and crowds out every other failure in the run. The version each side carries is what
+    // a reader needs, so name it instead.
+    const runtimeVersion = (text: string) => /^\/\/ Version: (.+)$/mu.exec(text)?.[1] ?? 'unknown';
+    assertSameBytes(
+      Buffer.from(source),
+      Buffer.from(official),
+      'Migrated samples must retain the exact official runtime rather than a local wrapper. ' +
+        `The ${story} sample carries ${runtimeVersion(source)}; the App provides ${runtimeVersion(official)}.`,
     );
     assert.deepEqual(registerThroughBundleProxy(source), [
       'embeddedYamlRoot',
