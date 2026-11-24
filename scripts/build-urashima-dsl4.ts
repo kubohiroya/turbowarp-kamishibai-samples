@@ -21,6 +21,7 @@ import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import type {Dsl4Limits} from './story-config.ts';
 import {ensureUrashimaDsl4Inputs} from './update-urashima-dsl4-inputs.ts';
+import {assertSameBytes} from './same-bytes.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/urashima');
@@ -174,7 +175,11 @@ async function canonicalizeSb3(inputPath: string, sourceDirectory: string): Prom
   await importSb3({inputPath, outputDirectory: sourceDirectory});
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
-  assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
+  assertSameBytes(
+    Buffer.from(first.archive),
+    Buffer.from(second.archive),
+    `${inputPath} is not reproducible from one source directory.`,
+  );
   return Buffer.from(first.archive);
 }
 
@@ -349,12 +354,12 @@ export async function buildUrashimaDsl4({
         'dsl4-artifacts.lock.json is stale; run pnpm update:urashima-dsl4.',
       );
       if (verifyCommittedOutput) {
-        assert.deepEqual(
+        assertSameBytes(
           await readFile(outputPath),
           canonicalBytes,
           'urashima-4.0.sb3 is stale; run pnpm update:urashima-dsl4.',
         );
-        assert.deepEqual(
+        assertSameBytes(
           await readFile(blocksOutputPath),
           blocksBytes,
           `${config.blocksOutput} is stale; run pnpm update:urashima-dsl4.`,

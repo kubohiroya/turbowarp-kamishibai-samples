@@ -15,6 +15,7 @@ import type {WorkshopPoseCount} from './my-urashima-workshop.ts';
 import type {DependencyRecord, ProjectAssetSpecification} from './story-config.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
+import {assertSameBytes} from './same-bytes.ts';
 
 export interface WorkshopBlockRecord extends DependencyRecord {
   poseCount: WorkshopPoseCount;
@@ -71,7 +72,11 @@ export async function buildMyUrashimaWorkshopBlocks(options: {
     await options.authoring.refreshRuntime?.(imported);
     const first = await createDeterministicSb3(imported);
     const second = await createDeterministicSb3(imported);
-    assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
+    assertSameBytes(
+      Buffer.from(first.archive),
+      Buffer.from(second.archive),
+      `my-urashima-${poseCount}-poses block source is not reproducible from one directory.`,
+    );
     const editableBytes = await migrateEditableBlockSource(first.archive, {
       appRoot: options.authoring.root, entryFile: `my-urashima-${poseCount}-poses.k4.yml`,
     });

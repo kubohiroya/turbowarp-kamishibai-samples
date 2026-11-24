@@ -20,6 +20,7 @@ import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import type {DependencyRecord, Dsl4StoryConfig, Dsl4Limits} from './story-config.ts';
+import {assertSameBytes} from './same-bytes.ts';
 
 interface SourceStructure {
   assetIds: string[];
@@ -270,7 +271,11 @@ async function canonicalizeSb3(inputPath: string, sourceDirectory: string): Prom
   await importSb3({inputPath, outputDirectory: sourceDirectory});
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
-  assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
+  assertSameBytes(
+    Buffer.from(first.archive),
+    Buffer.from(second.archive),
+    `${inputPath} is not reproducible from one source directory.`,
+  );
   return Buffer.from(first.archive);
 }
 
@@ -593,10 +598,14 @@ export async function buildTutorialDsl4({
           readFile(committed.starter),
           readFile(committed.additionKit),
         ]);
-        assert.deepEqual(sb3, canonicalBytes, 'Tutorial SB3 is stale.');
-        assert.deepEqual(blocksSb3, blocksBytes, 'Tutorial block source SB3 is stale.');
-        assert.deepEqual(starterArchive, archives.starter.bytes, 'Tutorial starter ZIP is stale.');
-        assert.deepEqual(
+        assertSameBytes(sb3, canonicalBytes, 'Tutorial SB3 is stale.');
+        assertSameBytes(blocksSb3, blocksBytes, 'Tutorial block source SB3 is stale.');
+        assertSameBytes(
+          starterArchive,
+          archives.starter.bytes,
+          'Tutorial starter ZIP is stale.',
+        );
+        assertSameBytes(
           additionArchive,
           archives.additionKit.bytes,
           'Tutorial addition kit ZIP is stale.',

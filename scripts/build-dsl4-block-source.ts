@@ -9,6 +9,7 @@ import {alignDsl4BlockAssetBundle} from './simplify-published-dsl4-blocks.ts';
 import {migrateEditableBlockSource} from './migrate-embedded-yaml.ts';
 
 import type {ScratchProject} from './scratch.ts';
+import {assertSameBytes} from './same-bytes.ts';
 
 /** Verify the upstream wrapper permits the bundle's per-component Scratch proxy. */
 export function assertBlockSourceRuntimeWrapper(source: string): void {
@@ -63,7 +64,11 @@ export async function buildEditableBlockSource(
   await writeFile(projectPath, `${JSON.stringify(project)}\n`);
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
-  assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
+  assertSameBytes(
+    Buffer.from(first.archive),
+    Buffer.from(second.archive),
+    `${entryFile} block source is not reproducible from one source directory.`,
+  );
   return appRoot
     ? migrateEditableBlockSource(first.archive, {appRoot, entryFile})
     : Buffer.from(first.archive);
