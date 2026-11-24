@@ -3,16 +3,23 @@ import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
 /**
- * Run `pnpm run check`, with the type check and unit tests alongside the site build.
+ * Run `pnpm run check`: the type check and unit tests, then the site build.
  *
- * The site build only writes dist/, and the unit tests only write their own temporary
- * directories, so neither reads what the other writes. Chained with `&&` on a GitHub-hosted
- * runner the unit stage (tsc + Vitest) costs 1.5-2 min and the build 2.5-3.5 min one after the
- * other. Run together they cost the build alone.
+ * These two stages used to run together, because neither reads what the other writes and the
+ * overlap cost the build alone instead of the sum. They no longer do, because they do not fit in
+ * a GitHub-hosted runner's memory at the same time. Vitest starts a worker per core while the
+ * build is already holding whole SB3 files and the HTML it embeds them in: measured on the runner,
+ * the two together reached 11.9 GB of its 15.7 GB within a minute, and since the runner has no
+ * swap the kernel took the process. GitHub reports that as a cancelled job, which also discards
+ * the log, so the run says only that it was cancelled. Measured apart, the build alone peaks at
+ * about 1.6 GB.
  *
- * The build streams its output as it goes, because it is the long stage. The unit stage is
- * buffered and printed when it finishes, so the two cannot interleave. Both run to completion
- * before a failure stops the check, so one run reports both stages' failures.
+ * Running them in order costs about two minutes of wall time. A silent kill costs the whole run
+ * and leaves nothing to read, so the two minutes are the cheaper side.
+ *
+ * The unit stage is buffered and printed before the build starts, so its output cannot interleave
+ * with the build's, which streams as it goes. Both stages run even when the first one fails, so
+ * one run still reports both stages' failures.
  *
  * The browser checks, the site verification and the repository policy check need dist/ and stay
  * after the build, in that order.
@@ -71,11 +78,11 @@ if (fetched.code !== 0) {
   process.exit(fetched.code);
 }
 
-const [unit, build] = await Promise.all([
-  stage('typecheck + test', ['typecheck', 'test'], true),
-  stage('build', ['build'], false),
-]);
+// In order, not together: see the memory note above. The unit stage is reported before the build
+// starts so that its buffered output never lands in the middle of the build's stream.
+const unit = await stage('typecheck + test', ['typecheck', 'test'], true);
 report(unit);
+const build = await stage('build', ['build'], false);
 report(build);
 
 const failed = [unit, build].filter((result) => result.code !== 0);
