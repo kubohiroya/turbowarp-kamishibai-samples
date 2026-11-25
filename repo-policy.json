@@ -19,6 +19,10 @@
     "builderPackage": "@kubohiroya/turbowarp-kamishibai-app",
     "builderVersion": "3.2.5",
     "builderGitHead": "6107ce0e62c32297337f4fde803aaec66c2cea14",
+    "app": {
+      "series": "4.0",
+      "allowPrerelease": true
+    },
     "sb3Toolchain": "0.28.0",
     "packager": "3.13.0"
   },

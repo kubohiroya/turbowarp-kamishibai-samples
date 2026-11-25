@@ -33,22 +33,132 @@ export interface AppRelease {
   artifact: { filename: string; url: string; size: number; sha256: string };
 }
 
-function releaseVersion(release: GithubRelease) {
-  const match = /^v4\.0\.(\d+)(?:-rc\.(\d+))?$/u.exec(release.tag_name);
+/**
+ * The releases the works may follow.
+ *
+ * This used to be written into the selection itself: a tag had to match `^v4.0.(\d+)(-rc.N)?$`,
+ * drafts and unpublished releases were out, and a stable release outranked an RC. That is a range,
+ * and it was a range nobody could see or change without editing the comparison. It is declared in
+ * repo-policy.json now, beside the 3.2 series pin that the same file already carries.
+ *
+ * The bounds stay inside one series, so the comparison is still the patch and RC numbers and
+ * nothing here needs a semver implementation.
+ */
+export interface AppReleasePolicy {
+  /** The major.minor series the works follow, e.g. '4.0'. */
+  readonly series: string;
+  /** Whether an `-rc.N` release may be selected. A stable release always outranks an RC. */
+  readonly allowPrerelease: boolean;
+  /** Inclusive lower bound inside the series, e.g. '4.0.12'. */
+  readonly minimumVersion?: string;
+  /** Exclusive upper bound inside the series, e.g. '4.0.20'. */
+  readonly maximumVersion?: string;
+}
+
+/** What the selection did before the range could be declared. */
+export const defaultAppReleasePolicy: AppReleasePolicy = Object.freeze({
+  series: "4.0",
+  allowPrerelease: true,
+});
+
+function patchOf(version: string, series: string, name: string): number {
+  const match = new RegExp(`^${series.replace(".", "\\.")}\\.(\\d+)$`, "u").exec(version);
+  assert(match, `repo-policy.json dependencies.app.${name} must be a ${series}.x version.`);
+  return Number(match[1]);
+}
+
+/** Read the declared policy, falling back to what the selection has always done. */
+export async function readAppReleasePolicy(
+  root = projectRoot,
+): Promise<AppReleasePolicy> {
+  // A tree without the policy file — a temporary root in a test, an export without it — follows
+  // what the selection always did rather than failing. Declaring nothing and having no file to
+  // declare it in mean the same thing here.
+  const contents = await readFile(path.join(root, "repo-policy.json"), "utf8").catch(
+    (error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") return undefined;
+      throw error;
+    },
+  );
+  if (contents === undefined) return defaultAppReleasePolicy;
+  const policy = JSON.parse(contents) as {
+    dependencies?: { app?: Partial<AppReleasePolicy> };
+  };
+  const declared = policy.dependencies?.app;
+  if (!declared) return defaultAppReleasePolicy;
+  const series = declared.series ?? defaultAppReleasePolicy.series;
+  assert.match(series, /^\d+\.\d+$/u, "repo-policy.json dependencies.app.series");
+  const allowPrerelease =
+    declared.allowPrerelease ?? defaultAppReleasePolicy.allowPrerelease;
+  assert.equal(
+    typeof allowPrerelease,
+    "boolean",
+    "repo-policy.json dependencies.app.allowPrerelease must be a boolean.",
+  );
+  for (const [name, value] of [
+    ["minimumVersion", declared.minimumVersion],
+    ["maximumVersion", declared.maximumVersion],
+  ] as const) {
+    if (value !== undefined) patchOf(value, series, name);
+  }
+  if (declared.minimumVersion !== undefined && declared.maximumVersion !== undefined) {
+    assert(
+      patchOf(declared.minimumVersion, series, "minimumVersion") <
+        patchOf(declared.maximumVersion, series, "maximumVersion"),
+      "repo-policy.json dependencies.app.minimumVersion must be below maximumVersion.",
+    );
+  }
+  return Object.freeze({
+    series,
+    allowPrerelease,
+    ...(declared.minimumVersion === undefined
+      ? {}
+      : { minimumVersion: declared.minimumVersion }),
+    ...(declared.maximumVersion === undefined
+      ? {}
+      : { maximumVersion: declared.maximumVersion }),
+  });
+}
+
+function releaseVersion(release: GithubRelease, policy: AppReleasePolicy) {
+  const pattern = new RegExp(
+    `^v${policy.series.replace(".", "\\.")}\\.(\\d+)(?:-rc\\.(\\d+))?$`,
+    "u",
+  );
+  const match = pattern.exec(release.tag_name);
   if (!match || release.draft || !release.published_at) return null;
-  return { patch: Number(match[1]), rc: Number(match[2] ?? Infinity) };
+  const patch = Number(match[1]);
+  const rc = Number(match[2] ?? Infinity);
+  if (!policy.allowPrerelease && rc !== Infinity) return null;
+  if (
+    policy.minimumVersion !== undefined &&
+    patch < patchOf(policy.minimumVersion, policy.series, "minimumVersion")
+  )
+    return null;
+  if (
+    policy.maximumVersion !== undefined &&
+    patch >= patchOf(policy.maximumVersion, policy.series, "maximumVersion")
+  )
+    return null;
+  return { patch, rc };
 }
 
 /** Prefer published stable releases; RCs support snapshots before the first stable release. */
-export function selectAppRelease(releases: GithubRelease[]): GithubRelease {
-  const eligible = releases.filter((release) => releaseVersion(release));
+export function selectAppRelease(
+  releases: GithubRelease[],
+  policy: AppReleasePolicy = defaultAppReleasePolicy,
+): GithubRelease {
+  const eligible = releases.filter((release) => releaseVersion(release, policy));
   eligible.sort((a, b) => {
-    const av = releaseVersion(a)!;
-    const bv = releaseVersion(b)!;
+    const av = releaseVersion(a, policy)!;
+    const bv = releaseVersion(b, policy)!;
     const stableOrder = Number(bv.rc === Infinity) - Number(av.rc === Infinity);
     return stableOrder || bv.patch - av.patch || bv.rc - av.rc;
   });
-  assert(eligible[0], "No published DSL 4.0 release is available.");
+  assert(
+    eligible[0],
+    `No published DSL ${policy.series} release satisfies repo-policy.json dependencies.app.`,
+  );
   return eligible[0];
 }
 
@@ -63,11 +173,13 @@ const isTransientStatus = (status: number) => status === 429 || status >= 500;
 export async function resolveAppRelease({
   fetchImplementation = fetch as FetchLike,
   token = process.env.GH_TOKEN,
+  policy = defaultAppReleasePolicy,
   wait = (ms: number) =>
     new Promise<void>((resolve) => setTimeout(resolve, ms)),
 }: {
   fetchImplementation?: FetchLike;
   token?: string;
+  policy?: AppReleasePolicy;
   wait?: (ms: number) => Promise<void>;
 } = {}): Promise<{ lock: AppRelease; bytes: Buffer }> {
   async function request(url: string) {
@@ -125,7 +237,7 @@ export async function resolveAppRelease({
     releases.push(...batch);
     if (batch.length < 100) break;
   }
-  const release = selectAppRelease(releases);
+  const release = selectAppRelease(releases, policy);
   const version = release.tag_name.slice(1);
   const commit = (await (
     await request(`${api}/commits/${encodeURIComponent(release.tag_name)}`)
@@ -226,9 +338,14 @@ export async function syncAppRelease({
   root?: string;
   fetchImplementation?: FetchLike;
   token?: string;
+  policy?: AppReleasePolicy;
   wait?: (ms: number) => Promise<void>;
 } = {}) {
-  const { lock, bytes } = await resolveAppRelease(options);
+  // The declared range is an input of the sync, read from the repository being synced. The pin it
+  // writes is the output; keeping the two in separate files is why repo-policy.json holds the
+  // range and app-release.json stays a generated snapshot.
+  const policy = options.policy ?? (await readAppReleasePolicy(root));
+  const { lock, bytes } = await resolveAppRelease({ ...options, policy });
   const files = new Map<string, string | Buffer>([
     [path.join(root, "app-release.json"), `${JSON.stringify(lock, null, 2)}\n`],
     [appBasePath(root), bytes],

@@ -9,7 +9,9 @@ import { test } from "vitest";
 import { appBasePath, readAppRelease } from "../scripts/app-dependency.ts";
 import {
   appReleaseCheckSummary,
+  defaultAppReleasePolicy,
   publishedAppReleaseDiffers,
+  readAppReleasePolicy,
   resolveAppRelease,
   selectAppRelease,
   syncAppRelease,
@@ -280,4 +282,104 @@ test("release publication uses explicit events without a polling gate", () => {
       (step: { uses?: string }) => step.uses === "./.github/actions/verify",
     ),
   );
+});
+
+test("the declared range reproduces what the selection always did", async () => {
+  // The range was implicit in the comparison before it could be declared. Whatever
+  // repo-policy.json says now, it has to pick the same release as the unchanged default, or the
+  // declaration changed behaviour while claiming not to.
+  const declared = await readAppReleasePolicy(
+    path.resolve(import.meta.dirname, ".."),
+  );
+  const releases = [
+    "v3.2.5",
+    "v4.0.0-rc.9",
+    "v4.0.0-rc.30",
+    "v4.0.12",
+    "v4.0.13",
+    "v4.1.0",
+  ].map(makeRelease);
+  assert.equal(
+    selectAppRelease(releases, declared).tag_name,
+    selectAppRelease(releases, defaultAppReleasePolicy).tag_name,
+  );
+  assert.equal(selectAppRelease(releases, declared).tag_name, "v4.0.13");
+});
+
+test("a declared range bounds the selection", () => {
+  const releases = ["v4.0.9", "v4.0.12", "v4.0.13", "v4.0.20"].map(makeRelease);
+  const series = "4.0";
+  assert.equal(
+    selectAppRelease(releases, { series, allowPrerelease: true, maximumVersion: "4.0.13" })
+      .tag_name,
+    "v4.0.12",
+    "the upper bound is exclusive",
+  );
+  assert.equal(
+    selectAppRelease(releases, {
+      series,
+      allowPrerelease: true,
+      minimumVersion: "4.0.12",
+      maximumVersion: "4.0.20",
+    }).tag_name,
+    "v4.0.13",
+  );
+  assert.throws(
+    () =>
+      selectAppRelease(releases, {
+        series,
+        allowPrerelease: true,
+        minimumVersion: "4.0.21",
+      }),
+    /No published DSL 4\.0 release satisfies/u,
+    "a range nothing satisfies must fail rather than fall back",
+  );
+});
+
+test("prereleases can be refused, and another series can be followed", () => {
+  const rcOnly = ["v4.0.0-rc.9", "v4.0.0-rc.30"].map(makeRelease);
+  assert.equal(
+    selectAppRelease(rcOnly, { series: "4.0", allowPrerelease: true }).tag_name,
+    "v4.0.0-rc.30",
+  );
+  assert.throws(
+    () => selectAppRelease(rcOnly, { series: "4.0", allowPrerelease: false }),
+    /No published DSL 4\.0 release satisfies/u,
+  );
+  const mixed = ["v3.2.4", "v3.2.5", "v4.0.13"].map(makeRelease);
+  assert.equal(
+    selectAppRelease(mixed, { series: "3.2", allowPrerelease: false }).tag_name,
+    "v3.2.5",
+  );
+});
+
+test("a malformed declaration is refused, and a missing file means the default", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "samples-app-policy-"));
+  try {
+    assert.deepEqual(await readAppReleasePolicy(root), defaultAppReleasePolicy);
+    const write = (app: unknown) =>
+      writeFile(
+        path.join(root, "repo-policy.json"),
+        JSON.stringify({ dependencies: { app } }),
+      );
+    await write({ series: "4.0", allowPrerelease: true });
+    assert.deepEqual(await readAppReleasePolicy(root), {
+      series: "4.0",
+      allowPrerelease: true,
+    });
+    for (const app of [
+      { series: "4" },
+      { series: "4.0.1" },
+      { series: "4.0", allowPrerelease: "yes" },
+      { series: "4.0", minimumVersion: "4.1.0" },
+      { series: "4.0", maximumVersion: "4.0" },
+      { series: "4.0", minimumVersion: "4.0.13", maximumVersion: "4.0.12" },
+      { series: "4.0", minimumVersion: "4.0.13", maximumVersion: "4.0.13" },
+    ]) {
+      await write(app);
+      await assert.rejects(readAppReleasePolicy(root), JSON.stringify(app));
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
