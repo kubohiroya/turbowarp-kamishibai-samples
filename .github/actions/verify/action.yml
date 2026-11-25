@@ -163,15 +163,20 @@ runs:
         if (( ${#downloaded[@]} > 0 )); then
           cp "${downloaded[@]}" "$apt_cache"/
         fi
+    # The block-and-Schema diagnostics used to run here as a step of its own on every run that was
+    # not a pull request, while a pull request ran it inside the browser checks. Same script, same
+    # input; the difference was that the step waited for its turn and the pull request did not.
+    # It is a browser check, so it now runs with the others on every path: 43.8s of its own on the
+    # deploy of fcf827b became about 18s of the group's wall clock in the CI run of the same tree.
+    #
+    # It stays before the deploy rather than being left to the published check that repeats it
+    # (deploy.yml, against the live URL). The two ask different questions — these bytes, and the
+    # bytes that are now live — and only this one can stop the publication, which AGENTS.md asks
+    # for: 「取得・照合・検証に失敗した場合は公開を停止し、直前の検証済み公開物を保持します」.
     - shell: bash
       env:
         KAMISHIBAI_WEB_CHECKS: ${{ steps.scope.outputs.web-checks }}
-        KAMISHIBAI_BLOCK_DIAGNOSTICS: ${{ inputs.pull-request != '' && '1' || '0' }}
       run: pnpm run check
-    - name: Verify block and Schema diagnostics in TurboWarp-Plus-Editor
-      if: inputs.pull-request == ''
-      shell: bash
-      run: node scripts/verify-published-block-diagnostics.ts --input dist/stories/urashima/urashima-blocks-4.0.sb3
     - name: Upload block editor regression evidence
       if: always()
       uses: actions/upload-artifact@v7
