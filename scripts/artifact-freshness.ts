@@ -14,7 +14,10 @@ import process from 'node:process';
  * fail here, so `pnpm run check` stops inside `build` before it reaches the browser checks or the
  * site generation, and the effect of an App change on the works cannot be seen. That happened for
  * real: App 4.0.13 was published, `update:dsl4-artifacts` did not cover tekona, and the Pages
- * deploy failed twice on "Tekona workshop artifacts are stale" with no way to look past it.
+ * deploy failed twice on "Tekona workshop artifacts are stale" with no way to look past it. The
+ * deploy does not regenerate any more, so that particular run is no longer one of the places this
+ * can happen; the one it was always for — a developer pointing at a newer or local App — is
+ * unchanged.
  *
  * So the comparison can be turned into a report, for development only, by setting
  *

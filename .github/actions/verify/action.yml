@@ -53,8 +53,8 @@ runs:
           .tmp/turbowarp-kamishibai-app/pnpm-lock.yaml
     - shell: bash
       run: pnpm install --frozen-lockfile
-    # The SB3 files are GitHub Release assets recorded in sb3-assets.json, not committed.
-    # Fetch them before the regeneration below, which reads some of them.
+    # The SB3 files are GitHub Release assets recorded in sb3-assets.json, not committed. Fetch
+    # them before the build below, which reads some of them and compares the rest against them.
     - shell: bash
       run: pnpm sb3:fetch
     - shell: bash
@@ -65,10 +65,24 @@ runs:
     - shell: bash
       working-directory: .tmp/turbowarp-kamishibai-app
       run: pnpm run build:lib
-    - name: Regenerate all DSL 4.0 distribution artifacts
-      if: inputs.pull-request == ''
-      shell: bash
-      run: pnpm update:dsl4-artifacts
+    # The deploy and the scheduled run used to `pnpm update:dsl4-artifacts` here, so that a newly
+    # published App reached the site without waiting for a pull request. The pin is followed by a
+    # reviewed pull request now (the --check step above only reports), and what was left did harm:
+    #
+    #   - It rewrote every lock in the workspace immediately before `pnpm run check` rebuilt and
+    #     compared against them. On these runs the freshness check compared a build with itself, so
+    #     the one check that says "this commit's locks describe what the pinned App builds" said
+    #     nothing exactly where the bytes were about to be published.
+    #   - It replaced the fetched release assets with locally rebuilt bytes, against
+    #     「公開済みの版付き成果物を使用し、取得元・対応版・ハッシュを確認する」 in AGENTS.md.
+    #   - Covering the stories by hand, it could leave one behind. tekona was missing, so every
+    #     deploy after App 4.0.13 was published failed on "Tekona workshop artifacts are stale"
+    #     while the pull requests passed. Without this step there is no release here for a lock to
+    #     lag behind, and that whole class of deploy-only failure goes with it.
+    #
+    # Removing it loses no verification and restores one: `pnpm run check` passes every stage
+    # without it, and dist still matches all 19 published records byte for byte. It also takes 224s
+    # off a 778s deploy.
     - id: scope
       shell: bash
       env:
