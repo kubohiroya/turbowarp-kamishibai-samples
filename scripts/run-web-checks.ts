@@ -21,18 +21,21 @@ const checks = [
   {script: 'scripts/verify-packaged-web-webkit-audio.ts', line: 'dsl32'},
   {script: 'scripts/verify-dsl4-packaged-web-browser.ts', line: 'dsl4'},
   {script: 'scripts/verify-dsl4-block-editor-browser.ts', line: 'editor'},
-  ...(process.env.KAMISHIBAI_BLOCK_DIAGNOSTICS === '1'
-    ? [{
-      script: 'scripts/verify-published-block-diagnostics.ts',
-      line: 'editor',
-      args: ['--input', 'dist/stories/urashima/urashima-blocks-4.0.sb3'],
-    }]
-    : []),
+  {
+    script: 'scripts/verify-published-block-diagnostics.ts',
+    line: 'editor',
+    args: ['--input', 'dist/stories/urashima/urashima-blocks-4.0.sb3'],
+  },
 ] as const;
 
 /**
- * Local and published-release runs use the full scope. A PR selects its scope from the
- * changed files and runs its standalone editor diagnostics alongside the other browser checks.
+ * Local and published-release runs use the full scope. A PR selects its scope from the changed
+ * files.
+ *
+ * The diagnostics check was conditional on KAMISHIBAI_BLOCK_DIAGNOSTICS, which the shared action
+ * set only for a pull request; every other run paid for it as a serial step afterwards. Nothing
+ * wanted that: it is a browser check like the rest, it is scoped like the rest, and running it
+ * here costs the group's slack rather than its own runtime.
  */
 const scope = process.env.KAMISHIBAI_WEB_CHECKS ?? 'all';
 if (scope !== 'all' && scope !== 'dsl4' && scope !== 'editor' && scope !== 'none') {
