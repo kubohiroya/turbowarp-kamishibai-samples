@@ -157,7 +157,7 @@ function inspectBlockProject(
 }
 
 /** The editor uses the Plus Manifest to read verified JS files from the ZIP. */
-async function embedBlockExtensionFiles(input: Uint8Array): Promise<Buffer> {
+async function embedBlockExtensionFiles(input: Uint8Array, version: string): Promise<Buffer> {
   const archive = unzipSync(input);
   const project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
   const ids = ['kubohiroyakamishibai4', 'kubohiroyakamishibaiauthoring4'];
@@ -165,6 +165,11 @@ async function embedBlockExtensionFiles(input: Uint8Array): Promise<Buffer> {
     capabilities: extensionSaveCapabilities,
     // The bundled runtime and the authoring forms use the unsandboxed host APIs.
     unsandboxed: ids,
+    // Both come from the pinned App release, so the Manifest can name it. Left unset, the entry
+    // says what the bytes are and how to run them but not which release they are, and reading
+    // that back means parsing `// Version:` out of a 3.3 MB bundle. The writer applies this to
+    // every entry it converts, which is right here because both entries are that release's.
+    version,
   });
   assert.deepEqual([...converted].sort(), ids, 'The editor must carry both Kamishibai extensions.');
   archive['project.json'] = strToU8(JSON.stringify(project));
@@ -299,7 +304,10 @@ export async function buildUrashimaDsl4({
       blockAuthoring.root,
       path.basename(sourcePath),
     );
-    const embeddedBlocks = await embedBlockExtensionFiles(migratedBlocks);
+    const embeddedBlocks = await embedBlockExtensionFiles(
+      migratedBlocks,
+      config.runtime.version as string,
+    );
     const blocksBytes = Buffer.from(cleanUpSb3Archive(embeddedBlocks).archive);
     const composed = await composeDsl4Source(sourceBytes.toString('utf8'), kamishibaiRoot, storyDirectory);
     const blocksProject = inspectBlockProject(blocksBytes, composed);
