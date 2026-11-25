@@ -348,7 +348,7 @@ export async function syncAppRelease({
   const { lock, bytes } = await resolveAppRelease({ ...options, policy });
   const files = new Map<string, string | Buffer>([
     [path.join(root, "app-release.json"), `${JSON.stringify(lock, null, 2)}\n`],
-    [appBasePath(root), bytes],
+    [appBasePath(lock.version, root), bytes],
   ]);
   let changed = false;
   for (const [filename, contents] of files) {

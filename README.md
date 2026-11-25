@@ -19,7 +19,6 @@ The script, source assets and generation settings for the Urashima Tarō sample 
 - `sample.config.json`: generation settings for `generic` / `editor` / `player` and the web build
 - `artifacts.lock.json`: sizes and SHA-256 of the reproducible artifacts
 - `base/kamishibai.sb3`: the DSL 3.2 `generic` base, generated from an app commit that already carries the pose-recognition cue sound
-- `base/kamishibai-4.0.sb3`: the `generic` base fetched from the app's latest published DSL 4.0 release and verified against it; its provenance is recorded in `app-release.json`
 
 `stories/my-urashima/` is a dependent story for workshops. Besides the DSL 3.2 build, it also produces `my-urashima-4.0.sb3` — which embeds no script, carries a `Princess` sprite whose only costume is the Princess PNG, and includes the Urashima Tarō project assets — and its web build. Its generation rules and how to update it are described in [`stories/my-urashima/README.md`](stories/my-urashima/README.md).
 
@@ -49,7 +48,7 @@ The images and the Teachable Machine project under `resources/20260801/` are lic
 
 ### Where the SB3 files are
 
-The SB3 files under `stories/` are not in git. Each is an asset of a GitHub Release of this repository (`sb3-<date>-<hash>`), and `sb3-assets.json` records where it is and its size and SHA-256. The app's DSL 4.0 base (`base/kamishibai-4.0.sb3`) comes from the app release that `app-release.json` names. The download URLs for the works are still the Pages URLs; the releases are only where the files are kept.
+The SB3 files under `stories/` are not in git. Each is an asset of a GitHub Release of this repository (`sb3-<date>-<hash>`), and `sb3-assets.json` records where it is and its size and SHA-256. The app's DSL 4.0 base is kept outside `stories/`, at `app-base/kamishibai-<version>.sb3`, one file per release, and comes from the app release that `app-release.json` names. It is an input, not a work's artifact: it is not published to the site and not recorded in `sb3-assets.json`. The download URLs for the works are still the Pages URLs; the releases are only where the files are kept.
 
 - `pnpm sb3:fetch` downloads the missing SB3 files and checks their size and SHA-256. `pnpm check` and CI run it first. A file regenerated locally that differs from the record is reported, not overwritten (`--force` restores the recorded one).
 - `pnpm sb3:status` lists the SB3 files that differ from the record, the ones not recorded, and the recorded ones missing locally.

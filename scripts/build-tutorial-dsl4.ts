@@ -402,7 +402,7 @@ export async function buildTutorialDsl4({
     'TurboWarp-Kamishibai checkout must be clean.',
   );
 
-  const basePath = appBasePath(projectRoot);
+  const basePath = appBasePath(config.runtime.version as string, projectRoot);
   const baseBytes = await readFile(basePath);
   assert.equal(baseBytes.length, config.runtime.baseSize);
   assert.equal(sha256(baseBytes), config.runtime.baseSha256);

@@ -19,7 +19,6 @@
 - `sample.config.json`: `generic` / `editor` / `player` とWeb版の生成設定
 - `artifacts.lock.json`: 再現可能な生成物のサイズとSHA-256
 - `base/kamishibai.sb3`: ポーズ認識成立音対応済み本体コミットから生成したDSL 3.2 `generic` ベース
-- `base/kamishibai-4.0.sb3`: appの公開済み最新DSL 4.0 Releaseから取得・照合した`generic`ベース。出典は`app-release.json`
 
 `stories/my-urashima/`はワークショップ用の依存ストーリーです。DSL 3.2版に加え、Princess PNGを唯一のコスチュームとして持つ`Princess`スプライトと浦島太郎のプロジェクトアセットを組み込んだ、台本非埋め込みの`my-urashima-4.0.sb3`およびWeb版も生成します。生成規約と更新方法は[`stories/my-urashima/README.md`](stories/my-urashima/README.md)に記載しています。
 
@@ -49,7 +48,7 @@
 
 ### SB3ファイルの置き場所
 
-`stories/`以下のSB3はgitに入れていません。各ファイルはこのrepoのGitHub Release（`sb3-<日付>-<ハッシュ>`）のアセットで、置き場所・サイズ・SHA-256を`sb3-assets.json`に記録しています。appのDSL 4.0ベース（`base/kamishibai-4.0.sb3`）は`app-release.json`が示すappのReleaseから取ります。配布URLは従来どおりPagesのURLで、Releaseは作業用の保管場所です。
+`stories/`以下のSB3はgitに入れていません。各ファイルはこのrepoのGitHub Release（`sb3-<日付>-<ハッシュ>`）のアセットで、置き場所・サイズ・SHA-256を`sb3-assets.json`に記録しています。appのDSL 4.0ベースは`stories/`の外の`app-base/kamishibai-<version>.sb3`にRelease毎に置き、`app-release.json`が示すappのReleaseから取ります。これは入力であって作品の成果物ではないため、サイトへ公開せず`sb3-assets.json`にも記録しません。配布URLは従来どおりPagesのURLで、Releaseは作業用の保管場所です。
 
 - `pnpm sb3:fetch`: 足りないSB3を取得し、サイズとSHA-256を照合します。`pnpm check`とCIは最初にこれを実行します。手元で再生成して記録と異なるファイルは上書きせずに報告します（`--force`で記録の版に戻します）。
 - `pnpm sb3:status`: 記録と異なるSB3、記録にないSB3、記録にあって手元にないSB3を表示します。

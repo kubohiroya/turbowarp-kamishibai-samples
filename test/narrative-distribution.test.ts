@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {test} from 'vitest';
 import {strFromU8, unzipSync} from 'fflate';
-import {appBasePath} from '../scripts/app-dependency.ts';
+import {appBasePath, readAppRelease} from '../scripts/app-dependency.ts';
 import {createThreeVisitsActorBase} from '../scripts/build-three-visits.ts';
 import {verifyStructuredBlockSource} from '../scripts/verify-structured-block-source.ts';
 import type {ScratchProject} from '../scripts/scratch.ts';
 
 test('story actor preparation preserves official runtime and localized title/menu assets deterministically', async () => {
-  const original = await readFile(appBasePath());
+  const original = await readFile(appBasePath((await readAppRelease()).version));
   const first = await createThreeVisitsActorBase(original);
   assert.deepEqual(first, await createThreeVisitsActorBase(original));
   const before = unzipSync(original);

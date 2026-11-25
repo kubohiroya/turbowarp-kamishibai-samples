@@ -209,10 +209,10 @@ test("updates only the shared manifest and base, preserving story settings deter
     assert.equal(first.changed, true);
     assert.equal((await readAppRelease(root)).commit, fixture.commit);
     assert.equal(await readFile(configPath, "utf8"), settings);
-    assert.deepEqual(await readFile(appBasePath(root)), fixture.bytes);
+    assert.deepEqual(await readFile(appBasePath('4.0.0-rc.30', root)), fixture.bytes);
     assert.equal((await syncAppRelease({ root, ...fixture })).changed, false);
     await assert.rejects(syncAppRelease({ root, ...upstream(true) }));
-    assert.deepEqual(await readFile(appBasePath(root)), fixture.bytes);
+    assert.deepEqual(await readFile(appBasePath('4.0.0-rc.30', root)), fixture.bytes);
     assert.equal(await readFile(configPath, "utf8"), settings);
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -416,7 +416,7 @@ test("the drift check reports a newer release and writes nothing", async () => {
       "the check must not rewrite app-release.json",
     );
     assert.deepEqual(
-      await readFile(appBasePath(root)),
+      await readFile(appBasePath('4.0.0-rc.30', root)),
       fixture.bytes,
       "the check must not replace the base SB3",
     );

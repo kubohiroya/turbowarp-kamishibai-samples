@@ -95,7 +95,7 @@ export async function resolveBlockAuthoringBuilder(rootOverride?: string) {
   let pendingSources: Promise<{base: string; replacement: string}> | undefined;
   async function runtimeSources() {
     const bytes = await readFile(
-      appBasePath(projectRoot),
+      appBasePath(config.runtime.version as string, projectRoot),
     );
     assert.equal(bytes.length, config.runtime.baseSize);
     assert.equal(createHash('sha256').update(bytes).digest('hex'), config.runtime.baseSha256);
