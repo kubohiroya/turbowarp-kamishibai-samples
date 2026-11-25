@@ -15,8 +15,11 @@ jobs:
   test:
     # Playwright WebKit 1.61 uses the Ubuntu 24.04 system libraries.
     runs-on: ubuntu-24.04
-    # Keep a ceiling for builds and browser checks that depend on external services.
-    timeout-minutes: 40
+    # Keep a ceiling for builds and browser checks that depend on external services. A change wide
+    # enough to select every browser check reached the previous 40 minute ceiling, which discards
+    # the job's logs and so hides which stage is slow; this leaves room for such a run to finish and
+    # report its per-stage timings.
+    timeout-minutes: 90
     env:
       TZ: Asia/Tokyo
       TURBOWARP_KAMISHIBAI_APP_ROOT: ${{ github.workspace }}/.tmp/turbowarp-kamishibai-app

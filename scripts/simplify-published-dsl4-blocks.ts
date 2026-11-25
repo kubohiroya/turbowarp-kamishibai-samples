@@ -9,6 +9,7 @@ import {parse, stringify} from 'yaml';
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import type {ScratchExtensionComponent} from './scratch.ts';
 import {assertBlockSourceRuntimeWrapper} from './build-dsl4-block-source.ts';
+import {assertSameBytes} from './same-bytes.ts';
 import {
   dsl4ExecutableValue,
   record,
@@ -158,12 +159,13 @@ async function simplifyNativeAssets(
     if (index !== undefined) collection.splice(index, 0, collection.pop());
     const {file: _file, ...properties} = asset;
     record(source.assets)[id] = {...properties, name: id};
-    assert.deepEqual(
+    assertSameBytes(
       Buffer.from(
         readProjectMaterial(archive, project, id, record(source.assets)[id])
           .files[0].bytes,
       ),
       bytes,
+      `${id} was not materialized as the bytes it was read from.`,
     );
     materialized++;
   }

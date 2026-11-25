@@ -3,22 +3,38 @@ import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
 /**
- * Run `pnpm run check`, with the type check and unit tests alongside the site build.
+ * Run `pnpm run check`: the type check and unit tests, then the site build.
  *
- * The site build only writes dist/, and the unit tests only write their own temporary
- * directories, so neither reads what the other writes. Chained with `&&` on a GitHub-hosted
- * runner the unit stage (tsc + Vitest) costs 1.5-2 min and the build 2.5-3.5 min one after the
- * other. Run together they cost the build alone.
+ * These two stages used to run together, because neither reads what the other writes and the
+ * overlap cost the build alone instead of the sum. They were separated after a run reached 11.9 GB
+ * of the runner's 15.7 GB within a minute and the kernel took the process.
  *
- * The build streams its output as it goes, because it is the long stage. The unit stage is
- * buffered and printed when it finishes, so the two cannot interleave. Both run to completion
- * before a failure stops the check, so one run reports both stages' failures.
+ * That measurement no longer supports the conclusion it was used for: the same run was also
+ * building a failure message out of two 10.8 MB buffers, which costs about 375 MB per megabyte
+ * compared and accounted for gigabytes on its own. It compares by digest now (see
+ * scripts/same-bytes.ts), and the stages' own cost, measured with passing tests, is 7.2 GB
+ * together against 5.6 GB in order — both of which fit.
+ *
+ * They stay in order anyway: it costs about two minutes of wall time, and running them together
+ * buys that back only while nothing else on the runner grows. Running them together again is a
+ * reasonable thing to try, with the peak measured on the runner rather than here.
+ *
+ * Both stages stream as they go. The unit stage used to be buffered so that its output could not
+ * interleave with the build's, which no longer applies now that they do not overlap, and a
+ * buffered stage loses everything it printed when the kernel takes it — which is how the runs that
+ * exhaust the runner end. Both stages run even when the first one fails, so one run still reports
+ * both stages' failures.
  *
  * The browser checks, the site verification and the repository policy check need dist/ and stay
  * after the build, in that order.
  *
  * The SB3 files are not committed (see scripts/sb3-assets.ts), so missing ones are downloaded
  * first. Files regenerated before the check differ from the record and are kept as they are.
+ *
+ * Before any of that, the records of those files are compared with each other. A story lock and
+ * sb3-assets.json both carry the size and SHA-256 of every built SB3, and when they disagree every
+ * later stage is comparing the wrong bytes. That reads two JSON files, so it goes first and the
+ * run stops in under a second instead of inside a multi-megabyte comparison.
  */
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
@@ -65,17 +81,22 @@ function report(result: StageResult): void {
   if (result.output) process.stdout.write(result.output.endsWith('\n') ? result.output : `${result.output}\n`);
 }
 
+const records = await stage('artifact records', ['verify:artifact-records'], false);
+if (records.code !== 0) {
+  report(records);
+  process.exit(records.code);
+}
+
 const fetched = await stage('sb3:fetch', ['sb3:fetch'], false);
 if (fetched.code !== 0) {
   report(fetched);
   process.exit(fetched.code);
 }
 
-const [unit, build] = await Promise.all([
-  stage('typecheck + test', ['typecheck', 'test'], true),
-  stage('build', ['build'], false),
-]);
+// In order, not together: see the memory note above.
+const unit = await stage('typecheck + test', ['typecheck', 'test'], false);
 report(unit);
+const build = await stage('build', ['build'], false);
 report(build);
 
 const failed = [unit, build].filter((result) => result.code !== 0);

@@ -12,7 +12,10 @@ import {parse, stringify} from 'yaml';
 import {appBasePath, appRuntimeIdentity, readAppRelease} from './app-dependency.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
+import {buildPackagedWeb} from './build-packaged-web.ts';
+import type {WebConfig} from './story-config.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
+import {assertSameBytes} from './same-bytes.ts';
 import {
   checkSubmission,
   composeParticipants,
@@ -89,7 +92,10 @@ async function record(root: string, filename: string) {
 }
 
 /** Build the workshop, YAML and block-script SB3 from the pinned published App release. */
-export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {}) {
+export async function buildTekona({
+  writeLock = false,
+  outputDirectory,
+}: {writeLock?: boolean; outputDirectory?: string} = {}) {
   const release = await readAppRelease();
   const builder = await resolveBlockAuthoringBuilder();
   const packageJson = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8'));
@@ -271,11 +277,48 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
         blockWorkshop: await record(temporary, tekonaBlockWorkshopOutput),
       },
     };
+    // オフラインで遊ぶ向けのWeb版。台本・素材・実行基盤をすべてHTMLへ埋め込む。
+    // ワークショップ用のSB3は参加者が編集するためのものなので、Web版は作らない。
+    const webConfig: WebConfig = {
+      enabled: true,
+      inputProfile: 'dsl4-offline',
+      outputDirectory: 'web-4.0',
+      outputFilename: 'index.html',
+      maxOutputBytes: 64 * 1024 * 1024,
+      scriptMode: 'embedded',
+      assets: 'embedded',
+      audioUnlock: {enabled: true},
+      packager: {
+        package: '@turbowarp/packager',
+        version: '3.13.0',
+        options: {
+          target: 'html',
+          autoplay: true,
+          app: {windowTitle: '手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居'},
+          cloudVariables: {mode: 'disabled'},
+        },
+      },
+      allowedOnlineDependencies: [],
+      runtimeCapabilities: [],
+    };
+    const web = await buildPackagedWeb({
+      inputSb3Path: path.join(temporary, tekonaYamlOutput),
+      outputSampleDirectory: temporary,
+      rawWebConfig: webConfig,
+    });
+    assert.equal(web.enabled, true, 'The tekona Web artifact must be built.');
+    (lock as Record<string, unknown>).web = web;
+    const outputNames = [
+      tekonaWorkshopOutput,
+      tekonaYamlOutput,
+      tekonaBlocksOutput,
+      tekonaBlockWorkshopOutput,
+    ];
     const lockPath = path.join(storyRoot, 'dsl4-artifacts.lock.json');
     const page = await renderComposePage();
     if (writeLock) {
       await writeFile(path.join(projectRoot, composePage), page);
-      for (const name of [tekonaWorkshopOutput, tekonaYamlOutput, tekonaBlocksOutput, tekonaBlockWorkshopOutput])
+      for (const name of outputNames)
         await copyFile(path.join(temporary, name), path.join(storyRoot, name));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {
@@ -286,6 +329,45 @@ export async function buildTekona({writeLock = false}: {writeLock?: boolean} = {
       );
       assert.equal(await readFile(path.join(projectRoot, composePage), 'utf8'), page,
         'The assistant compose page is stale; run update:tekona.');
+      // The lock comparison above covers what this build produced. The files beside the story are
+      // a separate thing: they are what sb3:publish uploads and what the site and the checks read,
+      // and only --write-lock ever wrote them. They went two App generations stale without anything
+      // noticing, so compare them too.
+      for (const name of outputNames) {
+        assertSameBytes(
+          await readFile(path.join(storyRoot, name)),
+          await readFile(path.join(temporary, name)),
+          `${name} is stale; run pnpm update:tekona.`,
+        );
+      }
+    }
+    if (outputDirectory) {
+      await mkdir(outputDirectory, {recursive: true});
+      const copy = async (from: string, name: string) => {
+        await mkdir(path.dirname(path.join(outputDirectory, name)), {recursive: true});
+        await copyFile(path.join(from, name), path.join(outputDirectory, name));
+      };
+      for (const name of [
+        'README.md',
+        'LICENSES.md',
+        sourceName,
+        projectAssetsName,
+        workshopConfigName,
+        'dsl4-artifacts.lock.json',
+        'assets/title-card.svg',
+        'card-scenes.gif',
+        'card-scenes/01.webp',
+        'card-scenes/02.webp',
+        'card-scenes/03.webp',
+        'card-scenes/04.webp',
+      ]) await copy(storyRoot, name);
+      for (const name of [
+        tekonaYamlOutput,
+        tekonaBlocksOutput,
+        tekonaWorkshopOutput,
+        tekonaBlockWorkshopOutput,
+        'web-4.0/index.html',
+      ]) await copy(temporary, name);
     }
     return lock;
   } finally {

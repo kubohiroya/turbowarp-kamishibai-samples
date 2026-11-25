@@ -2,33 +2,33 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.5",
-    "commit": "5910e2edbfe257017d2f78bf36ee479c1374db03",
+    "version": "4.0.12",
+    "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b",
     "basePath": "base/kamishibai-4.0.sb3",
-    "baseSourceIdentity": "sha256:57ae9cd56788ab18b8ef817e7de474b5000fd7e0046b5ac5b915a7c7cb078e08",
-    "baseSize": 1543659,
-    "baseSha256": "5b54da258631b56dd324549ac862d48d54b0e4ce10a5d0f5fb0223f13075b434"
+    "baseSourceIdentity": "sha256:ce0da954188753ec031b622fb330569cc6fd16ad5307ea6287d166d1d71c0f04",
+    "baseSize": 1574198,
+    "baseSha256": "ca511bd9c5eb95f2f72d4f05fb177d631bba8ad3cc3732ac0720535b8e7ff703"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.5",
-    "commit": "5910e2edbfe257017d2f78bf36ee479c1374db03"
+    "version": "4.0.12",
+    "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
   },
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 31866,
-      "sha256": "e2ecada491f0595701433c984ad8cf1932d90510d98a622bcc26247e0715972c"
+      "size": 45226,
+      "sha256": "ef4f54957bd214df99a6f78099738ca578cfb70aa8c0b6a6bb0b4dfcc416c998"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 12456,
-      "sha256": "23f9a09d1f156fd32634ea7cd4c1de10b8697d53d1ac15cbedca9178eb1efacd"
+      "size": 16376,
+      "sha256": "cce7ad3e3f0a4e74e45016075bb68b4949a2e139e3913fa5bd5589d11f967f1f"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 10181,
-      "sha256": "c103d886d1336f6b8dbfdaac9c9f0ce71a4d5feb3c66f39dd7ef041e7b6350e2"
+      "size": 10186,
+      "sha256": "ef5f152db54b7b0600361a6ecb111c54ad9973db2c92fce871fab669f69a76f6"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
@@ -44,23 +44,96 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2111401,
-      "sha256": "5adec47a8dba1893879836c4fd2526a541b3ef89d3cfd31857c7d65b94cfa7c5"
+      "size": 2172096,
+      "sha256": "fb455e7cdd922f28096486f9099220c131b32351838cb733a12db763d6c2b1a2"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 1971208,
-      "sha256": "55da42a3ecf9abfe2225845ee87a4e59e735b2a5a2e7ec628a2c14ff015bf7dd"
+      "size": 2040077,
+      "sha256": "831956cbb9af5ad4c49f8157e90a34b7dcd26e5358beb9bb159ae9c080573f9e"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2002315,
-      "sha256": "a94d8bade5c845261969681e11a3818334510d0237c7ca670b7fd7a4e013e50a"
+      "size": 2073367,
+      "sha256": "1457c767d5d9e052fa2cb69cdc5e065a13f841c0dbcab85b83d6b34c0d37af2e"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2040186,
-      "sha256": "b907fcba48a49a77a2ebd7b4e23680d41d82caacfda15e2510b93727262020d3"
+      "size": 2111429,
+      "sha256": "3886bab204eabc67e6a36cb67d4ca11ee7a063d8d5457e7fcbdc923f22bc6d84"
+    }
+  },
+  "web": {
+    "enabled": true,
+    "publicPath": "web-4.0/",
+    "input": {
+      "profile": "dsl4-offline",
+      "path": "tekona-4.0.sb3",
+      "size": 2040077,
+      "sha256": "831956cbb9af5ad4c49f8157e90a34b7dcd26e5358beb9bb159ae9c080573f9e"
+    },
+    "output": {
+      "path": "web-4.0/index.html",
+      "contentType": "text/html",
+      "size": 8711723,
+      "sha256": "6088019ead4c4b9148e58bab1f32c3e2fed0450eb55687c4eb07647e41a81883"
+    },
+    "packager": {
+      "package": "@turbowarp/packager",
+      "version": "3.13.0",
+      "options": {
+        "target": "html",
+        "autoplay": true,
+        "app": {
+          "windowTitle": "手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居"
+        },
+        "cloudVariables": {
+          "mode": "disabled"
+        },
+        "bakeExtensions": true,
+        "packagedRuntime": false
+      },
+      "projectExtensions": [
+        {
+          "id": "kubohiroyakamishibai4",
+          "source": "input-sb3-data-url",
+          "sha256": "b47795da4121440d7f70dd211100a21b3a1797e3d74b8e9b4e057267f2dee091"
+        }
+      ],
+      "scratchRender": {
+        "repository": "kubohiroya/scratch-render",
+        "commit": "1fa6cc7d23e12aabf8db16e8e3ce400538f44165",
+        "upstreamPullRequest": 21,
+        "readbackContext": "willReadFrequently"
+      }
+    },
+    "scriptMode": "embedded",
+    "assets": "embedded",
+    "audioUnlock": {
+      "enabled": true,
+      "events": [
+        "pointerdown",
+        "pointerup",
+        "touchend",
+        "mousedown",
+        "click",
+        "keydown"
+      ],
+      "lifecycleEvents": [
+        "visibilitychange",
+        "pageshow"
+      ],
+      "verification": {
+        "strategy": "state-and-clock",
+        "clockCheckDelayMs": 250,
+        "primesOutput": true
+      }
+    },
+    "allowedOnlineDependencies": [],
+    "runtimeCapabilities": [],
+    "reproducibility": {
+      "runs": 2,
+      "identical": true
     }
   }
 }

@@ -14,6 +14,7 @@ import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {ensureUrashimaDsl4Inputs} from './update-urashima-dsl4-inputs.ts';
 import {verifyEndCreditCheerDelay} from './verify-end-credit.ts';
+import {assertSameBytes} from './same-bytes.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/urashima');
@@ -193,7 +194,7 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
     const sourceDirectory = path.join(temporaryDirectory, 'source');
     await importSb3({inputPath: outputPath, outputDirectory: sourceDirectory});
     const rebuilt = await createDeterministicSb3(sourceDirectory);
-    assert.deepEqual(
+    assertSameBytes(
       Buffer.from(rebuilt.archive),
       outputBytes,
       'urashima-4.0.sb3 must be the canonical sb3-toolchain output.',

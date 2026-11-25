@@ -21,6 +21,7 @@ import {
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import {buildMyUrashimaWorkshopBlocks, type WorkshopBlockRecord} from './build-my-urashima-workshop-blocks.ts';
 import type {ScratchProject, ScratchTarget} from './scratch.ts';
+import {assertSameBytes} from './same-bytes.ts';
 import type {
   DependencyRecord,
   Dsl4StoryConfig,
@@ -164,7 +165,11 @@ async function canonicalizeSb3(
   await refreshRuntime?.(sourceDirectory);
   const first = await createDeterministicSb3(sourceDirectory);
   const second = await createDeterministicSb3(sourceDirectory);
-  assert.deepEqual(Buffer.from(first.archive), Buffer.from(second.archive));
+  assertSameBytes(
+    Buffer.from(first.archive),
+    Buffer.from(second.archive),
+    `${inputPath} is not reproducible from one source directory.`,
+  );
   return Buffer.from(first.archive);
 }
 
@@ -302,7 +307,13 @@ export async function buildMyUrashimaDsl4({
     for (const {record, bytes} of workshopBlocks) {
       const outputPath = path.join(storyDirectory, record.path);
       if (writeLock) await writeAtomically(outputPath, bytes);
-      else if (verifyCommittedOutput) assert.deepEqual(await readFile(outputPath), bytes);
+      else if (verifyCommittedOutput) {
+        assertSameBytes(
+          await readFile(outputPath),
+          bytes,
+          `${record.path} is stale; run pnpm update:my-urashima-dsl4.`,
+        );
+      }
       if (publishedOutputPath) {
         await writeAtomically(path.join(path.dirname(publishedOutputPath), record.path), bytes);
       }
@@ -321,12 +332,12 @@ export async function buildMyUrashimaDsl4({
         'dsl4-artifacts.lock.json is stale; run pnpm update:my-urashima-dsl4.',
       );
       if (verifyCommittedOutput) {
-        assert.deepEqual(
+        assertSameBytes(
           await readFile(committedOutputPath),
           canonicalBytes,
           'my-urashima-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
         );
-        assert.deepEqual(
+        assertSameBytes(
           await readFile(blocksOutputPath),
           blocksBytes,
           'my-urashima-blocks-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
