@@ -6,16 +6,18 @@ import {fileURLToPath} from 'node:url';
  * Run `pnpm run check`: the type check and unit tests, then the site build.
  *
  * These two stages used to run together, because neither reads what the other writes and the
- * overlap cost the build alone instead of the sum. They no longer do, because they do not fit in
- * a GitHub-hosted runner's memory at the same time. Vitest starts a worker per core while the
- * build is already holding whole SB3 files and the HTML it embeds them in: measured on the runner,
- * the two together reached 11.9 GB of its 15.7 GB within a minute, and since the runner has no
- * swap the kernel took the process. GitHub reports that as a cancelled job, which also discards
- * the log, so the run says only that it was cancelled. Measured apart, the build alone peaks at
- * about 1.6 GB.
+ * overlap cost the build alone instead of the sum. They were separated after a run reached 11.9 GB
+ * of the runner's 15.7 GB within a minute and the kernel took the process.
  *
- * Running them in order costs about two minutes of wall time. A silent kill costs the whole run
- * and leaves nothing to read, so the two minutes are the cheaper side.
+ * That measurement no longer supports the conclusion it was used for: the same run was also
+ * building a failure message out of two 10.8 MB buffers, which costs about 375 MB per megabyte
+ * compared and accounted for gigabytes on its own. It compares by digest now (see
+ * scripts/same-bytes.ts), and the stages' own cost, measured with passing tests, is 7.2 GB
+ * together against 5.6 GB in order — both of which fit.
+ *
+ * They stay in order anyway: it costs about two minutes of wall time, and running them together
+ * buys that back only while nothing else on the runner grows. Running them together again is a
+ * reasonable thing to try, with the peak measured on the runner rather than here.
  *
  * Both stages stream as they go. The unit stage used to be buffered so that its output could not
  * interleave with the build's, which no longer applies now that they do not overlap, and a

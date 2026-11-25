@@ -1,22 +1,6 @@
-import process from 'node:process';
-
 import {defineConfig} from 'vitest/config';
 
-// On CI, one test file at a time.
-//
-// The GitHub-hosted runner (4 cores, 15.7 GB) runs out of memory while the tests run and the
-// kernel takes the process, which GitHub reports as a cancelled job. Sampling the runner showed a
-// single Node process growing from 350 MB to 15.2 GB in thirty seconds, so the cost is one file's,
-// not the sum of several running at once: capping the workers by memory did not help, and neither
-// did bounding glibc's per-thread arenas.
-//
-// Measured on a developer machine the whole suite with nine workers peaks at 3.3 GB across ten
-// processes and its largest single worker at 1.0 GB, with or without dist/ present, so the file
-// that does this on the runner does not do it here and the cause is still open.
-//
-// Running the files in order does not make the suite fit. It is here because the log then names
-// the file that was running when the runner died, and because the suite costs 1.3 GB instead of
-// 3.3 GB for 85s instead of 35s. A developer machine keeps the default.
+// このリポジトリはブラウザ向けバンドルを持たないため、Vite はテスト設定のホストとして使う。
 export default defineConfig({
   test: {
     environment: 'node',
@@ -24,17 +8,5 @@ export default defineConfig({
     // sb3 のビルドやパッケージングを伴うテストがあるため、既定より長めに取る。
     testTimeout: 180_000,
     hookTimeout: 180_000,
-    ...(process.env.CI
-      ? {
-          maxWorkers: 1,
-          // Names each file as it starts, so a run the kernel kills says which one it was in.
-          setupFiles: ['./test/report-test-file.setup.ts'],
-          // Let the sampler ask the worker for a diagnostic report while it grows: the report
-          // carries the JavaScript stack, which names what is allocating. A heap limit would not,
-          // because the growth is not in V8's heap — this file's tests pass here under a 256 MB
-          // old-space limit.
-          poolOptions: {forks: {execArgv: ['--report-on-signal', '--report-directory=.tmp/reports']}},
-        }
-      : {}),
   },
 });
