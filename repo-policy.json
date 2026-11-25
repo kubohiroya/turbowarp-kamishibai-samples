@@ -22,6 +22,12 @@
     "sb3Toolchain": "0.28.0",
     "packager": "3.13.0"
   },
+  "extensionDelivery": {
+    "default": "embedded-data",
+    "embedded-file": [
+      "stories/urashima/urashima-blocks-4.0.sb3"
+    ]
+  },
   "licenseBoundaries": {
     "repository": "MPL-2.0",
     "resources20260801": "CC BY-SA 4.0",
