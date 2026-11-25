@@ -15,6 +15,7 @@ import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {buildPackagedWeb} from './build-packaged-web.ts';
 import type {WebConfig} from './story-config.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
+import {assertSameBytes} from './same-bytes.ts';
 import {
   checkSubmission,
   composeParticipants,
@@ -307,11 +308,17 @@ export async function buildTekona({
     });
     assert.equal(web.enabled, true, 'The tekona Web artifact must be built.');
     (lock as Record<string, unknown>).web = web;
+    const outputNames = [
+      tekonaWorkshopOutput,
+      tekonaYamlOutput,
+      tekonaBlocksOutput,
+      tekonaBlockWorkshopOutput,
+    ];
     const lockPath = path.join(storyRoot, 'dsl4-artifacts.lock.json');
     const page = await renderComposePage();
     if (writeLock) {
       await writeFile(path.join(projectRoot, composePage), page);
-      for (const name of [tekonaWorkshopOutput, tekonaYamlOutput, tekonaBlocksOutput, tekonaBlockWorkshopOutput])
+      for (const name of outputNames)
         await copyFile(path.join(temporary, name), path.join(storyRoot, name));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {
@@ -322,6 +329,17 @@ export async function buildTekona({
       );
       assert.equal(await readFile(path.join(projectRoot, composePage), 'utf8'), page,
         'The assistant compose page is stale; run update:tekona.');
+      // The lock comparison above covers what this build produced. The files beside the story are
+      // a separate thing: they are what sb3:publish uploads and what the site and the checks read,
+      // and only --write-lock ever wrote them. They went two App generations stale without anything
+      // noticing, so compare them too.
+      for (const name of outputNames) {
+        assertSameBytes(
+          await readFile(path.join(storyRoot, name)),
+          await readFile(path.join(temporary, name)),
+          `${name} is stale; run pnpm update:tekona.`,
+        );
+      }
     }
     if (outputDirectory) {
       await mkdir(outputDirectory, {recursive: true});
