@@ -3,7 +3,8 @@
 export interface Dsl4Asset {
   file?: string;
   delivery?: string;
-  source?: string;
+  /** `delivery: remote` の宛先。DSL 4.0 のスキーマでは URL を持つオブジェクト。 */
+  source?: Readonly<{url: string}>;
   [key: string]: unknown;
 }
 

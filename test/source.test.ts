@@ -724,7 +724,7 @@ test('recovers interrupted or stalled-running WebKit audio after touch completio
   assert.equal(window.__tmposeAudioUnlockState.primeCompletions, 6);
 });
 
-test('locks every external script asset and publishes DSL 3.2 and offline DSL 4.0 scripts', async () => {
+test('locks every external script asset and publishes DSL 3.2 and DSL 4.0 scripts', async () => {
   const [source, published, dsl4, rawAssetManifest] = await Promise.all([
     readFile(path.join(sampleDirectory, 'source.txt'), 'utf8'),
     readFile(path.join(sampleDirectory, 'urashima.txt'), 'utf8'),
@@ -747,19 +747,41 @@ test('locks every external script asset and publishes DSL 3.2 and offline DSL 4.
   assert.ok(dsl4Document.assets, 'urashima.k4.yml must declare assets');
   const dsl4Assets = Object.values(dsl4Document.assets);
   assert.equal(dsl4Assets.length, 49);
+  // The 46 images and sounds travel in the SB3. The three pose models are named by address
+  // instead, because their weights alone were 17.7 MB of a 28 MB file; the bytes stay in
+  // stories/urashima/pose-models and are published with the story directory, so the addresses
+  // below resolve to the files dsl4-inputs.lock.json pins. scripts/verify-urashima-dsl4.ts
+  // checks that pairing; this test only fixes which assets are named and which are carried.
+  const poseModelBaseUrl =
+    'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/pose-models';
+  const poseModelIds = ['PoseModel1', 'PoseModel2', 'PoseModel3'];
+  assert.deepEqual(
+    Object.entries(dsl4Document.assets)
+      .filter(([, asset]) => asset.delivery === 'remote' || asset.source !== undefined)
+      .map(([id]) => id),
+    poseModelIds,
+  );
   assert.equal(
-    dsl4Assets.every(
-      (asset) =>
-        typeof asset === 'object' &&
-        typeof asset.file === 'string' &&
-        asset.delivery !== 'remote' &&
-        asset.source === undefined,
-    ),
+    Object.entries(dsl4Document.assets)
+      .filter(([id]) => !poseModelIds.includes(id))
+      .every(
+        ([, asset]) =>
+          typeof asset === 'object' &&
+          typeof asset.file === 'string' &&
+          asset.delivery !== 'remote' &&
+          asset.source === undefined,
+      ),
     true,
   );
-  assert.equal(dsl4Document.assets.PoseModel1.file, 'pose-models/1and2');
-  assert.equal(dsl4Document.assets.PoseModel2.file, 'pose-models/3and4');
-  assert.equal(dsl4Document.assets.PoseModel3.file, 'pose-models/6and7');
+  for (const [id, directory] of [
+    ['PoseModel1', '1and2'],
+    ['PoseModel2', '3and4'],
+    ['PoseModel3', '6and7'],
+  ] as const) {
+    assert.equal(dsl4Document.assets[id].file, undefined, id);
+    assert.equal(dsl4Document.assets[id].delivery, 'remote', id);
+    assert.equal(dsl4Document.assets[id].source?.url, `${poseModelBaseUrl}/${directory}/`, id);
+  }
   assert.equal(dsl4Document.scenes, undefined);
   const sceneNames = [
     'opening', 'beach', 'ocean', 'welcome-to-dragon-castle', 'goodby-dragon-castle',

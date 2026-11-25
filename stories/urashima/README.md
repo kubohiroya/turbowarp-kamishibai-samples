@@ -1,6 +1,6 @@
 # 浦島太郎 — 用途別SB3の生成元
 
-浦島太郎の元台本、画像・音声、ポーズモデル、アセットロック、生成設定を管理します。3.2成果物に加え、DSL 4.0の台本・全アセット・実行基盤を一つにしたオフライン動作確認用`urashima-4.0.sb3`を提供します。
+浦島太郎の元台本、画像・音声、ポーズモデル、アセットロック、生成設定を管理します。3.2成果物に加え、DSL 4.0の台本・画像・音声・実行基盤を一つにした`urashima-4.0.sb3`を提供します。Teachable Machine Poseモデル3組はSB3へ埋め込まず、このリポジトリのGitHub Pagesから再生時に読み込みます。
 
 DSL 4.0 台本の入口は `urashima.k4.yml` です。設定とアセット定義は入口に置き、各シーンは同じフォルダーの `.k4.yml` に分けています。入口の `include` の順番でシーンを読み込みます。編集用SB3では、入口の文書から各シーン文書を `embedded YAML include` ブロックで参照します。
 
@@ -26,7 +26,7 @@ DSL 4.0 台本の入口は `urashima.k4.yml` です。設定とアセット定�
 - `urashima.k4.yml`: `urashima.txt`を公式CLIで変換したDSL 4.0 YAML
 - `assets/images/`: 画像元データ24ファイル
 - `assets/sounds/`: MP3音声元データ22ファイル（組み込み対象20、来歴保存2）
-- `pose-models/`: オフライン版へ組み込むTeachable Machine Poseモデル3組（各3ファイル）
+- `pose-models/`: Teachable Machine Poseモデル3組（各3ファイル）。SB3へ埋め込まず、作品ディレクトリごとGitHub Pagesへ公開し、`urashima.k4.yml`から`delivery: remote`で参照します。重みだけで17.7MBあり、埋め込むとSB3が28MBになっていました
 - `assets.lock.json`: 組み込み対象44件の名前、target、Scratchメタデータ、サイズ、SHA-256
 - `dsl4-inputs.lock.json`: DSL 4.0で追加するStars／TextPlaceholderと3ポーズモデルの取得元、サイズ、SHA-256
 - `project-assets-dsl4.yml`: DSL 4.0 actor IDと同名の物理Scratch target 5件を作る`sb3-toolchain --project-assets`入力
@@ -56,9 +56,9 @@ pnpm validate:urashima-dsl4
 pnpm verify:urashima-dsl4
 ```
 
-`verify:urashima-dsl4`は、ローカル入力のlock一致、remote asset 0件、物理target、埋め込みsource、49 asset／55 file、ポーズラベル、SB3ハッシュを確認し、最終SB3を`sb3-toolchain`へ再importしてcanonical rebuildがバイト一致することも検証します。DSL 3.2のSB3・Web版は従来どおり`source.txt`と`urashima.txt`から生成し、4.0成果物とはファイル名を分離しています。
+`verify:urashima-dsl4`は、ローカル入力のlock一致、remote assetがポーズモデル3件だけで宛先が自前のGitHub Pagesであること、その宛先が指すリポジトリ内ファイルと`dsl4-inputs.lock.json`のバイト一致、物理target、埋め込みsource、49 asset／46 file、ポーズラベル、SB3ハッシュを確認し、最終SB3を`sb3-toolchain`へ再importしてcanonical rebuildがバイト一致することも検証します。DSL 3.2のSB3・Web版は従来どおり`source.txt`と`urashima.txt`から生成し、4.0成果物とはファイル名を分離しています。
 
-## DSL 4.0オフラインSB3の生成
+## DSL 4.0 SB3の生成
 
 rootの`app-release.json`に記録したTurboWarp-Kamishibai commitを、既定では隣接する`../turbowarp-kamishibai-app`にcheckoutして依存関係をインストールします。CIでは同じcommitを`.tmp/turbowarp-kamishibai-app`へcheckoutし、`TURBOWARP_KAMISHIBAI_APP_ROOT`でその場所を指定します。入力となる`base/kamishibai-4.0.sb3`も、同manifestのsource identity、サイズ、SHA-256で照合します。作品設定には依存版を保持しません。
 
