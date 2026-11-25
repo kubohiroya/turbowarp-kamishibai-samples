@@ -16,6 +16,7 @@ import {buildPackagedWeb} from './build-packaged-web.ts';
 import type {WebConfig} from './story-config.ts';
 import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import {assertSameBytes} from './same-bytes.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import {
   checkSubmission,
   composeParticipants,
@@ -322,22 +323,27 @@ export async function buildTekona({
         await copyFile(path.join(temporary, name), path.join(storyRoot, name));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {
-      assert.deepEqual(
-        lock,
-        JSON.parse(await readFile(lockPath, 'utf8')),
-        'Tekona workshop artifacts are stale; run update:tekona.',
+      await requireFresh(async () =>
+        assert.deepEqual(
+          lock,
+          JSON.parse(await readFile(lockPath, 'utf8')),
+          'Tekona workshop artifacts are stale; run update:tekona.',
+        ),
       );
-      assert.equal(await readFile(path.join(projectRoot, composePage), 'utf8'), page,
-        'The assistant compose page is stale; run update:tekona.');
+      await requireFresh(async () =>
+        assert.equal(await readFile(path.join(projectRoot, composePage), 'utf8'), page,
+          'The assistant compose page is stale; run update:tekona.'));
       // The lock comparison above covers what this build produced. The files beside the story are
       // a separate thing: they are what sb3:publish uploads and what the site and the checks read,
       // and only --write-lock ever wrote them. They went two App generations stale without anything
       // noticing, so compare them too.
       for (const name of outputNames) {
-        assertSameBytes(
-          await readFile(path.join(storyRoot, name)),
-          await readFile(path.join(temporary, name)),
-          `${name} is stale; run pnpm update:tekona.`,
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(path.join(storyRoot, name)),
+            await readFile(path.join(temporary, name)),
+            `${name} is stale; run pnpm update:tekona.`,
+          ),
         );
       }
     }

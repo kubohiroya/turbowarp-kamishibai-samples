@@ -12,6 +12,7 @@ import {strFromU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
 import {appBasePath} from './app-dependency.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
@@ -586,10 +587,12 @@ export async function buildTutorialDsl4({
         ),
       ]);
     } else {
-      assert.deepEqual(
-        artifactLock,
-        await readJson<TutorialArtifactLock>(committed.lock),
-        'Tutorial artifact lock is stale; run pnpm update:tutorial-dsl4.',
+      await requireFresh(async () =>
+        assert.deepEqual(
+          artifactLock,
+          await readJson<TutorialArtifactLock>(committed.lock),
+          'Tutorial artifact lock is stale; run pnpm update:tutorial-dsl4.',
+        ),
       );
       if (verifyCommittedOutput) {
         const [sb3, blocksSb3, starterArchive, additionArchive] = await Promise.all([
@@ -598,17 +601,23 @@ export async function buildTutorialDsl4({
           readFile(committed.starter),
           readFile(committed.additionKit),
         ]);
-        assertSameBytes(sb3, canonicalBytes, 'Tutorial SB3 is stale.');
-        assertSameBytes(blocksSb3, blocksBytes, 'Tutorial block source SB3 is stale.');
-        assertSameBytes(
-          starterArchive,
-          archives.starter.bytes,
-          'Tutorial starter ZIP is stale.',
+        requireFresh(() => assertSameBytes(sb3, canonicalBytes, 'Tutorial SB3 is stale.'));
+        requireFresh(() =>
+          assertSameBytes(blocksSb3, blocksBytes, 'Tutorial block source SB3 is stale.'),
         );
-        assertSameBytes(
-          additionArchive,
-          archives.additionKit.bytes,
-          'Tutorial addition kit ZIP is stale.',
+        requireFresh(() =>
+          assertSameBytes(
+            starterArchive,
+            archives.starter.bytes,
+            'Tutorial starter ZIP is stale.',
+          ),
+        );
+        requireFresh(() =>
+          assertSameBytes(
+            additionArchive,
+            archives.additionKit.bytes,
+            'Tutorial addition kit ZIP is stale.',
+          ),
         );
       }
     }

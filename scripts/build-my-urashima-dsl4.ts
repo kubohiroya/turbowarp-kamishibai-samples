@@ -22,6 +22,7 @@ import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import {buildMyUrashimaWorkshopBlocks, type WorkshopBlockRecord} from './build-my-urashima-workshop-blocks.ts';
 import type {ScratchProject, ScratchTarget} from './scratch.ts';
 import {assertSameBytes} from './same-bytes.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import type {
   DependencyRecord,
   Dsl4StoryConfig,
@@ -308,10 +309,12 @@ export async function buildMyUrashimaDsl4({
       const outputPath = path.join(storyDirectory, record.path);
       if (writeLock) await writeAtomically(outputPath, bytes);
       else if (verifyCommittedOutput) {
-        assertSameBytes(
-          await readFile(outputPath),
-          bytes,
-          `${record.path} is stale; run pnpm update:my-urashima-dsl4.`,
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(outputPath),
+            bytes,
+            `${record.path} is stale; run pnpm update:my-urashima-dsl4.`,
+          ),
         );
       }
       if (publishedOutputPath) {
@@ -326,21 +329,27 @@ export async function buildMyUrashimaDsl4({
         Buffer.from(`${JSON.stringify(artifactLock, null, 2)}\n`),
       );
     } else {
-      assert.deepEqual(
-        artifactLock,
-        await readJson<MyUrashimaDsl4ArtifactLock>(artifactLockPath),
-        'dsl4-artifacts.lock.json is stale; run pnpm update:my-urashima-dsl4.',
+      await requireFresh(async () =>
+        assert.deepEqual(
+          artifactLock,
+          await readJson<MyUrashimaDsl4ArtifactLock>(artifactLockPath),
+          'dsl4-artifacts.lock.json is stale; run pnpm update:my-urashima-dsl4.',
+        ),
       );
       if (verifyCommittedOutput) {
-        assertSameBytes(
-          await readFile(committedOutputPath),
-          canonicalBytes,
-          'my-urashima-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(committedOutputPath),
+            canonicalBytes,
+            'my-urashima-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
+          ),
         );
-        assertSameBytes(
-          await readFile(blocksOutputPath),
-          blocksBytes,
-          'my-urashima-blocks-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(blocksOutputPath),
+            blocksBytes,
+            'my-urashima-blocks-4.0.sb3 is stale; run pnpm update:my-urashima-dsl4.',
+          ),
         );
       }
     }

@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {renderEditorButton} from './editor-button.ts';
 import {assetModeLabels, scriptFormatLabels, workDelivery, type WorkDelivery} from './work-delivery.ts';
 import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildThreeVisits} from './build-three-visits.ts';
 import {buildTekona} from './build-tekona.ts';
@@ -1264,7 +1265,7 @@ export function verifyConfiguredWebBuild(
   const enabled = webConfig?.enabled === true;
   assert.equal(web.enabled, enabled, `${description} enabled state differs from its configuration.`);
   if (enabled) {
-    assert.deepEqual(web, artifactLock, `${description} lock is stale.`);
+    requireFresh(() => assert.deepEqual(web, artifactLock, `${description} lock is stale.`));
   } else {
     assert.deepEqual(web, {enabled: false}, `${description} disabled result is invalid.`);
   }

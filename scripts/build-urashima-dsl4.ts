@@ -22,6 +22,7 @@ import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
 import type {Dsl4Limits} from './story-config.ts';
 import {ensureUrashimaDsl4Inputs} from './update-urashima-dsl4-inputs.ts';
 import {assertSameBytes} from './same-bytes.ts';
+import {requireFresh} from './artifact-freshness.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyDirectory = path.join(projectRoot, 'stories/urashima');
@@ -374,21 +375,27 @@ export async function buildUrashimaDsl4({
         Buffer.from(`${JSON.stringify(artifactLock, null, 2)}\n`),
       );
     } else {
-      assert.deepEqual(
-        artifactLock,
-        JSON.parse(await readFile(artifactLockPath, 'utf8')),
-        'dsl4-artifacts.lock.json is stale; run pnpm update:urashima-dsl4.',
+      await requireFresh(async () =>
+        assert.deepEqual(
+          artifactLock,
+          JSON.parse(await readFile(artifactLockPath, 'utf8')),
+          'dsl4-artifacts.lock.json is stale; run pnpm update:urashima-dsl4.',
+        ),
       );
       if (verifyCommittedOutput) {
-        assertSameBytes(
-          await readFile(outputPath),
-          canonicalBytes,
-          'urashima-4.0.sb3 is stale; run pnpm update:urashima-dsl4.',
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(outputPath),
+            canonicalBytes,
+            'urashima-4.0.sb3 is stale; run pnpm update:urashima-dsl4.',
+          ),
         );
-        assertSameBytes(
-          await readFile(blocksOutputPath),
-          blocksBytes,
-          `${config.blocksOutput} is stale; run pnpm update:urashima-dsl4.`,
+        await requireFresh(async () =>
+          assertSameBytes(
+            await readFile(blocksOutputPath),
+            blocksBytes,
+            `${config.blocksOutput} is stale; run pnpm update:urashima-dsl4.`,
+          ),
         );
       }
     }
