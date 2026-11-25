@@ -28,6 +28,11 @@ import {fileURLToPath} from 'node:url';
  *
  * The SB3 files are not committed (see scripts/sb3-assets.ts), so missing ones are downloaded
  * first. Files regenerated before the check differ from the record and are kept as they are.
+ *
+ * Before any of that, the records of those files are compared with each other. A story lock and
+ * sb3-assets.json both carry the size and SHA-256 of every built SB3, and when they disagree every
+ * later stage is comparing the wrong bytes. That reads two JSON files, so it goes first and the
+ * run stops in under a second instead of inside a multi-megabyte comparison.
  */
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
@@ -72,6 +77,12 @@ function report(result: StageResult): void {
   const seconds = (result.ms / 1000).toFixed(1);
   process.stdout.write(`\n--- ${result.name} (${seconds}s, exit ${result.code})\n`);
   if (result.output) process.stdout.write(result.output.endsWith('\n') ? result.output : `${result.output}\n`);
+}
+
+const records = await stage('artifact records', ['verify:artifact-records'], false);
+if (records.code !== 0) {
+  report(records);
+  process.exit(records.code);
 }
 
 const fetched = await stage('sb3:fetch', ['sb3:fetch'], false);
