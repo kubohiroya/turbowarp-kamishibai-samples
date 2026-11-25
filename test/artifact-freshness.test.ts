@@ -10,7 +10,7 @@ import {
 } from '../scripts/artifact-freshness.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
-const stale = () => {
+const stale = (): void => {
   assert.fail('dsl4-artifacts.lock.json is stale; run pnpm update:urashima-dsl4.');
 };
 
@@ -52,7 +52,7 @@ test('a fresh artifact neither fails nor reports, switch or no switch', () => {
 });
 
 test('the asynchronous form follows the same policy', async () => {
-  const comparison = async () => {
+  const comparison = async (): Promise<void> => {
     await Promise.resolve();
     stale();
   };
@@ -69,7 +69,7 @@ test('the asynchronous form follows the same policy', async () => {
 test('a reported difference is capped so it stays readable', () => {
   const printed: string[] = [];
   requireFresh(
-    () => {
+    (): void => {
       assert.fail('x'.repeat(10_000));
     },
     {env: {[allowStaleArtifactsVariable]: '1'}, write: (text) => printed.push(text)},

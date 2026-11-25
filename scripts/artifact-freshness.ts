@@ -80,11 +80,15 @@ export interface RequireFreshOptions {
  * comparison separately rather than a whole verify branch, so one allowed difference does not hide
  * the ones after it.
  */
-export function requireFresh(compare: () => void, options?: RequireFreshOptions): void;
+// The promise-returning form comes first on purpose. `Promise<void>` is assignable to `void`, so
+// a `() => void` overload listed first would also match an async comparison and type the call as
+// `void`, losing the `await`. The reverse is not true, so this order resolves each call to the
+// form it actually is.
 export function requireFresh(
   compare: () => Promise<void>,
   options?: RequireFreshOptions,
 ): Promise<void>;
+export function requireFresh(compare: () => void, options?: RequireFreshOptions): void;
 export function requireFresh(
   compare: () => void | Promise<void>,
   {env, write = (text: string) => process.stderr.write(text)}: RequireFreshOptions = {},
