@@ -54,14 +54,30 @@ const workshopSource = await readFile(
   path.join(projectRoot, 'stories/my-urashima/my-urashima.k4.yml'),
   'utf8',
 );
-// The workshop story names its recognition models by address (`delivery: remote`). From App
-// 4.0.5 the runtime loads a scene's models in the background, so those addresses are fetched
-// while the check runs; they are the story's own network use, not the runtime's.
-const workshopRemoteModels = Object.values(
-  (parse(workshopSource) as {assets?: Record<string, {delivery?: string; source?: {url?: string}}>})
-    .assets ?? {},
-).flatMap((asset) => (asset.delivery === 'remote' && asset.source?.url ? [asset.source.url] : []));
+const urashimaSource = await readFile(
+  path.join(projectRoot, 'stories/urashima/urashima.k4.yml'),
+  'utf8',
+);
+// Both stories name their recognition models by address (`delivery: remote`). From App 4.0.5 the
+// runtime loads a scene's models in the background, so those addresses are fetched while the
+// check runs; they are the story's own network use, not the runtime's. Every other external
+// request still fails the check, so the addresses a story may reach are read off that story
+// rather than allowed by host.
+function remoteModelUrls(source: string): string[] {
+  return Object.values(
+    (parse(source) as {assets?: Record<string, {delivery?: string; source?: {url?: string}}>})
+      .assets ?? {},
+  ).flatMap((asset) => (asset.delivery === 'remote' && asset.source?.url ? [asset.source.url] : []));
+}
+
+const workshopRemoteModels = remoteModelUrls(workshopSource);
 assert(workshopRemoteModels.length > 0, 'The workshop story must name its remote recognition models.');
+const urashimaRemoteModels = remoteModelUrls(urashimaSource);
+assert.equal(
+  urashimaRemoteModels.length,
+  3,
+  'The Urashima story must name its three remote recognition models.',
+);
 
 function conciseFailure(value: unknown): string {
   return String(value).replace(/data:text\/javascript;base64,[^\s)]+/gu, 'data:<embedded-runtime>');
@@ -244,7 +260,9 @@ try {
   });
 
   if (urashimaEnabled) {
-    const urashima = await openDsl4Page(browser, origin, '/urashima');
+    const urashima = await openDsl4Page(browser, origin, '/urashima', {
+      remotePrefixes: urashimaRemoteModels,
+    });
     const urashimaApplicationMode = await urashima.page.evaluate(() => {
       const vm = globalThis.Scratch?.vm ?? globalThis.scaffolding?.vm;
       const project = JSON.parse(vm.toJSON());

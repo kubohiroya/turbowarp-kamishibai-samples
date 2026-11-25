@@ -194,15 +194,21 @@ assets:
     file: assets/images/b6c18d2f3df8b5d12e2b6a529109fec2.svg
   PoseModel1:
     kind: recognitionModel
-    file: pose-models/1and2
+    delivery: remote
+    source:
+      url: https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/pose-models/1and2/
     loading: lazy
   PoseModel2:
     kind: recognitionModel
-    file: pose-models/3and4
+    delivery: remote
+    source:
+      url: https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/pose-models/3and4/
     loading: lazy
   PoseModel3:
     kind: recognitionModel
-    file: pose-models/6and7
+    delivery: remote
+    source:
+      url: https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/pose-models/6and7/
     loading: lazy
 actors:
   Urashima: Urashima-walk-1

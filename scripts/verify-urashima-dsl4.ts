@@ -24,7 +24,7 @@ function sha256(contents: Uint8Array | string): string {
 }
 
 export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
-  await ensureUrashimaDsl4Inputs();
+  const inputs = await ensureUrashimaDsl4Inputs();
   const [artifactLock, sourceBytes] = await Promise.all([
     readFile(path.join(storyDirectory, 'dsl4-artifacts.lock.json'), 'utf8').then(
       (contents) => JSON.parse(contents) as Dsl4ArtifactLock,
@@ -37,13 +37,64 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   assert.equal(sha256(sourceBytes), artifactLock.source.sha256);
 
   const story = parse(sourceBytes.toString('utf8'), {uniqueKeys: true}) as Dsl4Story;
-  const assets = Object.values(story.assets ?? {});
-  assert.equal(assets.length, 49);
-  assert.equal(
-    assets.filter((asset) => asset.delivery === 'remote' || asset.source !== undefined).length,
-    0,
+  const assetEntries = Object.entries(story.assets ?? {});
+  assert.equal(assetEntries.length, 49);
+  /**
+   * The three Teachable Machine pose models are the only assets named by address, and the address
+   * is this repository's own GitHub Pages site. Embedding them wrote 17.7 MB of weights into
+   * project.json as base64 and made the work's SB3 28 MB, of which the script and blocks were
+   * under 30 KB. Naming them leaves the bytes in stories/urashima/pose-models, which build-site.ts
+   * publishes with the rest of the story directory, so the URL below serves exactly the files
+   * dsl4-inputs.lock.json pins.
+   *
+   * The address has to stay on that site. The models' upstream hosts are a Teachable Machine
+   * share link and a dated path on a university server, and a work whose playback depends on
+   * either stops working when they change; this check refused `delivery: remote` outright until
+   * the bytes were served from here. A bare remote source carries no integrity the runtime can
+   * verify, so the loop below pins them the one way that is checkable offline: the published
+   * directory is this repository's, and its bytes match the lock.
+   */
+  const poseModelBaseUrl =
+    'https://kubohiroya.github.io/turbowarp-kamishibai-samples/stories/urashima/pose-models/';
+  const remoteAssets = assetEntries.filter(
+    ([, asset]) => asset.delivery === 'remote' || asset.source !== undefined,
   );
-  assert(assets.every((asset) => typeof asset.file === 'string' && asset.file.length > 0));
+  assert.deepEqual(
+    remoteAssets.map(([id]) => id),
+    ['PoseModel1', 'PoseModel2', 'PoseModel3'],
+  );
+  for (const [id, asset] of remoteAssets) {
+    assert.equal(asset.delivery, 'remote', id);
+    assert.equal(asset.file, undefined, id);
+    assert.equal(asset.kind, 'recognitionModel', id);
+    const url = asset.source?.url;
+    assert(
+      typeof url === 'string' && url.startsWith(poseModelBaseUrl),
+      `${id} must be delivered from ${poseModelBaseUrl}`,
+    );
+    const directory = url.slice(poseModelBaseUrl.length);
+    assert.match(directory, /^[\w-]+\/$/u, id);
+    const model = inputs.lock.poseModels.find((candidate) => candidate.name === id);
+    assert(model, `${id} must be recorded in dsl4-inputs.lock.json`);
+    assert.equal(`${model.output}/`, `pose-models/${directory}`, id);
+    for (const file of model.files) {
+      const contents: Buffer = await readFile(path.join(storyDirectory, model.output, file.path));
+      assert.equal(contents.length, file.size, `${id}/${file.path}`);
+      assert.equal(sha256(contents), file.sha256, `${id}/${file.path}`);
+    }
+  }
+  const remoteIds = new Set(remoteAssets.map(([id]) => id));
+  const embeddedAssets = assetEntries.filter(([id]) => !remoteIds.has(id));
+  assert.equal(embeddedAssets.length, 46);
+  assert(
+    embeddedAssets.every(
+      ([, asset]) =>
+        typeof asset.file === 'string' &&
+        asset.file.length > 0 &&
+        asset.delivery === undefined &&
+        asset.source === undefined,
+    ),
+  );
 
   const outputPath = path.join(storyDirectory, artifactLock.output.path);
   const outputBytes = await readFile(outputPath);
@@ -156,7 +207,9 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   assert.equal(component.source.sourceId, 'main');
   assert.equal(component.artifact.controlProfile, 'production');
   assert.equal(component.assets.manifest.assets.length, 49);
-  assert.equal(component.assets.files.length, 55);
+  // 46 embedded media payloads. The nine pose model files are no longer among them: the models
+  // are delivered from this repository's Pages site (see poseModelBaseUrl above).
+  assert.equal(component.assets.files.length, 46);
   const composed = parse(component.source.text, {uniqueKeys: true}) as Dsl4Story;
   verifyEndCreditCheerDelay(composed);
   const {include} = parse(sourceBytes.toString('utf8')) as {include: string[]};
@@ -171,8 +224,15 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
     sceneNames.push(...Object.keys((parse(source) as Dsl4Story).scenes ?? {}));
   }
   assert.deepEqual(Object.keys(composed.scenes ?? {}), sceneNames);
-  assert(!component.source.text.includes('delivery: remote'));
+  // The composed script keeps the addresses the entry document declared, so the hosts the entry
+  // must not name are checked here too.
   assert(!component.source.text.includes('https://sqs.prof.cuc.ac.jp/'));
+  assert(!component.source.text.includes('https://teachablemachine.withgoogle.com/'));
+  assert.equal(
+    component.source.text.split(poseModelBaseUrl).length - 1,
+    3,
+    'The composed script must deliver all three pose models from the samples Pages site.',
+  );
 
   const expectedLabels = [
     ['help', 'ride1', 'ride2'],

@@ -75,10 +75,13 @@ test('published Urashima blocks use exact source image/audio bytes as native slo
   const bundle =
     project.extensionStorage.kubohiroyakamishibai4.components
       .kubohiroyakamishibairuntime4.assets;
-  assert(
-    bundle.files.every((file: {assetId: string}) =>
-      file.assetId.startsWith('PoseModel'),
-    ),
+  // Nothing travels in the file bundle any more. The images and audio became native slots, and
+  // the three pose models are named by address (see stories/urashima/urashima.k4.yml), so the
+  // nine model files this bundle used to carry are gone. The count is asserted rather than a
+  // predicate over the entries, because `every` over an empty list passes whatever it claims.
+  assert.deepEqual(
+    bundle.files,
+    [],
     'Migrated image/audio payloads must not remain in the file bundle.',
   );
   const {prepareDsl4EmbeddedBlockStoryProject} = await import(

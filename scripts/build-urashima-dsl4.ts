@@ -86,13 +86,31 @@ function inspectStory(source: string): {assetCount: number; remoteAssetCount: nu
   assert(assets.length > 0, 'urashima.k4.yml must declare assets.');
   assert(
     assets.every((asset) => typeof asset === 'object' && asset !== null && !Array.isArray(asset)),
-    'Every DSL 4.0 Urashima asset must use an explicit file-backed declaration.',
+    'Every DSL 4.0 Urashima asset must use an explicit mapping declaration.',
   );
   const remoteAssets = assets.filter(
     (asset) => asset.delivery === 'remote' || asset.source !== undefined,
   );
-  assert.equal(remoteAssets.length, 0, 'The offline story must not declare remote assets.');
-  assert(assets.every((asset) => typeof asset.file === 'string' && asset.file.length > 0));
+  /**
+   * The three Teachable Machine pose models are named by address; everything else is carried in
+   * the SB3. The models' weights were 17.7 MB of a 28 MB file, so embedding them made the work's
+   * script and blocks less than a thousandth of what a player downloads. The bytes still live in
+   * stories/urashima/pose-models and are published with the story directory, which is what the
+   * addresses point at; scripts/verify-urashima-dsl4.ts checks that pairing and refuses any other
+   * host.
+   */
+  assert.equal(remoteAssets.length, 3, 'Only the three pose models may be named by address.');
+  assert(
+    remoteAssets.every((asset) => asset.kind === 'recognitionModel' && asset.file === undefined),
+    'A remotely delivered Urashima asset must be a recognition model with no embedded file.',
+  );
+  assert(
+    assets.every(
+      (asset) =>
+        remoteAssets.includes(asset) ||
+        (typeof asset.file === 'string' && asset.file.length > 0),
+    ),
+  );
   return {assetCount: assets.length, remoteAssetCount: remoteAssets.length};
 }
 

@@ -528,7 +528,7 @@ ${renderedActions.map(({html}) => html).join('\n')}
 ${[...groups.entries()]
   .map(
     ([group, actions]) => `          <section class="action-group" data-action-group="${escapeHtml(group)}">
-            <h4>${escapeHtml(group.replaceAll('DSL 4.0', 'DSL4.0').replaceAll('DSL 3.2', 'DSL3.2').replaceAll(' オフライン実行版', ' 実行版'))}</h4>
+            <h4>${escapeHtml(group.replaceAll('DSL 4.0', 'DSL4.0').replaceAll('DSL 3.2', 'DSL3.2'))}</h4>
             <div class="actions">
 ${actions.join('\n')}
             </div>
@@ -599,7 +599,7 @@ function renderWorkCard(work: WorkEntry, features: SiteFeatures): string {
     : '';
   return `      <article data-work-id="${escapeHtml(work.id)}" data-distribution="${escapeHtml(work.distribution)}">
 ${thumbnail}        <h3>${title}</h3>
-        <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
+        <p>${escapeHtml(work.summary.replaceAll('DSL 4.0実行版', 'DSL4.0実行版'))}</p>
         <dl class="work-meta">
           <div><dt>更新日</dt><dd><time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></dd></div>
           <div><dt>作者</dt><dd>${escapeHtml(work.creator)}</dd></div>
@@ -953,7 +953,7 @@ ${dsl4WebHash}${webHash}  <h2>成果物プロファイル</h2>
     <li><code>generic</code>: <code>base/kamishibai.sb3</code> — 台本・物語固有アセット非埋め込みの汎用雛形</li>
     <li><code>editor</code>: <code>_urashima.sb3</code> — 台本非埋め込み・アセット埋め込みの編集用</li>
     <li><code>player</code>: <code>urashima.sb3</code> — 台本・アセット埋め込みの再生用</li>
-    <li><code>dsl4-offline</code>: <code>urashima-4.0.sb3</code> — DSL 4.0台本・49アセット・実行基盤埋め込みの作品再生用</li>
+    <li><code>dsl4-offline</code>: <code>urashima-4.0.sb3</code> — DSL 4.0台本・46アセット・実行基盤埋め込みの作品再生用（ポーズモデル3組は公開サイトから配信）</li>
   </ul>
   <h2>元アセット</h2>
   <p>画像${manifest.assetCounts.images}件、音声${manifest.assetCounts.sounds}件（組み込み対象${manifest.assetCounts.embedded}件）。ファイル名はScratchの <code>md5ext</code> 名です。</p>
@@ -1065,7 +1065,7 @@ ${renderSiteHeader('../../')}
 <main id="main-content">
   <nav class="local-nav" aria-label="作品内ナビゲーション"><a href="../../">作品一覧へ戻る</a></nav>
   <h1>${escapeHtml(work.title)}</h1>
-  <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
+  <p>${escapeHtml(work.summary.replaceAll('DSL 4.0実行版', 'DSL4.0実行版'))}</p>
   <dl class="work-meta">
     <div><dt>更新日</dt><dd><time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></dd></div>
     <div><dt>作者</dt><dd>${escapeHtml(work.creator)}</dd></div>
@@ -1140,7 +1140,7 @@ ${renderSiteHeader('../../')}
   <article>
     <p class="eyebrow">DSL 4.0 チュートリアル</p>
     <h1>${escapeHtml(work.title)}</h1>
-    <p>${escapeHtml(work.summary.replaceAll('DSL 4.0オフライン版', 'DSL4.0実行版'))}</p>
+    <p>${escapeHtml(work.summary.replaceAll('DSL 4.0実行版', 'DSL4.0実行版'))}</p>
     <p>更新日: <time datetime="${work.updatedAt}">${formatDisplayDate(work.updatedAt)}</time></p>
 ${workMedia}${renderCapabilityNotice(work.capabilities)}${workFormats}
 ${artifactSizes}

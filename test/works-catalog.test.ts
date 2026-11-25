@@ -48,7 +48,7 @@ test('publishes the approved works-library categories and rights metadata', asyn
   assert.equal(urashima.thumbnail.slides.length, 4);
   assert.deepEqual(
     [...new Set(urashima.actions.map(({group}) => group))],
-    ['DSL 3.2 実行版', 'DSL 4.0 オフライン実行版'],
+    ['DSL 3.2 実行版', 'DSL 4.0 実行版'],
   );
   assert(
     urashima.actions.some(

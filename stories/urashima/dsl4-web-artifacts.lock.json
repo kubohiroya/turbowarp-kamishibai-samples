@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-offline",
     "path": "urashima-4.0.sb3",
-    "size": 28996649,
-    "sha256": "bf95483df79e45b32999ea0564c169dd6082f367c63251ef5f358aa6d7cb6406"
+    "size": 11031637,
+    "sha256": "0ffe2733064c2da0c2632c3155ba824f45924d0f25b2c3590a0be35cb21c3b06"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 41823123,
-    "sha256": "bfa59f12ecfd0c3b4355faaaddfd1c9b842ce82dbc976b44085493a7fa1c00fe"
+    "size": 19731703,
+    "sha256": "b8cb0976c2b9bf797978f1f6ec240d9a500ea44fd9796ff1a143594e531c746b"
   },
   "packager": {
     "package": "@turbowarp/packager",
