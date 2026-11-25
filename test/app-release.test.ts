@@ -9,6 +9,7 @@ import { test } from "vitest";
 import { appBasePath, readAppRelease } from "../scripts/app-dependency.ts";
 import {
   appReleaseCheckSummary,
+  checkAppReleaseDrift,
   defaultAppReleasePolicy,
   publishedAppReleaseDiffers,
   readAppReleasePolicy,
@@ -381,5 +382,68 @@ test("a malformed declaration is refused, and a missing file means the default",
     }
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("the drift check reports a newer release and writes nothing", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "samples-app-drift-"));
+  try {
+    const fixture = upstream();
+    await syncAppRelease({ root, ...fixture });
+    const manifestPath = path.join(root, "app-release.json");
+    const pinned = await readFile(manifestPath, "utf8");
+
+    // The pin already is what upstream offers.
+    const same = await checkAppReleaseDrift({ root, ...fixture });
+    assert.equal(same.changed, false);
+    assert.equal(same.committed.commit, fixture.commit);
+    assert.equal(same.available.commit, fixture.commit);
+
+    // An older pin: the check must say so without moving the workspace to the newer release, which
+    // is the whole point of building the deploy from the committed pin.
+    const older = {
+      ...(JSON.parse(pinned) as Record<string, unknown>),
+      commit: "c".repeat(40),
+    };
+    await writeFile(manifestPath, `${JSON.stringify(older, null, 2)}\n`);
+    const drifted = await checkAppReleaseDrift({ root, ...fixture });
+    assert.equal(drifted.changed, true);
+    assert.equal(drifted.committed.commit, "c".repeat(40));
+    assert.equal(drifted.available.commit, fixture.commit);
+    assert.equal(
+      await readFile(manifestPath, "utf8"),
+      `${JSON.stringify(older, null, 2)}\n`,
+      "the check must not rewrite app-release.json",
+    );
+    assert.deepEqual(
+      await readFile(appBasePath(root)),
+      fixture.bytes,
+      "the check must not replace the base SB3",
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("no workflow follows a published app release as a side effect", async () => {
+  // Following is a reviewed `pnpm update:app-release`. A workflow that runs the module without
+  // --check rewrites app-release.json and the base SB3 in its workspace, which is how the Pages
+  // deploy came to build against a release the repository had not followed.
+  const repoRoot = path.resolve(import.meta.dirname, "..");
+  for (const file of [
+    ".github/actions/verify/action.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/deploy.yml",
+    ".github/workflows/scheduled-verify.yml",
+  ]) {
+    for (const line of (await readFile(path.join(repoRoot, file), "utf8")).split("\n")) {
+      // Only what the workflow runs, not what its comments mention.
+      if (line.trimStart().startsWith("#")) continue;
+      if (!line.includes("scripts/app-release.ts")) continue;
+      assert(
+        line.includes("--check"),
+        `${file}: ${line.trim()} must pass --check so the workspace pin is left alone.`,
+      );
+    }
   }
 });

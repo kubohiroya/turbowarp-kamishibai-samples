@@ -1,7 +1,9 @@
 name: Verify the samples site
 description: >-
-  Installs both workspaces and verifies the samples. Pull requests use the committed App
-  pin. Pages and scheduled runs refresh the published App and run the full verification.
+  Installs both workspaces and verifies the samples. Every run builds with the committed App pin;
+  Pages and scheduled runs additionally report whether a newer published release is available, and
+  run the full verification. Following a release is an explicit `pnpm update:app-release`, never a
+  side effect of this action.
 
 inputs:
   pull-request:
@@ -17,12 +19,17 @@ runs:
     - uses: actions/setup-node@v7
       with:
         node-version-file: .nvmrc
-    - name: Resolve and verify the published app dependency
+    # Read-only. This used to run `node scripts/app-release.ts`, which rewrites app-release.json and
+    # the base SB3 in the workspace, so the deploy and the scheduled run built against whatever was
+    # newest upstream while the repository pinned something older. That skew stopped the Pages
+    # deploy twice when App 4.0.13 was published, and left the site's bytes differing from the
+    # release assets. The pin is followed by a reviewed pull request now; this only reports.
+    - name: Report whether a newer published app release is available
       if: inputs.pull-request == ''
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-      run: node scripts/app-release.ts
+      run: node scripts/app-release.ts --check
     # Playback, authoring and the downloaded base share this release commit.
     - id: pin
       shell: bash
