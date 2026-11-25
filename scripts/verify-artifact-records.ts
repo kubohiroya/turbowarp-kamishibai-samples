@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import {globSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+
+import {readStoryArtifactRecords} from './story-artifact-records.ts';
 
 /**
  * Check the two records of every built SB3 against each other.
@@ -19,48 +20,26 @@ import {fileURLToPath} from 'node:url';
  *
  * Two JSON files decide the same thing in well under a second, which is why this runs before
  * anything downloads or builds.
+ *
+ * The published record also names the release that built each file. A digest says two records
+ * describe the same bytes; it does not say which generation of the App produced them, and reading
+ * that back out of the bytes means parsing a comment inside a 3.3 MB bundle. So the record carries
+ * it as a field and this compares that too.
  */
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const readJson = async (file: string) =>
-  JSON.parse(await readFile(path.join(projectRoot, file), 'utf8'));
 
 interface ByteRecord {
   path: string;
   size: number;
   sha256: string;
+  runtime?: {repository: string; version: string; commit: string};
 }
 
-/** Every `.sb3` a lock records, by its path relative to the repository. */
-function lockedArchives(lock: unknown, storyDirectory: string): Map<string, ByteRecord> {
-  const found = new Map<string, ByteRecord>();
-  const walk = (node: unknown) => {
-    if (node === null || typeof node !== 'object') return;
-    const record = node as Partial<ByteRecord>;
-    if (
-      typeof record.path === 'string' &&
-      record.path.endsWith('.sb3') &&
-      typeof record.sha256 === 'string' &&
-      typeof record.size === 'number'
-    ) {
-      const file = `${storyDirectory}/${record.path}`;
-      found.set(file, {path: file, size: record.size, sha256: record.sha256});
-    }
-    for (const value of Object.values(node)) walk(value);
-  };
-  walk(lock);
-  return found;
-}
-
-const assets = (await readJson('sb3-assets.json')) as {files: ByteRecord[]};
+const assets = JSON.parse(
+  await readFile(path.join(projectRoot, 'sb3-assets.json'), 'utf8'),
+) as {files: ByteRecord[]};
 const published = new Map(assets.files.map((file) => [file.path, file]));
-
-const locked = new Map<string, ByteRecord>();
-for (const lockFile of globSync('stories/*/dsl4-artifacts.lock.json', {cwd: projectRoot}).sort()) {
-  const storyDirectory = path.dirname(lockFile).split(path.sep).join('/');
-  for (const [file, record] of lockedArchives(await readJson(lockFile), storyDirectory)) {
-    locked.set(file, record);
-  }
-}
+const locked = await readStoryArtifactRecords(projectRoot);
 assert(locked.size > 0, 'No SB3 files are recorded in stories/*/dsl4-artifacts.lock.json.');
 
 const mismatches: string[] = [];
@@ -73,11 +52,30 @@ for (const [file, record] of locked) {
     );
     continue;
   }
-  if (asset.size === record.size && asset.sha256 === record.sha256) continue;
-  mismatches.push(
-    `${file}\n  lock:           ${record.size} bytes, sha256 ${record.sha256}` +
-      `\n  sb3-assets.json: ${asset.size} bytes, sha256 ${asset.sha256}`,
-  );
+  if (asset.size !== record.size || asset.sha256 !== record.sha256) {
+    mismatches.push(
+      `${file}\n  lock:            ${record.size} bytes, sha256 ${record.sha256}` +
+        `\n  sb3-assets.json: ${asset.size} bytes, sha256 ${asset.sha256}`,
+    );
+    continue;
+  }
+  if (asset.runtime === undefined) {
+    mismatches.push(
+      `${file}\n  sb3-assets.json records no runtime, so nothing says which release built it.` +
+        `\n  The lock says ${record.runtime.version} (${record.runtime.commit}).`,
+    );
+    continue;
+  }
+  const same =
+    asset.runtime.repository === record.runtime.repository &&
+    asset.runtime.version === record.runtime.version &&
+    asset.runtime.commit === record.runtime.commit;
+  if (!same) {
+    mismatches.push(
+      `${file}\n  lock runtime:            ${record.runtime.version} (${record.runtime.commit})` +
+        `\n  sb3-assets.json runtime: ${asset.runtime.version} (${asset.runtime.commit})`,
+    );
+  }
 }
 
 if (mismatches.length > 0) {
@@ -95,6 +93,6 @@ if (mismatches.length > 0) {
 
 const unlocked = [...published.keys()].filter((file) => !locked.has(file));
 console.log(
-  `Verified ${locked.size} built SB3 records against sb3-assets.json` +
-    `${unlocked.length > 0 ? `; ${unlocked.length} published file(s) are not built from a DSL 4.0 lock: ${unlocked.join(', ')}` : ''}.`,
+  `Verified ${locked.size} built SB3 records, with the release that built each, against ` +
+    `sb3-assets.json${unlocked.length > 0 ? `; ${unlocked.length} published file(s) are not built from a DSL 4.0 lock: ${unlocked.join(', ')}` : ''}.`,
 );

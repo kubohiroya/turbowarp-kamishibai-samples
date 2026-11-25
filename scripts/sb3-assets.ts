@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
 
 import {appBaseRelativePath, projectRoot, readAppRelease} from './app-dependency.ts';
+import {readStoryArtifactRecords} from './story-artifact-records.ts';
 
 /**
  * The SB3 files under stories/ are not committed. Each one is a GitHub Release asset, and
@@ -32,6 +33,14 @@ export interface Sb3Asset {
   size: number;
   sha256: string;
   url: string;
+  /**
+   * The App release that built these bytes, copied from the work's story lock.
+   *
+   * Without it a record says where to download a file and what its digest is, but not what
+   * produced it, so the record and the lock could describe different generations of the same
+   * work with nothing to compare. Absent for the files no DSL 4.0 lock records.
+   */
+  runtime?: {repository: string; version: string; commit: string};
 }
 
 export interface Sb3Manifest {
@@ -78,6 +87,11 @@ export async function readSb3Manifest(root = projectRoot): Promise<Sb3Manifest> 
       new RegExp(`^https://github\\.com/${repository}/releases/download/sb3-[0-9]{8}-[a-f0-9]{8}/[^/]+\\.sb3$`, 'u'),
       `${file.path}: must point at an sb3-* release of this repository.`,
     );
+    if (file.runtime !== undefined) {
+      assert(typeof file.runtime.repository === 'string', `${file.path}: runtime.repository`);
+      assert(typeof file.runtime.version === 'string', `${file.path}: runtime.version`);
+      assert.match(file.runtime.commit, /^[a-f0-9]{40}$/u, `${file.path}: runtime.commit`);
+    }
   }
   return manifest;
 }
@@ -293,13 +307,23 @@ export async function publishSb3Assets({
   const published = JSON.parse(
     await run('gh', ['release', 'view', tag, '--repo', repository, '--json', 'assets']),
   ) as {assets: {name: string; size: number; digest?: string}[]};
+  // The provenance comes from the same reader the verification uses, so a published record and
+  // the lock cannot disagree about which release built the file.
+  const locked = await readStoryArtifactRecords(root);
   const files = status.changes.map((change): Sb3Asset => {
     const name = path.posix.basename(change.path);
     const asset = published.assets.find((candidate) => candidate.name === name);
     assert(asset, `${tag} has no asset ${name}.`);
     assert.equal(asset.size, change.size, `${tag}/${name}: uploaded size differs.`);
     if (asset.digest) assert.equal(asset.digest, `sha256:${change.sha256}`, `${tag}/${name}: uploaded digest differs.`);
-    return {path: change.path, size: change.size, sha256: change.sha256, url: releaseAssetUrl(tag, name)};
+    const record = locked.get(change.path);
+    return {
+      path: change.path,
+      size: change.size,
+      sha256: change.sha256,
+      url: releaseAssetUrl(tag, name),
+      ...(record ? {runtime: record.runtime} : {}),
+    };
   });
   const manifest = await readSb3Manifest(root);
   const updated = new Map(files.map((file) => [file.path, file]));

@@ -6,43 +6,78 @@
       "path": "stories/audio-playback/audio-4.0.sb3",
       "size": 1419152,
       "sha256": "6d438795677b9647909460397fc2a83910e15aac35356250420fce0a95f03cb5",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/audio-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/audio-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/audio-playback/audio-blocks-4.0.sb3",
       "size": 1442670,
       "sha256": "f534802107a1df6b33ea49e9ac92d3a8a77d7de5ea77d32273f966fc8a6d4ad2",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/audio-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/audio-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima-2-poses-blocks-4.0.sb3",
       "size": 10804332,
       "sha256": "5b73a8a2687f7681812caea3938189865d793d756ef49246646536364e1c79f4",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-2-poses-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-2-poses-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima-3-poses-blocks-4.0.sb3",
       "size": 10804459,
       "sha256": "198973aab87f7c969c7fd77f000ad9583aad8cbefef9d446d20d6be5063ac4dd",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-3-poses-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-3-poses-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima-4-poses-blocks-4.0.sb3",
       "size": 10804544,
       "sha256": "768b5d218f7f9970ed45235451e0b1bd8c10febe5a3485b1adc20bb99dad9914",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-4-poses-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-4-poses-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima-4.0.sb3",
       "size": 10919702,
       "sha256": "a0af5bca831fbfc65e1465b26ed95a11fb9699f56ad61efd8bb734fcd0d9a10f",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima-blocks-4.0.sb3",
       "size": 10803806,
       "sha256": "124c5347b29133fe929d6fb784f26840e2ff62b586953c16453f8a86672ad2be",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/my-urashima-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/my-urashima/my-urashima.sb3",
@@ -54,49 +89,89 @@
       "path": "stories/tekona/tekona-4.0.sb3",
       "size": 2040077,
       "sha256": "831956cbb9af5ad4c49f8157e90a34b7dcd26e5358beb9bb159ae9c080573f9e",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/tekona/tekona-blocks-4.0.sb3",
       "size": 2073367,
       "sha256": "1457c767d5d9e052fa2cb69cdc5e065a13f841c0dbcab85b83d6b34c0d37af2e",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/tekona/tekona-workshop-4.0.sb3",
       "size": 2172096,
       "sha256": "fb455e7cdd922f28096486f9099220c131b32351838cb733a12db763d6c2b1a2",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-workshop-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-workshop-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/tekona/tekona-workshop-blocks-4.0.sb3",
       "size": 2111429,
       "sha256": "3886bab204eabc67e6a36cb67d4ca11ee7a063d8d5457e7fcbdc923f22bc6d84",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-workshop-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tekona-workshop-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/three-visits/three-visits-4.0.sb3",
       "size": 1413070,
       "sha256": "c8c25eb6c8d6e30e3edfaea06fd6e886bd15ebba5c1a1c0947014fb01d237c07",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/three-visits-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/three-visits-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/three-visits/three-visits-blocks-4.0.sb3",
       "size": 1437320,
       "sha256": "b28136b3b71386d2d5589c098ef8ba440bf2aedf09ea1f08afa379f8afdff483",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/three-visits-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/three-visits-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/tutorial/tutorial-4.0.sb3",
       "size": 7421515,
       "sha256": "619c5e22b770cd2f26c58987337c0ca7ecad0b5889fca61bc0d0185d7a7acd51",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tutorial-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tutorial-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/tutorial/tutorial-blocks-4.0.sb3",
       "size": 7438385,
       "sha256": "b66ae809283f0de9766667c8ad6daafb440fff04626ab8bfc91a099927120e6f",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tutorial-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/tutorial-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/urashima/base/kamishibai.sb3",
@@ -108,13 +183,23 @@
       "path": "stories/urashima/urashima-4.0.sb3",
       "size": 28996649,
       "sha256": "bf95483df79e45b32999ea0564c169dd6082f367c63251ef5f358aa6d7cb6406",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/urashima-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/urashima-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     },
     {
       "path": "stories/urashima/urashima-blocks-4.0.sb3",
       "size": 28184930,
       "sha256": "6c0d9653a31cd579ca656e970c91ecc50a926615a72d2880010eecf19d54a03d",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/urashima-blocks-4.0.sb3"
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261125-18a3504b/urashima-blocks-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.12",
+        "commit": "33bc5e357edac2b6e4eb3fe21f88fe1bb8f5722b"
+      }
     }
   ]
 }
