@@ -36,35 +36,41 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
-      # deploy-pages caps its timeout at 10 min, and GitHub Pages file sync
-      # (syncing_files) has been exceeding that. Retry once with the same artifact.
-      - name: Deploy to GitHub Pages
-        id: deployment_first
-        continue-on-error: true
-        uses: actions/deploy-pages@v5
-      # Two failure modes reach the retry, and only one of them has already waited.
+      # The artifact listing that deploy-pages reads lags behind the upload, so the deploy waits for
+      # it before the first attempt.
       #
-      # The sync timeout above has spent ten minutes by the time it fails. The second mode fails in
-      # under a second, and it stopped the publication of #325 and #326 on 2026-11-25: deploy-pages
-      # looks its artifact up by name and fails when the listing does not hold it
-      # (src/internal/api-client.js), and the listing did not hold `github-pages` 0.7s after
-      # upload-pages-artifact reported it finalized.
+      # deploy-pages looks its artifact up by name and fails when the listing does not hold it
+      # (src/internal/api-client.js). That listing did not hold `github-pages` 0.7s after
+      # upload-pages-artifact reported it finalized, which stopped the publication of #325 and #326
+      # on 2026-11-25:
       #
       #   12:31:55.058  Artifact github-pages successfully finalized. Artifact ID 15021777988
       #   12:31:55.749  Deploy:       Found 1 artifact(s)   <- the count is before the name filter
       #   12:31:56.642  Retry deploy: Found 1 artifact(s)
       #
-      # The artifact was never missing: the REST API lists it at 233,503,045 bytes with the digest
-      # the upload reported, and the deploy that succeeded 1h34m earlier found 2. So this is the
-      # listing catching up, and a retry one second later reads the same stale listing and fails
-      # the same way — which is what both failed runs did.
+      # The artifact was not missing: the REST API lists it at 233,503,045 bytes with the digest the
+      # upload reported, and the deploy that succeeded 1h34m earlier found 2. So this is the listing
+      # catching up, and a retry one second later reads the same stale listing and fails the same
+      # way — which is what both failed runs did.
       #
-      # A minute is margin rather than a measured requirement: the observed gap was under a second
-      # in both runs, and how long the listing can lag is not something these logs settle. It costs
-      # a minute on a run that takes about ten, and only on a run that has already failed once.
-      - name: Wait before retrying the deploy
-        if: steps.deployment_first.outcome == 'failure'
+      # #327 put a minute between the two attempts and the deploys of c7f3dba and 5ee1024 then
+      # published. But in all three runs since the lag appeared the first attempt saw one artifact
+      # and failed, so the wait belongs before it rather than after: a wasted attempt, and an
+      # `##[error]` in the log of a deploy that went on to succeed, are worse than a minute spent in
+      # the open. That error has already been read as a broken deploy once.
+      #
+      # A minute is margin rather than a measured requirement. The observed gap was under a second,
+      # and how long the listing can lag is not something these logs settle; a first attempt that
+      # fails here again is the sign that this number is too small.
+      - name: Wait for the uploaded artifact to appear in the listing
         run: sleep 60
+      # deploy-pages caps its own timeout at 10 min, and GitHub Pages file sync (syncing_files) has
+      # been exceeding that. Retry once with the same artifact. That failure mode has already spent
+      # ten minutes by the time it fails, so the retry needs no wait of its own.
+      - name: Deploy to GitHub Pages
+        id: deployment_first
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
       - name: Retry deploy to GitHub Pages
         id: deployment_retry
         if: steps.deployment_first.outcome == 'failure'
