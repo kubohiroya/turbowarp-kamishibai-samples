@@ -59,9 +59,14 @@ jobs:
       # `##[error]` in the log of a deploy that went on to succeed, are worse than a minute spent in
       # the open. That error has already been read as a broken deploy once.
       #
-      # A minute is margin rather than a measured requirement. The observed gap was under a second,
-      # and how long the listing can lag is not something these logs settle; a first attempt that
-      # fails here again is the sign that this number is too small.
+      # A minute is margin rather than a measured requirement, and the logs do not narrow it. What
+      # they show is that the listing was stale 0.7s and 1.6s after the upload finalized and fresh
+      # 60s later, so the lag is somewhere above 0.7s and at or below 60s — nothing observed says
+      # where. An earlier wording here, "the observed gap was under a second", was the interval
+      # between the upload and the check that found the listing stale, not the lag, and it read as
+      # if the lag had been measured.
+      #
+      # A first attempt that fails here again is the sign that this number is too small.
       - name: Wait for the uploaded artifact to appear in the listing
         run: sleep 60
       # deploy-pages caps its own timeout at 10 min, and GitHub Pages file sync (syncing_files) has
