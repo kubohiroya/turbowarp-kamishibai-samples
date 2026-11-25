@@ -15,6 +15,7 @@ import {strFromU8, unzipSync} from 'fflate';
 import {parse as parseYaml} from 'yaml';
 
 import type {ScratchProject} from './scratch.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import type {
   ArtifactsLock,
   AssetManifest,
@@ -392,13 +393,19 @@ export async function buildMyUrashima(
     inspectMyUrashima(sb3Bytes, script);
 
     if (verifyArtifacts) {
-      assert.deepEqual(artifactLock, expectedLock, 'my-urashima artifacts differ from lock.');
+      requireFresh(() =>
+        assert.deepEqual(artifactLock, expectedLock, 'my-urashima artifacts differ from lock.'),
+      );
       const [checkedSb3, checkedScript] = await Promise.all([
         readFile(path.join(storyDirectory, result.manifest.outputs.sb3.filename)),
         readFile(path.join(storyDirectory, result.manifest.outputs.script.filename), 'utf8'),
       ]);
-      assert.equal(sb3Bytes.equals(checkedSb3), true, 'Checked-in my-urashima.sb3 is stale.');
-      assert.equal(script, checkedScript, 'Checked-in my-urashima.txt is stale.');
+      requireFresh(() =>
+        assert.equal(sb3Bytes.equals(checkedSb3), true, 'Checked-in my-urashima.sb3 is stale.'),
+      );
+      requireFresh(() =>
+        assert.equal(script, checkedScript, 'Checked-in my-urashima.txt is stale.'),
+      );
     }
     return {artifactLock, config, result};
   } finally {

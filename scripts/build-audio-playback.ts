@@ -9,6 +9,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {appBasePath, appRuntimeIdentity, readAppRelease} from './app-dependency.ts';
+import {requireFresh} from './artifact-freshness.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {buildPackagedWeb} from './build-packaged-web.ts';
 import type {WebConfig} from './story-config.ts';
@@ -147,10 +148,12 @@ export async function buildAudioPlayback({
       await copyFile(path.join(temporary, blocksName), path.join(storyRoot, blocksName));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {
-      assert.deepEqual(
-        lock,
-        JSON.parse(await readFile(lockPath, 'utf8')),
-        'Audio sample artifacts are stale; run update:audio-playback.',
+      await requireFresh(async () =>
+        assert.deepEqual(
+          lock,
+          JSON.parse(await readFile(lockPath, 'utf8')),
+          'Audio sample artifacts are stale; run update:audio-playback.',
+        ),
       );
     }
     if (outputDirectory) {

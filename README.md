@@ -181,6 +181,18 @@ Per-work output names, size limits and the flags for web and teaching publicatio
 
 Rolling this migration back means reverting, as a whole, the pull request that carries the settings, the shared reader and the CI changes. It does not change artifacts of the same published app version.
 
+### Freshness checks while developing against another App
+
+Every story builder compares its rebuild with the committed lock and fails with "… is stale; run pnpm update:…". That check is on for every ordinary build: `pnpm run check`, `pnpm run build`, `pnpm verify:*`, the pull request CI, the Pages deploy and `sb3:publish`.
+
+It is also what stops a rebuild against an App the repository has not followed yet. Build with a newer release or a local build and every story fails there, so `pnpm run check` stops inside `build` before the browser checks or the site generation run. For that case only, the comparison can be turned into a report:
+
+```bash
+KAMISHIBAI_ALLOW_STALE_ARTIFACTS=1 pnpm run check
+```
+
+The difference is still printed, the lock is not rewritten, and nothing else changes. It is an environment variable rather than a setting in a file so that it cannot be committed: no workflow sets it, and `test/artifact-freshness.test.ts` checks that none does. The integrity verification of the base SB3 against `runtime.baseSha256` is a different check and stays on either way.
+
 ## Audio operations (Standard in 4.0)
 
 The [audio playback sample](stories/audio-playback/README.md) exercises fadeIn, volume and fadeOut during playback, fadeOut on stop, and per-ID control. It uses the same published App, CLI and base SB3 as the other 4.0 works; the verified release is recorded in `app-release.json`.
