@@ -196,6 +196,47 @@ test('publish uploads changed files as one new release and records them', async 
   assert.equal(await publishSb3Assets({root, run, date}), null);
 });
 
+test('publish records the release that built each file, for the files a story lock records', async () => {
+  const bytes = Buffer.from('built');
+  const root = await project([]);
+  const runtime = {
+    repository: 'https://github.com/kubohiroya/turbowarp-kamishibai-app',
+    version: '4.0.12',
+    commit: 'd'.repeat(40),
+  };
+  await mkdir(path.join(root, 'stories/locked'), {recursive: true});
+  await mkdir(path.join(root, 'stories/unlocked'), {recursive: true});
+  await writeFile(path.join(root, 'stories/locked/locked-4.0.sb3'), bytes);
+  await writeFile(path.join(root, 'stories/unlocked/unlocked-4.0.sb3'), bytes);
+  await writeFile(
+    path.join(root, 'stories/locked/dsl4-artifacts.lock.json'),
+    JSON.stringify({
+      formatVersion: 1,
+      runtime,
+      outputs: {yaml: {path: 'locked-4.0.sb3', size: bytes.length, sha256: sha256(bytes)}},
+    }),
+  );
+
+  const run: RunCommand = async (command, args) =>
+    args[1] === 'view'
+      ? JSON.stringify({assets: [
+        {name: 'locked-4.0.sb3', size: bytes.length},
+        {name: 'unlocked-4.0.sb3', size: bytes.length},
+      ]})
+      : '';
+  await publishSb3Assets({root, run, date: new Date('2026-11-25T03:00:00Z'), target: 'c'.repeat(40)});
+
+  const manifest = await readSb3Manifest(root);
+  assert.deepEqual(
+    manifest.files.map((file) => [file.path, file.runtime]),
+    [
+      ['stories/locked/locked-4.0.sb3', runtime],
+      // No lock records this one, so nothing can say which release built it.
+      ['stories/unlocked/unlocked-4.0.sb3', undefined],
+    ],
+  );
+});
+
 test('publish refuses a release whose uploaded asset differs from the local file', async () => {
   const root = await project([]);
   await mkdir(path.join(root, 'stories/a'), {recursive: true});
