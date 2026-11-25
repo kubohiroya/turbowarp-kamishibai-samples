@@ -4,7 +4,7 @@ import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { appBasePath } from "./app-dependency.ts";
+import { appBasePath, readAppRelease } from "./app-dependency.ts";
 
 const repository = "kubohiroya/turbowarp-kamishibai-app";
 const repositoryUrl = `https://github.com/${repository}`;
@@ -401,11 +401,76 @@ export function appReleaseCheckSummary(
 `;
 }
 
+/**
+ * Compare the committed pin with the newest release the declared range allows, writing nothing.
+ *
+ * The verify action used to reach this module through `syncAppRelease`, which rewrites
+ * app-release.json and the base SB3 in the workspace. On a pull request it was skipped, so the
+ * build used the committed pin; everywhere else — the Pages deploy, the scheduled run — the
+ * workspace was moved to the newest published release before anything was built. That is version
+ * following as a side effect of "no pull request number", and AGENTS.md asks for the opposite:
+ * 「App公開版追従のためのcron／scheduleは使わない。main更新・承認済みの手動起動・明示的な
+ * repository_dispatchで同期する」.
+ *
+ * It also broke the deploy. App 4.0.13 was published while the repository pinned 4.0.12, so the
+ * deploy regenerated five works against 4.0.13 while tekona's lock still recorded 4.0.12, and the
+ * freshness check stopped the publish twice. The same skew is why the site's bytes and the release
+ * assets differed by ten bytes.
+ *
+ * So the deploy builds with the committed pin now, and this reports a newer release instead of
+ * taking it. Following stays an explicit `pnpm update:app-release`, reviewed as a pull request.
+ */
+export async function checkAppReleaseDrift({
+  root = projectRoot,
+  ...options
+}: {
+  root?: string;
+  fetchImplementation?: FetchLike;
+  token?: string;
+  policy?: AppReleasePolicy;
+  wait?: (ms: number) => Promise<void>;
+} = {}): Promise<{ committed: AppRelease; available: AppRelease; changed: boolean }> {
+  const policy = options.policy ?? (await readAppReleasePolicy(root));
+  const [committed, { lock: available }] = await Promise.all([
+    readAppRelease(root),
+    resolveAppRelease({ ...options, policy }),
+  ]);
+  return {
+    committed,
+    available,
+    changed: available.commit !== committed.commit,
+  };
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  assert.equal(process.argv.length, 2, "Usage: node scripts/app-release.ts");
+  const check = process.argv[2] === "--check";
+  assert(
+    process.argv.length === 2 || (process.argv.length === 3 && check),
+    "Usage: node scripts/app-release.ts [--check]",
+  );
+  if (check) {
+    const { committed, available, changed } = await checkAppReleaseDrift();
+    console.log(
+      changed
+        ? `A newer app release is available: ${committed.tag} is pinned, ${available.tag} is published. Run pnpm update:app-release to follow it.`
+        : `The pinned app release ${committed.tag} is the newest one the declared range allows.`,
+    );
+    if (process.env.GITHUB_STEP_SUMMARY)
+      await appendFile(
+        process.env.GITHUB_STEP_SUMMARY,
+        appReleaseCheckSummary(committed, {
+          changed,
+          comparedWithPublished: false,
+          checkedAt: new Date().toISOString(),
+        }),
+      );
+    if (process.env.GITHUB_OUTPUT)
+      await appendFile(process.env.GITHUB_OUTPUT, `changed=${changed}\n`);
+    process.exit(0);
+  }
   const { lock, changed } = await syncAppRelease();
   const comparedWithPublished =
     process.env.COMPARE_PUBLISHED_APP_RELEASE === "true";

@@ -181,6 +181,8 @@ How far a sync may follow is declared separately, under `dependencies.app` in `r
 
 Per-work output names, size limits and the flags for web and teaching publication are consolidated under `dsl4` in each `sample.config.json`. `runtime`, `version` or `releaseDependency` in a work setting, and a separate commit for authoring, are errors. Locally, the checked-in manifest is used, so the same published version builds without a network connection. To update the dependency version, run `pnpm update:app-release` and check the manifest and the base as one set.
 
+Every build uses the committed pin, the Pages deploy and the scheduled run included. They report whether a newer published release is available (`node scripts/app-release.ts --check`, which writes nothing) and build the pin regardless. The deploy used to refresh the workspace to the newest published release first, which is how it came to build five works against App 4.0.13 while tekona's lock still recorded 4.0.12: the freshness check stopped the publish twice, and the site's bytes differed from the release assets. Following a release is a reviewed pull request, never a side effect of a workflow run.
+
 Rolling this migration back means reverting, as a whole, the pull request that carries the settings, the shared reader and the CI changes. It does not change artifacts of the same published app version.
 
 ### Freshness checks while developing against another App
