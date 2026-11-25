@@ -12,6 +12,7 @@ import {writeSb3ExtensionFormat} from '@kubohiroya/turbowarp-sb3-save-format/wri
 import {strFromU8, strToU8, unzipSync, zipSync} from 'fflate';
 import {parse} from 'yaml';
 
+import {appBasePath} from './app-dependency.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
@@ -237,7 +238,7 @@ export async function buildUrashimaDsl4({
     '',
     'TurboWarp-Kamishibai checkout must be clean.',
   );
-  const basePath = path.join(storyDirectory, config.runtime.basePath as string);
+  const basePath = appBasePath(config.runtime.version as string);
   const baseBytes = await readFile(basePath);
   assert.equal(baseBytes.length, config.runtime.baseSize);
   assert.equal(sha256(baseBytes), config.runtime.baseSha256);

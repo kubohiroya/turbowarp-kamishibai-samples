@@ -49,7 +49,7 @@ export async function buildAudioPlayback({
   const builder = await resolveBlockAuthoringBuilder();
   const packageJson = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8'));
   assert.equal(packageJson.version, release.version);
-  const base = await readFile(appBasePath());
+  const base = await readFile(appBasePath(release.version));
   assert.equal(base.length, release.artifact.size);
   assert.equal(createHash('sha256').update(base).digest('hex'), release.artifact.sha256);
   const temporary = await mkdtemp(path.join(tmpdir(), 'kamishibai-audio-sample-'));
@@ -66,7 +66,7 @@ export async function buildAudioPlayback({
       'build-dsl4',
       '--embedded-source-documents',
       '--base',
-      appBasePath(),
+      appBasePath(release.version),
       '--project-root',
       storyRoot,
       '--source',

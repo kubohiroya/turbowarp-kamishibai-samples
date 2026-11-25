@@ -9,3 +9,5 @@ seat-*.tm
 
 # SB3 files are GitHub Release assets recorded in sb3-assets.json; pnpm sb3:fetch downloads them.
 /stories/**/*.sb3
+# The App's own base SB3 per release; pnpm sb3:fetch downloads the pinned one from app-release.json.
+/app-base/

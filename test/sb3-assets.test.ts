@@ -74,10 +74,10 @@ test('fetch downloads missing files, keeps matching and regenerated ones, and ve
   ]));
 
   const first = await fetchSb3Assets({root, fetchImplementation});
-  assert.deepEqual(first.downloaded, ['stories/tekona/tekona-4.0.sb3', 'stories/urashima/base/kamishibai-4.0.sb3']);
+  assert.deepEqual(first.downloaded, ['app-base/kamishibai-4.0.1.sb3', 'stories/tekona/tekona-4.0.sb3']);
   assert.deepEqual(first.differing, ['stories/tutorial/tutorial-4.0.sb3']);
   assert.equal(await readFile(path.join(root, 'stories/tutorial/tutorial-4.0.sb3'), 'utf8'), 'regenerated');
-  assert.deepEqual(await readFile(path.join(root, 'stories/urashima/base/kamishibai-4.0.sb3')), base);
+  assert.deepEqual(await readFile(path.join(root, 'app-base/kamishibai-4.0.1.sb3')), base);
 
   requested.length = 0;
   const second = await fetchSb3Assets({root, fetchImplementation});
@@ -93,8 +93,8 @@ test('fetch refuses bytes that differ from the record and retries transient fail
   const tekona = Buffer.from('tekona');
   const files = [record('stories/tekona/tekona-4.0.sb3', tekona)];
   const root = await project(files);
-  await mkdir(path.join(root, 'stories/urashima/base'), {recursive: true});
-  await writeFile(path.join(root, 'stories/urashima/base/kamishibai-4.0.sb3'), base);
+  await mkdir(path.join(root, 'app-base'), {recursive: true});
+  await writeFile(path.join(root, 'app-base/kamishibai-4.0.1.sb3'), base);
 
   const tampered = server(new Map([[files[0]!.url, Buffer.from('tekonA')]]));
   await assert.rejects(
@@ -116,7 +116,7 @@ test('the record only accepts SB3 files under stories/ from this repository\'s s
     {...record('stories/a.sb3', bytes), url: 'https://example.com/a.sb3'},
     record('docs/a.sb3', bytes),
     record('stories/../a.sb3', bytes),
-    record('stories/urashima/base/kamishibai-4.0.sb3', bytes),
+    record('app-base/kamishibai-4.0.1.sb3', bytes),
   ]) {
     const root = await project([file]);
     await assert.rejects(readSb3Manifest(root));
@@ -132,11 +132,11 @@ test('status lists changed and new local files and recorded files that are missi
   ];
   const root = await project(files);
   await mkdir(path.join(root, 'stories/a'), {recursive: true});
-  await mkdir(path.join(root, 'stories/urashima/base'), {recursive: true});
+  await mkdir(path.join(root, 'app-base'), {recursive: true});
   await writeFile(path.join(root, 'stories/a/kept.sb3'), kept);
   await writeFile(path.join(root, 'stories/a/changed.sb3'), 'new');
   await writeFile(path.join(root, 'stories/a/added.sb3'), 'added');
-  await writeFile(path.join(root, 'stories/urashima/base/kamishibai-4.0.sb3'), 'from the app');
+  await writeFile(path.join(root, 'app-base/kamishibai-4.0.1.sb3'), 'from the app');
 
   const status = await sb3Status(root);
   assert.deepEqual(status.changes.map(({path: file, status: kind}) => [kind, file]), [

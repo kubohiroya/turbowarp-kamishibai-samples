@@ -13,8 +13,9 @@ import {readStoryArtifactRecords} from './story-artifact-records.ts';
 /**
  * The SB3 files under stories/ are not committed. Each one is a GitHub Release asset, and
  * sb3-assets.json records where it is and the size and SHA-256 it must have. The App's own base
- * (stories/urashima/base/kamishibai-4.0.sb3) comes from the App release that app-release.json
- * already records, so it is not listed here.
+ * (app-base/kamishibai-<version>.sb3) comes from the App release that app-release.json already
+ * records, so it is not listed here: checkRelativePath refuses anything outside stories/, and
+ * expectedSb3Assets adds the pinned release's base with the App's own download URL.
  *
  * - `pnpm sb3:fetch` downloads every listed file that is missing and verifies it. A file that is
  *   present but differs is left alone and reported, because it is usually one just regenerated;
@@ -77,7 +78,6 @@ export async function readSb3Manifest(root = projectRoot): Promise<Sb3Manifest> 
   const seen = new Set<string>();
   for (const file of manifest.files) {
     checkRelativePath(file.path);
-    assert.notEqual(file.path, appBaseRelativePath, `${file.path} comes from app-release.json.`);
     assert(!seen.has(file.path), `${file.path} is listed twice.`);
     seen.add(file.path);
     assert(Number.isSafeInteger(file.size) && file.size > 0, `${file.path}: size must be positive.`);
@@ -110,7 +110,12 @@ export async function expectedSb3Assets(root = projectRoot): Promise<Sb3Asset[]>
   const app = await readAppRelease(root);
   return [
     ...manifest.files,
-    {path: appBaseRelativePath, size: app.artifact.size, sha256: app.artifact.sha256, url: app.artifact.url},
+    {
+      path: appBaseRelativePath(app.version),
+      size: app.artifact.size,
+      sha256: app.artifact.sha256,
+      url: app.artifact.url,
+    },
   ];
 }
 
@@ -211,7 +216,6 @@ async function findLocalSb3(root: string): Promise<string[]> {
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith('.sb3'))
     .map((entry) => path.relative(root, path.join(entry.parentPath, entry.name)).split(path.sep).join('/'))
-    .filter((relative) => relative !== appBaseRelativePath)
     .sort();
 }
 

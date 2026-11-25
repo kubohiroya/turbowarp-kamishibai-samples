@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {strFromU8, unzipSync} from 'fflate';
+import {appBaseRelativePath} from './app-dependency.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import type {AppRelease} from './app-release.ts';
 import type {ScratchProject} from './scratch.ts';
@@ -14,7 +15,11 @@ const release = (await readJson('app-release.json')) as AppRelease;
 const config = await readDsl4StoryConfig(path.join(root, 'stories/urashima'));
 assert.equal(config.runtime.commit, release.commit);
 assert.equal(config.runtime.version, release.version);
-const base = await readFile(path.join(root, 'stories/urashima', config.runtime.basePath));
+// The recorded path is relative to the repository, not to the work: the base is a shared input
+// that no longer lives under one story. Resolving it from `root` is what checks that the record
+// still names a file that exists.
+assert.equal(config.runtime.basePath, appBaseRelativePath(release.version));
+const base = await readFile(path.join(root, config.runtime.basePath));
 assert.equal(base.length, release.artifact.size);
 assert.equal(createHash('sha256').update(base).digest('hex'), release.artifact.sha256);
 const filenames: string[] = [];

@@ -181,7 +181,7 @@ export async function buildMyUrashimaDsl4({
 }: BuildMyUrashimaDsl4Options = {}): Promise<BuildMyUrashimaDsl4Result> {
   const config = await readDsl4StoryConfig(storyDirectory);
   assert.equal(config.formatVersion, 1);
-  const basePath = appBasePath(projectRoot);
+  const basePath = appBasePath(config.runtime.version as string, projectRoot);
   const baseBytes = await readFile(basePath);
   assert.equal(baseBytes.length, config.runtime.baseSize);
   assert.equal(sha256(baseBytes), config.runtime.baseSha256);

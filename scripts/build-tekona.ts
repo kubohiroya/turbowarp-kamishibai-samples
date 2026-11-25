@@ -101,7 +101,7 @@ export async function buildTekona({
   const builder = await resolveBlockAuthoringBuilder();
   const packageJson = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8'));
   assert.equal(packageJson.version, release.version);
-  const base = await readFile(appBasePath());
+  const base = await readFile(appBasePath(release.version));
   assert.equal(base.length, release.artifact.size);
   assert.equal(createHash('sha256').update(base).digest('hex'), release.artifact.sha256);
   const temporary = await mkdtemp(path.join(tmpdir(), 'kamishibai-tekona-'));
@@ -123,7 +123,7 @@ export async function buildTekona({
     ]);
   try {
     const imported = path.join(temporary, 'base-source');
-    await importSb3({inputPath: appBasePath(), outputDirectory: imported});
+    await importSb3({inputPath: appBasePath(release.version), outputDirectory: imported});
     const allowedAssetRoots = [
       path.join(storyRoot, 'assets'),
       path.join(projectRoot, 'stories/urashima/assets'),
