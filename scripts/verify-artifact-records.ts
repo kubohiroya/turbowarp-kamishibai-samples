@@ -35,11 +35,16 @@ import {
  *
  * Both records are read out of HEAD, not the working tree. What they have to agree about is a
  * property of a commit: the locks a commit carries and the sb3-assets.json it carries must describe
- * the same bytes. The deploy workflow runs `pnpm update:dsl4-artifacts` before `pnpm run check`
- * (see .github/actions/verify), which rewrites every lock in the workspace and publishes nothing,
- * so a working-tree comparison there is between a fresh build and the last release and cannot
- * hold. It failed every deploy from the commit that introduced this check until this one, and the
- * site stopped being published while the repository itself was consistent.
+ * the same bytes. A working tree holds whatever the last local build or fetch left there, which is
+ * a different question, and `pnpm sb3:status` is the command that asks it.
+ *
+ * Reading HEAD is also what made this survivable on the deploy. The deploy used to run
+ * `pnpm update:dsl4-artifacts` before `pnpm run check`, rewriting every lock in the workspace while
+ * publishing nothing, so a working-tree comparison there was between a fresh build and the last
+ * release and could not hold: it failed every deploy from the commit that introduced this check
+ * until the one that fixed it, and the site stopped being published while the repository itself was
+ * consistent. That regeneration is gone from .github/actions/verify now, but the reason above is
+ * the standing one and does not depend on it.
  *
  * So an uncommitted lock is outside what this decides. `pnpm sb3:status` lists the built files that
  * differ from the published ones, which is the question before a commit; this one is asked of the

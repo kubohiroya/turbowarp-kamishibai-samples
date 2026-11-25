@@ -81,9 +81,11 @@ pnpm run release:check
 
 受け入れ基準は、読み込み・10場面表示・画面編集・保存した台本の意味的照合がすべて成功することです。結果、各場面の画像、編集後画像、操作トレース、保存SB3、書き戻したYAMLは`.tmp/block-editor-browser/run-*/`へ保存します。失敗時は最後の画面と失敗フェーズ・エラーログも保存し、CI／Pages／定期検証の共有actionから`block-editor-regression` artifactとして7日間保持します。ロールバックは、`run-web-checks.ts`のエディター検査登録と共有actionのartifact保存ステップをこの変更前へ戻します。
 
-CIとPagesは、RCを含むappの公開済み最新DSL 4.0 Releaseを自動取得します。
+CIとPagesは、`app-release.json`が固定するApp公開版でビルドします。
 同じtagのcommit・release metadata・SB3のサイズ・SHA-256を照合し、ベースSB3本体と
-再生用・編集用ビルダーを同じリリースへ揃えてから、全DSL4配布物を再生成・検証します。
+再生用・編集用ビルダーを同じリリースへ揃えてから、チェックイン済みのロックどおりに
+全DSL4配布物を生成・検証します。上流への追従は`pnpm update:app-release`とレビュー済みPRで行い、
+CIやPagesの副作用としては行いません。Pagesと定期検証は、より新しい公開版の有無を報告するだけです。
 タイトル・メニュー画像も含めてベース全体を更新し、拡張機能だけを差し替える運用は行いません。
 出典を`app-release.json`と各artifact lockへ記録し、公開サイトにも`app-release.json`を配置します。
 
@@ -93,8 +95,8 @@ app checkoutを`TURBOWARP_KAMISHIBAI_APP_ROOT`へ指定して`pnpm update:dsl4-a
 通常のローカルビルドは記録済みの依存を使い、毎回最新版を解決する必要はありません。
 
 Pagesはmain更新・手動実行・`app-release-published`のrepository dispatchから実行します。
-App公開版の定期pollは行いません。各起動で公開Appの取得・照合・検証を行い、成功した成果物を公開します。
-取得・照合・再生成・検証に失敗した場合は公開を停止し、直前の検証済み公開物を保持します。
+App公開版の定期pollは行いません。各起動で固定版Appを取得・照合し、検証に成功した成果物を公開します。
+取得・照合・検証に失敗した場合は公開を停止し、直前の検証済み公開物を保持します。
 
 `app-release-published`は受信口です。他repoのReleaseは自動伝播せず、調査時点のAppにはこの通知の送信処理がありません。
 Appの新版公開後は、承認された手動起動またはmain更新によってDocs・Samplesを更新し、実際の公開反映まで確認します。
