@@ -81,8 +81,13 @@ runs:
     #     lag behind, and that whole class of deploy-only failure goes with it.
     #
     # Removing it loses no verification and restores one: `pnpm run check` passes every stage
-    # without it, and dist still matches all 19 published records byte for byte. It also takes 224s
-    # off a 778s deploy.
+    # without it, and dist still matches all 19 published records byte for byte.
+    #
+    # It is also the largest single cost in the deploy. This step's own timing was 224s on the run
+    # where it was measured, and the deploys since bear that out at a different scale: this action
+    # took 517s, 585s and 577s on the three deploys before the removal and 437s on the first one
+    # after it, so about 120s of a 560s action rather than the 224s of a slower run. The deploy job
+    # as a whole went from 716s, 788s and 776s to 642s.
     - id: scope
       shell: bash
       env:
