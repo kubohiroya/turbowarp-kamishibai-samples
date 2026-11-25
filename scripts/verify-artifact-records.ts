@@ -156,8 +156,22 @@ if (mismatches.length > 0) {
   );
 }
 
-const unlocked = [...published.keys()].filter((file) => !locked.has(file));
 console.log(
   `Verified ${locked.size} built SB3 records in ${source}, with the release that built each, ` +
-    `against sb3-assets.json${unlocked.length > 0 ? `; ${unlocked.length} published file(s) are not built from a DSL 4.0 lock: ${unlocked.join(', ')}` : ''}.`,
+    'against sb3-assets.json.',
 );
+
+// Published files that no DSL 4.0 lock describes — the 3.2 series work and its base, which are
+// built by another path and carry no `runtime` block in sb3-assets.json. Naming them says what
+// this check did not cover, so a file silently falling out of the locks is still visible here.
+//
+// It reads as scope, not as a complaint. The clause used to sit inside the sentence above as
+// "2 published file(s) are not built from a DSL 4.0 lock", and a passing deploy log was read as
+// an error because of it. The check had succeeded; only the wording said otherwise.
+const unlocked = [...published.keys()].filter((file) => !locked.has(file));
+if (unlocked.length > 0) {
+  console.log(
+    `Not covered here: ${unlocked.length} published file(s) have no DSL 4.0 lock to compare ` +
+      `against. ${unlocked.join(', ')}`,
+  );
+}
