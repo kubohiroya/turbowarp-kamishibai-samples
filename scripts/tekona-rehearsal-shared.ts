@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import type {BrowserContext, Page} from 'playwright';
 
 import {editorControlClick} from './block-diagnostic-fixture.ts';
-import {costumeNames} from '../resources/tekona-workshop/assistant/compose-participants.js';
+import {costumeNames, placeholderModelUrl} from '../resources/tekona-workshop/assistant/compose-participants.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const substituteModel = path.join(projectRoot, 'stories/urashima/pose-models/3and4');
@@ -21,11 +21,17 @@ export async function routeSubstituteModels(context: BrowserContext) {
   assert.equal(metadata.labels.length, 4, 'The substitute model must have four classes.');
   const labels = [...costumeNames, 'other'];
   await context.route(
-    /https:\/\/teachablemachine\.withgoogle\.com\/models\/[^/]+\/(model\.json|metadata\.json|weights\.bin)(\?.*)?$/u,
+    (url) => (url.href.startsWith(placeholderModelUrl) ||
+      /^https:\/\/teachablemachine\.withgoogle\.com\/models\/[^/]+\//u.test(url.href)) &&
+      /\/(model\.json|metadata\.json|weights\.bin)(\?.*)?$/u.test(url.href),
     async (route) => {
       const name = new URL(route.request().url()).pathname.split('/').pop()!;
-      const body = name === 'metadata.json' ? JSON.stringify({...metadata, labels})
-        : await readFile(path.join(substituteModel, name));
+      // Dummy models deliberately keep their original labels: a stray suitor pose must fail.
+      const dummy = route.request().url().startsWith(placeholderModelUrl);
+      const body = dummy
+        ? await readFile(path.join(projectRoot, 'stories/urashima/pose-models/6and7', name))
+        : name === 'metadata.json' ? JSON.stringify({...metadata, labels})
+          : await readFile(path.join(substituteModel, name));
       await route.fulfill({body, contentType: name.endsWith('.bin') ? 'application/octet-stream' : 'application/json',
         headers: {'access-control-allow-origin': '*'}});
     });

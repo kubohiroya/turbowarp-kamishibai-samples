@@ -115,49 +115,49 @@ assets:
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-SATO-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   KokufuPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-KOKUFU-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   MiyakoPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-MIYAKO-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   RyoshiPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-RYOSHI-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   UtabitoPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-UTABITO-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   HataoriPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-HATAORI-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   GunjiPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-GUNJI-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   SakimoriPose:
     kind: recognitionModel
     delivery: remote
     loading: lazy
     source:
-      url: https://teachablemachine.withgoogle.com/models/REPLACE-WITH-SAKIMORI-MODEL/
+      url: https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/
   # ★参加者：席番号NNごとに、参加者のモデル（クラス stand・kime・rejected）を加えます。
   # PoseNN:
   #   kind: recognitionModel
@@ -388,11 +388,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Ryoshi.say: {text: 両うでを斜め上へ！ 網を投げるぞ！, seconds: 2.5}
-      - Ryoshi.pose:
-          steps:
-            - pose: kime
-              skin: ryoshi-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Ryoshi.pose:
+                steps:
+                  - pose: kime
+                    skin: ryoshi-kime
+                    sound: Goal Cheer
+      - Ryoshi.setSkin: ryoshi-kime
       - Narration.hide: {}
       - Ryoshi.say: {text: この入江でいちばんの魚を、毎朝とどけよう！, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -401,11 +405,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Ryoshi.say: {text: 両手で頭をかかえて、うなだれる……。, seconds: 2}
-      - Ryoshi.pose:
-          steps:
-            - pose: rejected
-              skin: ryoshi-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Ryoshi.pose:
+                steps:
+                  - pose: rejected
+                    skin: ryoshi-rejected
+                    sound: Crowd Gasp
+      - Ryoshi.setSkin: ryoshi-rejected
       - Narration.hide: {}
       - Ryoshi.say: {text: ……そうか。みんなに、か。, seconds: 2}
       - Ryoshi.hide: {}
@@ -441,11 +449,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Sato.say: {text: 両うでで頭の上に大きなハート！, seconds: 2.5}
-      - Sato.pose:
-          steps:
-            - pose: kime
-              skin: sato-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Sato.pose:
+                steps:
+                  - pose: kime
+                    skin: sato-kime
+                    sound: Goal Cheer
+      - Sato.setSkin: sato-kime
       - Narration.hide: {}
       - Sato.say: {text: 毎日、水がめを運ぶのを手伝います！ およめさんになってください！, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -453,12 +465,16 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Sato.say: {text: 前かがみになって、ぼうぜんと立ちつくす……。, seconds: 2}
-      - Sato.pose:
-          steps:
-            - pose: rejected
-              skin: sato-rejected
-              sound: Crowd Gasp
+      - Sato.say: {text: 両うでをだらりと下げて、前かがみで立ちつくして……。, seconds: 2}
+      - invalidate:
+          condition: false
+          then:
+            - Sato.pose:
+                steps:
+                  - pose: rejected
+                    skin: sato-rejected
+                    sound: Crowd Gasp
+      - Sato.setSkin: sato-rejected
       - Narration.hide: {}
       - Sato.say: {text: とほほ……。, seconds: 1.5}
       - Sato.hide: {}
@@ -491,11 +507,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Utabito.say: {text: 片手を耳に当てて、片手は高く！ 歌うぞ！, seconds: 2.5}
-      - Utabito.pose:
-          steps:
-            - pose: kime
-              skin: utabito-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Utabito.pose:
+                steps:
+                  - pose: kime
+                    skin: utabito-kime
+                    sound: Goal Cheer
+      - Utabito.setSkin: utabito-kime
       - Narration.hide: {}
       - Utabito.say: {text: 真間の井に　水くむ君の　手のしずく　玉かとまがう　朝のひかりに, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -504,11 +524,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Utabito.say: {text: 片手を額に当てて、天をあおぐ……。, seconds: 2}
-      - Utabito.pose:
-          steps:
-            - pose: rejected
-              skin: utabito-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Utabito.pose:
+                steps:
+                  - pose: rejected
+                    skin: utabito-rejected
+                    sound: Crowd Gasp
+      - Utabito.setSkin: utabito-rejected
       - Narration.hide: {}
       - Utabito.say: {text: ……歌は、とどいたのだけれど。, seconds: 2}
       - Utabito.hide: {}
@@ -534,11 +558,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Hataori.say: {text: 両手を胸の前で、左右へひらいて！, seconds: 2.5}
-      - Hataori.pose:
-          steps:
-            - pose: kime
-              skin: hataori-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Hataori.pose:
+                steps:
+                  - pose: kime
+                    skin: hataori-kime
+                    sound: Goal Cheer
+      - Hataori.setSkin: hataori-kime
       - Narration.hide: {}
       - Hataori.say: {text: あなたのために、いちばん美しい布を織りました。, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -547,11 +575,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Hataori.say: {text: 布を胸に抱きしめて、うつむく……。, seconds: 2}
-      - Hataori.pose:
-          steps:
-            - pose: rejected
-              skin: hataori-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Hataori.pose:
+                steps:
+                  - pose: rejected
+                    skin: hataori-rejected
+                    sound: Crowd Gasp
+      - Hataori.setSkin: hataori-rejected
       - Narration.hide: {}
       - Hataori.say: {text: ……みんなに、ですか。, seconds: 2}
       - Hataori.hide: {}
@@ -606,11 +638,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Gunji.say: {text: 両手を腰に当てて、胸を張って！, seconds: 2.5}
-      - Gunji.pose:
-          steps:
-            - pose: kime
-              skin: gunji-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Gunji.pose:
+                steps:
+                  - pose: kime
+                    skin: gunji-kime
+                    sound: Goal Cheer
+      - Gunji.setSkin: gunji-kime
       - Narration.hide: {}
       - Gunji.say: {text: わが家の田は、この葛飾でいちばん広いぞ。どうだ。, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -619,11 +655,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Gunji.say: {text: むちを取り落として、腕を組む……。, seconds: 2}
-      - Gunji.pose:
-          steps:
-            - pose: rejected
-              skin: gunji-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Gunji.pose:
+                steps:
+                  - pose: rejected
+                    skin: gunji-rejected
+                    sound: Crowd Gasp
+      - Gunji.setSkin: gunji-rejected
       - Narration.hide: {}
       - Gunji.say: {text: ……ぐっ。この、おれが。, seconds: 2}
       - Gunji.hide: {}
@@ -664,11 +704,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Kokufu.say: {text: 片手を胸に、もう片方の手をさしだして！, seconds: 2.5}
-      - Kokufu.pose:
-          steps:
-            - pose: kime
-              skin: kokufu-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Kokufu.pose:
+                steps:
+                  - pose: kime
+                    skin: kokufu-kime
+                    sound: Goal Cheer
+      - Kokufu.setSkin: kokufu-kime
       - Narration.hide: {}
       - Kokufu.say: {text: 国府の役人として、あなたを一生守ってみせましょう。, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -677,11 +721,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Kokufu.say: {text: 背すじをのばしたまま、深く頭を下げる……。, seconds: 2}
-      - Kokufu.pose:
-          steps:
-            - pose: rejected
-              skin: kokufu-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Kokufu.pose:
+                steps:
+                  - pose: rejected
+                    skin: kokufu-rejected
+                    sound: Crowd Gasp
+      - Kokufu.setSkin: kokufu-rejected
       - Narration.hide: {}
       - Kokufu.say: {text: ……役目にもどります。, seconds: 1.5}
       - Kokufu.hide: {}
@@ -727,11 +775,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Sakimori.say: {text: 足を広げて、手児奈のほうの手を胸に。弓矢は下げたまま！, seconds: 2.5}
-      - Sakimori.pose:
-          steps:
-            - pose: kime
-              skin: sakimori-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Sakimori.pose:
+                steps:
+                  - pose: kime
+                    skin: sakimori-kime
+                    sound: Goal Cheer
+      - Sakimori.setSkin: sakimori-kime
       - Narration.hide: {}
       - Sakimori.say: {text: 遠い九州から帰ったら、妻になってくれないか。, seconds: 3.5}
       - Tekona.setSkin: tekona-refuse
@@ -740,11 +792,15 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
       - Sakimori.say: {text: 弓の先を地につけ、まっすぐ立ったまま……。, seconds: 2}
-      - Sakimori.pose:
-          steps:
-            - pose: rejected
-              skin: sakimori-rejected
-              sound: Crowd Gasp
+      - invalidate:
+          condition: false
+          then:
+            - Sakimori.pose:
+                steps:
+                  - pose: rejected
+                    skin: sakimori-rejected
+                    sound: Crowd Gasp
+      - Sakimori.setSkin: sakimori-rejected
       - Narration.hide: {}
       - Sakimori.say: {text: ……その言葉を、持っていく。, seconds: 2}
       - Sakimori.hide: {}
@@ -808,11 +864,15 @@ scenes:
       - wait: 2
       - Narration.setText: {text: カメラの前で、求婚のポーズを決めよう！, style: narration}
       - Miyako.say: {text: 両うでを大きく、横にひろげて！, seconds: 2.5}
-      - Miyako.pose:
-          steps:
-            - pose: kime
-              skin: miyako-kime
-              sound: Goal Cheer
+      - invalidate:
+          condition: false
+          then:
+            - Miyako.pose:
+                steps:
+                  - pose: kime
+                    skin: miyako-kime
+                    sound: Goal Cheer
+      - Miyako.setSkin: miyako-kime
       - Narration.hide: {}
       - Miyako.say: {text: 都の屋敷も、絹の着物も、ぜんぶあなたのものです！, seconds: 3.5}
       - Tekona.think: {text: （……ちょっとだけ、心が揺れました）, seconds: 2.5}
@@ -821,12 +881,16 @@ scenes:
       - Tekona.setSkin: tekona-stand
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText: {text: 断られた……。がっかりのポーズ！, style: narration}
-      - Miyako.say: {text: 片手で口もとをおおって、言葉を失う……。, seconds: 2}
-      - Miyako.pose:
-          steps:
-            - pose: rejected
-              skin: miyako-rejected
-              sound: Crowd Gasp
+      - Miyako.say: {text: 上体を引いて、片手で口もとをおおって……。, seconds: 2}
+      - invalidate:
+          condition: false
+          then:
+            - Miyako.pose:
+                steps:
+                  - pose: rejected
+                    skin: miyako-rejected
+                    sound: Crowd Gasp
+      - Miyako.setSkin: miyako-rejected
       - Narration.hide: {}
       - Miyako.say: {text: 都に帰るとするか……。, seconds: 1.5}
       - Miyako.hide: {}

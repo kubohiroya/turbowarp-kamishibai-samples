@@ -10,51 +10,43 @@
 
 ## 状態
 
-- 台本`tekona.k4.yml`は、`app-release.json`が固定する公開App **4.0.5**の`validate-dsl4`で`valid`です。
-  見本の提出から参加者の場面を加えた台本も、生成のたびに`valid`であることを確かめます。
-- `pnpm update:tekona`で、同じ4.0.5から次の4つのSB3を生成し、`dsl4-artifacts.lock.json`にサイズとSHA-256を記録します。
-- ワークショップの組み込みは**ブロック台本版**（基本）と**外部YAML版**（予備）の2通りで、どちらもTurboWarp Plus Editorでの
-  アシスタントの作業を自動リハーサルしました（`pnpm verify:tekona-block-workshop-editor`、`pnpm verify:tekona-workshop-editor`）。
-  参加者の場面は用意済みの求婚者のあと、`quarrel`の前で再生され、最後の「おしまい」まで実行時エラーはありませんでした
-  （モデルは浦島太郎の既存モデルで代用し、ポーズはスキップ）。
-- **確認済み**: ブロック台本版で参加者が自分のモデルのリンクを書き入れる手順は、公開App **4.0.11以降**で通ります
-  （kubohiroya/turbowarp-kamishibai-app#1184、修正はPR #1185）。4.0.10までは反映を`Remote asset source does not match: PoseNN`で拒否していました。
-  `app-release.json`の固定を**4.0.12**へ上げ、`TEKONA_REPLACE_MODEL_URL=1`を付けた`pnpm verify:tekona-block-workshop-editor`で、
-  参加者のモデルURLへの差し替えが変換・保存まで通り、反映後の文書の`Pose01.source.url`が提出リンクと一致することを確かめました。
-- **未完了**: 用意済み8人のポーズ認識モデル（`SatoPose`・`KokufuPose`・`MiyakoPose`・`RyoshiPose`・`UtabitoPose`・`HataoriPose`・
-  `GunjiPose`・`SakimoriPose`）は未作成で、URLはすべて仮の値です。撮影計画は
-  [`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)にあります。モデルができるまで、
-  用意済みの場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-  #4〜#8を足したぶん、撮影するモデルは3本から8本に増えました。
-- **生成済み・未公開**: 点景（考証メモ2.6・6章の背景7枚とスプライト`Kemuri`・`Nio`・`Kari`）、版4へ描き直した`assets/`のSVG
-  （#305で描き直した既存3人の`rejected`と、#4〜#8の15枚を含む）、`avant`・`kurashi`・`kokuga`・`uma`・`kokubunji`の場面、
-  #4〜#8の5場面、終盤の回収（方式C）をすべて含めて、公開App **4.0.12**（commit `33bc5e35`）で`pnpm update:tekona`を実行し、
-  `dsl4-artifacts.lock.json`を更新しました（`pnpm verify:tekona`は一致）。
-  ただし生成したSB3はまだGitHub Releaseへ公開しておらず、`sb3-assets.json`は描き直し前の旧版を指しています。
-  `pnpm sb3:publish`で公開するまで、配布中のSB3は旧版です。
-- **確認済み**: `pnpm verify:tekona-block-workshop-editor`（App 4.0.12で生成したSB3）で、公開Plus Editorへ作業用SB3を読み込み、
-  参加者1人を加えてコスチューム・セリフ・`if`・モデルURLを書き換え、文書へ反映し、最後まで再生しました（149フレーム、実行時エラーなし、
-  `export-block-dsl`まで成功）。4.0.5で生成したSB3では、里の若者の`rejected`のポーズ待ちでSpaceキーのスキップが効かず、
-  そこから先を確かめられていませんでした。
-- 用意済みの求婚者は**8人**です（`sato`・`kokufu`・`miyako`と、考証メモ4章の#4〜#8＝`ryoshi`・`utabito`・`hataori`・`gunji`・`sakimori`）。
-  求婚の場面だけで8人ぶん、ポーズ認識は16回になるので、**40分のワークショップでは減らして使います**。
-  手順は「[上演に合わせて求婚者を減らす](#上演に合わせて求婚者を減らす)」にあります。
-- 季節のカットは用意済みの求婚者のあいだ（春・夏・秋）と`quarrel`（冬）にだけ入れ、参加者の場面の雛形には入れていません。
-- **注意**: `forEach`と`if`を使うため、この台本は**物語制御に対応したrunner（DSL 4.0 Standard、App 4.0.0-rc.44以降）**が必要です。
-  `validate-dsl4 --no-narrative-control`では`K4-NARRATIVE-FLAG-001`で拒否されます（確認済み）。rc.43以前のSB3へ台本だけを移しても動きません。
-- **Web版**: `pnpm update:tekona`が`tekona-4.0.sb3`からオフライン用のHTML（`web-4.0/index.html`、約8.3MB）も作り、
-  `dsl4-artifacts.lock.json`の`web`に記録します。台本・素材・実行基盤をすべて埋め込む設定（`scriptMode: embedded`・
-  `assets: embedded`）なので、**配信元へ取りに行かずに再生できます**（ローカルで開いて確認：読み込みから再生開始まで
-  外部への通信は0件。ポーズ認識の初期化でカメラを要求するところまで動く）。
-  ただしポーズ認識の**モデルだけは例外**で、Teachable Machineの共有リンクから取得するためネットワークが要ります。
-  いまはモデルが仮のリンクなので、求婚者の場面はポーズ認識の段階で止まります（Spaceキーでとばせます）。
-  ワークショップ用のSB3（`tekona-workshop*`）は参加者が編集するためのものなので、Web版は作りません。
-- **サイト掲載**: `site/works.json`に登録し、`pnpm build`で`dist/stories/tekona/`へ詳細ページ・4つのSB3・Web版・代表画像を公開します。
-  トップページのカードにも出ます（代表画像は`card-scenes.gif`と`card-scenes/01〜04.webp`）。
-- **提供形式のうちブロック台本SB3はカタログに載せていません**。詳細ページからは配布していますが、
-  この作品は素材IDとコスチューム名が異なる宣言（`sato-kime` → コスチューム`kime`）を使うため、
-  ブロックへ変換すると`skin`がコスチューム名だけになり、素材IDへ戻せません（`pnpm verify`の往復検査で検出）。
-  浦島はIDと名前が同じなので起きません。App側で`skin`が素材IDを保つようになれば、カタログにも載せられます。
+更新管理: [App #1198](https://github.com/kubohiroya/turbowarp-kamishibai-app/issues/1198) → [Samples #334](https://github.com/kubohiroya/turbowarp-kamishibai-samples/issues/334)。
+
+- 現行台本は本編**22シーン**、参加者20席を含め**42シーン**です。追加求婚者5人と春・夏・秋の場面を含みます。
+- 求婚者8人の実モデルはこれから作ります。全モデルに実在する代替URL
+  `https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/`を設定し、認識処理を専用の`invalidate`で無効にします。
+  本編16か所、20席込み56か所です。モデルを作るまでは絵とセリフで試演できます。
+  8人分のポーズ・クラス・実URLの設定先は[撮影計画](../../resources/tekona-workshop/pose-dataset-plan.md)にまとめています。
+- `app-release.json`の固定は4.0.13で、この専用書式には未対応です。対応版の正式な公開・参照更新前は、
+  明示的な未公開プレビューだけを生成し、lockに`unpublished: true`を記録します。公開済みの成果物は保持します。
+- 既存のWeb版生成・作品一覧への掲載経路は維持します。新しい台本の正式生成・公開は対応Appへ追従してから行います。
+  Web版の台本・素材・実行基盤はHTMLへ埋め込みます。実モデルを有効にした場合、そのモデル取得にはネットワークが必要です。
+- 現行42シーン構成の4.0.15候補を公開Plus Editorで検証しました。枠01の絵・セリフ・条件を編集して個別文書へ反映し、
+  スキップなし410.918秒で完走し、ページエラーは0件でした。Editorから保存したSB3も56個すべてのポーズ用OFF区間と43文書を保持し、
+  CLIによる複数文書のpackage exportも成功しました。
+  旧14／34シーン構成の4.0.1起点の互換プレビュー結果とは区別します。
+- 用意済み8人をすべて使うと上演が長くなるため、40分のワークショップでは「[上演に合わせて求婚者を減らす](#上演に合わせて求婚者を減らす)」に従います。
+- ブロック台本SB3のカタログ掲載には、素材IDとコスチューム名の往復に関する既存の制約が残ります。
+
+## 内部YAMLと無効化区間
+
+編集用の正本`tekona.k4.yml`は、提出内容を合成する補助ページとの互換性のため1ファイルのまま保持します。
+SB3生成時に浦島太郎と同じ`include`方式へ分割し、共通宣言のルート1ファイルと、各シーン1ファイルを登録します。
+内部文書は本編23ファイル、作業用43ファイルです。`avant.k4.yml`・`opening.k4.yml`、参加者の`suitor-01.k4.yml`〜`suitor-20.k4.yml`にそれぞれ独立したスクリプトを持ちます。
+
+```yaml
+- invalidate:
+    condition: false
+    then:
+      - Sato.pose:
+          steps:
+            - pose: kime
+              skin: sato-kime
+```
+
+専用のC型「この部分を使う：オフ」と相互変換し、`then`を削除せず保存・再読み込みします。
+`condition`は静的booleanだけで、falseはオフ、trueはオンです。オフ本体の参照解決・認識処理は実行しません。
+実モデルを設定した人物だけ、その人物の2区間を`true`へ変更して再生成します。
 
 ## ファイル
 
@@ -164,7 +156,7 @@
 
 `tekona-workshop-blocks-4.0.sb3`は、生成時に席番号01〜20（`workshop.config.json`の`slots`）の枠を登録しています。
 
-- 場面`suitor-NN`：用意済みの3人と`quarrel`の間に席番号順。中身は`if: {condition: false}`で囲まれ、組み込むまで何も再生しない。
+- 場面`suitor-NN`：用意済み8人の最後（`miyako`）と`quarrel`の間に席番号順。中身は`if: {condition: false}`で囲まれ、組み込むまで何も再生しない。
 - スプライト`SuitorNN`と仮のコスチューム`stand`・`kime`・`rejected`（「？」の人物）。
 - モデル`PoseNN`：見本モデルのリンク（`sampleModelUrl`）。参加者が自分のリンクへ書き換えます。
 
@@ -175,8 +167,11 @@
 
 **モデル**：参加者が自分のモデルを新規に作り、クラウドへエクスポートし、自分の枠のモデルのリンクを自分のURLへ書き換えます
 （手順は[`pose-dataset-plan.md`](../../resources/tekona-workshop/pose-dataset-plan.md)）。運営が席ごとのモデルを事前に
-用意することはしません。`workshop.config.json`の`slotModelUrls`と`pnpm tekona:seat-models`は、その事前準備のための
-仕組みで、App 4.0.11へ追従するときに作業用SB3の作り直しとまとめて外します。
+用意することはしません。`slotModelUrls`と`pnpm tekona:seat-models`は既存の事前登録用の補助手段として残します。
+代替URLの枠は、実モデルURLへ置き換えた後、その枠の2つの「この部分を使う」をオンにして反映します。
+
+用意済み8人の実モデルができたら、`tekona.k4.yml`の`assets.<モデル名>.source.url`を置き換え、
+その人物の2つのポーズ用`invalidate.condition`を`true`にしてから再生成します。代替URLのまま有効にしないでください。
 
 ### 外部YAML版（予備）
 
@@ -196,19 +191,20 @@ TurboWarp Plus Editorでは、ブロック台本に次の変更を加えると�
   （「表示されている形式に変換して検証・保存」）が`Asset bundle must contain every StoryDocument asset`で無効になる。
   反映しないまま再生すると`K4-SOURCE-VIEW-UNAPPLIED`で止まる。
 - 新しい場面を`quarrel`の前につなぐと、反映後の台本では最後（`afterword`の後）に置かれる。
-- モデル`PoseNN`のリンクを書き換えると、反映が`Remote asset source does not match: PoseNN`で無効になる。
-  4.0.10までのすべての公開Appで起きます。**App 4.0.11で直す予定**です（kubohiroya/turbowarp-kamishibai-app#1184、PR #1185はまだマージも公開もされていません）。
-  `app-release.json`の固定は4.0.11より前なので、`TEKONA_REPLACE_MODEL_URL=1`を付けたリハーサルは、固定を4.0.11へ上げるまで失敗します。
-  追従のときに、この環境変数を外して書き換えを常に確かめるようにします。
+モデルURLの書き換え自体はApp 4.0.11以降で対応済みです（#1184）。ダミー認識をオフのまま保存するには専用invalidate対応版が必要です。
 
 残る2つはApp側（Plus Editorでの素材一覧の更新、場面の並びの書き戻し）の対応で解消できる見込みです。
 
 ## 生成と検証
 
-公開4.0.5のApp（`app-release.json`の固定commitをcheckoutし、固定依存のinstallと`pnpm build:lib`を済ませたもの）を使います。
+正式な生成は対応App公開後に`app-release.json`を更新して行います。未公開候補では専用のプレビューモードを使います。
+ベースSB3は同じApp候補の公式生成経路で作成し、公開物や別版のruntimeと混在させません。
 
 ```bash
-TURBOWARP_KAMISHIBAI_APP_ROOT=/path/to/app-v4.0.5 pnpm update:tekona
+node scripts/build-tekona.ts --write-lock \
+  --preview-app /path/to/invalidate-app \
+  --preview-base /path/to/kamishibai-4.0.15.sb3 \
+  --output-dir .tmp/tekona-invalidate-preview
 ```
 
 `pnpm verify:tekona`は再生成した成果物がロックと補助ページに一致することを確かめます。

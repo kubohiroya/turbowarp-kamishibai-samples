@@ -14,15 +14,18 @@ import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {buildPackagedWeb} from './build-packaged-web.ts';
 import type {WebConfig} from './story-config.ts';
-import {simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
 import {assertSameBytes} from './same-bytes.ts';
 import {requireFresh} from './artifact-freshness.ts';
+import {readExportedDsl4Source, simplifyPublishedDsl4Blocks} from './simplify-published-dsl4-blocks.ts';
+import {writeTekonaSourceModules} from './tekona-source-modules.ts';
+import {strFromU8, unzipSync} from 'fflate';
 import {
   checkSubmission,
   composeParticipants,
   composeSlots,
   costumeNames,
   parseSubmission,
+  placeholderModelUrl,
 } from '../resources/tekona-workshop/assistant/compose-participants.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -52,7 +55,7 @@ export const tekonaBlocksOutput = 'tekona-blocks-4.0.sb3';
 export const tekonaBlockWorkshopOutput = 'tekona-workshop-blocks-4.0.sb3';
 const workshopConfigName = 'workshop.config.json';
 /** The prepared suitors' scenes, in story order; participants follow the last one. */
-export const preparedScenes = ['sato', 'kokufu', 'miyako'];
+export const preparedScenes = ['ryoshi', 'sato', 'utabito', 'hataori', 'gunji', 'kokufu', 'sakimori', 'miyako'];
 const lastPreparedScene = preparedScenes.at(-1)!;
 
 interface WorkshopConfig {
@@ -76,12 +79,12 @@ export const sampleSubmission = `席番号：01
 作者の名前（紙芝居に表示してよい名前）：リハーサル
 求婚者の名前：入江の漁師
 決めポーズの説明：網を投げるように、両うでを斜め上へ！
-落胆のポーズの説明：網を胸にかかえて、うつむく……。
+落胆のポーズの説明：両手で頭をかかえて、うなだれる……。
 求婚の言葉：この入江でいちばんの魚を、毎朝とどけよう！
 手児奈の断りの言葉：お魚はうれしいけれど、心はさしあげられません。
 断られたときの一言：……魚は逃げても、またとれるさ。
 手児奈の心は揺れたか（揺れた／揺れなかった）：揺れた
-モデルのリンク：https://teachablemachine.withgoogle.com/models/WORKSHOP-REHEARSAL-01/`;
+モデルのリンク：${placeholderModelUrl}`;
 
 async function record(root: string, filename: string) {
   const bytes = await readFile(path.join(root, filename));
@@ -92,18 +95,38 @@ async function record(root: string, filename: string) {
   };
 }
 
-/** Build the workshop, YAML and block-script SB3 from the pinned published App release. */
-export async function buildTekona({
-  writeLock = false,
-  outputDirectory,
-}: {writeLock?: boolean; outputDirectory?: string} = {}) {
+interface TekonaPreview {
+  appRoot: string;
+  basePath: string;
+  outputDirectory: string;
+}
+
+/** Published builds use the pin; an explicit local preview writes only to .tmp. */
+export async function buildTekona({writeLock = false, outputDirectory, preview}: {
+  writeLock?: boolean; outputDirectory?: string; preview?: TekonaPreview;
+} = {}) {
   const release = await readAppRelease();
-  const builder = await resolveBlockAuthoringBuilder();
+  const builder = preview ? {
+    root: path.resolve(preview.appRoot),
+    cli: path.join(path.resolve(preview.appRoot), 'bin/turbowarp-kamishibai.mjs'),
+    identity: {sourceSections: true},
+    authorOptions: ['--block-sections', 'true'],
+    refreshRuntime: undefined,
+  } : await resolveBlockAuthoringBuilder();
   const packageJson = JSON.parse(await readFile(path.join(builder.root, 'package.json'), 'utf8'));
-  assert.equal(packageJson.version, release.version);
-  const base = await readFile(appBasePath(release.version));
-  assert.equal(base.length, release.artifact.size);
-  assert.equal(createHash('sha256').update(base).digest('hex'), release.artifact.sha256);
+  if (!preview) assert.equal(packageJson.version, release.version);
+  const basePath = preview ? path.resolve(preview.basePath) : appBasePath(release.version);
+  const destination = preview ? path.resolve(preview.outputDirectory) : storyRoot;
+  if (preview) {
+    assert(destination.startsWith(path.join(projectRoot, '.tmp') + path.sep), 'Preview output must stay under .tmp.');
+    assert(writeLock, 'A local preview must explicitly write its separate outputs.');
+    await mkdir(destination, {recursive: true});
+  }
+  const base = await readFile(basePath);
+  if (!preview) {
+    assert.equal(base.length, release.artifact.size);
+    assert.equal(createHash('sha256').update(base).digest('hex'), release.artifact.sha256);
+  }
   const temporary = await mkdtemp(path.join(tmpdir(), 'kamishibai-tekona-'));
   const run = (args: string[]) =>
     execFileSync(process.execPath, [builder.cli, ...args], {
@@ -123,7 +146,7 @@ export async function buildTekona({
     ]);
   try {
     const imported = path.join(temporary, 'base-source');
-    await importSb3({inputPath: appBasePath(release.version), outputDirectory: imported});
+    await importSb3({inputPath: basePath, outputDirectory: imported});
     const allowedAssetRoots = [
       path.join(storyRoot, 'assets'),
       path.join(projectRoot, 'stories/urashima/assets'),
@@ -172,8 +195,10 @@ export async function buildTekona({
     const sourcePath = path.join(storyRoot, sourceName);
     const source = await readFile(sourcePath, 'utf8');
     run(['validate-dsl4', '--input', sourcePath]);
+    const authoringRoot = path.join(temporary, 'authoring');
+    await writeTekonaSourceModules(authoringRoot, source);
     const yamlPath = path.join(temporary, tekonaYamlOutput);
-    build(storyRoot, storyBasePath, yamlPath);
+    build(authoringRoot, storyBasePath, yamlPath);
 
     // The participant template must still compose into a valid story.
     const submission = parseSubmission(sampleSubmission);
@@ -182,12 +207,8 @@ export async function buildTekona({
     await writeFile(composedPath, composeParticipants(source, [submission]));
     run(['validate-dsl4', '--input', composedPath]);
 
-    // Block sources do not carry YAML comments; author them from the comment-free document.
-    const authoringRoot = path.join(temporary, 'authoring');
-    await mkdir(authoringRoot, {recursive: true});
-    await writeFile(path.join(authoringRoot, sourceName), stringify(parse(source), {lineWidth: 0}));
-    const authoringBasePath = path.join(temporary, 'authoring-base.sb3');
-    build(authoringRoot, storyBasePath, authoringBasePath);
+    // Author one named internal document per scene, retaining false guards in the actual YAML.
+    const authoringBasePath = yamlPath;
     const authoredPath = path.join(temporary, 'authored-blocks.sb3');
     run([
       'author-block-dsl',
@@ -209,9 +230,10 @@ export async function buildTekona({
       sourceName,
     ));
     const exported = path.join(temporary, 'exported');
-    run(['export-block-dsl', '--input', blocksPath, '--output-dir', exported, '--name', 'tekona']);
+    const exportResult = run(['export-block-dsl', '--input', blocksPath, '--output-dir', exported, '--name', 'tekona', '--format', 'json']);
     assert.deepEqual(
-      Object.keys(parse(await readFile(path.join(exported, sourceName), 'utf8')).scenes),
+      Object.keys(parse(await readExportedDsl4Source(exportResult, builder.root,
+        JSON.parse(strFromU8(unzipSync(await readFile(blocksPath))['project.json']!)))).scenes),
       Object.keys(parse(source).scenes),
       'The block scenes must match the half-finished source.',
     );
@@ -219,13 +241,14 @@ export async function buildTekona({
     // Block-script workshop: pre-registered slots whose placeholder assets are replaced later.
     const slotBasePath = workshopPath;
     const slotRoot = path.join(temporary, 'slots');
-    await mkdir(slotRoot, {recursive: true});
-    const slotSource = stringify(parse(composeSlots(source, slots, {
+    const slotSource = composeSlots(source, slots, {
       modelUrl: sampleModelUrl,
       modelUrls: config.blockWorkshop.slotModelUrls ?? {},
-    })), {lineWidth: 0});
-    await writeFile(path.join(slotRoot, sourceName), slotSource);
-    run(['validate-dsl4', '--input', path.join(slotRoot, sourceName)]);
+    });
+    await writeTekonaSourceModules(slotRoot, slotSource);
+    const slotValidationPath = path.join(temporary, 'slot-validation.k4.yml');
+    await writeFile(slotValidationPath, slotSource);
+    run(['validate-dsl4', '--input', slotValidationPath]);
     const slotYamlPath = path.join(temporary, 'slot-story.sb3');
     build(slotRoot, slotBasePath, slotYamlPath);
     const slotAuthoredPath = path.join(temporary, 'slot-authored.sb3');
@@ -249,8 +272,9 @@ export async function buildTekona({
       sourceName,
     ));
     const slotExported = path.join(temporary, 'slot-exported');
-    run(['export-block-dsl', '--input', blockWorkshopPath, '--output-dir', slotExported, '--name', 'tekona']);
-    const slotScenes = Object.keys(parse(await readFile(path.join(slotExported, sourceName), 'utf8')).scenes);
+    const slotExportResult = run(['export-block-dsl', '--input', blockWorkshopPath, '--output-dir', slotExported, '--name', 'tekona', '--format', 'json']);
+    const slotScenes = Object.keys(parse(await readExportedDsl4Source(slotExportResult, builder.root,
+      JSON.parse(strFromU8(unzipSync(await readFile(blockWorkshopPath))['project.json']!)))).scenes);
     assert.deepEqual(
       slotScenes.slice(slotScenes.indexOf(lastPreparedScene), slotScenes.indexOf('quarrel') + 1),
       [lastPreparedScene, ...slotSeats(slots).map((nn) => `suitor-${nn}`), 'quarrel'],
@@ -259,17 +283,29 @@ export async function buildTekona({
 
     const lock = {
       formatVersion: 1,
-      runtime: appRuntimeIdentity(release),
+      runtime: preview ? {
+        unpublished: true,
+        version: packageJson.version,
+        basedOn: appRuntimeIdentity(release),
+        baseSize: base.length,
+        baseSha256: createHash('sha256').update(base).digest('hex'),
+      } : appRuntimeIdentity(release),
       builder: {
         package: packageJson.name,
         version: packageJson.version,
-        commit: release.commit,
+        commit: preview ? execFileSync('git', ['rev-parse', 'HEAD'], {cwd: builder.root, encoding: 'utf8'}).trim() : release.commit,
+        ...(preview ? {unpublished: true, sourceFiles: await Promise.all([
+          'package.json', 'schema/dsl-4-narrative-control.schema.json', 'schema/dsl-4-editor.schema.json',
+          'src/dsl4/narrative-control.ts', 'src/dsl4/structured-block-source-codec.ts',
+          'src/dsl4/definition-references.ts',
+        ].map((name) => record(builder.root, name)))} : {}),
       },
       sources: [
         ...(await Promise.all([sourceName, projectAssetsName].map((name) => record(storyRoot, name)))),
         await record(projectRoot, composeModule),
         await record(projectRoot, composeTemplate),
         await record(storyRoot, workshopConfigName),
+        await record(projectRoot, 'scripts/tekona-source-modules.ts'),
       ],
       outputs: {
         workshop: await record(temporary, tekonaWorkshopOutput),
@@ -315,12 +351,14 @@ export async function buildTekona({
       tekonaBlocksOutput,
       tekonaBlockWorkshopOutput,
     ];
-    const lockPath = path.join(storyRoot, 'dsl4-artifacts.lock.json');
+    const lockPath = path.join(destination, 'dsl4-artifacts.lock.json');
     const page = await renderComposePage();
     if (writeLock) {
-      await writeFile(path.join(projectRoot, composePage), page);
+      await writeFile(preview ? path.join(destination, 'compose.html') : path.join(projectRoot, composePage), page);
       for (const name of outputNames)
-        await copyFile(path.join(temporary, name), path.join(storyRoot, name));
+        await copyFile(path.join(temporary, name), path.join(destination, name));
+      await mkdir(path.join(destination, 'web-4.0'), {recursive: true});
+      await copyFile(path.join(temporary, 'web-4.0/index.html'), path.join(destination, 'web-4.0/index.html'));
       await writeFile(lockPath, JSON.stringify(lock, null, 2) + '\n');
     } else {
       await requireFresh(async () =>
@@ -347,7 +385,7 @@ export async function buildTekona({
         );
       }
     }
-    if (outputDirectory) {
+    if (outputDirectory && !preview) {
       await mkdir(outputDirectory, {recursive: true});
       const copy = async (from: string, name: string) => {
         await mkdir(path.dirname(path.join(outputDirectory, name)), {recursive: true});
@@ -382,6 +420,12 @@ export async function buildTekona({
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const lock = await buildTekona({writeLock: process.argv.includes('--write-lock')});
-  console.log(`Built tekona workshop artifacts with ${lock.builder.version}.`);
+  const value = (name: string) => process.argv[process.argv.indexOf(name) + 1];
+  const preview = process.argv.includes('--preview-app') ? {
+    appRoot: value('--preview-app'), basePath: value('--preview-base'), outputDirectory: value('--output-dir'),
+  } : undefined;
+  if (preview) for (const name of ['--preview-app', '--preview-base', '--output-dir'])
+    assert(process.argv.includes(name) && value(name) && !value(name).startsWith('--'), `Missing ${name}.`);
+  const lock = await buildTekona({writeLock: process.argv.includes('--write-lock'), preview});
+  console.log(`Built tekona ${preview ? 'unpublished local preview' : 'workshop artifacts'} with ${lock.builder.version}.`);
 }

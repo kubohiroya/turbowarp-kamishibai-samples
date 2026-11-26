@@ -107,7 +107,10 @@ const placeholders = {
 };
 /** The costume names of every suitor sprite and the class names of every suitor's pose model. */
 const costumeNames = ['stand', 'kime', 'rejected'];
+/** Reachable head-protection model; it has no suitor classes and must never run their pose steps. */
+const placeholderModelUrl = 'https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/';
 const modelPattern = /^https:\/\/teachablemachine\.withgoogle\.com\/models\/[A-Za-z0-9_-]+\/$/u;
+const isModelUrl = (url) => url === placeholderModelUrl || modelPattern.test(url ?? '');
 
 /** Read one board submission written with the template in the participant handout. */
 function parseSubmission(text) {
@@ -138,7 +141,7 @@ function checkSubmission(submission, {requireModel = true} = {}) {
     if (/["\\]|[\u0000-\u001f]/u.test(value)) problems.push(`「${value.slice(0, 10)}…」に使えない記号があります`);
     if (value.length > 40) problems.push(`「${value.slice(0, 10)}…」が40字をこえています`);
   }
-  if ((requireModel || submission.model) && !modelPattern.test(submission.model ?? ''))
+  if ((requireModel || submission.model) && !isModelUrl(submission.model))
     problems.push('モデルのリンクが https://teachablemachine.withgoogle.com/models/…/ の形ではありません');
   return problems;
 }
@@ -181,6 +184,13 @@ function participantYaml(source, submission, {pose = 'kime'} = {}) {
     .join('\n');
   if (!submission.moved) scene = scene.split('\n').filter((line) => !line.includes('Tekona.think')).join('\n');
   if (/〔|NN/u.test(scene)) throw new Error(`席番号${nn}の場面に置き換えていない部分があります。`);
+  if (submission.model === placeholderModelUrl) {
+    // Guard each pose independently: enabling a participant scene must not enable a dummy model.
+    scene = scene.replace(/^      - Suitor\d+\.pose:\n(?:^ {10,}.+(?:\n|$))+/gmu, (body) =>
+      '      - invalidate:\n          condition: false\n          then:\n' +
+      body.trimEnd().split('\n').map((line) => `      ${line}`).join('\n') + '\n' +
+      `      - Suitor${nn}.setSkin: ${/skin: (\S+)/u.exec(body)[1]}\n`);
+  }
   // Every suitor has its own sprite with the costumes stand, kime and rejected.
   const assets = [
     ...costumeNames.map((costume) => `  s${nn}-${costume}: {kind: costume, target: Suitor${nn}, name: ${costume}}`),
@@ -209,10 +219,10 @@ function insert(source, parts) {
  */
 function composeSlots(source, count, {modelUrl, modelUrls = {}, pose = 'kime'} = {}) {
   if (!Number.isInteger(count) || count < 1 || count > 99) throw new Error('枠の数は1〜99です。');
-  if (!modelPattern.test(modelUrl ?? '')) throw new Error('見本モデルのリンクが正しくありません。');
+  if (!isModelUrl(modelUrl)) throw new Error('見本モデルのリンクが正しくありません。');
   for (const [nn, url] of Object.entries(modelUrls)) {
     if (!/^\d{2}$/u.test(nn) || Number(nn) < 1 || Number(nn) > count) throw new Error(`席番号${nn}の枠はありません。`);
-    if (!modelPattern.test(url)) throw new Error(`席番号${nn}のモデルのリンクが正しくありません。`);
+    if (!isModelUrl(url)) throw new Error(`席番号${nn}のモデルのリンクが正しくありません。`);
   }
   const slots = Array.from({length: count}, (_, index) => {
     const nn = String(index + 1).padStart(2, '0');
