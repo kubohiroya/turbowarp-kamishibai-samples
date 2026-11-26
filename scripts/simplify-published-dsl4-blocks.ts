@@ -206,7 +206,14 @@ async function simplifyNativeAssets(
       const filename = target.blocks[blockId].inputs.LABEL[1][1];
       assert(typeof filename === 'string' && !Object.hasOwn(sources, filename));
       filenames.set(sourcePath, filename);
-      sources[filename] = text as string;
+      // Root asset aliases can be inlined during simplification; carry those rewrites into
+      // each scene module rather than retaining references to declarations already removed.
+      sources[filename] = stringify({
+        scenes: Object.fromEntries(Object.keys(record(parse(text as string).scenes)).map((scene) => {
+          assert(Object.hasOwn(record(simplified.source.scenes), scene), `Missing simplified scene ${scene}.`);
+          return [scene, record(simplified.source.scenes)[scene]];
+        })),
+      }, {lineWidth: 0});
     }
     const {scenes: _scenes, ...definitions} = simplified.source;
     const include = parse(entry).include as string | string[];

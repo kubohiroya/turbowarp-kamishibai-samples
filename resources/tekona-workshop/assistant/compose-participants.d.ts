@@ -14,6 +14,7 @@ export interface Submission {
 }
 
 export const costumeNames: string[];
+export const placeholderModelUrl: string;
 export function parseSubmission(text: string): Submission;
 export function checkSubmission(submission: Submission, options?: {requireModel?: boolean}): string[];
 

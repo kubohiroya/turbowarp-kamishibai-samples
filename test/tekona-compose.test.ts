@@ -8,6 +8,7 @@ import {
   checkSubmission,
   composeParticipants,
   parseSubmission,
+  placeholderModelUrl,
 } from '../resources/tekona-workshop/assistant/compose-participants.js';
 import {sampleSubmission} from '../scripts/build-tekona.ts';
 
@@ -16,10 +17,39 @@ const sourcePath = path.join(import.meta.dirname, '../stories/tekona/tekona.k4.y
 function submission(changes: Record<string, string>) {
   let text = sampleSubmission;
   for (const [from, to] of Object.entries(changes)) text = text.replace(from, to);
-  return parseSubmission(text);
+  return parseSubmission(text.replace(placeholderModelUrl, 'https://teachablemachine.withgoogle.com/models/REAL-SUITOR/'));
 }
 
 describe('tekona participant composition', () => {
+  it('keeps every prepared placeholder pose disabled while showing its intended costume', async () => {
+    const story = parse(await readFile(sourcePath, 'utf8'));
+    for (const [scene, actor] of [['sato', 'Sato'], ['kokufu', 'Kokufu'], ['miyako', 'Miyako'], ['ryoshi', 'Ryoshi'], ['utabito', 'Utabito'], ['hataori', 'Hataori'], ['gunji', 'Gunji'], ['sakimori', 'Sakimori']]) {
+      expect(story.assets[story.scenes[scene].recognitionModel].source.url).toBe(placeholderModelUrl);
+      const actions = story.scenes[scene].actions;
+      expect(actions.some((action: Record<string, unknown>) => `${actor}.pose` in action)).toBe(false);
+      const guards = actions.filter((action: any) => action.invalidate);
+      expect(guards).toHaveLength(2);
+      expect(guards.map((action: any) => action.invalidate.condition)).toEqual([false, false]);
+      expect(guards.map((action: any) => action.invalidate.then[0][`${actor}.pose`].steps[0].pose))
+        .toEqual(['kime', 'rejected']);
+      for (const costume of ['kime', 'rejected'])
+        expect(actions).toContainEqual({[`${actor}.setSkin`]: `${scene}-${costume}`});
+    }
+  });
+
+  it('guards both poses for dummy submissions and keeps real participant poses enabled', async () => {
+    const source = await readFile(sourcePath, 'utf8');
+    const dummy = parseSubmission(sampleSubmission);
+    const story = parse(composeParticipants(source, [dummy, {...submission({}), nn: '02'}]));
+    const actions = story.scenes['suitor-01'].actions;
+    const guards = actions.filter((action: any) => action.invalidate);
+    expect(guards).toHaveLength(2);
+    expect(guards.map((action: any) => action.invalidate.condition)).toEqual([false, false]);
+    expect(guards.map((action: any) => action.invalidate.then[0]['Suitor01.pose'].steps[0].pose))
+      .toEqual(['kime', 'rejected']);
+    expect(actions.some((action: any) => action['Suitor01.pose'])).toBe(false);
+    expect(story.scenes['suitor-02'].actions.filter((action: any) => action['Suitor02.pose'])).toHaveLength(2);
+  });
   it('reads the handout submission format', () => {
     const parsed = parseSubmission(sampleSubmission);
     expect(parsed).toMatchObject({nn: '01', name: '入江の漁師', moved: true});
@@ -71,7 +101,7 @@ describe('tekona participant composition', () => {
     ]);
     const shows = story.scenes['suitor-12'].actions.filter((action: Record<string, unknown>) => 'Tekona.show' in action || 'Suitor12.show' in action);
     expect(shows.map((action: Record<string, any>) => (action['Tekona.show'] ?? action['Suitor12.show']).x)).toEqual([-150, 140]);
-    expect(story.assets.Pose12.source.url).toBe('https://teachablemachine.withgoogle.com/models/WORKSHOP-REHEARSAL-01/');
+    expect(story.assets.Pose12.source.url).toBe('https://teachablemachine.withgoogle.com/models/REAL-SUITOR/');
     const twelve = story.scenes['suitor-12'];
     expect(twelve.recognitionModel).toBe('Pose12');
     expect(twelve.actions.some((action: Record<string, unknown>) => 'Tekona.think' in action)).toBe(false);
@@ -89,6 +119,23 @@ describe('tekona participant composition', () => {
 });
 
 describe('tekona block workshop slots', () => {
+  it('keeps dummy poses disabled independently of the participant scene switch', async () => {
+    const {composeSlots} = await import('../resources/tekona-workshop/assistant/compose-participants.js');
+    const source = await readFile(sourcePath, 'utf8');
+    const real = 'https://teachablemachine.withgoogle.com/models/REAL-SUITOR/';
+    const story = parse(composeSlots(source, 20, {modelUrl: placeholderModelUrl, modelUrls: {'02': real}}));
+    for (let seat = 1; seat <= 20; seat++) {
+      const nn = String(seat).padStart(2, '0');
+      const scene = story.scenes[`suitor-${nn}`];
+      // Enabling the scene must leave both dummy pose guards intact.
+      scene.actions[0].if.condition = true;
+      const body = scene.actions[0].if.then;
+      const guards = body.filter((action: any) => action.invalidate);
+      expect(guards).toHaveLength(seat === 2 ? 0 : 2);
+      expect(body.filter((action: any) => action[`Suitor${nn}.pose`])).toHaveLength(seat === 2 ? 2 : 0);
+      for (const guard of guards) expect(guard.invalidate.condition).toBe(false);
+    }
+  });
   it('lists the edits of a slot with the texts the slot shows', async () => {
     const {blockEdits, composeSlots} = await import('../resources/tekona-workshop/assistant/compose-participants.js');
     const source = await readFile(sourcePath, 'utf8');

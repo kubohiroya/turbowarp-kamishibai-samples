@@ -18,9 +18,11 @@ import {strFromU8, unzipSync} from 'fflate';
 
 import {editorControlClick, loadVerifiedBlockProject, openBlockEditor} from './block-diagnostic-fixture.ts';
 import {sampleSubmission} from './build-tekona.ts';
+import {readExportedDsl4Source} from './simplify-published-dsl4-blocks.ts';
+import {countDisabledPoseBlocks} from './tekona-source-modules.ts';
 import type {ScratchProject} from './scratch.ts';
 import {participantPictures, replaceCostumes, routeSubstituteModels} from './tekona-rehearsal-shared.ts';
-import {blockEdits, parseSubmission, type BlockEdit} from '../resources/tekona-workshop/assistant/compose-participants.js';
+import {blockEdits, parseSubmission, placeholderModelUrl, type BlockEdit} from '../resources/tekona-workshop/assistant/compose-participants.js';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
@@ -101,18 +103,20 @@ async function fillSlot(page: Page, nn: string, edits: BlockEdit[], modelUrl: st
 }
 
 /** Reflect the edited blocks into the story document: hat icon → "convert, validate and save". */
-async function reflectDocument(page: Page, evidence: string) {
-  const before = await page.evaluate(() => {
+async function reflectDocument(page: Page, evidence: string, nn: string) {
+  const before = await page.evaluate((nn) => {
     const workspace = window.ScratchBlocks.getMainWorkspace();
-    const hat = workspace.getTopBlocks(false).find((block: any) => block.type.endsWith('__embeddedYaml'));
+    const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
+    const filename = `suitor-${nn}.k4.yml`;
+    const hat = workspace.getTopBlocks(false).find((block: any) => block.type.endsWith('__embeddedYaml') &&
+      decodeURIComponent(block.getFieldValue('DOCUMENT')).endsWith(`file:${filename}`));
+    if (!hat) throw new Error(`The internal scene document ${filename} is missing.`);
     const position = hat.getRelativeToSurfaceXY();
     const metrics = workspace.getMetrics();
     workspace.scrollbar.set(position.x * workspace.scale - metrics.contentLeft - 30,
       position.y * workspace.scale - metrics.contentTop - 30);
-    const owner = window.vm.runtime.extensionStorage.kubohiroyakamishibai4.components.kubohiroyakamishibairuntime4;
-    return {id: hat.id, filename: owner.sourceDocuments.entryPath,
-      source: owner.sourceDocuments.files[owner.sourceDocuments.entryPath].source};
-  });
+    return {id: hat.id, filename, source: owner.sourceDocuments.files[filename].source};
+  }, nn);
   await page.waitForFunction((id) => window.ScratchBlocks.getMainWorkspace().getBlockById(id)
     ?.inputList?.[0]?.fieldRow?.[0]?.fieldGroup_?.hasAttribute('data-twpe-yaml-hat-icon'), before.id);
   const point = await page.evaluate((id) => {
@@ -137,7 +141,7 @@ async function reflectDocument(page: Page, evidence: string) {
     const error = document.querySelector('.twpe-yaml-error')?.textContent;
     if (error) return {error};
     const source = owner.sourceDocuments.files[filename].source;
-    return source !== original ? {source} : false;
+    return source !== original ? {source: owner.source.text} : false;
   }, {filename: before.filename, original: before.source}, {timeout: 120_000, polling: 250})).jsonValue() as
     {error?: string; source?: string};
   assert(!outcome.error, `Document save failed: ${outcome.error}`);
@@ -188,12 +192,28 @@ async function main() {
     const replaceModel = Boolean(process.env.TEKONA_REPLACE_MODEL_URL);
     report.replaceModel = replaceModel;
     report.changed = await fillSlot(page, nn, edits, replaceModel ? submission.model! : '');
-    const reflected = await reflectDocument(page, outputDirectory);
+    const reflected = await reflectDocument(page, outputDirectory, nn);
     report.integrationSeconds = (Date.now() - started) / 1000;
     const scenes = Object.keys(reflected.scenes);
     report.reflectedOrder = scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('miyako') + 3);
     assert.deepEqual(report.reflectedOrder, ['miyako', `suitor-${nn}`, 'suitor-02']);
     if (replaceModel) assert.equal(reflected.assets[`Pose${nn}`].source.url, submission.model);
+    const placeholderOnly = submission.model === placeholderModelUrl;
+    if (placeholderOnly) {
+      const check = (actions: any[], disabled = false) => {
+        for (const action of actions) {
+          if (action.invalidate) {
+            check(action.invalidate.then, disabled || action.invalidate.condition === false);
+          } else if (action.if) {
+            check(action.if.then, disabled || action.if.condition === false);
+            check(action.if.else ?? [], disabled || action.if.condition === true);
+          } else if (Object.keys(action).some((name) => name.endsWith('.pose')))
+            assert(disabled, 'A dummy pose must stay inside an OFF invalidation block.');
+        }
+      };
+      for (const name of ['sato', 'kokufu', 'miyako', `suitor-${nn}`])
+        check(reflected.scenes[name].actions);
+    }
 
     // Play: close the title, skip poses with Space, and keep stage frames as visual evidence.
     await page.locator('[class*="green-flag_green-flag"]').first().click(editorControlClick);
@@ -206,8 +226,10 @@ async function main() {
     const stage = page.locator('[class*="stage-wrapper"], [class*="stage_stage"]').first();
     const frames = path.join(outputDirectory, 'frames');
     await mkdir(frames, {recursive: true});
-    const deadline = Date.now() + 300_000;
+    // The full story now includes eight prepared suitors and the seasonal scenes.
+    const deadline = Date.now() + 600_000;
     let frame = 0;
+    let completed = false;
     while (Date.now() < deadline) {
       if (await runtimeError.isVisible()) {
         report.runtimeError = await runtimeError.innerText();
@@ -216,13 +238,15 @@ async function main() {
       await stage.screenshot({path: path.join(frames, `${String(frame++).padStart(3, '0')}.png`)});
       const menu = await page.evaluate(() =>
         document.querySelector<HTMLElement>('[data-dsl4-application-menu=true]')?.style.display === 'block');
-      if (menu && frame > 5) break;
+      if (menu && frame > 5) { completed = true; break; }
       await stageCanvas.focus().catch(() => undefined);
-      await page.keyboard.press('Space');
+      if (!placeholderOnly) await page.keyboard.press('Space');
       await page.waitForTimeout(1_500);
     }
-    report.playback = {frames: frame, seconds: (Date.now() - started) / 1000, framesDirectory: frames};
+    report.playback = {frames: frame, seconds: (Date.now() - started) / 1000, framesDirectory: frames,
+      skippedPoses: !placeholderOnly, completed};
     assert(!report.runtimeError, `Story failed: ${report.runtimeError}`);
+    assert(completed, 'The story must finish without relying on pose skips for dummy models.');
 
     // The saved SB3 must read back with the filled slot and the replaced costumes.
     const bytes = await page.evaluate(async () => {
@@ -231,11 +255,21 @@ async function main() {
     });
     const saved = path.join(outputDirectory, 'tekona-shared-blocks.sb3');
     await writeFile(saved, Uint8Array.from(bytes));
+    if (placeholderOnly) {
+      const savedProject = JSON.parse(strFromU8(unzipSync(Uint8Array.from(bytes))['project.json']!)) as ScratchProject;
+      const before = countDisabledPoseBlocks(project), after = countDisabledPoseBlocks(savedProject);
+      report.disabledPoseBlocks = {before, after};
+      assert.equal(after, before, 'Saving must preserve the disabled pose blocks for future real models.');
+      const files = savedProject.extensionStorage!.kubohiroyakamishibai4.components!.kubohiroyakamishibairuntime4.sourceDocuments as any;
+      report.internalDocuments = Object.keys(files.files);
+      assert.equal(Object.keys(files.files).length, 43, 'The workshop must retain its root and 42 scene documents.');
+    }
     const exported = path.join(outputDirectory, 'exported');
     const result = spawnSync(process.execPath, [path.join(appRoot, 'bin/turbowarp-kamishibai.mjs'),
-      'export-block-dsl', '--input', saved, '--output-dir', exported, '--name', 'tekona'], {encoding: 'utf8'});
+      'export-block-dsl', '--input', saved, '--output-dir', exported, '--name', 'tekona', '--format', 'json'], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    const story = parse(await readFile(path.join(exported, 'tekona.k4.yml'), 'utf8'));
+    const savedProject = JSON.parse(strFromU8(unzipSync(Uint8Array.from(bytes))['project.json']!));
+    const story = parse(await readExportedDsl4Source(result.stdout, appRoot, savedProject));
     const slot = story.scenes[`suitor-${nn}`];
     assert.equal(slot.actions[0].if.condition, true);
     const then = JSON.stringify(slot.actions[0].if.then);

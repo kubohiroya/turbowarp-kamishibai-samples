@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "blockWorkshop": {
     "slots": 20,
-    "sampleModelUrl": "https://teachablemachine.withgoogle.com/models/REPLACE-WITH-SAMPLE-MODEL/",
+    "sampleModelUrl": "https://sqs.prof.cuc.ac.jp/kamishibai/20260630/6and7/",
     "slotModelUrls": {},
     "slotCostumes": {
       "stand": "assets/newcomer-stand.svg",
