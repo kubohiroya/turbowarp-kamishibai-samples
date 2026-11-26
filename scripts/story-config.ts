@@ -219,6 +219,29 @@ export async function readDsl4StoryConfig(
     settings && settings.formatVersion === 1,
     'sample.config.json must contain DSL 4.0 settings.',
   );
+  // One pin for the whole repository, and this is where a second one is refused.
+  //
+  // A work that wants a different App release than the rest is not implemented, deliberately. It
+  // arrives with the first work that needs it, as part of that work's own change, rather than as a
+  // mechanism waiting for a user: see kubohiroya/turbowarp-kamishibai-samples#322. Today all six
+  // DSL 4.0 works resolve to one release, and that release is the newest the App has published, so
+  // there is nothing for an exception to express.
+  //
+  // What the first such work has to settle, none of which is decidable in advance:
+  //
+  //   - The base SB3 it builds against. appBaseRelativePath already names each release's own
+  //     artifact, so two can sit in app-base/ at once (see scripts/app-dependency.ts), but the
+  //     work's lock has to record which one it used, with its source and digest.
+  //   - That this pin stays the default. AGENTS.md forbids a second place that fixes a version
+  //     (「重複した版固定用の dsl4-build.config.json の再導入で解決しない」), so the exception has
+  //     to read as an exception and not become a parallel source of truth.
+  //   - What reads more than one base: pnpm sb3:fetch, scripts/verify-app-release.ts and
+  //     scripts/verify-artifact-records.ts each assume one today.
+  //   - That the freshness check stays per work. A work on an older release must not make the
+  //     others stale, which is the failure mode #321 and #320 were about.
+  //
+  // test/story-config.test.ts 'rejects independent dependency pins and retired authoring
+  // overrides' holds this closed until then.
   for (const key of ['runtime', 'version', 'releaseDependency']) {
     assert(
       !Object.hasOwn(settings, key),
