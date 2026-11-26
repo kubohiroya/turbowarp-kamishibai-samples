@@ -2,23 +2,23 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.13",
-    "commit": "21be5dc159c02ac910112df2387d225b6259762b",
-    "basePath": "app-base/kamishibai-4.0.13.sb3",
-    "baseSourceIdentity": "sha256:07f3f087f8d0cc3633ac9d8adf856118ee02a098e8e345f6ea751c6df887c8ff",
-    "baseSize": 1580862,
-    "baseSha256": "ceead4744ab2444d729ddb7130af7afb3f39e16aa401aa0f5fe1965e2fe287e1"
+    "version": "4.0.15",
+    "commit": "5aac2322bf8691eec21d6a8c9cd9914e5d3cd0e1",
+    "basePath": "app-base/kamishibai-4.0.15.sb3",
+    "baseSourceIdentity": "sha256:f011ca320681d6c6e6770be9b08fbbdcd1fb2b9a0c219e621c3e850d2534b5ab",
+    "baseSize": 1581548,
+    "baseSha256": "578f86deb0b45d7c202c7a6e6e9ab966a71f0eee17237d243f77dd1b108c058f"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.13",
-    "commit": "21be5dc159c02ac910112df2387d225b6259762b"
+    "version": "4.0.15",
+    "commit": "5aac2322bf8691eec21d6a8c9cd9914e5d3cd0e1"
   },
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 45226,
-      "sha256": "ef4f54957bd214df99a6f78099738ca578cfb70aa8c0b6a6bb0b4dfcc416c998"
+      "size": 47180,
+      "sha256": "c8da26d616c848165f1fe08450554cd5bf0d93c08f6fd5d96a420778a5d0ec16"
     },
     {
       "path": "project-assets-dsl4.yml",
@@ -27,8 +27,8 @@
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 10186,
-      "sha256": "ef5f152db54b7b0600361a6ecb111c54ad9973db2c92fce871fab669f69a76f6"
+      "size": 10914,
+      "sha256": "c0124d80420f9ec5bcbbfa3a5a329a9a286f9d97a9e5c69a7c363a36a44d2867"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
@@ -37,30 +37,35 @@
     },
     {
       "path": "workshop.config.json",
-      "size": 355,
-      "sha256": "64c426f373726bcf5954ef4dff857fcab677f681874b7f86e8cb9e43d1400e50"
+      "size": 335,
+      "sha256": "c4488af5d107e0925f9f4139761206d598193e8047e34621b97d779386280e33"
+    },
+    {
+      "path": "scripts/tekona-source-modules.ts",
+      "size": 1859,
+      "sha256": "11e68fc2a94a2464292d14b95524dfff55db248a511cb16bd8ab9bb7448bdc9f"
     }
   ],
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2178390,
-      "sha256": "baa350165041bacc98d5d07a31e9e798d30abe8739849388d52c23afd9084651"
+      "size": 2179226,
+      "sha256": "02b81573ff81ec8432e73e1db0934c8ced414b5bb225f966d8596d7e5b35be97"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 2041241,
-      "sha256": "d387764561c8755c0347822a0ae8b8cfeb905ce495c18aa7e79b7c21a410e40d"
+      "size": 2040382,
+      "sha256": "9e5a67a57c740b4df8a1a52abaf37ba06abe268bce1c57cf23c261506bc18743"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2073769,
-      "sha256": "01fd380e2e33284281be5b4e58265eb74728746d21956fe4eeb2b290acc26c78"
+      "size": 2079220,
+      "sha256": "7c30273fab91e25d4196c47a06a2c6fb63084b37ce0f1f083867cc42c70ba628"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2112442,
-      "sha256": "353b68685a49e4e29cabc0c698634ea97733d052acd23042778fd33bb20e8a2f"
+      "size": 2116980,
+      "sha256": "22402d8d8bedf6d35bad00b6eb2915fd5fc8bfb187249fd3a217c198ceb42e9b"
     }
   },
   "web": {
@@ -69,14 +74,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "tekona-4.0.sb3",
-      "size": 2041241,
-      "sha256": "d387764561c8755c0347822a0ae8b8cfeb905ce495c18aa7e79b7c21a410e40d"
+      "size": 2040382,
+      "sha256": "9e5a67a57c740b4df8a1a52abaf37ba06abe268bce1c57cf23c261506bc18743"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 8715533,
-      "sha256": "5685b224add4b439d97e416b4c9bde947eef2f5058effd102470211947d61a3e"
+      "size": 8715725,
+      "sha256": "113aaa4aa6f31e91d496675b2b0952feb3505e2e462028289d6ceb6b624f9028"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -97,7 +102,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "d1caabe0575b7ef0f771bf669933b18801e99649babb9bd07ae5b6d68b2cd61d"
+          "sha256": "0b9cea7fbb53b8b6ffd681e027ae4b304d2e14177e584971990073c68ca56202"
         }
       ],
       "scratchRender": {
