@@ -1,6 +1,6 @@
 # DSL 4.0 音声再生サンプル
 
-配布物は4.0.0-rc.41のStandard SB3/npmで生成しています。音声制御はrc.39から対応しており、rc.38以前は未対応です。配布SB3・ブロック版・Web版は同じ公開commitを使用し、dsl4-artifacts.lock.jsonにhashを記録します。
+配布物は`app-release.json`が示すApp公開版のStandard SB3から生成しています。版をここに書くと追従のたびに古くなるため、生成元は`app-release.json`と`dsl4-artifacts.lock.json`を正本とします。音声制御はrc.39から対応しており、rc.38以前は未対応です。配布SB3・ブロック版・Web版は同じ公開commitを使用し、`dsl4-artifacts.lock.json`にhashを記録します。
 
 `main.k4.yml`・`tone.wav`・`instructions.svg`を同じフォルダーで使います。対応版のStandard SB3でこのフォルダーを開き、タイトルを閉じると、終了待ち→バックグラウンド→一時停止/再開→ループ→フェード停止を順に実行します。
 
