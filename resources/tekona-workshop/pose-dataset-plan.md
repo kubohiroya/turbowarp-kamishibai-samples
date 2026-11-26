@@ -144,6 +144,8 @@ YAMLでは`invalidate: {condition: false, then: […]}`、ブロック台本で�
 リンクの書き換えは、**App 4.0.11以降**が必要です。4.0.10までの公開Appでは、台本への反映が
 `Remote asset source does not match: PoseNN`で拒否されます（kubohiroya/turbowarp-kamishibai-app#1184）。
 現在の固定版は`app-release.json`を参照してください。ダミー認識の専用無効化には`invalidate-source-v1`対応のApp 4.0.15以降が必要です。
+無効区間だけが参照するモデルの先読み抑止は、公開App 4.0.21で対応しました。
+モデルの宣言とオフ本体を残したまま、認識も先読みも行わずに試演できます。
 未公開候補を検証する場合は、正式なpin・配布物を更新しない明示的なプレビューモードを使います。
 
 ### 取り扱い
