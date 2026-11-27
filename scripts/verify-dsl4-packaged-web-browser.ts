@@ -113,11 +113,20 @@ async function openDsl4Page(
   browser: Browser,
   origin: string,
   pathname: string,
-  {storySource, remotePrefixes = []}: {storySource?: string; remotePrefixes?: string[]} = {},
+  {storySource, remotePrefixes = [], withoutUserMediaElement = false}: {
+    storySource?: string;
+    remotePrefixes?: string[];
+    withoutUserMediaElement?: boolean;
+  } = {},
 ) {
   const appTeachableMachineRuntime =
     /^https:\/\/kubohiroya\.github\.io\/turbowarp-kamishibai-app\/(?:teachable-machine\/\d+\.\d+\.\d+\/(?:[\w.-]+\/)*[\w.-]+|posenet\/sha256-[0-9a-f]{64})$/u;
   const page = await browser.newPage({locale: 'ja-JP', viewport: {width: 960, height: 720}});
+  if (withoutUserMediaElement) {
+    await page.addInitScript(() => {
+      Reflect.deleteProperty(globalThis, 'HTMLUserMediaElement');
+    });
+  }
   const failures: string[] = [];
   const externalRequests: string[] = [];
   const canvasReadbackWarnings: string[] = [];
@@ -395,7 +404,9 @@ try {
   }
 
   if (tutorialEnabled) {
-    const tutorial = await openDsl4Page(browser, origin, '/tutorial');
+    const tutorial = await openDsl4Page(browser, origin, '/tutorial', {
+      withoutUserMediaElement: true,
+    });
     const tutorialProject = await tutorial.page.evaluate(() => {
       const vm = globalThis.Scratch?.vm ?? globalThis.scaffolding?.vm;
       const project = JSON.parse(vm.toJSON());
@@ -493,13 +504,8 @@ try {
     }
     assert.equal(poseSkipAccepted, true, 'The active tutorial pose must accept the skip control.');
 
-    // 台本が宣言した`poseRecognition.preview.controls`を、app shellが実際に描いているかを見る。
-    // appのtestはbundleを組んで読み込むところまでで、カメラのあるブラウザで作品を再生しない。
-    // 4.0.0-rc.17以前は、この宣言があるだけで起動時に落ちていた。
-    // 4.0.0-rc.19から、ポーズ認識を使う作品はタイトルで`<usermedia>`を出してカメラを求めます。
-    // 出すのはその要素を持つブラウザだけで、Playwrightが積むChromium 149は持ちません。ここで
-    // 見ているのは「持たないブラウザでは何も変わらない」側です——段は現れず、カメラは従来どおり
-    // 読む側が開き、作品は最後まで進みます（上のskipがそれを示しています）。
+    // Explicitly exercise the unsupported-browser fallback, independent of Chromium's version.
+    // The absent permission element must leave pose playback, skipping and the Dock available.
     const cameraPermissionStep = await tutorial.page.evaluate(() => ({
       supported: 'HTMLUserMediaElement' in globalThis,
       drawn: Boolean(document.querySelector('[data-dsl4-user-media-gate]')),
