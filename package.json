@@ -68,12 +68,12 @@
     "@kubohiroya/sb3-toolchain": "^0.28.0",
     "@kubohiroya/turbowarp-sb3-save-format": "0.4.0",
     "@turbowarp/packager": "3.13.0",
-    "@types/node": "26.4.1",
-    "playwright": "1.61.1",
-    "prettier": "3.9.6",
+    "@types/node": "26.6.11",
+    "playwright": "1.65.1",
+    "prettier": "3.10.1",
     "typescript": "6.0.3",
-    "vite": "8.2.2",
-    "vitest": "5.0.0",
-    "yaml": "2.9.0"
+    "vite": "8.4.0",
+    "vitest": "5.1.2",
+    "yaml": "2.9.1"
   }
 }
