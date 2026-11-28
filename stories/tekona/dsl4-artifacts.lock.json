@@ -2,33 +2,33 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.21",
-    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c",
-    "basePath": "app-base/kamishibai-4.0.21.sb3",
-    "baseSourceIdentity": "sha256:b2871398e9c58a1bacc4022d42d8d208e1236b6a3dd5aacd2667e8932ac814e5",
-    "baseSize": 1593889,
-    "baseSha256": "fad8fa5a01133b8d9461a79ff4f988927f73b8199e34ff3f5f187afb428e9bcb"
+    "version": "4.0.33",
+    "commit": "e5105c3c3fa3f3e4a6ecbe95478a9756b2d9c054",
+    "basePath": "app-base/kamishibai-4.0.33.sb3",
+    "baseSourceIdentity": "sha256:8f285ed0a8664d40ba23a3ecd307a7c0c7c794721d989ee90477d5b3818494eb",
+    "baseSize": 1557122,
+    "baseSha256": "93aee15b9064d89408ac14d0bd56cb4872d10f4c01fe34250b0afb3dbb1a06fa"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.21",
-    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c"
+    "version": "4.0.33",
+    "commit": "e5105c3c3fa3f3e4a6ecbe95478a9756b2d9c054"
   },
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 47180,
-      "sha256": "7bb0953929a96f306b6437be5153b42cf40042ec54eb8ba6fd68fc67f58fcd1f"
+      "size": 105654,
+      "sha256": "8961c0fb2792ec6a7d5cb782f97124795dcee9b520e8d39e502e956c161d65d8"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 16376,
-      "sha256": "cce7ad3e3f0a4e74e45016075bb68b4949a2e139e3913fa5bd5589d11f967f1f"
+      "size": 58082,
+      "sha256": "e23b36403fa52d9798ddb728912c8aaef10e977fc3f64d49087b3f22afbd0abe"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
-      "size": 10914,
-      "sha256": "c0124d80420f9ec5bcbbfa3a5a329a9a286f9d97a9e5c69a7c363a36a44d2867"
+      "size": 11002,
+      "sha256": "8add3254e960525c0fb626b0be2e746d76a1f63a9191f3c4b3a6d811d8102496"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose.template.html",
@@ -49,23 +49,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2191552,
-      "sha256": "5205e0be392bc37f584426bb365279ee001eca0fbc5430ac47c2c26369f9c013"
+      "size": 2258298,
+      "sha256": "eadd13961b0600530f1c0e283db4ac11b80c91d311a31fe7fa62ecf9a3e5f09d"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 2050997,
-      "sha256": "9c9f9d55f2d7a0e489c246232caef19a233c5babe4fc0cae89e647f50c0cb18d"
+      "size": 2136653,
+      "sha256": "cf640f2b6e74ebcb7b3ef634c42065dde47fc73485b45b4e278176e6b504966e"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2092189,
-      "sha256": "481e213f186deaf71ade55abfbf044ba5056563c7f51c8ef385cee7df5972587"
+      "size": 2157894,
+      "sha256": "a0b1ddfa3e5fb2617d8e517fe79a1aa42b03d33af61f125e3be229f38c4a9740"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2128515,
-      "sha256": "02a7039d44f7524f2b9bec09abb366bc39248118ed2ba2d83722632be86709e0"
+      "size": 2203539,
+      "sha256": "cbf8aa2abd8188b0053c86f1051c5d3696dd4cce8965c27abe388164de1ac594"
     }
   },
   "web": {
@@ -74,14 +74,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "tekona-4.0.sb3",
-      "size": 2050997,
-      "sha256": "9c9f9d55f2d7a0e489c246232caef19a233c5babe4fc0cae89e647f50c0cb18d"
+      "size": 2136653,
+      "sha256": "cf640f2b6e74ebcb7b3ef634c42065dde47fc73485b45b4e278176e6b504966e"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 8764345,
-      "sha256": "c3d3e5dab26b1f2e74b75ca17f380bba2ac613c056b6941e2fa3e38901a0b549"
+      "size": 8737041,
+      "sha256": "39d6d6eba9f08b4dda87a52d3dcd6c4b11d69a5eef82eddd9ee6997b791c01fa"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -90,7 +90,7 @@
         "target": "html",
         "autoplay": true,
         "app": {
-          "windowTitle": "手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居"
+          "windowTitle": "市川市国府台の伝承物語　真間の手児奈 | TurboWarp紙芝居"
         },
         "cloudVariables": {
           "mode": "disabled"
@@ -102,7 +102,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "92ec2f85e169da818079ecc834e02ecf30fdf903e9fc5407d013d4ca9118c44d"
+          "sha256": "ed120f4889dd1955947cfc2d903bc7d3b3514232a05ccf0a7e93de5804d3d4d9"
         }
       ],
       "scratchRender": {

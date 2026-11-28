@@ -1,4 +1,4 @@
-# 手児奈 ― 真間の井の求婚者たち のライセンス
+# 市川市国府台の伝承物語　真間の手児奈 のライセンス
 
 Copyright © 2026 Hiroya Kubo.
 
@@ -10,7 +10,7 @@ Copyright © 2026 Hiroya Kubo.
 - `../../resources/tekona-workshop/art-versions/`に保存した、仮素材の過去の版のSVG・一覧画像・生成スクリプト
 - 本ディレクトリの説明
 
-音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある4ファイル（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。
+効果音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある2ファイル（Goal Cheer、Crowd Gasp）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。BGMは使用しません。
 
 `tekona-workshop-4.0.sb3`、`tekona-4.0.sb3`、`tekona-blocks-4.0.sb3`は、上記の素材に、rootの`app-release.json`が固定する
 TurboWarp-Kamishibaiの公開Release（4.0.1）のruntime base（MPL-2.0）を組み合わせた結合物です。
@@ -24,3 +24,7 @@ TurboWarp-Kamishibaiの公開Release（4.0.1）のruntime base（MPL-2.0）を�
 ライセンス全文はリポジトリルートの[`LICENSE`](../../LICENSE)を参照してください。
 
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+- `assets/sakimori-departure.svg`・`assets/ambient/departure-01.svg`〜`departure-16.svg`：既存の版4人物・住居表現を用いて新規に描いた家族の別れの背景（MPL-2.0）。生成元は `resources/tekona-workshop/art-versions/v4-detailed-acting/generator/sakimori-departure.cjs`。
+
+- `assets/avant-dusk.svg`：アバンタイトル用の夕暮れの入江（MPL-2.0）。生成元は `resources/tekona-workshop/art-versions/v4-detailed-acting/generator/avant-dusk.cjs`。

@@ -53,7 +53,7 @@ const bentReeds = (x0, x1, base, color, seed, h, lean) => {
   return s;
 };
 // 小さな鳥（遠くを飛ぶ影）
-const birdV = (x, y, s, c, w = 2) => `<path d="M${x - 6 * s} ${y} q${3 * s} ${-4 * s} ${6 * s} 0 q${3 * s} ${-4 * s} ${6 * s} 0" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+const birdV = (x, y, s, c, w = 2) => `<g data-ambient="birds"><path d="M${x - 6 * s} ${y} q${3 * s} ${-4 * s} ${6 * s} 0 q${3 * s} ${-4 * s} ${6 * s} 0" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round"/></g>`;
 
 // ---------- 夜明けの入江（国府台の上から見下ろす） ----------
 function yoake() {
@@ -204,7 +204,7 @@ function haru() {
   s += grass(0, 420, 330, '#7a9c4c', 49, 9);
   for (const [x, y] of [[40, 340], [120, 346], [210, 338], [300, 348]]) s += `<circle cx="${x}" cy="${y}" r="2.6" fill="#b49ad8"/><circle cx="${x + 6}" cy="${y + 4}" r="2.2" fill="#f6f0a8"/>`;
   // つばめ
-  const swallow = (x, y, s2) => `<path d="M${x} ${y} l${-12 * s2} ${-6 * s2} l${8 * s2} ${7 * s2} l${-10 * s2} ${8 * s2} l${14 * s2} ${-6 * s2} l${10 * s2} ${2 * s2} z" fill="#2a3450"/>`;
+  const swallow = (x, y, s2) => `<g data-ambient="birds"><path d="M${x} ${y} l${-12 * s2} ${-6 * s2} l${8 * s2} ${7 * s2} l${-10 * s2} ${8 * s2} l${14 * s2} ${-6 * s2} l${10 * s2} ${2 * s2} z" fill="#2a3450"/></g>`;
   s += swallow(200, 96, 1.2) + swallow(250, 120, .9);
   return soften(s, .18);
 }
@@ -284,14 +284,17 @@ function aki() {
 
 // ---------- 冬の嵐の夜 ----------
 // 左手前の岸（画面の x 0〜200、下端）に人物を立てられる
-function arashi() {
+function arashi(phase = 0, animated = false) {
+  const angle = phase * Math.PI / 8, gust = Math.sin(angle);
   let s = `<rect width="480" height="360" fill="${grad([[0, '#0e1424'], [.5, '#1e2a44'], [1, '#2a3652']])}"/>`;
   // 雲に隠れかける月
   s += glow(372, 74, 120, '#c8d4f0', .4) + `<circle cx="372" cy="74" r="30" fill="#e6ecf8"/>`;
+  if (animated) s += `<g transform="translate(${f1(gust * 16)} 0)">`;
   s += cloud(300, 96, 150, 34, '#26324c', null, 121) + cloud(330, 70, 90, 20, '#2e3a56', null, 123);
   s += `<path d="M300 92 q60 -14 150 -4" stroke="#8e9cc0" stroke-width="2.4" fill="none" opacity=".6"/>`;
   s += cloud(-20, 60, 220, 40, '#1a2236', null, 127) + cloud(120, 110, 200, 30, '#202a42', null, 131);
   s += `<path d="M10 56 q80 -16 200 -4 M150 106 q70 -10 160 -2" stroke="#4a5878" stroke-width="2" fill="none" opacity=".6"/>`;
+  if (animated) s += `</g>`;
   // 遠くの砂州と、風に大きく傾く松
   s += `<path d="M230 192 Q350 182 480 186 V198 H230 Z" fill="#0c1220"/>`;
   s += pineRow([246, 268, 292, 318, 344, 370, 398, 424, 452, 474], 190, .5, ['#0c1220', '#121a2c'], 137, 18);
@@ -299,22 +302,36 @@ function arashi() {
   s += `<rect y="194" width="480" height="166" fill="${grad([[0, '#22324e'], [.5, '#18263e'], [1, '#0e1828']])}"/>`;
   const rnd = rnd0(139);
   for (let row = 0; row < 7; row++) {
+    if (animated) s += `<g transform="translate(${f1(Math.sin(angle + row * .6) * (8 + row * 2))} ${f1(Math.cos(angle + row * .6) * (2 + row))})">`;
     const y = 206 + row * row * 3.4 + row * 6, amp = 3 + row * 1.6, w = 26 + row * 9;
     for (let x = -20 + (row % 2) * w / 2; x < 500; x += w * (1 + rnd() * .4)) {
       s += `<path d="M${f1(x)} ${f1(y)} q${f1(w * .3)} ${f1(-amp * 1.6)} ${f1(w * .6)} ${f1(-amp * .4)} q${f1(w * .12)} ${f1(-amp * .9)} ${f1(-w * .06)} ${f1(-amp * 1.4)}" stroke="#c8d6ea" stroke-width="${f1(1.2 + row * .35)}" fill="none" stroke-linecap="round" opacity="${f1(.35 + row * .08)}"/>`;
     }
+    if (animated) s += `</g>`;
   }
   // しぶき
+  if (animated) s += `<g transform="translate(${f1(-gust * 12)} ${f1(-Math.cos(angle) * 6)})">`;
   for (let i = 0; i < 40; i++) s += `<circle cx="${f1(rnd() * 480)}" cy="${f1(210 + rnd() * 120)}" r="${f1(.8 + rnd() * 1.4)}" fill="#dfe8f4" opacity="${f1(.3 + rnd() * .4)}"/>`;
+  if (animated) s += `</g>`;
   // 左手前の岸と、打ち寄せる波
   s += `<path d="M0 290 Q80 280 150 300 Q190 314 214 360 H0 Z" fill="${grad([[0, '#2a2e3a'], [1, '#161a24']])}"/>`;
   s += `<path d="M150 300 q30 -16 56 -4 q-10 8 -2 18 q20 -10 34 4" stroke="#dfe8f4" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>`;
   s += `<path d="M120 296 q24 -12 40 -2" stroke="#dfe8f4" stroke-width="2" fill="none" opacity=".5"/>`;
   // 右手前の、風に倒れる葦
-  s += bentReeds(360, 480, 360, '#141a24', 149, 130, -46);
-  s += bentReeds(0, 40, 360, '#141a24', 151, 80, -30);
+  s += bentReeds(360, 480, 360, '#141a24', 149, 130, -46 - (animated ? gust * 16 : 0));
+  s += bentReeds(0, 40, 360, '#141a24', 151, 80, -30 - (animated ? gust * 10 : 0));
   // 横なぐりの雨
+  if (animated) {
+    // A tiled rain field returns seamlessly after sixteen frames.
+    for (let i = 0; i < 70; i++) {
+      const x = rnd() * 256 - phase * 16, y = ((rnd() * 448 + phase * 28) % 448) - 44;
+      for (let tile = 0; tile < 4; tile++) s += `<path d="M${f1(x + tile * 256)} ${f1(y)} l-16 28" stroke="#b6c8e6" stroke-width="1.2" opacity=".5"/>`;
+    }
+    // One subdued lightning pulse per 2.4-second loop, away from the figure.
+    if (phase === 4 || phase === 5) s += `<rect width="480" height="360" fill="#d8e8ff" opacity="${phase === 4 ? .12 : .04}"/><path d="M350 46 l-24 54 20 -8 -32 60 12 -43 -20 7 z" fill="#e2edff" opacity="${phase === 4 ? .85 : .25}"/>`;
+  } else {
   for (let i = 0; i < 70; i++) { const x = rnd() * 520, y = rnd() * 340; s += `<path d="M${f1(x)} ${f1(y)} l-10 18" stroke="#9aaacc" stroke-width="1" opacity=".3"/>`; }
+  }
   return s;
 }
 
@@ -354,4 +371,5 @@ defs = [];
 write('kemuri-1', 120, 160, kemuri(0)); write('kemuri-2', 120, 160, kemuri(1));
 for (const k of [1, 2, 3]) write(`nio-${k}`, 100, 70, nio(k));
 write('kari-1', 160, 90, kari(true)); write('kari-2', 160, 90, kari(false));
-console.log(`${Object.keys(backdrops).length + 7} files`);
+for (let phase = 0; phase < 16; phase++) { defs = []; gid = 0; write(`storm-${String(phase + 1).padStart(2, '0')}`, 480, 360, arashi(phase, true)); }
+console.log(`${Object.keys(backdrops).length + 23} files`);

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -33,13 +34,26 @@ const verifiedDiagnosticFixtures = new Map<string, {
 
 /** Make an explicitly separate compatibility fixture; never rewrite the downloaded distribution. */
 export async function createLegacyBlockDiagnosticFixture(input: string, directory: string) {
-  const original = await readFile(input), archive = unzipSync(original);
-  const project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
-  const stage = project.targets.find((target) => target.isStage)!;
+  const original = await readFile(input);
+  let archive = unzipSync(original);
+  let project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
+  let stage = project.targets.find((target) => target.isStage)!;
   if (!Object.values(stage.blocks).some(({opcode}) => opcode === prefix + 'embeddedYamlRoot')) {
     return {input, converted: false, originalSha256: createHash('sha256').update(original).digest('hex')};
   }
   assertEmbeddedYamlBlockSource(project);
+  if (!project.extensions?.includes('kubohiroyakamishibaiauthoring4')) {
+    // Restore the retired palette only in this isolated compatibility fixture, using the pinned CLI.
+    const builder = await resolveBlockAuthoringBuilder();
+    const restored = path.join(directory, 'legacy-palette-fixture.sb3');
+    const result = spawnSync(process.execPath, [builder.cli, 'migrate-block-palette',
+      '--input', input, '--output', restored, '--restore'], {cwd: builder.root, encoding: 'utf8'});
+    if (result.error) throw result.error;
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    archive = unzipSync(await readFile(restored));
+    project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
+    stage = project.targets.find(target => target.isStage)!;
+  }
   const [rootId, root] = Object.entries(stage.blocks).find(([, b]) => b.opcode === prefix + 'embeddedYamlRoot')!;
   const documents = new Map(Object.entries(stage.blocks)
     .filter(([, block]) => block.opcode === prefix + 'embeddedYaml')
@@ -128,6 +142,12 @@ export async function createLegacyBlockDiagnosticFixture(input: string, director
     .update(Buffer.from(originalRuntimeUrl.split(',')[1]!, 'base64')).digest('hex');
   project.extensionURLs!.kubohiroyakamishibai4 =
     'data:text/javascript;base64,' + Buffer.from(runtimeSource).toString('base64');
+  // Compatibility diagnostics expose sections even when the source has no section blocks yet.
+  const variant = `bundle-narrative${builder.identity.sourceSections ? '-sections' : ''}.js`;
+  const legacyAuthoring = await readFile(path.join(builder.root,
+    'dist/extensions/kubohiroyakamishibaiauthoring4', variant), 'utf8');
+  project.extensionURLs!.kubohiroyakamishibaiauthoring4 =
+    'data:text/javascript;base64,' + Buffer.from(legacyAuthoring).toString('base64');
   archive['project.json'] = strToU8(JSON.stringify(project));
   const bytes = zipSync(archive, {level: 6});
   const output = path.join(directory, 'legacy-diagnostic-fixture.sb3');

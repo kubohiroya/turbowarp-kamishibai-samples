@@ -13,6 +13,7 @@ import {parse, stringify} from 'yaml';
 
 import type {ScratchProject} from '../scripts/scratch.ts';
 import {verifyStructuredBlockSource} from '../scripts/verify-structured-block-source.ts';
+import {readBlockProjectExtensions} from '../scripts/block-project-extensions.ts';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const storyPath = path.join(projectRoot, 'stories/urashima/urashima.k4.yml');
@@ -39,6 +40,20 @@ try {
 
 test('Urashima exposes all scenes and commands as connected editable blocks', () => {
   verifyStructuredBlockSource(artifactProject, sourceText, archive);
+});
+
+test('rejects a unified runtime whose embedded pose editor targets the wrong argument', () => {
+  const candidate = structuredClone(artifactProject);
+  assert(!candidate.extensions?.includes('kubohiroyakamishibaiauthoring4'));
+  const runtime = readBlockProjectExtensions(candidate, archive).get('kubohiroyakamishibai4')!;
+  const source = strFromU8(runtime.bytes);
+  assert(source.includes('STEPS'));
+  delete candidate.turboWarpPlus;
+  candidate.extensionURLs = {
+    kubohiroyakamishibai4: 'data:text/javascript;base64,' +
+      Buffer.from(source.replaceAll('STEPS', 'VALUE')).toString('base64'),
+  };
+  assert.throws(() => verifyStructuredBlockSource(candidate, sourceText), /pose must edit STEPS/);
 });
 
 test('tutorial embeds the eight definition forms and scene/pose/say/think forms', async () => {

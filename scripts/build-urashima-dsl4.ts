@@ -16,7 +16,7 @@ import {appBasePath} from './app-dependency.ts';
 import {readDsl4StoryConfig} from './story-config.ts';
 import {buildEditableBlockSource} from './build-dsl4-block-source.ts';
 import {resolveBlockAuthoringBuilder} from './block-authoring-builder.ts';
-import {extensionSaveCapabilities} from './block-project-extensions.ts';
+import {extensionSaveCapabilities, readBlockProjectExtensions} from './block-project-extensions.ts';
 import type {Dsl4ArtifactLock, Dsl4Story} from './dsl4.ts';
 import type {ScratchProject} from './scratch.ts';
 import {verifyStructuredBlockSource} from './verify-structured-block-source.ts';
@@ -180,18 +180,23 @@ function inspectBlockProject(
 async function embedBlockExtensionFiles(input: Uint8Array, version: string): Promise<Buffer> {
   const archive = unzipSync(input);
   const project = JSON.parse(strFromU8(archive['project.json']!)) as ScratchProject;
-  const ids = ['kubohiroyakamishibai4', 'kubohiroyakamishibaiauthoring4'];
+  const ids = project.extensions?.includes('kubohiroyakamishibaiauthoring4')
+    ? ['kubohiroyakamishibai4', 'kubohiroyakamishibaiauthoring4']
+    : ['kubohiroyakamishibai4'];
+  assert.deepEqual([...(project.extensions ?? [])].sort(), ids);
+  if (ids.length === 1) {
+    const runtime = readBlockProjectExtensions(project, archive).get(ids[0]!);
+    assert(runtime && strFromU8(runtime.bytes).includes('// Kamishibai capabilities: unified-declarations-v1'),
+      'A single extension must provide the unified declarations.');
+  }
   const {converted} = await writeSb3ExtensionFormat(archive, project, 'embedded-file', {
     capabilities: extensionSaveCapabilities,
-    // The bundled runtime and the authoring forms use the unsandboxed host APIs.
+    // Runtime declarations and legacy authoring forms use the unsandboxed host APIs.
     unsandboxed: ids,
-    // Both come from the pinned App release, so the Manifest can name it. Left unset, the entry
-    // says what the bytes are and how to run them but not which release they are, and reading
-    // that back means parsing `// Version:` out of a 3.3 MB bundle. The writer applies this to
-    // every entry it converts, which is right here because both entries are that release's.
+    // Every extension comes from the pinned App release.
     version,
   });
-  assert.deepEqual([...converted].sort(), ids, 'The editor must carry both Kamishibai extensions.');
+  assert.deepEqual([...converted].sort(), ids, 'The editor must carry its pinned Kamishibai extensions.');
   archive['project.json'] = strToU8(JSON.stringify(project));
   return Buffer.from(zipSync(archive, {level: 6, mtime: new Date(1980, 0, 1)}));
 }

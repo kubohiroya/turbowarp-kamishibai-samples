@@ -132,8 +132,11 @@ export async function verifyUrashimaDsl4(): Promise<Dsl4ArtifactLock> {
   const blockExtensions = readBlockProjectExtensions(blockProject, blockArchive);
   assert.deepEqual([...blockExtensions.keys()].sort(), [
     'kubohiroyakamishibai4',
-    'kubohiroyakamishibaiauthoring4',
+    ...(blockProject.extensions?.includes('kubohiroyakamishibaiauthoring4')
+      ? ['kubohiroyakamishibaiauthoring4'] : []),
   ]);
+  if (blockExtensions.size === 1) assert(strFromU8(blockExtensions.get('kubohiroyakamishibai4')!.bytes)
+    .includes('// Kamishibai capabilities: unified-declarations-v1'));
   for (const [id, extension] of blockExtensions) {
     assert.equal(extension.format, 'embedded-file', id);
     assert.equal(extension.spec?.execution, 'unsandboxed', id);

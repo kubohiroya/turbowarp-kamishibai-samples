@@ -60,8 +60,10 @@ async function fillSlot(page: Page, nn: string, edits: BlockEdit[], modelUrl: st
   return page.evaluate(({nn, edits, modelUrl}) => {
     const workspace = window.ScratchBlocks.getMainWorkspace();
     const all = workspace.getAllBlocks(false);
+    const isDeclaration = (block: any, name: string) => block.type === `kubohiroyakamishibaiauthoring4_${name}` ||
+      block.type === `kubohiroyakamishibai4_kubohiroyakamishibairuntime4__${name}`;
     const textOf = (block: any, input: string) => block.getInputTargetBlock(input);
-    const scene = all.find((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_scene' &&
+    const scene = all.find((block: any) => isDeclaration(block, 'scene') &&
       textOf(block, 'SCENE')?.getFieldValue('TEXT') === `suitor-${nn}`);
     if (!scene) throw new Error(`Slot suitor-${nn} is missing.`);
     const changed: string[] = [];
@@ -69,7 +71,7 @@ async function fillSlot(page: Page, nn: string, edits: BlockEdit[], modelUrl: st
     const body = () => scene.getInputTargetBlock('SUBSTACK')?.getDescendants(false) ?? [];
     for (const edit of edits) {
       if (edit.kind === 'enable') {
-        const condition = body().find((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_narrativeIf');
+        const condition = body().find((block: any) => isDeclaration(block, 'narrativeIf'));
         textOf(condition, 'CONDITION').setFieldValue(edit.replacement, 'TEXT');
         changed.push(edit.label);
         continue;
@@ -91,7 +93,7 @@ async function fillSlot(page: Page, nn: string, edits: BlockEdit[], modelUrl: st
       changed.push(`${edit.label}: ${edit.current}`);
     }
     if (!modelUrl) return changed;
-    const model = all.find((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_asset' &&
+    const model = all.find((block: any) => isDeclaration(block, 'asset') &&
       textOf(block, 'NAME')?.getFieldValue('TEXT') === `Pose${nn}`);
     const value = textOf(model, 'VALUE');
     const declaration = JSON.parse(value.getFieldValue('TEXT'));

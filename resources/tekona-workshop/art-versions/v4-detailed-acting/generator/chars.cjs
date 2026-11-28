@@ -98,6 +98,55 @@ const MALE_FACES = {
     eyeW: 5.6, eyeH: 2, iris: 2.2, lid: 1.4, browY: -12, browArch: 1, browW: 2.4, mouthW: .85, mouthY: 19,
     nose: '<path d="M4 -4 Q4.6 3 7 9 Q5.4 10.2 3.4 9.6 Q4.6 9 4.8 8.2 Q4.2 2 4 -4 Z" fill="SD" opacity=".7"/><path d="M3.4 10.2 q2 .8 3.8 -.4" stroke="SD" stroke-width="1.2" fill="none" stroke-linecap="round"/>'},
 };
+// Keep Tekona's fine features separate from the villagers and children.
+function femaleFace(o) {
+  const {mood, skin, skinDark, brow = '#2b2118', eye = '#2a1d2a'} = o;
+  const type = o.type || 'child', tekona = type === 'tekona', child = type === 'child';
+  const narrow = type === 'village-narrow' || type === 'elder';
+  const wide = type === 'village-wide';
+  const lines = type === 'village-bun' || type === 'elder';
+  const contour = tekona || child
+    ? 'M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z'
+    : wide ? 'M-20 -6 Q-22 11 -11 22 Q0 29 11 25 Q20 18 21 7 Q23 -4 20 -10 Q15 -25 0 -25 Q-20 -23 -20 -6 Z'
+      : 'M-18 -7 Q-20 12 -8 24 Q2 29 10 25 Q18 18 19 7 Q20 -3 18 -10 Q15 -25 0 -26 Q-18 -24 -18 -7 Z';
+  let s = `<path d="${contour}" fill="${skin}" data-character-face="${type}"/>`;
+  const eyeAt = (x, near) => {
+    const sx = near ? 1 : .74, sy = (near ? 1 : .9) * (narrow ? .62 : 1);
+    const lid = tekona ? 1 : child ? 1.7 : 1.9;
+    let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
+    const closed = mood === 'gentle' || mood === 'laugh' || mood === 'cry';
+    if (closed) e += `<path d="M-5.4 1 q5.4 ${mood === 'cry' ? 3.4 : -5} 10.8 0" stroke="${eye}" stroke-width="${r1((tekona ? 1.05 : 2.4) / sx)}" fill="none" stroke-linecap="round"/>`;
+    else e += `<path d="M-5.4 0 Q0 -6 5.4 -1 Q0 4 -5.4 0 Z" fill="#fbf6ee"/><ellipse cx="1" cy="-.5" rx="${tekona ? 2.8 : 3.2}" ry="${tekona ? 3.5 : 3.8}" fill="${eye}"/><circle cx="0" cy="-2" r="${tekona ? 1 : 1.2}" fill="#fff"/>` +
+      `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(lid / sx)}" fill="none" stroke-linecap="round"/>`;
+    e += '</g>';
+    if (tekona) {
+      // Keep both endpoints fixed and bow the curve downward between them.
+      e += `<path d="${closed ? 'M5.4 1 Q7.1 2.3 8.2 -.7' : 'M5.8 -1.2 Q7.4 .3 8.4 -3.7'}" transform="translate(${x} 0) scale(${sx} ${sy})" stroke="${eye}" stroke-width=".4" fill="none" stroke-linecap="round"/>`;
+    }
+    return e;
+  };
+  s += eyeAt(-3, true) + eyeAt(12.5, false);
+  if (tekona) {
+    s += `<path d="M-10 -10.6 Q-4.4 -13.9 1.5 -11.1 Q-4.5 -12.4 -10 -10.6 Z M8.2 -11.2 Q12.1 -13.3 16.1 -10.8 Q12.2 -12.1 8.2 -11.2 Z" fill="${brow}"/>`;
+    s += `<path d="M2.4 14.2 Q5.5 ${mood === 'resolve' ? 14.7 : 15.4} 8.2 13.9" stroke="#96584a" stroke-width=".95" fill="none" stroke-linecap="round"/>`;
+  } else {
+    const b = mood === 'cry' ? ['M-10 -9 Q-4 -14 1 -14', 'M8.5 -14 Q13 -14 17 -9'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -11'];
+    s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="${child ? 1.6 : narrow ? 2 : 1.8}" fill="none" stroke-linecap="round"/>`).join('');
+    const mouth = {cry: '<path d="M0 17 Q2 12 5 15 Q8 12 11 17 Q6 20 0 17 Z" fill="#8a3a32"/>', smile: '<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+      gentle: '<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+      resolve: '<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>',
+      laugh: '<path d="M0 12.6 Q5 12 10 12 Q9 19 5 19 Q1 18.6 0 12.6 Z" fill="#8a3a32"/><path d="M.6 12.8 L9.6 12.2 L9.2 14 L1 14.4 Z" fill="#fff"/>',
+      talk: '<ellipse cx="5" cy="15" rx="3" ry="2.2" fill="#8a3a32"/>'}[mood] || '';
+    const mouthScale = child ? 1 : wide || type === 'village-bun' ? 1.45 : 1.25;
+    s += `<g transform="translate(5 15) scale(${mouthScale} ${child ? 1 : 1.05}) translate(-5 -15)">${mouth}</g>`;
+    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="${child ? '#f29c9c' : '#e4957c'}" opacity="${child ? '.5' : o.old ? '.2' : '.3'}"/><ellipse cx="14" cy="9" rx="3.2" ry="2.3" fill="${child ? '#f29c9c' : '#e4957c'}" opacity="${child ? '.5' : o.old ? '.2' : '.3'}"/>`;
+    if (lines) s += `<path d="M-.8 7 Q-4.4 12 -2 17.2 M11.6 7.4 Q15 11.4 12.8 17" stroke="${skinDark}" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".85"/>`;
+    if (o.old) s += `<path d="M-11 -1 l-3 -2 M-11 1.4 l-3.2 .6 M16 -1 l2.4 -1.6 M-8 -17 Q0 -19 8 -17 M-6 -14 Q1 -15.6 7 -14" stroke="${skinDark}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+    if (o.dirty) s += '<path d="M-12.4 7.4 q4.6 -2 6.7 1.3 q-2.3 3.5 -6.4 1.5 Z" fill="#806344" opacity=".23"/><ellipse cx="13.8" cy="11.3" rx="2.1" ry="1.2" fill="#806344" opacity=".2"/>';
+  }
+  if (mood === 'cry') s += '<path d="M-5 3 Q-7 9 -5 15 M13 3 Q15 9 13 15" stroke="#bdd9e2" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M-4 16 q-2 3 0 4 q2 -1 0 -4 M13 16 q-2 3 0 4 q2 -1 0 -4" fill="#bdd9e2"/>';
+  return s;
+}
 function face(o) {
   const {kind, mood, skin, skinDark, brow = '#2b2118', eye = '#2a1d16', beard = false, mustache = false, stubble = false} = o;
   let s = '';
@@ -163,32 +212,7 @@ function face(o) {
     if (mustache) s += `<path d="M${mx - 8} ${my - 4} Q${mx - 3} ${my - 8} ${mx} ${my - 6} Q${mx + 4} ${my - 8} ${mx + 8} ${my - 5} Q${mx + 4} ${my - 4} ${mx} ${my - 4} Q${mx - 4} ${my - 3} ${mx - 8} ${my - 4} Z" fill="${brow}"/>`;
     if (beard) s += `<path d="M${mx - 3} ${cy - 3} Q${mx + 1} ${cy + 7} ${mx + 5} ${cy - 2} Q${mx + 2} ${cy} ${mx} ${cy - .5} Z" fill="${brow}"/>`;
     if (o.lines) s += `<path d="M0 9 Q-3 13 -2 ${my + 1}" stroke="${skinDark}" stroke-width="1.2" fill="none" opacity=".8"/>`;
-  } else {
-    // 女性：やわらかい輪郭、満月のような丸い顔
-    s += `<path d="M-17 -6 Q-17 12 -6 21 Q2 26 9 24 Q16 19 18 8 Q20 -2 19 -8 Q16 -24 0 -25 Q-17 -23 -17 -6 Z" fill="${skin}"/>`;
-    // 目：3/4で右を向く顔では、画面の左が手前の目、輪郭に近い右が奥の目。奥の目は横に縮めて小さく描く
-    const eyeAt = (x, near) => {
-      const sx = near ? 1 : .74, sy = near ? 1 : .9;
-      let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
-      if (mood === 'gentle' || mood === 'laugh') e += `<path d="M-5.4 1 q5.4 -5 10.8 0" stroke="${eye}" stroke-width="${r1(2.4 / sx)}" fill="none" stroke-linecap="round"/>`;
-      else e += `<path d="M-5.4 0 Q0 -6 5.4 -1 Q0 4 -5.4 0 Z" fill="#fbf6ee"/><ellipse cx="1" cy="-.5" rx="3.2" ry="3.8" fill="${eye}"/><circle cx="0" cy="-2" r="1.2" fill="#fff"/>` +
-        `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(1.7 / sx)}" fill="none" stroke-linecap="round"/>`;
-      return e + `</g>`;
-    };
-    s += eyeAt(-3, true) + eyeAt(12.5, false);
-    const b = mood === 'resolve' ? ['M-9 -12 L1 -11', 'M8.5 -11 L15.5 -12'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -11'];
-    s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('');
-    // 口：両目のあいだの下、やや手前寄り
-    s += {smile: `<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
-      gentle: `<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
-      resolve: `<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>`,
-      // laugh：目を細めて口をあけて笑う／talk：話している途中の小さくあいた口
-      laugh: `<path d="M0 12.6 Q5 12 10 12 Q9 19 5 19 Q1 18.6 0 12.6 Z" fill="#8a3a32"/><path d="M.6 12.8 L9.6 12.2 L9.2 14 L1 14.4 Z" fill="#fff"/>`,
-      talk: `<ellipse cx="5" cy="15" rx="3" ry="2.2" fill="#8a3a32"/>`}[mood];
-    s += `<ellipse cx="-4" cy="9" rx="4.4" ry="2.5" fill="#f29c9c" opacity="${o.old ? '.25' : '.5'}"/><ellipse cx="14" cy="9" rx="3.2" ry="2.3" fill="#f29c9c" opacity="${o.old ? '.25' : '.5'}"/>`;
-    // 年寄り：目じり・ほうれい線・額のしわ
-    if (o.old) s += `<path d="M-11 -1 l-3 -2 M-11 1.4 l-3.2 .6 M16 -1 l2.4 -1.6 M1 9 Q-1 13 0 17 M12 9 Q14 13 12.6 17 M-8 -17 Q0 -19 8 -17 M-6 -14 Q1 -15.6 7 -14" stroke="${skinDark}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
-  }
+  } else s += femaleFace(o);
   return s;
 }
 // 顔と髪を、位置 c・向き f・傾き tilt で置く
@@ -641,38 +665,49 @@ function hataori(pose) {
 const TK = {skin: '#f6d7bd', skinDark: '#e3b898', cloth: '#ece4cf', clothDark: '#d4c7a6', mo: '#e0d5b8', moDark: '#c9bb97', eri: '#2f5b9a', hair: '#1d1a2b'};
 function tekonaFigure(k, mood, {jar = false, sway = 0, palm = false} = {}) {
   const c = TK, f = 1;
-  let s = '';
+  // Lower only the shoulder joints; retain the head and recompute the arm bends.
   const neckBase = lerp(k.sl, k.sr, .5);
-  // 長い髪（後ろ）。とかしていない毛先
-  const hb = add(k.head, [-2, -6]);
-  s += `<path d="M${P(add(hb, [-22, -6]))} Q${P(add(hb, [-30, 70]))} ${P(add(hb, [-22 + sway, 132]))} l6 -5 l5 7 l6 -6 l6 6 l6 -6 l6 6 l6 -5 l5 6 Q${P(add(hb, [30, 70]))} ${P(add(hb, [22, -6]))} Z" fill="${c.hair}"/>`;
+  const neckline = add(neckBase, [0, -5]);
+  const armDrop = 5;
+  const upperArm = FEMALE.ua * .8;
+  const sl = add(k.sl, [0, 7 + armDrop]), sr = add(k.sr, [0, 7 + armDrop]);
+  k = {...k, sl, sr,
+    hl: add(k.hl, [-2, 0]), hr: add(k.hr, [2, 0]),
+    armL: ik(sl, add(k.wristL, [0, armDrop]), upperArm, FEMALE.fa, k.elbowL),
+    armR: ik(sr, add(k.wristR, [0, armDrop]), upperArm, FEMALE.fa, k.elbowR)};
+  let s = '';
+  // Share the crown and side outline, including head rotation, with the long back hair.
+  const hairCrown = 'M-20 0 C-21 -18 -13 -28 0 -28 C13 -28 22 -19 22 -5 C22 10 22 21 23 31 C24 40 21 48 23 56';
+  const hairReturn = 'C-20 49 -23 42 -21 32 C-19 21 -22 12 -20 0 Z';
+  const backHair = `${hairCrown} C27 73 19 88 24 104 C27 114 ${26 + sway} 122 ${22 + sway} 126 l-5 -5 l-5 6 l-5 -6 l-5 6 l-5 -6 l-5 6 l-5 -5 l-5 5 C-27 115 -19 104 -23 90 C-28 74 -22 66 -21 56 ${hairReturn}`;
+  s += placeHead(k.head, f, k.headTilt || 0, `<path d="${backHair}" fill="${c.hair}"/>`);
   // はだしの足と、ひだのある裳
   s += foot(k.legR.end, f, c.skin, {lift: k.liftR || 0, size: .9}) + foot(k.legL.end, f, c.skin, {lift: k.liftL || 0, size: .9});
   const waist = lerp(neckBase, k.pelvis, .66);
   const hemL = [Math.min(k.legL.end[0], k.legR.end[0]) - 20, Math.max(k.legL.end[1], k.legR.end[1]) - 2];
   const hemR = [Math.max(k.legL.end[0], k.legR.end[0]) + 18, hemL[1] + 2];
-  s += `<path d="M${P(add(waist, [-21, 0]))} L${P(add(waist, [21, 0]))} Q${P(add(k.hr, [14, 60]))} ${P(hemR)} Q${P(lerp(hemL, hemR, .5))} ${P(hemL)} Q${P(add(k.hl, [-14, 60]))} ${P(add(waist, [-21, 0]))} Z" fill="${c.mo}"/>`;
-  for (let i = 1; i < 6; i++) s += `<path d="M${P(lerp(add(waist, [-21, 14]), add(waist, [21, 14]), i / 6))} L${P(lerp(hemL, hemR, i / 6))}" stroke="${c.moDark}" stroke-width="1.6"/>`;
-  s += `<path d="M${P(add(waist, [8, 0]))} L${P(add(waist, [21, 0]))} Q${P(add(k.hr, [14, 60]))} ${P(hemR)} L${P(lerp(hemL, hemR, .74))} Z" fill="${c.moDark}" opacity=".45"/>`;
+  s += `<path d="M${P(add(waist, [-18, 0]))} L${P(add(waist, [18, 0]))} C${P(add(waist, [21, 14]))} ${P(add(k.hr, [18, 10]))} ${P(add(k.hr, [16, 28]))} Q${P(add(k.hr, [14, 60]))} ${P(hemR)} Q${P(lerp(hemL, hemR, .5))} ${P(hemL)} Q${P(add(k.hl, [-14, 60]))} ${P(add(k.hl, [-16, 28]))} C${P(add(k.hl, [-18, 10]))} ${P(add(waist, [-21, 14]))} ${P(add(waist, [-18, 0]))} Z" fill="${c.mo}"/>`;
+  for (let i = 1; i < 6; i++) s += `<path d="M${P(lerp(add(waist, [-18, 14]), add(waist, [18, 14]), i / 6))} L${P(lerp(hemL, hemR, i / 6))}" stroke="${c.moDark}" stroke-width="1.6"/>`;
+  s += `<path d="M${P(add(waist, [8, 0]))} L${P(add(waist, [18, 0]))} C${P(add(waist, [21, 14]))} ${P(add(k.hr, [18, 10]))} ${P(add(k.hr, [16, 28]))} Q${P(add(k.hr, [14, 60]))} ${P(hemR)} L${P(lerp(hemL, hemR, .74))} Z" fill="${c.moDark}" opacity=".45"/>`;
   // 麻の上衣（腰丈）と青い衿
   const topL = add(k.hl, [-16, 10]), topR = add(k.hr, [16, 10]);
-  s += `<path d="M${P(add(k.sl, [-5, -5]))} Q${P(add(neckBase, [0, -7]))} ${P(add(k.sr, [5, -5]))} L${P(topR)} Q${P(lerp(topL, topR, .5))} ${P(topL)} Z" fill="${c.cloth}"/>`;
+  s += `<path d="M${P(add(k.sl, [-9, -5]))} Q${P(add(neckline, [0, -12]))} ${P(add(k.sr, [9, -5]))} C${P(add(k.sr, [9, 16]))} ${P(add(waist, [20, -20]))} ${P(add(waist, [18, 0]))} Q${P(add(k.hr, [18, 5]))} ${P(topR)} Q${P(lerp(topL, topR, .5))} ${P(topL)} Q${P(add(k.hl, [-18, 5]))} ${P(add(waist, [-18, 0]))} C${P(add(waist, [-20, -20]))} ${P(add(k.sl, [-9, 16]))} ${P(add(k.sl, [-9, -5]))} Z" fill="${c.cloth}"/>`;
   s += `<path d="M${P(add(neckBase, [8, 6]))} L${P(add(k.sr, [3, -1]))} L${P(topR)} L${P(lerp(topL, topR, .7))} Z" fill="${c.clothDark}" opacity=".45"/>`;
   // 衿（右前）：外側の衿は画面の右上から左下へ
-  s += `<path d="M${P(add(neckBase, [-7, -1]))} L${P(add(neckBase, [1, 18]))}" stroke="#22457a" stroke-width="6" stroke-linecap="round"/>`;
-  s += `<path d="M${P(add(neckBase, [7, -1]))} L${P(add(topL, [12, -4]))}" stroke="${c.eri}" stroke-width="7" stroke-linecap="round"/>`;
+  s += `<path d="M${P(add(neckline, [-7, -1]))} L${P(add(neckline, [1, 18]))}" stroke="#22457a" stroke-width="6" stroke-linecap="round"/>`;
+  s += `<path d="M${P(add(neckline, [7, -1]))} L${P(add(topL, [12, -4]))}" stroke="${c.eri}" stroke-width="7" stroke-linecap="round"/>`;
   // 倭文の帯
-  const wl = add(waist, [-22, 2]), wr = add(waist, [22, 2]);
+  const wl = add(waist, [-18, -2]), wr = add(waist, [18, -2]);
   s += seg(wl, wr, 8, '#7a4a3a');
   for (let i = 0; i < 11; i++) { const q = lerp(wl, wr, (i + .5) / 11); s += `<rect x="${r1(q[0] - 1)}" y="${r1(q[1] - 4)}" width="2" height="8" fill="${['#2f5b9a', '#efe2c4', '#a8483a', '#efe2c4'][i % 4]}"/>`; }
   s += `<path d="M${P(add(wl, [8, 4]))} q-3 14 0 24 M${P(add(wl, [11, 4]))} q3 12 8 18" stroke="#7a4a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
   // 首（短め）
-  s += `<path d="M${P(add(neckBase, [-6, 3]))} L${P(add(k.neckTop, [-6, 0]))} L${P(add(k.neckTop, [6, 0]))} L${P(add(neckBase, [6, 3]))} Z" fill="${c.skin}"/>`;
+  s += `<path d="M${P(add(neckline, [-6, 3]))} L${P(add(k.neckTop, [-6, 0]))} L${P(add(k.neckTop, [6, 0]))} L${P(add(neckline, [6, 3]))} Z" fill="${c.skin}"/>`;
   s += `<path d="M${P(add(k.neckTop, [-6, 0]))} L${P(add(k.neckTop, [6, 0]))} L${P(add(k.neckTop, [6, 5]))} Z" fill="${c.skinDark}" opacity=".6"/>`;
-  // 頭：中央で分けた前髪と、肩へ垂れる横の髪。飾りはつけない
-  const hair = `<path d="M-19 4 Q-23 -26 0 -28 Q22 -28 21 -6 Q16 -16 8 -18 Q6 -10 3 -18 Q-4 -18 -10 -10 Q-14 -2 -15 10 Z" fill="${c.hair}"/>` +
-    `<path d="M-19 -2 Q-26 30 -20 52 L-12 48 Q-14 24 -12 0 Z" fill="${c.hair}"/>`;
-  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'female', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, eye: '#2a1d2a'}) + hair);
+  // A smooth forehead arch and narrow sidelocks meet the back hair at identical edges.
+  const hair = `<path d="${hairCrown} L21 55 C19 48 22 40 21 32 C20 23 20 10 19.5 -5 C16 -16 8 -20 0 -20 C-10 -20 -15 -12 -16 -3 C-17 13 -16 22 -18 32 C-20 42 -17 49 -18 55 L-21 56 ${hairReturn}" fill="${c.hair}"/>` +
+    `<path d="M5 -26.7 C6.6 -18.4 -2.8 -6.2 -14.6 -3.5 M3 -27 C4.4 -18.6 -4.2 -5.8 -15.4 -2 M1 -27 C2.2 -18.8 -5.6 -5.4 -16.2 -.5 M-1 -27 C0 -19 -7 -5 -17 1 M-3 -26.8 C-2.2 -19.2 -8.4 -4.7 -17.8 2.5 M-5 -26.2 C-4.4 -18.7 -9.8 -3.8 -18.6 4 M-7 -25.2 C-6.6 -18 -11.2 -2.5 -19.2 5.5 M-9 -24 C-8.8 -17.5 -12.6 -1.2 -20 7" stroke="${c.hair}" stroke-width="1.2375" fill="none" stroke-linecap="round"/>`;
+  s += placeHead(k.head, f, k.headTilt || 0, face({kind: 'female', type: 'tekona', mood, skin: c.skin, skinDark: c.skinDark, brow: c.hair, eye: '#2a1d2a'}) + hair);
   // 腕と手
   const arm = (a, sh, side, kind) => limb(sh, a.mid, 13, 12, c.cloth) + limb(a.mid, a.end, 12, 10, c.cloth) + hand(a.end, ang(a.mid, a.end), c.skin, {kind, size: .85, side});
   if (jar) {

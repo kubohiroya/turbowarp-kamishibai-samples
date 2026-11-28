@@ -54,9 +54,10 @@ export const tekonaBlocksOutput = 'tekona-blocks-4.0.sb3';
 /** Block-script workshop SB3: participant slots with placeholder assets, replaced in the editor. */
 export const tekonaBlockWorkshopOutput = 'tekona-workshop-blocks-4.0.sb3';
 const workshopConfigName = 'workshop.config.json';
-/** The prepared suitors' scenes, in story order; participants follow the last one. */
-export const preparedScenes = ['ryoshi', 'sato', 'utabito', 'hataori', 'gunji', 'kokufu', 'sakimori', 'miyako'];
+/** The prepared suitors in story order; participants precede the final defender. */
+export const preparedScenes = ['ryoshi', 'sato', 'utabito', 'hataori', 'gunji', 'kokufu', 'miyako', 'sakimori'];
 const lastPreparedScene = preparedScenes.at(-1)!;
+const participantPredecessor = preparedScenes.at(-2)!;
 
 interface WorkshopConfig {
   formatVersion: 1;
@@ -276,9 +277,9 @@ export async function buildTekona({writeLock = false, outputDirectory, preview}:
     const slotScenes = Object.keys(parse(await readExportedDsl4Source(slotExportResult, builder.root,
       JSON.parse(strFromU8(unzipSync(await readFile(blockWorkshopPath))['project.json']!)))).scenes);
     assert.deepEqual(
-      slotScenes.slice(slotScenes.indexOf(lastPreparedScene), slotScenes.indexOf('quarrel') + 1),
-      [lastPreparedScene, ...slotSeats(slots).map((nn) => `suitor-${nn}`), 'quarrel'],
-      'The block workshop slots must stay between the prepared suitors and quarrel.',
+      slotScenes.slice(slotScenes.indexOf(participantPredecessor), slotScenes.indexOf('quarrel') + 1),
+      [participantPredecessor, ...slotSeats(slots).map((nn) => `suitor-${nn}`), lastPreparedScene, 'quarrel'],
+      'The defender must remain the final suitor after the workshop slots.',
     );
 
     const lock = {
@@ -331,7 +332,7 @@ export async function buildTekona({writeLock = false, outputDirectory, preview}:
         options: {
           target: 'html',
           autoplay: true,
-          app: {windowTitle: '手児奈 ― 真間の井の求婚者たち | TurboWarp紙芝居'},
+          app: {windowTitle: '市川市国府台の伝承物語　真間の手児奈 | TurboWarp紙芝居'},
           cloudVariables: {mode: 'disabled'},
         },
       },

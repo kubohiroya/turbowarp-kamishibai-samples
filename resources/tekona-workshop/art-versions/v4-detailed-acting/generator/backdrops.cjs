@@ -12,7 +12,7 @@ const reeds = (x0, x1, base, color, seed = 1, h = 70) => {
     s += `<path d="M${x.toFixed(1)} ${base} q${(lean / 3).toFixed(1)} ${(-hh / 2).toFixed(1)} ${lean.toFixed(1)} ${(-hh).toFixed(1)}" stroke="${color}" stroke-width="${(2 + rnd() * 1.5).toFixed(1)}" fill="none" stroke-linecap="round"/>`;
     if (rnd() > 0.55) s += `<path d="M${(x + lean).toFixed(1)} ${(base - hh).toFixed(1)} q2 10 0 18" stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>`;
   }
-  return s;
+  return `<g data-ambient="reeds" data-pivot-x="${(x0 + x1) / 2}" data-pivot-y="${base}">${s}</g>`;
 };
 // 松（砂州の松。考証メモでは黒松の景観は後世の可能性ありとして控えめに）
 const pine = (x, y, s, c) =>
@@ -202,7 +202,7 @@ function inletSunset() {
   s += `<path d="M330 198 Q400 188 480 192 V202 H330 Z" fill="#4a3446"/>`;
   s += pineRow([340, 358, 380, 404, 428, 450, 472], 196, .55, ['#4a3446', '#553c50'], 33, 5);
   // 水鳥（ねぐらへ帰る）
-  s += `<path d="M150 70 q6 -6 12 0 q6 -6 12 0 M182 56 q5 -5 10 0 q5 -5 10 0 M126 84 q4 -4 8 0 q4 -4 8 0" stroke="#3b2d4b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  s += `<g data-ambient="birds"><path d="M150 70 q6 -6 12 0 q6 -6 12 0 M182 56 q5 -5 10 0 q5 -5 10 0 M126 84 q4 -4 8 0 q4 -4 8 0" stroke="#3b2d4b" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
   // 手前の岸と葦
   s += `<path d="M0 300 Q120 284 220 312 T480 300 V360 H0 Z" fill="${grad([[0, '#4a3e2c'], [1, '#2e281c']])}"/>`;
   s += marukibune(236, 318, .9, {dark: true, f: -1});
