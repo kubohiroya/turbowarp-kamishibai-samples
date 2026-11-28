@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.21",
-    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c",
-    "basePath": "app-base/kamishibai-4.0.21.sb3",
-    "baseSourceIdentity": "sha256:b2871398e9c58a1bacc4022d42d8d208e1236b6a3dd5aacd2667e8932ac814e5",
-    "baseSize": 1593889,
-    "baseSha256": "fad8fa5a01133b8d9461a79ff4f988927f73b8199e34ff3f5f187afb428e9bcb"
+    "version": "4.0.22",
+    "commit": "1d0690436f436e46534397e172d3c3d34bc02d28",
+    "basePath": "app-base/kamishibai-4.0.22.sb3",
+    "baseSourceIdentity": "sha256:02c0761fe6dda73d17436bfaa6dd1aa57101fe74b15f7e716401e8ac271851e9",
+    "baseSize": 1593892,
+    "baseSha256": "47c7c6b3962511db8002690e46774d484a02c6d103871fe2b9a3d640dcafb67a"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.21",
-    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c"
+    "version": "4.0.22",
+    "commit": "1d0690436f436e46534397e172d3c3d34bc02d28"
   },
   "sources": [
     {
@@ -34,13 +34,13 @@
   "outputs": {
     "yaml": {
       "path": "audio-4.0.sb3",
-      "size": 1432141,
-      "sha256": "ae574d93fe0ac403db9ed2844ec689ef436fd1ddaa83f421df33101fff07bca3"
+      "size": 1432143,
+      "sha256": "200f5bf707dd551c390b024376e2030cf3c898e704ff91372006d47be817c235"
     },
     "blocks": {
       "path": "audio-blocks-4.0.sb3",
-      "size": 1456730,
-      "sha256": "705a547165c4ef0baef4221b84dd3514eb231d1520512be192ff2344b6f76f8c"
+      "size": 1456732,
+      "sha256": "3b612818a0aa8c9a6738a1bc10f8022147080403c633dfb7f5e2eae5ce603f57"
     }
   },
   "web": {
@@ -49,14 +49,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-4.0.sb3",
-      "size": 1432141,
-      "sha256": "ae574d93fe0ac403db9ed2844ec689ef436fd1ddaa83f421df33101fff07bca3"
+      "size": 1432143,
+      "sha256": "200f5bf707dd551c390b024376e2030cf3c898e704ff91372006d47be817c235"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 7990028,
-      "sha256": "ae08fc3339a27f2d8c46e9a234f18a1dd302798b63d481500e750f4016a52bf6"
+      "size": 7990033,
+      "sha256": "8c971924275964ddcc20ee4da516b860c8ba760435ecb72090dbd7ee27cfb8b8"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -77,7 +77,7 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "92ec2f85e169da818079ecc834e02ecf30fdf903e9fc5407d013d4ca9118c44d"
+          "sha256": "34870e4d2b0da0a71a4103eaf056774d66db104c5d8dd0fdc50a330291909b38"
         }
       ],
       "scratchRender": {
@@ -127,14 +127,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "audio-blocks-4.0.sb3",
-      "size": 1456730,
-      "sha256": "705a547165c4ef0baef4221b84dd3514eb231d1520512be192ff2344b6f76f8c"
+      "size": 1456732,
+      "sha256": "3b612818a0aa8c9a6738a1bc10f8022147080403c633dfb7f5e2eae5ce603f57"
     },
     "output": {
       "path": "web-blocks-4.0/index.html",
       "contentType": "text/html",
-      "size": 8147852,
-      "sha256": "896a6475532eee6424c0145097e03d2753a1459316a02539b01bc69d34c50713"
+      "size": 8147857,
+      "sha256": "2ea9ebe1124027f77e04f6223c5ade994a5b322c2255605b7851ac49d08cc2ed"
     },
     "packager": {
       "package": "@turbowarp/packager",
@@ -155,12 +155,12 @@
         {
           "id": "kubohiroyakamishibai4",
           "source": "input-sb3-data-url",
-          "sha256": "92ec2f85e169da818079ecc834e02ecf30fdf903e9fc5407d013d4ca9118c44d"
+          "sha256": "34870e4d2b0da0a71a4103eaf056774d66db104c5d8dd0fdc50a330291909b38"
         },
         {
           "id": "kubohiroyakamishibaiauthoring4",
           "source": "input-sb3-data-url",
-          "sha256": "4a107d997e3c8bcd434ac4eb091ed0c9e5919233f4df937ceefc1ae82f97aad3"
+          "sha256": "a4dfb8453453f2997d1b6339b13d8df5c3abb0c4db4f10b0ebaf85956f09e5d7"
         }
       ],
       "scratchRender": {

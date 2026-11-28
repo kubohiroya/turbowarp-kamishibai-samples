@@ -4,14 +4,14 @@
   "input": {
     "profile": "dsl4-offline",
     "path": "urashima-4.0.sb3",
-    "size": 11044240,
-    "sha256": "52210e162bce98f86b381abdafd18c514c56cdd7f17109806014ad82c722ec58"
+    "size": 11044247,
+    "sha256": "6c2fdf1e97559b3afc0d439684758f31e0853b446bcffb700c2981d01e9d270f"
   },
   "output": {
     "path": "web-4.0/index.html",
     "contentType": "text/html",
-    "size": 19786353,
-    "sha256": "ca101c739841f1ab0f4b9ca3a22871895d23fb7cada40951acc355def49b0e41"
+    "size": 19786358,
+    "sha256": "ecc69357d4effc2f8b296749671169430dcd3abba8ed752b2cd1caa50a3122fb"
   },
   "packager": {
     "package": "@turbowarp/packager",
@@ -32,7 +32,7 @@
       {
         "id": "kubohiroyakamishibai4",
         "source": "input-sb3-data-url",
-        "sha256": "92ec2f85e169da818079ecc834e02ecf30fdf903e9fc5407d013d4ca9118c44d"
+        "sha256": "34870e4d2b0da0a71a4103eaf056774d66db104c5d8dd0fdc50a330291909b38"
       }
     ],
     "scratchRender": {
