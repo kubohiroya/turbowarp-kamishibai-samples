@@ -25,6 +25,28 @@
       }
     },
     {
+      "path": "stories/editor-guide/editor-guide-01-4.0.sb3",
+      "size": 1429162,
+      "sha256": "a2cdd793c8e5d1d8404320771ad3d2aea953b2bf8be6a9e8f1b1966ba927857c",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-5f9d60b8/editor-guide-01-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.21",
+        "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c"
+      }
+    },
+    {
+      "path": "stories/editor-guide/editor-guide-02-4.0.sb3",
+      "size": 1428808,
+      "sha256": "a06f97ef23694e5858efda3caa04047f62bea097103be51e7ebec82891a0bbb1",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-5f9d60b8/editor-guide-02-4.0.sb3",
+      "runtime": {
+        "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+        "version": "4.0.21",
+        "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c"
+      }
+    },
+    {
       "path": "stories/my-urashima/my-urashima-2-poses-blocks-4.0.sb3",
       "size": 10818583,
       "sha256": "f766cb85396235240b1cd6d63a87f8ed66cf71b4102f651787a1acd68fe6578d",
