@@ -10,6 +10,7 @@ import {readDsl4StoryConfig, readTutorialStoryConfig} from './story-config.ts';
 import {requireFresh} from './artifact-freshness.ts';
 import {buildAudioPlayback} from './build-audio-playback.ts';
 import {buildThreeVisits} from './build-three-visits.ts';
+import {buildEditorGuide, editorGuideStartUrl} from './build-editor-guide.ts';
 import {buildTekona} from './build-tekona.ts';
 import {buildMyUrashima} from './build-my-urashima.ts';
 import {buildMyUrashimaDsl4} from './build-my-urashima-dsl4.ts';
@@ -1305,6 +1306,22 @@ ${renderArtifactFormats(narrativeWork, () => true, '', (href) => href.replace('s
 ${renderSiteFooter('../../')}</body></html>`;
 }
 
+export function renderEditorGuideIndex(version: string): string {
+  const start = editorGuideStartUrl().replaceAll('&', '&amp;');
+  return `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>エディターたんけん | TurboWarp紙芝居</title><link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../site-shell.css"><style>body{margin:0;font-family:system-ui,sans-serif;background:#eef1ff;color:#243247}main{max-width:900px;margin:auto;padding:40px 24px}li{margin:1em 0}a{color:#4b3a9a}</style></head><body>
+${renderSiteHeader('../../', '/turbowarp-kamishibai-samples/stories/editor-guide/')}
+<main><h1>エディターたんけん — 紙芝居でEditorの使い方を学ぶ</h1><p>DSL 4.0 / ${version}。ガイド役がTurboWarp Plus Editorの部品を指し示し、操作すると物語が続く2章の教材です。</p>
+<ul><li><a href="${start}">第1章をTurboWarp Plus Editorで開く</a>（最後の「次の教材へ」で第2章へ進みます）</li>
+<li><a href="editor-guide-01-4.0.sb3" download>第1章のSB3</a> / <a href="editor-guide-02-4.0.sb3" download>第2章のSB3</a></li></ul>
+<p>案内はEditorに組み込まれたEditor Guide拡張が表示するため、Web版はありません。拡張機能の確認では「すべて有効にして実行」、続いて緑の旗とタイトルの「紙芝居を始める」を押してください。台詞は8秒で進み、スペースキーで早く進められます。</p>
+<p>ソース: <a href="lesson-01.k4.yml" download>第1章の台本</a>・<a href="lesson-02.k4.yml" download>第2章の台本</a>・<a href="guide.svg" download>ガイド役</a>・<a href="practice.svg" download>ほし</a>・<a href="backdrop.svg" download>背景</a>。生成元は<a href="https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v${version}">${version}のRelease</a>と<a href="dsl4-artifacts.lock.json">生成記録</a>で確認できます。</p>
+<p><a href="README.md">使い方・再生成</a> / <a href="LICENSES.md">ライセンス</a></p></main>
+${renderSiteFooter('../../')}</body></html>`;
+}
+
 export function renderTekonaIndex(tekonaWork: WorkEntry, version: string): string {
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1667,6 +1684,14 @@ export async function buildSite() {
   await writeFile(
     path.join(narrativeDirectory, 'index.html'),
     renderThreeVisitsIndex(narrativeWork, narrative.builder.version),
+    'utf8',
+  );
+
+  const editorGuideDirectory = path.join(outputDirectory, 'stories/editor-guide');
+  const editorGuide = await buildEditorGuide({outputDirectory: editorGuideDirectory});
+  await writeFile(
+    path.join(editorGuideDirectory, 'index.html'),
+    renderEditorGuideIndex(editorGuide.builder.version),
     'utf8',
   );
 

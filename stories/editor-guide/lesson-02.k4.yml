@@ -1,0 +1,27 @@
+kamishibai: "4.0"
+controls:
+  keymaps:
+    production:
+      Space: navigation.nextAction
+assets:
+  Desk: {kind: backdrop, file: backdrop.svg}
+  GuideIdle: {kind: costume, target: ガイド, file: guide.svg}
+  Star: {kind: costume, target: ほし, file: practice.svg}
+actors:
+  ガイド: GuideIdle
+  ほし: Star
+scenes:
+  tour:
+    - stage: Desk
+    - ほし.show: {skin: Star, x: 170, y: -110, scale: 80}
+    - ガイド.show: {skin: GuideIdle, x: -150, y: -60, scale: 100}
+    - ガイド.say: {text: たんけんのつづきだよ, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: さくひんをしらべるどうぐをつかおう, seconds: 8, waitFor: advance}
+    - broadcastMessageAndWait: "案内:コードの検索"
+    - ガイド.say: {text: そこにことばを入れると, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: ブロックをさがせるよ, seconds: 8, waitFor: advance}
+    - broadcastMessageAndWait: "案内:コード"
+    - ガイド.say: {text: このきょうざいでは, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: へんこうをきろくするGitもつかえるよ, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: たんけんはこれでおしまい, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: じぶんのさくひんをつくろう！, seconds: 8, waitFor: advance}

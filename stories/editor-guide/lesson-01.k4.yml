@@ -1,0 +1,29 @@
+kamishibai: "4.0"
+controls:
+  keymaps:
+    production:
+      Space: navigation.nextAction
+assets:
+  Desk: {kind: backdrop, file: backdrop.svg}
+  GuideIdle: {kind: costume, target: ガイド, file: guide.svg}
+  Star: {kind: costume, target: ほし, file: practice.svg}
+actors:
+  ガイド: GuideIdle
+  ほし: Star
+scenes:
+  tour:
+    - stage: Desk
+    - ほし.show: {skin: Star, x: 170, y: -110, scale: 80}
+    - ガイド.show: {skin: GuideIdle, x: -150, y: -60, scale: 100}
+    - ガイド.say: {text: こんにちは！, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: エディターをたんけんしよう, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: スペースキーで、はやくすすむよ, seconds: 8, waitFor: advance}
+    - broadcastMessageAndWait: "案内:スプライト一覧"
+    - ガイド.say: {text: よくできたね！, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: スプライトは、あそこにならぶよ, seconds: 8, waitFor: advance}
+    - broadcastMessageAndWait: "案内:コード"
+    - ガイド.say: {text: すごい！ブロックをうごかせたね, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: コードは、あそこでつくるよ, seconds: 8, waitFor: advance}
+    - broadcastMessageAndWait: "案内:次の教材"
+    - ガイド.say: {text: みぎしたのボタンをおすと, seconds: 8, waitFor: advance}
+    - ガイド.say: {text: つぎのたんけんへすすめるよ, seconds: 8, waitFor: advance}
