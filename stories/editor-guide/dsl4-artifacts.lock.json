@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "runtime": {
+    "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.21",
+    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c",
+    "basePath": "app-base/kamishibai-4.0.21.sb3",
+    "baseSourceIdentity": "sha256:b2871398e9c58a1bacc4022d42d8d208e1236b6a3dd5aacd2667e8932ac814e5",
+    "baseSize": 1593889,
+    "baseSha256": "fad8fa5a01133b8d9461a79ff4f988927f73b8199e34ff3f5f187afb428e9bcb"
+  },
+  "builder": {
+    "package": "@kubohiroya/turbowarp-kamishibai-app",
+    "version": "4.0.21",
+    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c"
+  },
+  "sources": [
+    {
+      "path": "lesson-01.k4.yml",
+      "size": 1509,
+      "sha256": "979dc7b841560ebc52d51282811c3d0dfe93b10792ed03e4ac1de968d2e0483a"
+    },
+    {
+      "path": "lesson-02.k4.yml",
+      "size": 1366,
+      "sha256": "95843c1302e4a88483cfd66f7d18595f834ee457bfeb3b782a32e145f5e5eff1"
+    },
+    {
+      "path": "guide.svg",
+      "size": 757,
+      "sha256": "65672e26cd74148d756a92a7288ab6c37b99034c11dd5dc84cdc77a74ded1fba"
+    },
+    {
+      "path": "practice.svg",
+      "size": 446,
+      "sha256": "426f4a24a4d9badb192be6c9fe76d1437c50876cf3f3225f1fb9f811b9525cf7"
+    },
+    {
+      "path": "backdrop.svg",
+      "size": 683,
+      "sha256": "63447a814d1101cb2a66e186d2182f4dbc1535da0713f092050eeb1228db789c"
+    }
+  ],
+  "outputs": {
+    "lesson-01": {
+      "path": "editor-guide-01-4.0.sb3",
+      "size": 1429162,
+      "sha256": "a2cdd793c8e5d1d8404320771ad3d2aea953b2bf8be6a9e8f1b1966ba927857c"
+    },
+    "lesson-02": {
+      "path": "editor-guide-02-4.0.sb3",
+      "size": 1428808,
+      "sha256": "a06f97ef23694e5858efda3caa04047f62bea097103be51e7ebec82891a0bbb1"
+    }
+  }
+}
