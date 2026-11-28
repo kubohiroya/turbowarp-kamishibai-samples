@@ -1,18 +1,18 @@
 {
   "formatVersion": 1,
   "status": "published",
-  "version": "4.0.21",
+  "version": "4.0.33",
   "published": true,
-  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.21",
+  "releaseDependency": "https://github.com/kubohiroya/turbowarp-kamishibai-app/releases/tag/v4.0.33",
   "sourceIdentity": "07d90109499a0a6b3695b60619468d437b0dfb6baf389d3fc3d056f08e728e0c",
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.21",
-    "commit": "714e7270fb29b2ba3800fca67be9e0507f23d10c",
-    "basePath": "app-base/kamishibai-4.0.21.sb3",
-    "baseSourceIdentity": "sha256:b2871398e9c58a1bacc4022d42d8d208e1236b6a3dd5aacd2667e8932ac814e5",
-    "baseSize": 1593889,
-    "baseSha256": "fad8fa5a01133b8d9461a79ff4f988927f73b8199e34ff3f5f187afb428e9bcb"
+    "version": "4.0.33",
+    "commit": "e5105c3c3fa3f3e4a6ecbe95478a9756b2d9c054",
+    "basePath": "app-base/kamishibai-4.0.33.sb3",
+    "baseSourceIdentity": "sha256:8f285ed0a8664d40ba23a3ecd307a7c0c7c794721d989ee90477d5b3818494eb",
+    "baseSize": 1557122,
+    "baseSha256": "93aee15b9064d89408ac14d0bd56cb4872d10f4c01fe34250b0afb3dbb1a06fa"
   },
   "license": {
     "spdx": "MPL-2.0",
@@ -36,9 +36,9 @@
     },
     "sb3": {
       "path": "tutorial-4.0.sb3",
-      "size": 7435314,
-      "sha256": "3a75c7d07fb72ed3ea18eb292a051e882e891975d9a648b33e32b2ae761b45bf",
-      "archiveEntryCount": 10,
+      "size": 7389715,
+      "sha256": "65c538b7f535a5758d44f86bbf9190446a395e557c560fc05a983ac3033c5f63",
+      "archiveEntryCount": 11,
       "targetNames": [
         "Stage",
         "Student"
@@ -46,9 +46,9 @@
     },
     "sb3Blocks": {
       "path": "tutorial-blocks-4.0.sb3",
-      "size": 7453167,
-      "sha256": "da1b325dd94ec6c00b71e01b0fdc4c00a6b3505cdfee04acb69ef2b8aa07760e",
-      "archiveEntryCount": 10,
+      "size": 7382616,
+      "sha256": "c84dde50c691f58843acfb433e11fbd80b5bb268f73bf5f637c3baef83dc8c1b",
+      "archiveEntryCount": 11,
       "targetNames": [
         "Stage",
         "Student"
@@ -57,8 +57,8 @@
     "web": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 15371860,
-      "sha256": "66ed76267ddc2bfe415ea4d27a004959e066ba3db1ae399b5b08559a1c066b49"
+      "size": 15181128,
+      "sha256": "281421753f8a6f8f4bdb6ed62952d3c96178b66efcfe9870904d9829d201ee2d"
     },
     "starter": {
       "path": "tutorial-story-starter-4.0.zip",

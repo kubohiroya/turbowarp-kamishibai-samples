@@ -207,9 +207,10 @@ function participantYaml(source, submission, {pose = 'kime'} = {}) {
 function insert(source, parts) {
   if (source.split('\n  quarrel:\n').length !== 2) throw new Error('台本に quarrel の場面が1つだけある必要があります。');
   if (source.split('\nactors:\n').length !== 2) throw new Error('台本に actors が1つだけある必要があります。');
+  const boundary = source.includes('\n  sakimori:\n') ? 'sakimori' : 'quarrel';
   return source
     .replace('\nactors:\n', `\n${parts.map(({assets}) => assets).join('\n')}\nactors:\n${parts.map(({actor}) => actor).join('\n')}\n`)
-    .replace('\n  quarrel:\n', `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  quarrel:\n`);
+    .replace(`\n  ${boundary}:\n`, `\n${parts.map(({scene}) => scene).join('\n\n')}\n\n  ${boundary}:\n`);
 }
 
 /**

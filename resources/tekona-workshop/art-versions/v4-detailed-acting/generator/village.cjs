@@ -44,16 +44,20 @@ const hairSvg = (style, c) => {
 // 人物を1人描く。k は skeleton() の結果。o に服の色・髪・表情・持ち物
 function person(k, o) {
   const c = o.colors, child = o.child;
+  const profile = child ? 'child' : o.old ? 'elder' : o.hair === 'bun' ? 'village-bun' : c === C.ochre ? 'village-wide' : 'village-narrow';
+  const dirty = !child && !o.old;
+  const mud = (q, sc = 1) => `<g transform="translate(${P(q)}) scale(${sc})"><path d="M-3 -1 q4 -2 7 .4 q-.4 3 -5 2 Z" fill="#806344" opacity=".27"/><circle cx="5" cy="1" r=".9" fill="#806344" opacity=".22"/></g>`;
   let s = '';
   const neckBase = lerp(k.sl, k.sr, .5);
   // 奥の腕（体の後ろ）
   const arm = (a, sh, side, kind) => limb(sh, a.mid, child ? 10 : 13, child ? 9 : 12, side > 0 ? c.cloth : c.clothDark) + limb(a.mid, a.end, child ? 9 : 12, child ? 8 : 10, side > 0 ? c.cloth : c.clothDark) +
-    hand(a.end, ang(a.mid, a.end), c.skin, {kind, size: child ? .65 : .85, side});
+    hand(a.end, ang(a.mid, a.end), c.skin, {kind, size: child ? .65 : .85, side}) + (dirty ? mud(a.end, .9) : '');
   if (o.backArm !== false) s += arm(k.armR, k.sr, -1, o.handR || 'relaxed');
   // 脚と足（はだし）
   for (const [leg, hip] of [[k.legR, k.hr], [k.legL, k.hl]]) {
     if (o.skirt === 'long') s += foot(leg.end, 1, c.skin, {size: child ? .7 : .9});
     else s += limb(hip, leg.mid, child ? 11 : 13, child ? 9 : 11, c.skin) + limb(leg.mid, leg.end, child ? 9 : 11, child ? 7 : 9, c.skin) + foot(leg.end, 1, c.skin, {size: child ? .7 : .9});
+    if (dirty) s += mud(add(leg.end, [5, 5]), 1.2);
   }
   // 下の衣：女は足首までの裳、子どもはひざ丈の上衣の裾
   const waist = lerp(neckBase, k.pelvis, .66);
@@ -83,11 +87,11 @@ function person(k, o) {
   s += `<path d="M${P(add(neckBase, [-5, 3]))} L${P(add(k.neckTop, [-5, 0]))} L${P(add(k.neckTop, [5, 0]))} L${P(add(neckBase, [5, 3]))} Z" fill="${c.skin}"/>`;
   // 後ろ姿で肩ごしに振り向く：顔は右の端（ほお・片目・鼻・口もと）だけが見え、残りは後ろ髪に隠れる
   if (o.back && o.lookBack) s += placeHead(k.head, 1, k.headTilt || 0,
-    face({kind: 'female', mood: o.mood || 'smile', skin: c.skin, skinDark: c.skinDark, brow: c.hair, eye: '#2a1d2a'}) +
+    face({kind: 'female', type: profile, dirty, mood: o.mood || 'smile', skin: c.skin, skinDark: c.skinDark, brow: c.hair, eye: '#2a1d2a'}) +
     `<path d="M-22 -2 Q-24 -28 -2 -29 Q14 -29 16 -18 Q8 -14 6 -2 Q5 12 8 22 Q0 30 -12 26 Q-24 16 -22 -2 Z" fill="${c.hair}"/>` +
     `<path d="M-4 20 Q-2 46 -6 62 L2 62 Q4 40 6 20 Z" fill="${c.hair}"/><rect x="-6" y="20" width="10" height="4" rx="2" fill="#d8c49a"/>`);
   else if (o.back) s += placeHead(k.head, 1, k.headTilt || 0, `<ellipse cx="-15" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="17" cy="4" rx="4" ry="7" fill="${c.skin}"/><ellipse cx="1" cy="-2" rx="19" ry="25" fill="${c.hair}"/><path d="M-6 18 Q1 46 -2 62 L6 62 Q6 40 8 18 Z" fill="${c.hair}"/><rect x="-4" y="18" width="10" height="4" rx="2" fill="#d8c49a"/>`);
-  else s += placeHead(k.head, 1, k.headTilt || 0, face({kind: 'female', mood: o.mood, old: o.old, skin: c.skin, skinDark: c.skinDark, brow: o.brow || c.hair, eye: '#2a1d2a'}) + hairSvg(o.hair, c.hair));
+  else s += placeHead(k.head, 1, k.headTilt || 0, face({kind: 'female', type: profile, dirty, mood: o.mood, old: o.old, skin: c.skin, skinDark: c.skinDark, brow: o.brow || c.hair, eye: '#2a1d2a'}) + hairSvg(o.hair, c.hair));
   // 頭にのせた水がめ
   // 頭にのせた水がめ：頭頂の輪（わら・布の当て物）の上、体の重心の真上に置く
   if (o.jarHead) { const t0 = add(k.head, [1, -26]); const t = [0, 0]; let js = '';
@@ -106,10 +110,10 @@ function person(k, o) {
 const place = (svg, x, y, s, f = 1) => `<g transform="translate(${r1(x)} ${r1(y)}) scale(${r1(s * f * 100) / 100} ${s}) translate(-120 -334)">${svg}</g>`;
 
 const C = {
-  ochre: {skin: '#efc39c', skinDark: '#d39d76', cloth: '#e6dcc3', clothDark: '#c9bb97', mo: '#b9a27a', moDark: '#9a845e', eri: '#6f8fb0', eriDark: '#55728f', belt: '#6e5638', hair: '#231a14'},
-  indigo: {skin: '#f2cda8', skinDark: '#d9a983', cloth: '#d9dfe3', clothDark: '#b7c0c6', mo: '#5f7f9e', moDark: '#4b6680', eri: '#2f5b9a', eriDark: '#22457a', belt: '#7a4a3a', hair: '#1d1a2b'},
-  brown: {skin: '#e7b893', skinDark: '#c99570', cloth: '#d8c8a6', clothDark: '#b8a47e', mo: '#8f6e4e', moDark: '#74583c', eri: '#a8483a', eriDark: '#86382c', belt: '#4f3a26', hair: '#2b2118'},
-  old: {skin: '#e4b996', skinDark: '#c4977a', cloth: '#c9bda4', clothDark: '#a99c82', mo: '#857a66', moDark: '#6c6252', eri: '#7a7a6e', eriDark: '#5f5f55', belt: '#4f3a26', hair: '#d6d2cb'},
+  ochre: {skin: '#dfaf88', skinDark: '#bb855f', cloth: '#e6dcc3', clothDark: '#c9bb97', mo: '#b9a27a', moDark: '#9a845e', eri: '#6f8fb0', eriDark: '#55728f', belt: '#6e5638', hair: '#231a14'},
+  indigo: {skin: '#e3b992', skinDark: '#c08f69', cloth: '#d9dfe3', clothDark: '#b7c0c6', mo: '#5f7f9e', moDark: '#4b6680', eri: '#2f5b9a', eriDark: '#22457a', belt: '#7a4a3a', hair: '#1d1a2b'},
+  brown: {skin: '#d9aa83', skinDark: '#b8815d', cloth: '#d8c8a6', clothDark: '#b8a47e', mo: '#8f6e4e', moDark: '#74583c', eri: '#a8483a', eriDark: '#86382c', belt: '#4f3a26', hair: '#2b2118'},
+  old: {skin: '#d7aa88', skinDark: '#b38a6b', cloth: '#c9bda4', clothDark: '#a99c82', mo: '#857a66', moDark: '#6c6252', eri: '#7a7a6e', eriDark: '#5f5f55', belt: '#4f3a26', hair: '#d6d2cb'},
   childA: {skin: '#f0c19a', skinDark: '#d39d76', cloth: '#e9dfc8', clothDark: '#cbbd98', eri: '#a8483a', eriDark: '#86382c', belt: '#6e5638', hair: '#231a14'},
   childB: {skin: '#ecbb94', skinDark: '#cf9a74', cloth: '#c7d3c0', clothDark: '#a7b59e', eri: '#2f5b9a', eriDark: '#22457a', belt: '#6e5638', hair: '#2b2118'},
 };

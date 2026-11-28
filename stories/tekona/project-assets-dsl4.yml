@@ -150,6 +150,16 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
+  TitleHeading:
+    layerOrder: 15
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
 assets:
   TitleCard:
     kind: backdrop
@@ -615,6 +625,13 @@ assets:
   TextPlaceholder:
     kind: costume
     target: Narration
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"
+  TitleHeadingPlaceholder:
+    kind: costume
+    target: TitleHeading
     file: assets/text-placeholder.svg
     rotationCenterX: 1
     rotationCenterY: 1

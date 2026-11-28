@@ -123,6 +123,12 @@ for (const story of ['urashima', 'tutorial']) {
     const archive = unzipSync(await readFile(file));
     const project = JSON.parse(strFromU8(archive['project.json']!));
     const authoring = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibaiauthoring4');
+    if (!authoring) {
+      const runtime = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibai4');
+      assert(runtime && strFromU8(runtime.bytes).includes('// Kamishibai capabilities: unified-declarations-v1'));
+      assert(!project.extensions.includes('kubohiroyakamishibaiauthoring4'));
+      return;
+    }
     assert(authoring);
     const blocks: {opcode: string; hideFromPalette?: boolean}[] = [];
     runInNewContext(

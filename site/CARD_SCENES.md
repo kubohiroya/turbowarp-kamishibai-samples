@@ -66,3 +66,15 @@
 ## 三人の訪問（物語制御のStandardサンプル）
 
 `stories/three-visits/card-scenes.gif`と`card-scenes/01.webp`〜`04.webp`は、三人の訪問と各人の結末を説明する新規の文字・図形カードです。640×400、GIFは4フレームです。スクリーンショットや第三者素材は含みません。この節のカードはHiroya Kuboが権利を持ち、[サンプルのライセンス](stories/three-visits/LICENSES.md)に従いMPL-2.0で提供します。上記のスクリーンショットのCC BY-SA 4.0とは区別します。
+
+## 市川市国府台の伝承物語　真間の手児奈
+
+App 4.0.33へ追従した作品の最新SVG素材を使い、井戸と求婚の場面画像（02・03）を更新しました。`stories/tekona/assets/mama-well.svg`を背景に、`tekona-stand.svg`と`sato-kime.svg`を本編と同じ配置・60％の倍率で重ねて描画しています。実人物の写真・カメラ映像は含みません。月夜の入江と継橋（01・04）は既存の場面画像を保持しています。
+
+WebPは480×360、GIFは400×300・4フレーム・各1.6秒・64色・ディザリングなしです。この節の画像は作品のSVGから直接描画した変換物であり、[手児奈のライセンス](stories/tekona/LICENSES.md)に従いMPL-2.0で提供します。
+
+| ファイル | サイズ | SHA-256 |
+| --- | ---: | --- |
+| `stories/tekona/card-scenes.gif` | 48,549 bytes | `5716c540adfbb8a642e420d18d2d9cc550ef3813ddd5e16f01ecbeef249d3c95` |
+| `stories/tekona/card-scenes/02.webp` | 11,652 bytes | `63b97b2a9e0fc2c12d95a82b58a78e7148d70f5f42e35980d8bf627c574fb630` |
+| `stories/tekona/card-scenes/03.webp` | 13,668 bytes | `a507e9ffbdaeeba2b32a9a62f26145d7b62b99611a06001e46ef66f87e47467e` |

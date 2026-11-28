@@ -12,7 +12,6 @@ import type {Dsl4Story} from './dsl4.ts';
 import type {ScratchBlock, ScratchProject} from './scratch.ts';
 
 const buildConfig = sampleConfig.dsl4;
-const authoringPrefix = 'kubohiroyakamishibaiauthoring4_';
 const definitionOpcodes = [
   'asset',
   'control',
@@ -34,12 +33,6 @@ const configSourceKeys = [
   'recognition',
 ];
 const runtimePrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
-const actionArguments = new Map([
-  [`${runtimePrefix}pose`, 'STEPS'],
-  [`${runtimePrefix}say`, 'SPEC'],
-  [`${runtimePrefix}think`, 'SPEC'],
-  [`${authoringPrefix}scene`, 'PROPERTIES'],
-]);
 
 /** Reject a YAML string masquerading as a block script, including disconnected actions. */
 export function verifyStructuredBlockSource(
@@ -49,9 +42,14 @@ export function verifyStructuredBlockSource(
 ): void {
   const stage = project.targets.find((target) => target.isStage);
   assert(stage, 'The block source project must keep its Stage.');
-  assert(project.extensions?.includes('kubohiroyakamishibaiauthoring4'));
-  const authoring = readBlockProjectExtensions(project, archive).get('kubohiroyakamishibaiauthoring4');
+  const legacy = project.extensions?.includes('kubohiroyakamishibaiauthoring4') ?? false;
+  const authoringPrefix = legacy ? 'kubohiroyakamishibaiauthoring4_' : runtimePrefix;
+  const authoring = readBlockProjectExtensions(project, archive).get(
+    legacy ? 'kubohiroyakamishibaiauthoring4' : 'kubohiroyakamishibai4',
+  );
   assert(authoring, 'The block source project must carry its authoring extension.');
+  if (!legacy) assert(strFromU8(authoring.bytes).includes('// Kamishibai capabilities: unified-declarations-v1'),
+    'The runtime must provide unified declarations.');
   const extensionInfo: {
     blocks?: {
       opcode: string;
@@ -61,14 +59,41 @@ export function verifyStructuredBlockSource(
     }[];
     menus?: Record<string, {acceptReporters?: boolean; items: {text: string; value: string}[]}>;
   }[] = [];
+  const registrations: {getInfo(): (typeof extensionInfo)[number]}[] = [];
+  const projectLoaded: (() => void)[] = [];
   const editors: {opcodes: string[]; argument: string; schema: object}[] = [];
   runInNewContext(
     strFromU8(authoring.bytes),
     {
+      ...(legacy ? {} : {
+        console, TextEncoder, TextDecoder, URL, URLSearchParams, atob, btoa,
+        queueMicrotask() {}, setTimeout() {}, clearTimeout() {},
+      }),
       Scratch: {
+        ...(legacy ? {} : {
+          vm: {
+            toJSON: () => project,
+            runtime: {
+              targets: project.targets.map(target => ({...target, isOriginal: true, blocks: {_blocks: target.blocks}})),
+              extensionStorage: project.extensionStorage ?? {},
+              on(event: string, listener: () => void) {
+                if (event === 'PROJECT_LOADED') projectLoaded.push(listener);
+              },
+              off() {}, emitProjectChanged() {},
+              getTargetForStage: () => ({...stage, blocks: {_blocks: stage.blocks}}),
+            },
+            on() {}, off() {},
+          },
+          translate: Object.assign((text: string | {default: string}) => typeof text === 'string' ? text : text.default,
+            {language: 'ja'}),
+          BlockType: new Proxy({}, {get: (_target, key) => String(key).toLowerCase()}),
+          ArgumentType: new Proxy({}, {get: (_target, key) => String(key).toLowerCase()}),
+          Cast: {toString: String, toNumber: Number, toBoolean: Boolean},
+        }),
         extensions: {
+          unsandboxed: true,
           register(extension: {getInfo?: () => (typeof extensionInfo)[number]}) {
-            if (extension.getInfo) extensionInfo.push(extension.getInfo());
+            if (extension.getInfo) registrations.push(extension as (typeof registrations)[number]);
           },
         },
         gui: {
@@ -84,12 +109,29 @@ export function verifyStructuredBlockSource(
     },
     {timeout: 2000},
   );
+  for (const listener of projectLoaded) listener();
+  extensionInfo.push(...registrations.map(extension => extension.getInfo()));
+  if (!legacy) {
+    // The Standard bundle exposes member block and menu names with its component prefix.
+    for (const info of extensionInfo) {
+      for (const block of info.blocks ?? [])
+        if (typeof block.opcode === 'string')
+          block.opcode = block.opcode.replace(/^kubohiroyakamishibairuntime4__/u, '');
+      info.menus = Object.fromEntries(Object.entries(info.menus ?? {}).map(([name, menu]) =>
+        [name.replace(/^kubohiroyakamishibairuntime4__/u, ''), menu]));
+    }
+  }
   const narrativeEnabled = extensionInfo.some((entry) =>
     entry.blocks?.some(
       (block) => block.opcode === 'narrativeForEach' && block.hideFromPalette === false,
     ),
   );
-  const expectedArguments = new Map(actionArguments);
+  const expectedArguments = new Map([
+    [`${runtimePrefix}pose`, 'STEPS'],
+    [`${runtimePrefix}say`, 'SPEC'],
+    [`${runtimePrefix}think`, 'SPEC'],
+    [`${authoringPrefix}scene`, 'PROPERTIES'],
+  ]);
   if (narrativeEnabled) {
     expectedArguments.set(authoringPrefix + 'narrativeForEach', 'ITEMS');
     expectedArguments.set(authoringPrefix + 'narrativeLogicList', 'VALUES');
@@ -117,7 +159,10 @@ export function verifyStructuredBlockSource(
   );
   const section = info?.blocks?.find((block) => block.opcode === 'useSection');
   assert(
-    section && section.hideFromPalette === !(buildConfig.blockAuthoring.sourceSections ?? false),
+    section && section.hideFromPalette === !(legacy
+      ? buildConfig.blockAuthoring.sourceSections ?? false
+      : project.targets.some(target => Object.values(target.blocks).some(block =>
+          block.opcode === authoringPrefix + 'useSection'))),
     'Source section palette visibility must match the build configuration.',
   );
   assert.equal(section.blockType, 'command');

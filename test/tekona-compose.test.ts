@@ -79,7 +79,7 @@ describe('tekona participant composition', () => {
     expect(checkSubmission(submission({'求婚の言葉：': '求婚の言葉："'}))).not.toEqual([]);
   });
 
-  it('inserts participants in seat order before quarrel, with quoted texts', async () => {
+  it('inserts participants in seat order before the final defender, with quoted texts', async () => {
     const source = await readFile(sourcePath, 'utf8');
     const composed = composeParticipants(source, [
       submission({'席番号：01': '席番号：12', '：揺れた': '：揺れなかった', '入江の漁師': '歌の名手: 若者'}),
@@ -88,7 +88,7 @@ describe('tekona participant composition', () => {
     const story = parse(composed);
     const scenes = Object.keys(story.scenes);
     expect(scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('quarrel') + 1))
-      .toEqual(['miyako', 'suitor-01', 'suitor-12', 'quarrel']);
+      .toEqual(['miyako', 'suitor-01', 'suitor-12', 'sakimori', 'quarrel']);
     // Every suitor: its own sprite, costumes stand/kime/rejected, and poses kime then rejected.
     expect(story.actors.Suitor12).toBe('s12-stand');
     for (const costume of ['stand', 'kime', 'rejected'])
@@ -167,7 +167,7 @@ describe('tekona block workshop slots', () => {
     const story = parse(composeSlots(source, 3, {modelUrl: sample, modelUrls: {'02': own}}));
     const scenes = Object.keys(story.scenes);
     expect(scenes.slice(scenes.indexOf('miyako'), scenes.indexOf('quarrel') + 1))
-      .toEqual(['miyako', 'suitor-01', 'suitor-02', 'suitor-03', 'quarrel']);
+      .toEqual(['miyako', 'suitor-01', 'suitor-02', 'suitor-03', 'sakimori', 'quarrel']);
     expect(story.actors.Suitor03).toBe('s03-stand');
     expect(story.assets.Pose01.source.url).toBe(sample);
     expect(story.assets.Pose02.source.url).toBe(own);

@@ -21,7 +21,6 @@ import {strFromU8, unzipSync} from 'fflate';
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const editorUrl = process.env.TURBOWARP_PLUS_EDITOR_URL ??
   'https://kubohiroya.github.io/turbowarp-plus-editor/editor.html?lang=en&twPlusYamlEditor=1&twPlusStandardLayout=0';
-const authoringScene = 'kubohiroyakamishibaiauthoring4_scene';
 const actionPrefix = 'kubohiroyakamishibai4_kubohiroyakamishibairuntime4__';
 const editedSeconds = '2.75';
 
@@ -275,6 +274,9 @@ let failure: unknown;
 try {
   const inputBytes = await readFile(options.input);
   const inputProject = JSON.parse(strFromU8(unzipSync(inputBytes)['project.json']!));
+  const declarationPrefix = inputProject.extensions?.includes('kubohiroyakamishibaiauthoring4')
+    ? 'kubohiroyakamishibaiauthoring4_' : actionPrefix;
+  const authoringScene = declarationPrefix + 'scene';
   report.inputSha256 = createHash('sha256').update(inputBytes).digest('hex');
   const legacyFixture = options.skipLegacyDiagnostics ? null :
     await createLegacyBlockDiagnosticFixture(options.input, outputDirectory);
@@ -342,10 +344,11 @@ try {
   report.documentRoot = await inspectLoadedEmbeddedYamlRoot(page);
   await page.screenshot({path: path.join(outputDirectory, 'explicit-document-root.png')});
   await Promise.race([
-    page.waitForFunction(() =>
+    page.waitForFunction((sceneType) =>
       window.ScratchBlocks.getMainWorkspace()
         .getAllBlocks(false)
-        .some((block: any) => block.type === 'kubohiroyakamishibaiauthoring4_scene'),
+        .some((block: any) => block.type === sceneType),
+      authoringScene,
     ),
     fatal,
   ]);
@@ -368,7 +371,7 @@ try {
             .getDescendants(false)
             .filter(
               (child: any) =>
-                child.type.startsWith(actionPrefix) || child.type === poseStepsBlock,
+                (child.type.startsWith(actionPrefix) && child.type !== actionPrefix + 'poseStep') || child.type === poseStepsBlock,
             ).length,
         }));
     },
@@ -376,7 +379,7 @@ try {
       authoringScene,
       actionPrefix,
       // One pose action becomes a C-block of step blocks; the C-block is the command.
-      poseStepsBlock: 'kubohiroyakamishibaiauthoring4_poseSteps',
+      poseStepsBlock: declarationPrefix + 'poseSteps',
     },
   );
   assert.equal(visibleScenes.length, expectedScenes.length);
