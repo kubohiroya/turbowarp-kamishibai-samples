@@ -307,21 +307,6 @@ function kame() {
   s += turtle(108, 236, 1.05, -6);
   s += turtle(96, 206, .45, -4);              // 親亀の背中にのる小亀
   s += turtle(186, 254, .5, 6);               // 石の端の小亀
-  // トンボ（右上の点景）：上から見た赤とんぼ。大きな複眼の頭、胸、節のある細長い腹、
-  // 透きとおった細長い4枚のはね（はね脈と、先の黒い縁紋）
-  {
-    const wing = (x, y, len, w, a) => `<g transform="translate(${x} ${y}) rotate(${a})"><path d="M0 0 Q${len * .3} ${-w} ${len} ${-w * .4} Q${len + 2} 0 ${len} ${w * .3} Q${len * .4} ${w * .8} 0 0 Z" fill="#f4f8fa" fill-opacity=".75" stroke="#8a9aa4" stroke-width=".7"/>` +
-      `<path d="M2 0 L${len - 2} ${-w * .1}" stroke="#9aa8b0" stroke-width=".6"/><path d="M${len - 7} ${-w * .5} l4 0 l0 ${w * .5} l-4 0 z" fill="#3a2a24"/></g>`;
-    let d = `<g transform="translate(390 140) rotate(-20)">`;
-    // はねは胴から左右へまっすぐ広げる（前ばねは少し前、後ろばねは少し後ろへ）
-    d += wing(-2, -2, 30, 6, 186) + wing(2, -2, 30, 6, -6);
-    d += wing(-2, 4, 28, 7, 168) + wing(2, 4, 28, 7, 12);
-    d += `<path d="M0 6 L0 40" stroke="#c8442e" stroke-width="3.4" stroke-linecap="round"/>`;
-    for (let y = 10; y < 40; y += 4) d += `<path d="M-1.8 ${y} h3.6" stroke="#8a2c1c" stroke-width=".8"/>`;
-    d += `<ellipse cx="0" cy="0" rx="3.4" ry="6" fill="#9a5a34"/><path d="M-1.6 -4 v8 M1.6 -4 v8" stroke="#d8a06a" stroke-width=".8"/>`;
-    d += `<circle cx="-2.6" cy="-8" r="3" fill="#7a2a1e"/><circle cx="2.6" cy="-8" r="3" fill="#7a2a1e"/><circle cx="-3.2" cy="-8.8" r=".9" fill="#ffffff" opacity=".8"/><circle cx="2" cy="-8.8" r=".9" fill="#ffffff" opacity=".8"/>`;
-    s += d + `</g>`;
-  }
   s += reeds(440, 480, 360, '#46703a', 7, 120, '#86b858');
   return s;
 }

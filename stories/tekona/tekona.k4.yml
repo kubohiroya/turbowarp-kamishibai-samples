@@ -38,6 +38,7 @@ assets:
   Hama: backdrop
   IdoBata: backdrop
   AvantBlank: backdrop
+  AvantDusk: backdrop
   # 点景（考証メモ 2.6・6章）：人物の出ない短いカット
   Yoake: backdrop
   IdoMizu: backdrop
@@ -45,6 +46,24 @@ assets:
   Haru: backdrop
   Natsu: backdrop
   Aki: backdrop
+  SakimoriDeparture: backdrop
+  FarewellBlank: costume:Farewell
+  departure-01: costume:Farewell
+  departure-02: costume:Farewell
+  departure-03: costume:Farewell
+  departure-04: costume:Farewell
+  departure-05: costume:Farewell
+  departure-06: costume:Farewell
+  departure-07: costume:Farewell
+  departure-08: costume:Farewell
+  departure-09: costume:Farewell
+  departure-10: costume:Farewell
+  departure-11: costume:Farewell
+  departure-12: costume:Farewell
+  departure-13: costume:Farewell
+  departure-14: costume:Farewell
+  departure-15: costume:Farewell
+  departure-16: costume:Farewell
   Arashi: backdrop
   hama-birds: costume:AmbientBirds
   haru-birds: costume:AmbientBirds
@@ -383,6 +402,7 @@ actors:
   Kari: kari-1
   Narration: TextPlaceholder
   TitleHeading: TitleHeadingPlaceholder
+  Farewell: FarewellBlank
   Reeds1: WindBlank
   AmbientBirds: hama-birds
   Storm: storm-01
@@ -411,7 +431,7 @@ recognition:
   navigation:
     allowSkip: true
 scenes:
-  # アバンタイトル：再生直後、背景を省いた無地の画面で、水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる
+  # アバンタイトル：再生直後、夕暮れの入江を背景に、水辺からコウノトリが飛び立ち、旋回しながら奥へ遠ざかる
   avant:
     - transition: {effect: fadeOut, seconds: 0.5}
     - AmbientBirds.animate:
@@ -433,7 +453,13 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
-    - stage: AvantBlank
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
+    - stage: AvantDusk
     - transition: {effect: fadeUp, seconds: 1}
     - Stork.show: {skin: stork-1, x: 120, y: -120, scale: 100}
     - wait: 1.6
@@ -479,6 +505,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: TitleCardWind
     - Reeds1.show:
         skin: title-card-reeds-01
@@ -558,6 +590,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Yoake
     - Reeds1.show:
         skin: yoake-reeds-01
@@ -661,6 +699,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Ryo
     - AmbientBirds.show:
         skin: ryo-birds
@@ -713,6 +757,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Hama
     - AmbientBirds.show:
         skin: hama-birds
@@ -765,6 +815,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Kame
     - Reeds1.show:
         skin: kame-reeds-01
@@ -834,6 +890,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: IdoBata
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -865,6 +927,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Yugure
     - Reeds1.show:
         skin: yugure-reeds-01
@@ -970,6 +1038,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: IdoMizu
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -1000,6 +1074,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: MamaWell
     - Reeds1.show:
         skin: mama-well-reeds-01
@@ -1092,6 +1172,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: Hama
       - AmbientBirds.show:
           skin: hama-birds
@@ -1182,6 +1268,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Haru
     - Reeds1.show:
         skin: haru-reeds-01
@@ -1275,6 +1367,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: MamaWell
     - Reeds1.show:
         skin: mama-well-reeds-01
@@ -1343,6 +1441,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -1448,6 +1552,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: InletSunset
       - Reeds1.show:
           skin: inlet-sunset-reeds-01
@@ -1587,6 +1697,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -1696,6 +1812,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Natsu
     - Reeds1.show:
         skin: natsu-reeds-01
@@ -1782,6 +1904,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -1896,6 +2024,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Kokuga
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -1932,6 +2066,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: MamaWell
     - Reeds1.show:
         skin: mama-well-reeds-01
@@ -1999,6 +2139,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -2101,6 +2247,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Aki
     - Reeds1.show:
         skin: aki-reeds-01
@@ -2186,6 +2338,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Uma
     - Reeds1.show:
         skin: uma-reeds-01
@@ -2263,6 +2421,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: MamaWell
     - Reeds1.show:
         skin: mama-well-reeds-01
@@ -2330,6 +2494,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -2436,21 +2606,81 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
-      - stage: Kokuga
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
+      - stage: SakimoriDeparture
+      - Farewell.show:
+          skin: departure-01
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.setLayer: back
+      - Farewell.loop:
+          steps:
+            - skin: departure-01
+              seconds: 0.25
+            - skin: departure-02
+              seconds: 0.25
+            - skin: departure-03
+              seconds: 0.25
+            - skin: departure-04
+              seconds: 0.25
+            - skin: departure-05
+              seconds: 0.25
+            - skin: departure-06
+              seconds: 0.25
+            - skin: departure-07
+              seconds: 0.25
+            - skin: departure-08
+              seconds: 0.25
+            - skin: departure-09
+              seconds: 0.25
+            - skin: departure-10
+              seconds: 0.25
+            - skin: departure-11
+              seconds: 0.25
+            - skin: departure-12
+              seconds: 0.25
+            - skin: departure-13
+              seconds: 0.25
+            - skin: departure-14
+              seconds: 0.25
+            - skin: departure-15
+              seconds: 0.25
+            - skin: departure-16
+              seconds: 0.25
       - transition: {effect: fadeUp, seconds: 1}
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText:
           text: |-
-            東国からは、九州の守りにつく「防人」が出ました。
-            家族と何年も離れる、つらい務めです。
+            防人は、九州北部の海辺などを守る兵士です。
+            下総を含む東国からも、多くの男たちが送られました。
           style: narration
-      - wait: 4
+      - wait: 5
       - Narration.setText:
           text: |-
-            国府に集められた若者たちは、
-            翌朝、九州へ向かう旅に出ます。
+            務めは原則として三年でした。
+            故郷と任地を往復する旅の日数は、
+            この三年に含まれませんでした。
           style: narration
-      - wait: 3.5
+      - wait: 4.5
+      - Narration.setText:
+          text: |-
+            武器や、難波までの道中の食べ物は、
+            自分たちで用意しました。
+            働き手を失う家族にも、重い負担がかかりました。
+          style: narration
+      - wait: 5.5
+      - Narration.setText:
+          text: |-
+            『万葉集』の防人の歌には、
+            父母や妻子との別れを悲しむ思いが残されています。
+          style: narration
+      - wait: 4.5
       - Narration.hide: {}
       - transition: {effect: fadeOut, seconds: 1}
       - AmbientBirds.animate:
@@ -2472,6 +2702,12 @@ scenes:
           y: 0
           scale: 100
       - Storm.hide: {}
+      - Farewell.show:
+          skin: FarewellBlank
+          x: 0
+          y: 0
+          scale: 100
+      - Farewell.hide: {}
       - stage: MamaWell
       - Reeds1.show:
           skin: mama-well-reeds-01
@@ -2519,7 +2755,7 @@ scenes:
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText:
           text: |-
-            その前の夕、ひとりが真間の井へ
+            旅立ちを前に、青年は真間の井へ
             水を飲みに寄りました。
           style: narration
       - wait: 3
@@ -2583,6 +2819,8 @@ scenes:
   #         y: 0
   #         scale: 100
   #     - Storm.hide: {}
+  #     - Farewell.show: {skin: FarewellBlank, x: 0, y: 0, scale: 100}
+  #     - Farewell.hide: {}
   #     - stage: MamaWell
   #     - Reeds1.show:
   #         skin: mama-well-reeds-01
@@ -2680,6 +2918,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Arashi
     - Storm.show:
         skin: storm-01
@@ -2774,6 +3018,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: InletSunset
     - Reeds1.show:
         skin: inlet-sunset-reeds-01
@@ -2875,6 +3125,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Tsugihashi
     - Reeds1.show:
         skin: tsugihashi-reeds-01
@@ -3003,6 +3259,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: Kokubunji
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -3052,6 +3314,12 @@ scenes:
         y: 0
         scale: 100
     - Storm.hide: {}
+    - Farewell.show:
+        skin: FarewellBlank
+        x: 0
+        y: 0
+        scale: 100
+    - Farewell.hide: {}
     - stage: TitleCardWind
     - Reeds1.show:
         skin: title-card-reeds-01

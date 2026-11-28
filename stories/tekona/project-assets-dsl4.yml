@@ -190,6 +190,16 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
+  Farewell:
+    layerOrder: 21
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
 assets:
   TitleCard:
     kind: backdrop
@@ -2080,6 +2090,140 @@ assets:
     kind: costume
     target: Reeds1
     file: assets/ambient/yugure-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+
+  SakimoriDeparture:
+    kind: backdrop
+    file: assets/sakimori-departure.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+
+  FarewellBlank:
+    kind: costume
+    target: Farewell
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"
+  departure-01:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-02:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-03:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-04:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-05:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-06:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-07:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-08:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-09:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-10:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-11:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-12:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-13:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-14:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-15:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  departure-16:
+    kind: costume
+    target: Farewell
+    file: assets/ambient/departure-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+
+  AvantDusk:
+    kind: backdrop
+    file: assets/avant-dusk.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"

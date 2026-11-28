@@ -24,3 +24,7 @@ TurboWarp-Kamishibaiの公開Release（4.0.1）のruntime base（MPL-2.0）を�
 ライセンス全文はリポジトリルートの[`LICENSE`](../../LICENSE)を参照してください。
 
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+- `assets/sakimori-departure.svg`・`assets/ambient/departure-01.svg`〜`departure-16.svg`：既存の版4人物・住居表現を用いて新規に描いた家族の別れの背景（MPL-2.0）。生成元は `resources/tekona-workshop/art-versions/v4-detailed-acting/generator/sakimori-departure.cjs`。
+
+- `assets/avant-dusk.svg`：アバンタイトル用の夕暮れの入江（MPL-2.0）。生成元は `resources/tekona-workshop/art-versions/v4-detailed-acting/generator/avant-dusk.cjs`。

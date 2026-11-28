@@ -114,8 +114,8 @@ function femaleFace(o) {
     const sx = near ? 1 : .74, sy = (near ? 1 : .9) * (narrow ? .62 : 1);
     const lid = tekona ? 1 : child ? 1.7 : 1.9;
     let e = `<g transform="translate(${x} 0) scale(${sx} ${sy})">`;
-    const closed = mood === 'gentle' || mood === 'laugh';
-    if (closed) e += `<path d="M-5.4 1 q5.4 -5 10.8 0" stroke="${eye}" stroke-width="${r1((tekona ? 1.05 : 2.4) / sx)}" fill="none" stroke-linecap="round"/>`;
+    const closed = mood === 'gentle' || mood === 'laugh' || mood === 'cry';
+    if (closed) e += `<path d="M-5.4 1 q5.4 ${mood === 'cry' ? 3.4 : -5} 10.8 0" stroke="${eye}" stroke-width="${r1((tekona ? 1.05 : 2.4) / sx)}" fill="none" stroke-linecap="round"/>`;
     else e += `<path d="M-5.4 0 Q0 -6 5.4 -1 Q0 4 -5.4 0 Z" fill="#fbf6ee"/><ellipse cx="1" cy="-.5" rx="${tekona ? 2.8 : 3.2}" ry="${tekona ? 3.5 : 3.8}" fill="${eye}"/><circle cx="0" cy="-2" r="${tekona ? 1 : 1.2}" fill="#fff"/>` +
       `<path d="M-6 .2 Q0 -6.2 5.8 -1.2" stroke="${eye}" stroke-width="${r1(lid / sx)}" fill="none" stroke-linecap="round"/>`;
     e += '</g>';
@@ -130,9 +130,9 @@ function femaleFace(o) {
     s += `<path d="M-10 -10.6 Q-4.4 -13.9 1.5 -11.1 Q-4.5 -12.4 -10 -10.6 Z M8.2 -11.2 Q12.1 -13.3 16.1 -10.8 Q12.2 -12.1 8.2 -11.2 Z" fill="${brow}"/>`;
     s += `<path d="M2.4 14.2 Q5.5 ${mood === 'resolve' ? 14.7 : 15.4} 8.2 13.9" stroke="#96584a" stroke-width=".95" fill="none" stroke-linecap="round"/>`;
   } else {
-    const b = mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -11'];
+    const b = mood === 'cry' ? ['M-10 -9 Q-4 -14 1 -14', 'M8.5 -14 Q13 -14 17 -9'] : mood === 'gentle' ? ['M-9 -10 Q-4 -13 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -10'] : ['M-9 -11 Q-4 -13.5 1 -11', 'M8.5 -11 Q12 -12.5 15.5 -11'];
     s += b.map(d => `<path d="${d}" stroke="${brow}" stroke-width="${child ? 1.6 : narrow ? 2 : 1.8}" fill="none" stroke-linecap="round"/>`).join('');
-    const mouth = {smile: '<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+    const mouth = {cry: '<path d="M0 17 Q2 12 5 15 Q8 12 11 17 Q6 20 0 17 Z" fill="#8a3a32"/>', smile: '<path d="M1 14 Q5 17 9 13" stroke="#a0453a" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
       gentle: '<path d="M2 14 Q5 16 8 14" stroke="#a0453a" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
       resolve: '<path d="M2 14.5 L8 14" stroke="#a0453a" stroke-width="1.8" stroke-linecap="round"/>',
       laugh: '<path d="M0 12.6 Q5 12 10 12 Q9 19 5 19 Q1 18.6 0 12.6 Z" fill="#8a3a32"/><path d="M.6 12.8 L9.6 12.2 L9.2 14 L1 14.4 Z" fill="#fff"/>',
@@ -144,6 +144,7 @@ function femaleFace(o) {
     if (o.old) s += `<path d="M-11 -1 l-3 -2 M-11 1.4 l-3.2 .6 M16 -1 l2.4 -1.6 M-8 -17 Q0 -19 8 -17 M-6 -14 Q1 -15.6 7 -14" stroke="${skinDark}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
     if (o.dirty) s += '<path d="M-12.4 7.4 q4.6 -2 6.7 1.3 q-2.3 3.5 -6.4 1.5 Z" fill="#806344" opacity=".23"/><ellipse cx="13.8" cy="11.3" rx="2.1" ry="1.2" fill="#806344" opacity=".2"/>';
   }
+  if (mood === 'cry') s += '<path d="M-5 3 Q-7 9 -5 15 M13 3 Q15 9 13 15" stroke="#bdd9e2" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M-4 16 q-2 3 0 4 q2 -1 0 -4 M13 16 q-2 3 0 4 q2 -1 0 -4" fill="#bdd9e2"/>';
   return s;
 }
 function face(o) {
