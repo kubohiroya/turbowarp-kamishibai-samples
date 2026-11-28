@@ -88,8 +88,10 @@ for (const story of ['urashima', 'tutorial']) {
     const appRoot =
       process.env.TURBOWARP_KAMISHIBAI_APP_ROOT ??
       path.resolve(import.meta.dirname, '../../turbowarp-kamishibai-app');
+    // Since App 4.0.35 the official migration gives editable block sources the authoring runtime,
+    // the profile that registers the Editor's scene, action and asset previews.
     const official = await readFile(
-      path.join(appRoot, 'dist/builder/generated/dsl4-narrative-playback-runtime-extension.js'),
+      path.join(appRoot, 'dist/builder/generated/dsl4-narrative-authoring-runtime-extension.js'),
       'utf8',
     );
     // By digest: these are about 3.2 million characters each, and a diff of two of them fills the

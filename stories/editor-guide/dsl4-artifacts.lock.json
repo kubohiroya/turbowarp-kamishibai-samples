@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "runtime": {
     "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.33",
-    "commit": "e5105c3c3fa3f3e4a6ecbe95478a9756b2d9c054",
-    "basePath": "app-base/kamishibai-4.0.33.sb3",
-    "baseSourceIdentity": "sha256:8f285ed0a8664d40ba23a3ecd307a7c0c7c794721d989ee90477d5b3818494eb",
-    "baseSize": 1557122,
-    "baseSha256": "93aee15b9064d89408ac14d0bd56cb4872d10f4c01fe34250b0afb3dbb1a06fa"
+    "version": "4.0.36",
+    "commit": "a4e4f9075f2349316970ef63ffba89ae5f19b529",
+    "basePath": "app-base/kamishibai-4.0.36.sb3",
+    "baseSourceIdentity": "sha256:8fc4c84ebac78dec694aa7045a63319a29e9fa18d6e6b0aaf539bf2607b2788a",
+    "baseSize": 1557524,
+    "baseSha256": "b62585bce3c75051f6e6786b14aeb009d5758d42ba1d06847d7d57098d94255a"
   },
   "builder": {
     "package": "@kubohiroya/turbowarp-kamishibai-app",
-    "version": "4.0.33",
-    "commit": "e5105c3c3fa3f3e4a6ecbe95478a9756b2d9c054"
+    "version": "4.0.36",
+    "commit": "a4e4f9075f2349316970ef63ffba89ae5f19b529"
   },
   "sources": [
     {
@@ -44,13 +44,13 @@
   "outputs": {
     "lesson-01": {
       "path": "editor-guide-01-4.0.sb3",
-      "size": 1383931,
-      "sha256": "f6d9f27952006fc68cb2f35598ff16c34edaa651a51ef08dbb7bd20d20000d84"
+      "size": 1384131,
+      "sha256": "064c8aa1725bfa2bba3bd2cfdea70f00d601b680e8269530bdb801668fc0fb3c"
     },
     "lesson-02": {
       "path": "editor-guide-02-4.0.sb3",
-      "size": 1383551,
-      "sha256": "51cda850d9fd1d8de1d40615477c40264fa6351ac3adf1c374b11748923106eb"
+      "size": 1383765,
+      "sha256": "49b862eb5b0e9c004fe36bc51d54c9938096274ef7311cf14f6a6fbea68ba04a"
     }
   }
 }

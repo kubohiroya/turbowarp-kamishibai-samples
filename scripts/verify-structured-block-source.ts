@@ -130,6 +130,8 @@ export function verifyStructuredBlockSource(
     [`${runtimePrefix}pose`, 'STEPS'],
     [`${runtimePrefix}say`, 'SPEC'],
     [`${runtimePrefix}think`, 'SPEC'],
+    // App 4.0.36 edits the animate block's SPEC with the same JSON form as say/think.
+    [`${runtimePrefix}animate`, 'SPEC'],
     [`${authoringPrefix}scene`, 'PROPERTIES'],
   ]);
   if (narrativeEnabled) {
@@ -142,7 +144,7 @@ export function verifyStructuredBlockSource(
       ...definitionOpcodes.map((opcode) => authoringPrefix + opcode),
       ...expectedArguments.keys(),
     ].sort(),
-    'The embedded authoring extension must register all eight definition forms and the scene/pose/say/think forms.',
+    'The embedded authoring extension must register all eight definition forms and the scene/pose/say/think/animate forms.',
   );
   assert(
     editors.every(
@@ -151,7 +153,7 @@ export function verifyStructuredBlockSource(
           (opcode) => editor.argument === (expectedArguments.get(opcode) ?? 'VALUE'),
         ) && typeof editor.schema === 'object',
     ),
-    'Definition forms must edit VALUE, scene must edit PROPERTIES, pose must edit STEPS, and say/think must edit SPEC',
+    'Definition forms must edit VALUE, scene must edit PROPERTIES, pose must edit STEPS, say/think must edit SPEC, and animate must edit SPEC',
   );
 
   const info = extensionInfo.find((entry) =>

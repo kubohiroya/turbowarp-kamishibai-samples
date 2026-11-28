@@ -56,7 +56,7 @@ test('rejects a unified runtime whose embedded pose editor targets the wrong arg
   assert.throws(() => verifyStructuredBlockSource(candidate, sourceText), /pose must edit STEPS/);
 });
 
-test('tutorial embeds the eight definition forms and scene/pose/say/think forms', async () => {
+test('tutorial embeds the eight definition forms and scene/pose/say/think/animate forms', async () => {
   const bytes = unzipSync(new Uint8Array(await readFile(
     path.join(projectRoot, 'stories/tutorial/tutorial-blocks-4.0.sb3'),
   )));
