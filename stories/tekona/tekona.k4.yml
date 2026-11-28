@@ -106,10 +106,8 @@ assets:
   TextPlaceholder: costume:Narration
   TitleHeadingPlaceholder: costume:TitleHeading
   # 音
-  Medieval1: sound
   Goal Cheer: sound
   Crowd Gasp: sound
-  Xylo2: sound
   # 用意済みの求婚者のポーズ認識モデル（クラス stand・kime・rejected）。運営側で事前に撮影・学習した共有リンクに置き換えます。
   SatoPose:
     kind: recognitionModel
@@ -257,7 +255,6 @@ scenes:
     - TitleHeading.hide: {}
     - transition: {effect: fadeOut, seconds: 1}
     - stage: Yoake
-    - bgm: Medieval1
     - transition: {effect: fadeUp, seconds: 1.5}
     - wait: 1
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
@@ -1008,7 +1005,6 @@ scenes:
   tsugihashi:
     - transition: {effect: fadeOut, seconds: 1}
     - stage: Tsugihashi
-    - bgm: Xylo2
     - Tekona.show: {skin: tekona-resolve, x: -150, y: -75, scale: 60}
     - transition: {effect: fadeUp, seconds: 1}
     - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}

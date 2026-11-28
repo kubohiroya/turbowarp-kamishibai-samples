@@ -17,13 +17,13 @@
   "sources": [
     {
       "path": "tekona.k4.yml",
-      "size": 47711,
-      "sha256": "762e8a04adde8b3a620f105ddc81cbfd0c1c5f49c2d44ceaa49832e430c557db"
+      "size": 47639,
+      "sha256": "667d8b5c9087b1cd75347ea83047b02658fa2881fda9078ea21a9feb8026d218"
     },
     {
       "path": "project-assets-dsl4.yml",
-      "size": 16737,
-      "sha256": "e36871c4e541655996cfbda41b39315629dac787a88e2de7c72ddf44aa534c19"
+      "size": 16372,
+      "sha256": "03498340af5099cf3217b20f348bf6733acb672563750e124a315fe484dd8b6d"
     },
     {
       "path": "resources/tekona-workshop/assistant/compose-participants.js",
@@ -49,23 +49,23 @@
   "outputs": {
     "workshop": {
       "path": "tekona-workshop-4.0.sb3",
-      "size": 2157179,
-      "sha256": "5e78e448dcfcaf1155e512b1940b8ab334a49bbc01a35101c8aafc2014fdc75c"
+      "size": 1825572,
+      "sha256": "409dfac9e3db32c0d7f02f51d02c91ec85621694e768f9de7ddea9108cc77acd"
     },
     "yaml": {
       "path": "tekona-4.0.sb3",
-      "size": 2009579,
-      "sha256": "2c29a07c204c0f779927978e6bacaafa2542b2d6dc82f96f8ce17f57354275f7"
+      "size": 1677806,
+      "sha256": "6cf41418d28b0eb19bc768a2c55c0e9fd0ff351de1407a3981b8ea65741ecb2e"
     },
     "blocks": {
       "path": "tekona-blocks-4.0.sb3",
-      "size": 2023925,
-      "sha256": "289efdbe889baf4b2faf1aab76d77efdbf8bf3d6901668c4be74bd5ff4963e1e"
+      "size": 1692091,
+      "sha256": "8073a9f1019a7ab7ae248b57205792f46ae63074ef2eb64a06b9090e56fcae15"
     },
     "blockWorkshop": {
       "path": "tekona-workshop-blocks-4.0.sb3",
-      "size": 2060364,
-      "sha256": "111b1406439364a3528e5b346d15cb37f4aaa89caad0229665aa0b7253ffde8c"
+      "size": 1728617,
+      "sha256": "1b5acf096999ceb03c9b0c0c57c2e41638fe2939f44c2bb28b5b6fd535110c39"
     }
   },
   "web": {
@@ -74,14 +74,14 @@
     "input": {
       "profile": "dsl4-offline",
       "path": "tekona-4.0.sb3",
-      "size": 2009579,
-      "sha256": "2c29a07c204c0f779927978e6bacaafa2542b2d6dc82f96f8ce17f57354275f7"
+      "size": 1677806,
+      "sha256": "6cf41418d28b0eb19bc768a2c55c0e9fd0ff351de1407a3981b8ea65741ecb2e"
     },
     "output": {
       "path": "web-4.0/index.html",
       "contentType": "text/html",
-      "size": 8577743,
-      "sha256": "9c749892a23376784c0c48c9f2ed8b67ec5cb90cd9fa3531f6f4c4c73158268d"
+      "size": 8162778,
+      "sha256": "ad2a9de349cdc57a40154aab39c1bc59ed314757b6a6cf08fd1fe8ffd2d0ab0c"
     },
     "packager": {
       "package": "@turbowarp/packager",

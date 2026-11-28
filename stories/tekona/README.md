@@ -69,7 +69,7 @@ SB3生成時に浦島太郎と同じ`include`方式へ分割し、共通宣言�
 
 台本は背景・コスチューム・音を短形式（`costume:Suitor`、`sound`など）でSB3内の素材として参照します。
 参加者の絵は、作業用SB3にある席のスプライト`SuitorNN`の仮のコスチューム`stand`・`kime`・`rejected`と差し替えます。
-音は浦島太郎サンプルの音素材（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を共用し、SB3の生成時に`stories/urashima/assets`を許可します。
+BGMは使用しません。ポーズ判定の効果音（Goal Cheer、Crowd Gasp）は浦島太郎サンプルの素材を共用し、SB3の生成時に`stories/urashima/assets`を許可します。
 
 ## 求婚者の決まり
 

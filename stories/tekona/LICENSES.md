@@ -10,7 +10,7 @@ Copyright © 2026 Hiroya Kubo.
 - `../../resources/tekona-workshop/art-versions/`に保存した、仮素材の過去の版のSVG・一覧画像・生成スクリプト
 - 本ディレクトリの説明
 
-音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある4ファイル（Medieval1、Goal Cheer、Crowd Gasp、Xylo2）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。
+効果音は、浦島太郎サンプルの`../urashima/assets/sounds/`にある2ファイル（Goal Cheer、Crowd Gasp）を参照します。これらは[`../urashima/LICENSES.md`](../urashima/LICENSES.md)のとおりMPL-2.0です。このディレクトリには複製していません。BGMは使用しません。
 
 `tekona-workshop-4.0.sb3`、`tekona-4.0.sb3`、`tekona-blocks-4.0.sb3`は、上記の素材に、rootの`app-release.json`が固定する
 TurboWarp-Kamishibaiの公開Release（4.0.1）のruntime base（MPL-2.0）を組み合わせた結合物です。
