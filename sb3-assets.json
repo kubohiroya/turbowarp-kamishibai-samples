@@ -87,9 +87,9 @@
     },
     {
       "path": "stories/tekona/tekona-4.0.sb3",
-      "size": 2051187,
-      "sha256": "5a137da7349bf8932b6450f0ae00296d6529d7650f57843c70f88223cc12836c",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261126-e03ae7b7/tekona-4.0.sb3",
+      "size": 2050997,
+      "sha256": "9c9f9d55f2d7a0e489c246232caef19a233c5babe4fc0cae89e647f50c0cb18d",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-73685ee8/tekona-4.0.sb3",
       "runtime": {
         "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
         "version": "4.0.21",
@@ -98,9 +98,9 @@
     },
     {
       "path": "stories/tekona/tekona-blocks-4.0.sb3",
-      "size": 2092403,
-      "sha256": "aa6f9c70e5c7bb6e79b9215fb84c9a80eb2c1640c93d57682ad6f9b990226780",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261126-e03ae7b7/tekona-blocks-4.0.sb3",
+      "size": 2092189,
+      "sha256": "481e213f186deaf71ade55abfbf044ba5056563c7f51c8ef385cee7df5972587",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-73685ee8/tekona-blocks-4.0.sb3",
       "runtime": {
         "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
         "version": "4.0.21",
@@ -109,9 +109,9 @@
     },
     {
       "path": "stories/tekona/tekona-workshop-4.0.sb3",
-      "size": 2191739,
-      "sha256": "160bec3b768ab9d0be5db3822da03b5df98a2d5e33be024d00e2d63ab6d5888d",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261126-e03ae7b7/tekona-workshop-4.0.sb3",
+      "size": 2191552,
+      "sha256": "5205e0be392bc37f584426bb365279ee001eca0fbc5430ac47c2c26369f9c013",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-73685ee8/tekona-workshop-4.0.sb3",
       "runtime": {
         "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
         "version": "4.0.21",
@@ -120,9 +120,9 @@
     },
     {
       "path": "stories/tekona/tekona-workshop-blocks-4.0.sb3",
-      "size": 2128730,
-      "sha256": "ac8d50ba4b1171a2639f3837c0ef7c3aafec3ebf69870b5c20e12c43f12a2a28",
-      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261126-e03ae7b7/tekona-workshop-blocks-4.0.sb3",
+      "size": 2128515,
+      "sha256": "02a7039d44f7524f2b9bec09abb366bc39248118ed2ba2d83722632be86709e0",
+      "url": "https://github.com/kubohiroya/turbowarp-kamishibai-samples/releases/download/sb3-20261128-73685ee8/tekona-workshop-blocks-4.0.sb3",
       "runtime": {
         "repository": "https://github.com/kubohiroya/turbowarp-kamishibai-app",
         "version": "4.0.21",

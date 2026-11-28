@@ -296,7 +296,7 @@ function satoFigure(k, mood, extra = '', o = {}) {
 }
 
 // ---------------- 官人（国府の役人・都の貴族） ----------------
-function officialFigure(k, o, mood) {
+function officialFigure(k, o, mood, {seated = false} = {}) {
   const f = -1;
   let s = '';
   // 大刀（腰の後ろ側）
@@ -305,14 +305,16 @@ function officialFigure(k, o, mood) {
     s += seg(a, b, 6, '#3a2a1e') + seg(add(a, [-5, -10]), a, 6, '#d8b24a') + `<circle cx="${r1(lerp(a, b, .3)[0])}" cy="${r1(lerp(a, b, .3)[1])}" r="3.4" fill="#d8b24a"/><circle cx="${r1(lerp(a, b, .7)[0])}" cy="${r1(lerp(a, b, .7)[1])}" r="3.4" fill="#d8b24a"/>`;
   }
   // すね（白い袴）と黒い履
-  for (const [leg, lift] of [[k.legR, k.liftR || 0], [k.legL, k.liftL || 0]]) {
+  for (const [leg, lift] of seated ? [] : [[k.legR, k.liftR || 0], [k.legL, k.liftL || 0]]) {
     s += limb(lerp(leg.mid, leg.end, .1), leg.end, 17, 15, '#efe8d8');
     s += foot(leg.end, f, '#22201f', {lift, size: 1.1});
   }
   // 袍：肩から、両ひざの下（すね）までの長い衣。歩幅に合わせて裾が開く
   const hemL = lerp(k.legL.mid, k.legL.end, .42), hemR = lerp(k.legR.mid, k.legR.end, .42);
   const hemY = Math.max(hemL[1], hemR[1]);
-  const hl = [Math.min(hemL[0], k.hl[0] - 6) - 14, hemY + 2], hr = [Math.max(hemR[0], k.hr[0] + 6) + 14, hemY];
+  // A seated rider has a separate bent lap and shin; end the torso at the hips without clipping.
+  const hl = seated ? add(k.hl, [-12, 2]) : [Math.min(hemL[0], k.hl[0] - 6) - 14, hemY + 2];
+  const hr = seated ? add(k.hr, [12, 0]) : [Math.max(hemR[0], k.hr[0] + 6) + 14, hemY];
   const neckBase = lerp(k.sl, k.sr, .5);
   s += `<path d="M${P(add(k.sl, [-8, -8]))} Q${P(add(neckBase, [0, -11]))} ${P(add(k.sr, [8, -8]))} L${P(add(k.hr, [12, 0]))} L${P(hr)} Q${P(lerp(hl, hr, .5))} ${P(hl)} L${P(add(k.hl, [-12, 0]))} Z" fill="${o.robe}"/>`;
   s += `<path d="M${P(lerp(k.sr, k.hr, .08))} L${P(add(k.sr, [6, -2]))} L${P(add(k.hr, [12, 0]))} L${P(hr)} L${P(lerp(hl, hr, .7))} Z" fill="${o.robeDark}" opacity=".45"/>`;

@@ -135,9 +135,9 @@ function uma() {
   const rider = skeleton(MALE, {pelvis: [122, 250], chest: [118, 164], ankleL: [80, 380], ankleR: [80, 380], kneeL: 1, kneeR: 1,
     wristL: [40, 230], wristR: [80, 236], elbowL: -1, elbowR: -1, handL: 'grip', handR: 'grip', hideArmL: true, headDx: -2, headTilt: 4});
   const hip = [122, 250], knee = [65, 307], ankle = [80, 382];
-  defs.push(`<clipPath id="riderTop" clipPathUnits="userSpaceOnUse"><rect x="0" y="0" width="300" height="252"/></clipPath>`);
   let rd = `<path d="M140 238 L206 268" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/><path d="M134 234 L142 240" stroke="#d8b24a" stroke-width="6"/><circle cx="160" cy="247" r="3.4" fill="#d8b24a"/><circle cx="186" cy="259" r="3.4" fill="#d8b24a"/>`;
-  rd += `<g clip-path="url(#riderTop)">${officialFigure(rider, {...MIYAKO, sword: false}, 'stand')}</g>`;
+  // Scratch flattens group transforms without transforming clip paths. Draw the seated torso directly.
+  rd += officialFigure(rider, {...MIYAKO, sword: false}, 'stand', {seated: true});
   // 袖は袍と同じ色なので、濃い色のふちを入れて腕の形を見せる（ひじは体に沿わせる）
   for (const [sh, a, side] of [[rider.sr, rider.armR, -1]]) {
     const pts = `M${P(sh)} L${P(a.mid)} L${P(a.end)}`;

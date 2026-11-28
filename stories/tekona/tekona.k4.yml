@@ -743,7 +743,7 @@ scenes:
     actions:
       - transition: {effect: fadeOut, seconds: 1}
       - Tekona.hide: {}
-      - stage: Uma
+      - stage: Kokuga
       - transition: {effect: fadeUp, seconds: 1}
       - Narration.show: {skin: TextPlaceholder, x: 0, y: 140, scale: 100}
       - Narration.setText:
@@ -755,7 +755,7 @@ scenes:
       - Narration.setText:
           text: |-
             国府に集められた若者たちは、
-            翌朝この道を南へ下っていきます。
+            翌朝、九州へ向かう旅に出ます。
           style: narration
       - wait: 3.5
       - Narration.hide: {}
