@@ -23,7 +23,7 @@ const reeds = (x0, x1, base, color, seed, h, light) => {
   for (let x = x0; x < x1; x += 4 + r() * 6) { const hh = h * (.55 + r() * .6), lean = (r() - .5) * 22;
     s += `<path d="M${r1(x)} ${base} q${r1(lean / 3)} ${r1(-hh / 2)} ${r1(lean)} ${r1(-hh)}" stroke="${r() > .5 ? light : color}" stroke-width="${r1(1.6 + r() * 1.4)}" fill="none" stroke-linecap="round"/>`;
     if (r() > .6) s += `<path d="M${r1(x + lean)} ${r1(base - hh)} q2 8 0 16" stroke="${light}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".85"/>`; }
-  return s;
+  return `<g data-ambient="reeds" data-pivot-x="${(x0 + x1) / 2}" data-pivot-y="${base}">${s}</g>`;
 };
 
 // ---- 建設中の官衙の建物（遠景用）：丹塗りの柱、梁、むき出しの垂木、丸太の足場、小さな労務者

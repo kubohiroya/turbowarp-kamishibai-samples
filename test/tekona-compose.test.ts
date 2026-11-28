@@ -50,6 +50,16 @@ describe('tekona participant composition', () => {
     expect(actions.some((action: any) => action['Suitor01.pose'])).toBe(false);
     expect(story.scenes['suitor-02'].actions.filter((action: any) => action['Suitor02.pose'])).toHaveLength(2);
   });
+  it('uses thoughts for both pose hints and speech for the actual proposals, including participant slots', async () => {
+    const source = await readFile(sourcePath, 'utf8');
+    const story = parse(composeParticipants(source, [submission({})]));
+    for (const [scene, actor] of [['ryoshi','Ryoshi'], ['sato','Sato'], ['utabito','Utabito'], ['hataori','Hataori'], ['gunji','Gunji'], ['kokufu','Kokufu'], ['miyako','Miyako'], ['sakimori','Sakimori'], ['suitor-01','Suitor01']]) {
+      const actions = story.scenes[scene].actions;
+      expect(actions.filter((a: any) => a[actor+'.think'])).toHaveLength(2);
+      expect(actions.filter((a: any) => a[actor+'.say'])).toHaveLength(2);
+    }
+  });
+
   it('reads the handout submission format', () => {
     const parsed = parseSubmission(sampleSubmission);
     expect(parsed).toMatchObject({nn: '01', name: '入江の漁師', moved: true});

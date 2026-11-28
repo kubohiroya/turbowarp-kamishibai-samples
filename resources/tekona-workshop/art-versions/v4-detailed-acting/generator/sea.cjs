@@ -17,7 +17,7 @@ const grad = (stops, x2 = 0, y2 = 1) => {
 };
 const sky = () => `<rect width="480" height="360" fill="${grad([[0, '#b4dcf2'], [.6, '#d8eef8'], [1, '#f1f9fc']])}"/>` +
   `<path d="M60 50 q10 -10 24 -4 q12 -8 22 2 q10 0 8 8 h-56 q-6 -4 2 -6 z M330 34 q8 -8 18 -2 q10 -6 18 2 q8 0 6 6 h-46 q-4 -4 4 -6z" fill="#ffffff" opacity=".85"/>`;
-const gulls = pts => pts.map(([x, y, s]) => `<path d="M${x} ${y} q${4 * s} ${-4 * s} ${8 * s} 0 q${4 * s} ${-4 * s} ${8 * s} 0" stroke="#5a6a78" stroke-width="1.8" fill="none" stroke-linecap="round"/>`).join('');
+const gulls = pts => `<g data-ambient="birds">` + pts.map(([x, y, s]) => `<path d="M${x} ${y} q${4 * s} ${-4 * s} ${8 * s} 0 q${4 * s} ${-4 * s} ${8 * s} 0" stroke="#5a6a78" stroke-width="1.8" fill="none" stroke-linecap="round"/>`).join('') + '</g>';
 // 遠くの陸と松（凪いだ海の向こう）
 function farShore(x0, x1, y) {
   let s = `<path d="M${x0} ${y} Q${(x0 + x1) / 2} ${y - 8} ${x1} ${y} V${y + 4} H${x0} Z" fill="#b9cdb6"/>`;

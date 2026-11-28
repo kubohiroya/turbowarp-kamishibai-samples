@@ -160,6 +160,36 @@ sprites:
     draggable: false
     rotationStyle: all around
     volume: 100
+  AmbientBirds:
+    layerOrder: 16
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Reeds1:
+    layerOrder: 17
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
+  Storm:
+    layerOrder: 20
+    visible: false
+    x: 0
+    y: 0
+    size: 100
+    direction: 90
+    draggable: false
+    rotationStyle: all around
+    volume: 100
 assets:
   TitleCard:
     kind: backdrop
@@ -169,33 +199,33 @@ assets:
     license: "MPL-2.0: LICENSES.md"
   MamaWell:
     kind: backdrop
-    file: assets/mama-well.svg
+    file: assets/ambient/mama-well-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   InletSunset:
     kind: backdrop
-    file: assets/inlet-sunset.svg
+    file: assets/ambient/inlet-sunset-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   Tsugihashi:
     kind: backdrop
-    file: assets/tsugihashi.svg
+    file: assets/ambient/tsugihashi-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 凪いだ近海で、丸木舟から網を打つ男たち
   Ryo:
     kind: backdrop
-    file: assets/ryo.svg
+    file: assets/ambient/ryo-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 遠浅の浜で、貝や海藻をとってかごに集める女と子どもたち
   Hama:
     kind: backdrop
-    file: assets/hama.svg
+    file: assets/ambient/hama-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
@@ -216,14 +246,14 @@ assets:
   # 従者が引く馬に乗った都の貴族が、入江の低い板橋をわたる。中景に浜で働く女たち、遠景の丘に建設中の国府
   Uma:
     kind: backdrop
-    file: assets/uma.svg
+    file: assets/ambient/uma-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 自然の点景：水辺の石の上で甲羅干しをする親亀と子亀
   Kame:
     kind: backdrop
-    file: assets/kame.svg
+    file: assets/ambient/kame-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
@@ -245,7 +275,7 @@ assets:
   # 夜明けの入江：国府台の上から、朝もやの入江・砂州・里を見下ろす
   Yoake:
     kind: backdrop
-    file: assets/yoake.svg
+    file: assets/ambient/yoake-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
@@ -259,28 +289,28 @@ assets:
   # 夕げの煙：日暮れの里の伏屋
   Yugure:
     kind: backdrop
-    file: assets/yugure.svg
+    file: assets/ambient/yugure-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 春：水を張った田と苗、入江の若い葦
   Haru:
     kind: backdrop
-    file: assets/haru.svg
+    file: assets/ambient/haru-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 夏：入道雲と玉藻のなびく入江
   Natsu:
     kind: backdrop
-    file: assets/natsu.svg
+    file: assets/ambient/natsu-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
   # 秋：実った葛飾早稲の田と稲束、すすき
   Aki:
     kind: backdrop
-    file: assets/aki.svg
+    file: assets/ambient/aki-still.svg
     rotationCenterX: 240
     rotationCenterY: 180
     license: "MPL-2.0: LICENSES.md"
@@ -645,3 +675,1411 @@ assets:
     kind: sound
     file: ../urashima/assets/sounds/12e6c84f065d6a8b651e8fbb4b246e2a.mp3
     license: "MPL-2.0: ../urashima/LICENSES.md"
+
+  hama-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/hama-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/haru-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/inlet-sunset-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  ryo-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/ryo-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  TitleCardWind:
+    kind: backdrop
+    file: assets/ambient/title-card-still.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/yoake-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-birds:
+    kind: costume
+    target: AmbientBirds
+    file: assets/ambient/yugure-birds.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-01:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-02:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-03:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-04:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-05:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-06:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-07:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-08:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-09:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-10:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-11:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-12:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-13:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-14:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-15:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  storm-16:
+    kind: costume
+    target: Storm
+    file: assets/ambient/storm-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+
+  WindBlank:
+    kind: costume
+    target: Reeds1
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"
+  StormBlank:
+    kind: costume
+    target: Storm
+    file: assets/text-placeholder.svg
+    rotationCenterX: 1
+    rotationCenterY: 1
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  aki-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/aki-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  haru-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/haru-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  inlet-sunset-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/inlet-sunset-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  kame-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/kame-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  mama-well-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/mama-well-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  natsu-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/natsu-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  title-card-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/title-card-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  tsugihashi-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/tsugihashi-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  uma-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/uma-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yoake-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yoake-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-01:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-01.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-02:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-02.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-03:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-03.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-04:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-04.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-05:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-05.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-06:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-06.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-07:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-07.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-08:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-08.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-09:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-09.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-10:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-10.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-11:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-11.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-12:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-12.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-13:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-13.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-14:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-14.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-15:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-15.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
+  yugure-reeds-16:
+    kind: costume
+    target: Reeds1
+    file: assets/ambient/yugure-reeds-16.svg
+    rotationCenterX: 240
+    rotationCenterY: 180
+    license: "MPL-2.0: LICENSES.md"
